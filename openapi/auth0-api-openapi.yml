@@ -1,0 +1,2406 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication API
+  description: >
+    The Authentication API enables you to manage all aspects of user identity
+    when you use Auth0. It offers endpoints so your users can log in, sign up,
+    log out, access APIs, and more.
+
+    The API supports various identity protocols, like OpenID Connect, OAuth 2.0,
+    and SAML.
+  version: 1.0.0
+servers:
+  - url: '{auth0_domain}'
+    description: The Authentication API is served over HTTPS.
+    variables:
+      auth0_domain:
+        description: Auth0 domain
+        default: https://demo.us.auth0.com
+paths:
+  /authorize:
+    get:
+      operationId: authorize
+      tags:
+        - Authorize User
+      summary: >-
+        Authenticate a user with a social provider, Database/AD/LDAP (Passive),
+        SAML/Windows Azure AD (Passive), Authorization Code Flow, Authorization
+        Code Grant (PKCE) Flow, or Implicit Flow
+      description: >
+        Use this endpoint to authenticate a user. The following flows are
+        supported:
+          - Social Provider Authentication
+          - Database/AD/LDAP (Passive) Authentication
+          - SAML/Windows Azure AD (Passive) Authentication
+          - Authorization Code Flow
+          - Authorization Code Grant (PKCE) Flow
+          - Implicit Flow
+      parameters:
+        - name: audience
+          in: query
+          description: The unique identifier of the target API you want to access
+          schema:
+            type: string
+        - name: scope
+          in: query
+          description: >-
+            The scopes which you want to request authorization for. These must
+            be separated by a space. You can request any of the standard OpenID
+            Connect (OIDC) scopes about users, such as profile and email, custom
+            claims that must conform to a namespaced format, or any scopes
+            supported by the target API (for example, read:contacts). Include
+            offline_access to get a Refresh Token.
+          schema:
+            type: string
+        - name: response_type
+          in: query
+          description: >-
+            Indicates to Auth0 which OAuth 2.0 flow you want to perform. Use
+            code for Authorization Code Grant Flow, token for Implicit Flow, or
+            id_token token for both an ID Token and an Access Token.
+          required: true
+          schema:
+            type: string
+            enum:
+              - code
+              - token
+              - id_token token
+        - name: client_id
+          in: query
+          description: Your application's ID.
+          required: true
+          schema:
+            type: string
+        - name: redirect_uri
+          in: query
+          description: >-
+            The URL to which Auth0 will redirect the browser after authorization
+            has been granted by the user.
+          schema:
+            type: string
+            format: uri
+        - name: state
+          in: query
+          description: >-
+            An opaque value the applications adds to the initial request that
+            the authorization server includes when redirecting the back to the
+            application. This value must be used by the application to prevent
+            CSRF attacks.
+          schema:
+            type: string
+        - name: nonce
+          in: query
+          description: >-
+            A string value which will be included in the ID Token response from
+            Auth0, used to prevent token replay attacks. It is required for
+            response_type=id_token token.
+          schema:
+            type: string
+        - name: code_challenge_method
+          in: query
+          description: >-
+            Method used to generate the challenge. The PKCE spec defines two
+            methods, S256 and plain, however, Auth0 supports only S256 since the
+            latter is discouraged.
+          schema:
+            type: string
+            enum:
+              - S256
+        - name: code_challenge
+          in: query
+          description: Generated challenge from the code_verifier.
+          schema:
+            type: string
+        - name: connection
+          in: query
+          description: The name of the connection configured to your application.
+          schema:
+            type: string
+        - name: prompt
+          in: query
+          description: To initiate a silent authentication request, use prompt=none.
+          schema:
+            type: string
+        - name: organization
+          in: query
+          description: >-
+            ID of the organization to use when authenticating a user. When not
+            provided, if your application is configured to Display Organization
+            Prompt, the user will be able to enter the organization name when
+            authenticating.
+          schema:
+            type: string
+        - name: invitation
+          in: query
+          description: >-
+            Ticket ID of the organization invitation. When inviting a member to
+            an Organization, your application should handle invitation
+            acceptance by forwarding the invitation and organization key-value
+            pairs when the user accepts the invitation.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the social provider specified in connection
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /v2/logout:
+    get:
+      operationId: logout
+      tags:
+        - Logout
+      summary: Logout a user
+      description: >-
+        Use this endpoint to logout a user. If you want to navigate the user to
+        a specific URL after the logout, set that URL at the returnTo parameter.
+        The URL should be included in any the appropriate Allowed Logout URLs
+        list.
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          description: URL to redirect the user after the logout.
+          schema:
+            type: string
+        - name: client_id
+          in: query
+          required: false
+          description: The client_id of your application.
+          schema:
+            type: string
+        - name: federated
+          in: query
+          required: false
+          description: >-
+            Add this query string parameter to the logout URL, to log the user
+            out of their identity provider, as well.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: >-
+            Redirect to the returnTo URL or to the first Allowed Logout URLs set
+            in the Dashboard.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oidc/logout:
+    get:
+      operationId: oidc_logout
+      tags:
+        - Logout
+      summary: Logout a user
+      description: >-
+        Use this endpoint to logout a user. If you want to navigate the user to
+        a specific URL after the logout, set that URL at the
+        post_logout_redirect_uri parameter. The URL should be included in the
+        appropriate Allowed Logout URLs list.
+      parameters:
+        - name: id_token_hint
+          in: query
+          required: false
+          description: >-
+            Previously issued ID Token for the user. This is used to indicate
+            which user to log out.
+          schema:
+            type: string
+        - name: logout_hint
+          in: query
+          required: false
+          description: >-
+            Optional sid (session ID) value to indicate which user to log out.
+            Should be provided when id_token_hint is not available.
+          schema:
+            type: string
+        - name: post_logout_redirect_uri
+          in: query
+          required: false
+          description: URL to redirect the user after the logout.
+          schema:
+            type: string
+        - name: client_id
+          in: query
+          required: false
+          description: The client_id of your application.
+          schema:
+            type: string
+        - name: federated
+          in: query
+          required: false
+          description: >-
+            Add this query string parameter to log the user out of their
+            identity provider.
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          description: >-
+            An opaque value the applications adds to the initial request that
+            the authorization server includes when redirecting the back to the
+            post_logout_redirect_uri.
+          schema:
+            type: string
+        - name: ui_locales
+          in: query
+          required: false
+          description: >-
+            Space-delimited list of locales used to constrain the language list
+            for the request. The first locale on the list must match the enabled
+            locale in your tenant.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: >-
+            Redirect to the post_logout_redirect_uri URL or to the first Allowed
+            Logout URLs set in the Dashboard.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /samlp/{CLIENT_ID}/logout:
+    post:
+      operationId: saml_logout
+      tags:
+        - Logout
+      summary: Logout a user
+      description: >-
+        Use this endpoint to log out a user from an Auth0 tenant configured as a
+        SAML identity provider (IdP). Logout behavior is determined by the
+        configuration of the SAML2 Web App addon for the application on the
+        Auth0 tenant acting as the SAML IdP.
+      parameters:
+        - name: CLIENT_ID
+          in: path
+          required: true
+          description: >-
+            Client ID of your application configured with the SAML2 Web App
+            addon.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+              description: SAML LogoutRequest message.
+      responses:
+        '200':
+          description: Logout successful.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /passwordless/start:
+    post:
+      operationId: passwordless_start
+      tags:
+        - Passwordless
+      summary: Start Passwordless flow
+      description: >-
+        You have three options for passwordless authentication: Send a
+        verification code using email, Send a link using email, Send a
+        verification code using SMS.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: The client_id of your application.
+                client_assertion:
+                  type: string
+                  description: >-
+                    A JWT containing containing a signed assertion with your
+                    applications credentials. Required when Private Key JWT is
+                    your application authentication method.
+                client_assertion_type:
+                  type: string
+                  description: >-
+                    Use the value
+                    urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+                    Required when Private Key JWT is the application
+                    authentication method.
+                client_secret:
+                  type: string
+                  description: >-
+                    The client_secret of your application. Required when the
+                    Token Endpoint Authentication Method field at your
+                    Application Settings is Post or Basic. Specifically required
+                    for Regular Web Applications only.
+                connection:
+                  type: string
+                  description: >-
+                    How to send the code/link to the user. Use email to send the
+                    code/link using email, or sms to use SMS.
+                email:
+                  type: string
+                  description: Set this to the user's email address, when connection=email.
+                phone_number:
+                  type: string
+                  description: Set this to the user's phone number, when connection=sms.
+                send:
+                  type: string
+                  description: >-
+                    Use link to send a link or code to send a verification code.
+                    If null, a link will be sent.
+                authParams:
+                  type: object
+                  description: >-
+                    Use this to append or override the link parameters (like
+                    scope, redirect_uri, protocol, response_type), when you send
+                    a link using email.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /passwordless/verify:
+    post:
+      operationId: passwordless_verify
+      deprecated: true
+      tags:
+        - Deprecated > Passwordless
+      summary: Verify with verification code
+      description: >-
+        Once you have a verification code, use this endpoint to login the user
+        with their phone number/email and verification code. This is active
+        authentication, so the user must enter the code in your app.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: The client_id of your application.
+                connection:
+                  type: string
+                  description: >-
+                    Use sms or email (should be the same as POST
+                    /passwordless/start)
+                grant_type:
+                  type: string
+                  description: Use password
+                username:
+                  type: string
+                  description: >-
+                    The user's phone number if connection=sms, or the user's
+                    email if connection=email.
+                password:
+                  type: string
+                  description: The user's verification code.
+                scope:
+                  type: string
+                  description: >-
+                    Use openid to get an ID Token, or openid profile email to
+                    include also user profile information in the ID Token.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oauth/token:
+    post:
+      operationId: oauth_token
+      tags:
+        - OAuth Token
+      summary: >-
+        Authenticates a user using a verification code, verifies multi-factor
+        authentication (MFA) using a one-time password (OTP), out-of-band (OOB)
+        challenge, or a recovery code, or exchanges an Authorization Code for a
+        Token
+      description: >
+        This endpoint supports multiple methods. Depending on the method,
+        different parameters are required in the request body. The supported
+        methods are:
+          - Authenticate User with verification code
+          - OTP
+          - OOB
+          - Recovery Code
+          - Authorization Code
+          - Authorization Code PKCE
+          - Client Credentials
+          - Resource Owner Password
+          - Device Authorization
+          - Refresh Token
+          - Native Social Token Exchange
+      parameters:
+        - in: header
+          name: auth0-forwarded-for
+          schema:
+            type: string
+          description: >-
+            End-user IP as a string value. Set this if you want brute-force
+            protection to work in server-side scenarios. For more information on
+            how and when to use this header, refer to Using resource owner
+            password from server-side.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/OTP'
+                - $ref: '#/components/schemas/OOB'
+                - $ref: '#/components/schemas/RecoveryCode'
+                - $ref: '#/components/schemas/AuthorizationCode'
+                - $ref: '#/components/schemas/AuthorizationCodePKCE'
+                - $ref: '#/components/schemas/ClientCredentials'
+                - $ref: '#/components/schemas/ResourceOwnerPassword'
+                - $ref: '#/components/schemas/DeviceAuthorization'
+                - $ref: '#/components/schemas/RefreshToken'
+                - $ref: '#/components/schemas/NativeSocialTokenExchange'
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/AuthenticateUserWithVerificationCode'
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  id_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
+                  recovery_code:
+                    type: string
+                  error:
+                    type: string
+                  error_description:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User has yet to authorize device code or transaction failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  error_description:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          description: You are polling faster than the specified interval of 5 seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  error_description:
+                    type: string
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /dbconnections/signup:
+    post:
+      operationId: dbconnections_signup
+      tags:
+        - DbConnections
+      summary: Signup with user's credentials
+      description: >-
+        Given a user's credentials, and a connection, this endpoint will create
+        a new user using active authentication. This endpoint only works for
+        database connections.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: The client_id of your client.
+                email:
+                  type: string
+                  description: The user's email address.
+                password:
+                  type: string
+                  description: The user's desired password.
+                connection:
+                  type: string
+                  description: The name of the database configured to your client.
+                username:
+                  type: string
+                  description: >-
+                    The user's username. Only valid if the connection requires a
+                    username.
+                given_name:
+                  type: string
+                  description: The user's given name(s).
+                family_name:
+                  type: string
+                  description: The user's family name(s).
+                name:
+                  type: string
+                  description: The user's full name.
+                nickname:
+                  type: string
+                  description: The user's nickname.
+                picture:
+                  type: string
+                  description: A URI pointing to the user's picture.
+                user_metadata:
+                  type: object
+                  description: >-
+                    The user metadata to be associated with the user. If set,
+                    the field must be an object containing no more than ten
+                    properties. Property names can have a maximum of 100
+                    characters, and property values must be strings of no more
+                    than 500 characters.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /dbconnections/change_password:
+    post:
+      operationId: dbconnections_change_password
+      tags:
+        - DB Connections
+      summary: Send a change password email
+      description: >
+        Send a change password email to the user's provided email address and
+        connection. Optionally, you may provide an Organization ID to support
+        Organization-specific variables in customized email templates and to
+        include the organization_id and organization_name parameters in the
+        Redirect To URL. Note: This endpoint only works for database
+        connections.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: >-
+                    The client_id of your client. We strongly recommend
+                    including a Client ID so that the email template knows from
+                    which client the request was triggered.
+                email:
+                  type: string
+                  description: The user's email address.
+                connection:
+                  type: string
+                  description: >-
+                    The name of the database connection configured to your
+                    client.
+                organization:
+                  type: string
+                  description: >-
+                    The organization_id of the Organization associated with the
+                    user.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+                example: We've just sent you an email to reset your password.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /userinfo:
+    get:
+      operationId: userinfo
+      tags:
+        - User Profile
+      summary: Returns a user's profile
+      description: >-
+        Given the Auth0 Access Token obtained during login, this endpoint
+        returns a user's profile. This endpoint will work only if openid was
+        granted as a scope for the Access Token. The user profile information
+        included in the response depends on the scopes requested. For example, a
+        scope of just openid may return less information than a a scope of
+        openid profile email.
+      parameters:
+        - name: access_token
+          in: header
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+          description: The Auth0 Access Token obtained during login.
+          example: Bearer YOUR_TOKEN_HERE
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sub:
+                    type: string
+                  name:
+                    type: string
+                  given_name:
+                    type: string
+                  family_name:
+                    type: string
+                  middle_name:
+                    type: string
+                  nickname:
+                    type: string
+                  preferred_username:
+                    type: string
+                  profile:
+                    type: string
+                  picture:
+                    type: string
+                  website:
+                    type: string
+                  email:
+                    type: string
+                  email_verified:
+                    type: boolean
+                  gender:
+                    type: string
+                  birthdate:
+                    type: string
+                  zoneinfo:
+                    type: string
+                  locale:
+                    type: string
+                  phone_number:
+                    type: string
+                  phone_number_verified:
+                    type: boolean
+                  address:
+                    type: object
+                    properties:
+                      country:
+                        type: string
+                  updated_at:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/challenge:
+    post:
+      operationId: mfa_challenge
+      tags:
+        - MFA
+      summary: Request a challenge for multi-factor authentication
+      description: >-
+        Request a challenge for multi-factor authentication (MFA) based on the
+        challenge types supported by the application and user. The
+        challenge_type is how the user will get the challenge and prove
+        possession. Supported challenge types include otp for one-time password
+        (OTP), oob for SMS/Voice messages or out-of-band (OOB). If OTP is
+        supported by the user and you don't want to request a different factor,
+        you can skip the challenge request and verify the multi-factor
+        authentication with a one-time password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mfa_token:
+                  type: string
+                  description: The token received from mfa_required error.
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                client_assertion:
+                  type: string
+                  description: >-
+                    A JWT containing a signed assertion with your application
+                    credentials. Required when Private Key JWT is your
+                    application authentication method.
+                client_assertion_type:
+                  type: string
+                  description: >-
+                    The value is
+                    urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+                    Required when Private Key JWT is the application
+                    authentication method.
+                client_secret:
+                  type: string
+                  description: >-
+                    Your application's Client Secret. Required when the Token
+                    Endpoint Authentication Method field at your Application
+                    Settings is Post or Basic.
+                challenge_type:
+                  type: string
+                  description: >-
+                    A whitespace-separated list of the challenges types accepted
+                    by your application. Accepted challenge types are oob or
+                    otp. Excluding this parameter means that your client
+                    application accepts all supported challenge types.
+                authenticator_id:
+                  type: string
+                  description: >-
+                    The ID of the authenticator to challenge. You can get the ID
+                    by querying the list of available authenticators for the
+                    user as explained on List authenticators below.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/associate:
+    post:
+      operationId: mfa_associate
+      tags:
+        - MFA
+      summary: >-
+        Associates or adds a new authenticator for multi-factor authentication
+        (MFA).
+      description: >
+        If the user has active authenticators, an Access Token with the enroll
+        scope and the audience set to https://{yourDomain}/mfa/ is required to
+        use this endpoint.
+
+        If the user has no active authenticators, you can use the mfa_token from
+        the mfa_required error in place of an Access Token for this request.
+
+        After an authenticator is added, it must be verified. To verify the
+        authenticator, use the response values from the /mfa/associate request
+        in place of the values returned from the /mfa/challenge endpoint and
+        continue with the verification flow.
+
+        A recovery_codes field is included in the response the first time an
+        authenticator is added. You can use recovery_codes to pass multi-factor
+        authentication as shown on Verify with recovery code above.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                client_assertion:
+                  type: string
+                  description: >-
+                    A JWT containing a signed assertion with your application
+                    credentials. Required when Private Key JWT is your
+                    application authentication method.
+                client_assertion_type:
+                  type: string
+                  description: >-
+                    The value is
+                    urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+                    Required when Private Key JWT is the application
+                    authentication method.
+                client_secret:
+                  type: string
+                  description: >-
+                    Your application's Client Secret. Required when the Token
+                    Endpoint Authentication Method field in your Application
+                    Settings is Post or Basic.
+                authenticator_types:
+                  type: array
+                  items:
+                    type: string
+                  description: >-
+                    The type of authenticators supported by the client. Value is
+                    an array with values "otp" or "oob".
+                oob_channels:
+                  type: array
+                  items:
+                    type: string
+                  description: >-
+                    The type of OOB channels supported by the client. An array
+                    with values "auth0", "sms", "voice". Required if
+                    authenticator_types include oob.
+                phone_number:
+                  type: string
+                  description: >-
+                    The phone number to use for SMS or Voice. Required if
+                    oob_channels includes sms or voice.
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recovery_codes:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/authenticators:
+    get:
+      operationId: mfa_authenticators
+      tags:
+        - MFA
+      summary: Returns a list of authenticators associated with your application.
+      description: >
+        To access this endpoint you must set an Access Token at the
+        Authorization header, with the following claims:
+
+        scope: read:authenticators
+
+        audience: https://{yourDomain}/mfa/
+      parameters:
+        - name: ACCESS_TOKEN
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The Access Token obtained during login.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    authenticator_type:
+                      type: string
+                    oob_channels:
+                      type: string
+                      nullable: true
+                    name:
+                      type: string
+                      nullable: true
+                    active:
+                      type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/authenticators/{AUTHENTICATOR_ID}:
+    delete:
+      operationId: mfa_authenticators_delete
+      tags:
+        - MFA
+      summary: Deletes an associated authenticator using its ID.
+      description: >
+        You can get authenticator IDs by listing the authenticators.
+
+        To access this endpoint, you must set an Access Token at the
+        Authorization header, with the following claims:
+
+        scope: remove:authenticators
+
+        audience: https://{yourDomain}/mfa/
+      parameters:
+        - name: ACCESS_TOKEN
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The Access Token obtained during login.
+        - name: AUTHENTICATOR_ID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the authenticator to delete.
+      responses:
+        '204':
+          description: Successful response. No content.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /samlp/{client_id}:
+    get:
+      operationId: samlp_login
+      tags:
+        - SAML
+      summary: Use this endpoint to accept a SAML request to initiate a login.
+      description: >
+        Optionally, you can include a connection parameter to log in with a
+        specific provider. If no connection is specified, the Auth0 Login Page
+        will be shown.
+
+        Optionally, SP-initiated login requests can include an organization
+        parameter to authenticate users in the context of an organization. To
+        learn more, see Organizations.
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Client ID of your application.
+        - name: connection
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Connection to use during login.
+        - name: organization
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Organization ID, if authenticating in the context of an
+            organization.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /samlp/metadata/{client_id}:
+    get:
+      operationId: samlp_metadata
+      tags:
+        - SAML
+      summary: This endpoint returns the SAML 2.0 metadata.
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The client_id of your application.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /login/callback:
+    post:
+      operationId: login_callback
+      tags:
+        - SSO
+      summary: >-
+        This endpoint accepts an IdP-Initiated Sign On SAMLResponse from a SAML
+        Identity Provider.
+      description: >
+        The connection corresponding to the identity provider is specified in
+        the query string. The user will be redirected to the application that is
+        specified in the SAML Provider IdP-Initiated Sign On section.
+      parameters:
+        - name: connection
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The name of an identity provider configured to your application.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                SAMLResponse:
+                  type: string
+              required:
+                - SAMLResponse
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /wsfed/{client_id}:
+    get:
+      operationId: wsfed_login
+      tags:
+        - WS-Federation
+      summary: This endpoint accepts a WS-Federation request to initiate a login.
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The client-id of your application.
+        - name: wtrealm
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Can be used in place of client-id.
+        - name: whr
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The name of the connection (used to skip the login page).
+        - name: wctx
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Your application's state.
+        - name: wreply
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The callback URL.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /wsfed/FederationMetadata/2007-06/FederationMetadata.xml:
+    get:
+      operationId: wsfed_metadata
+      tags:
+        - WS-Fed
+      summary: This endpoint returns the WS-Federation metadata.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oidc/register:
+    post:
+      operationId: oidc_register
+      tags:
+        - OIDC
+      summary: >-
+        With a name and the necessary callback URL, you can dynamically register
+        a client with Auth0. No token is needed for this request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_name:
+                  type: string
+                  description: >-
+                    The name of the Dynamic Client to be created. It is
+                    recommended to provide a value but if it is omitted, the
+                    default name "My App" will be used.
+                redirect_uris:
+                  type: array
+                  items:
+                    type: string
+                  description: >-
+                    An array of URLs that Auth0 will deem valid to call at the
+                    end of an Authentication flow.
+                token_endpoint_auth_method:
+                  type: string
+                  description: >-
+                    Default value is client_secret_post. Use
+                    token_endpoint_auth_method: none in the request payload if
+                    creating a SPA.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client_name:
+                    type: string
+                  client_id:
+                    type: string
+                  client_secret:
+                    type: string
+                  redirect_uris:
+                    type: array
+                    items:
+                      type: string
+                  client_secret_expires_at:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oauth/device/code:
+    post:
+      operationId: oauth_device_code
+      summary: Get Device Code
+      tags:
+        - Device Flow
+      description: >-
+        This is the flow that input-constrained devices use to access an API.
+        Use this endpoint to get a device code.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                scope:
+                  type: string
+                  description: The scopes for which you want to request authorization.
+                audience:
+                  type: string
+                  description: The unique identifier of the target API you want to access.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_code:
+                    type: string
+                    description: The unique code for the device.
+                  user_code:
+                    type: string
+                    description: >-
+                      The code that the user should input at the
+                      verification_uri to authorize the device.
+                  verification_uri:
+                    type: string
+                    description: The URL the user should visit to authorize the device.
+                  verification_uri_complete:
+                    type: string
+                    description: >-
+                      The complete URL the user should visit to authorize the
+                      device.
+                  expires_in:
+                    type: integer
+                    description: >-
+                      The lifetime (in seconds) of the device_code and
+                      user_code.
+                  interval:
+                    type: integer
+                    description: >-
+                      The interval (in seconds) at which the app should poll the
+                      token URL to request a token.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oauth/revoke:
+    post:
+      operationId: oauth_revoke
+      summary: Revoke Refresh Token
+      description: >-
+        Use this endpoint to invalidate a Refresh Token if it has been
+        compromised. The behaviour of this endpoint depends on the state of the
+        Refresh Token Revocation Deletes Grant toggle. If this toggle is
+        enabled, then each revocation request invalidates not only the specific
+        token, but all other tokens based on the same authorization grant. This
+        means that all Refresh Tokens that have been issued for the same user,
+        application, and audience will be revoked. If this toggle is disabled,
+        then only the refresh token is revoked, while the grant is left intact.
+      tags:
+        - Revoke Refresh Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - client_id
+                - token
+              properties:
+                client_id:
+                  type: string
+                  description: The client_id of your application.
+                client_assertion:
+                  type: string
+                  description: >-
+                    A JWT containing a signed assertion with your application
+                    credentials. Required when Private Key JWT is your
+                    application authentication method.
+                client_assertion_type:
+                  type: string
+                  description: >-
+                    The value is
+                    urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+                    Required when Private Key JWT is the application
+                    authentication method.
+                client_secret:
+                  type: string
+                  description: >-
+                    The client_secret of your application. Required when Client
+                    Secret Basic or Client Secret Post is the application
+                    authentication method. Specifically required for Regular Web
+                    Applications only.
+                token:
+                  type: string
+                  description: The Refresh Token you want to revoke.
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oauth/access_token:
+    post:
+      operationId: oauth_access_token
+      deprecated: true
+      tags:
+        - Deprecated > Authenticate
+      summary: Login using a social provider's access token
+      description: >-
+        Given the social provider's access_token and the connection specified,
+        it will do the authentication on the provider and return a JSON with the
+        access_token and id_token. Currently, this endpoint only works for
+        Facebook, Google, Twitter and Weibo. **This endpoint has been
+        deprecated**.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                access_token:
+                  type: string
+                  description: The social provider's Access Token.
+                connection:
+                  type: string
+                  description: The name of the connection configured to your application
+                scope:
+                  type: string
+                  example: openid
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oauth/ro:
+    post:
+      operationId: oauth_ro
+      deprecated: true
+      tags:
+        - Deprecated > Passwordless
+      summary: >-
+        Given the user's credentials, this endpoint will authenticate the user
+        with the provider and return a JSON object with the Access Token and an
+        ID Token.
+      description: >-
+        Given the user credentials and the connection specified, it will do the
+        authentication on the provider and return a JSON with the access_token
+        and id_token. This endpoint only works for database connections,
+        passwordless connections, Active Directory/LDAP, Windows Azure AD and
+        ADFS.
+
+        **This endpoint is deprecated**.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                connection:
+                  type: string
+                  description: The name of the connection configured to your application
+                  example: sms
+                grant_type:
+                  type: string
+                  description: Denotes the flow you are using.
+                  example: password
+                username:
+                  type: string
+                password:
+                  type: string
+                scope:
+                  type: string
+                  example: openid
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /tokeninfo:
+    post:
+      operationId: tokeninfo
+      deprecated: true
+      tags:
+        - Deprecated > Authenticate
+      summary: '[Deprecated] Return a user profile based on the user''s JWT'
+      description: >-
+        Validates a JSON Web Token (signature and expiration) and returns the
+        user information associated with the user id (sub property) of the
+        token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                id_token:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /delegation:
+    post:
+      operationId: delegation
+      deprecated: true
+      tags:
+        - Deprecated > Delegated Authentication
+      summary: Obtain a delegation token (from a refresh_token)
+      description: >-
+        Given an refrersh token, this endpoint will generate a refreshed
+        id_token and access_token. **This endpoint has been deprecated**, please
+        use the [OAuth2 conformant Refresh Token
+        flow](https://auth0.com/docs/tokens/refresh-token/current).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                grant_type:
+                  type: string
+                  description: Denotes the flow you are using.
+                  example: urn:ietf:params:oauth:grant-type:jwt-bearer
+                refresh_token:
+                  type: string
+                  description: The existing token of the user.
+                scope:
+                  type: string
+                  description: Use openid or openid profile email
+                api_type:
+                  type: string
+                  description: The type of the API to call.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /unlink:
+    post:
+      operationId: unlink
+      deprecated: true
+      tags:
+        - Deprecated > Link Accounts
+      summary: Unlink an account
+      description: >-
+        **This endpoint is deprecated**. The `DELETE
+        /api/v2/users/{id}/identities/{provider}/{user_id}` (from Management API
+        v2) should be used instead.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                access_token:
+                  type: string
+                user_id:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /users/{user_id}/impersonate:
+    post:
+      operationId: impersonate
+      deprecated: true
+      tags:
+        - Deprecated > Impersonation
+      summary: Obtain an impersonation URL
+      description: >-
+        Use this endpoint to obtain an impersonation URL to login as another
+        user. Useful for troubleshooting.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user to impersonate.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                protocol:
+                  type: string
+                  description: >-
+                    The protocol to use against the identity provider: oauth2,
+                    samlp, wsfed, wsfed-rms.
+                impersonator_id:
+                  type: string
+                  description: The user_id of the impersonator.
+                client_id:
+                  type: string
+                  description: >-
+                    The client_id of the client that is generating the
+                    impersonation link.
+                additionalParameters:
+                  type: object
+                  description: >-
+                    This is a JSON object. You can use this to set additional
+                    parameters, like response_type, scope and state.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  impersonation_url:
+                    type: string
+                    description: The URL to use for impersonation.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  schemas:
+    AuthenticateUserWithVerificationCode:
+      description: Authenticate a user using a verification code.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: It should be http://auth0.com/oauth/grant-type/passwordless/otp.
+        client_id:
+          type: string
+          description: The client_id of your application.
+        client_assertion:
+          type: string
+          description: >-
+            A JWT containing a signed assertion with your application
+            credentials. Required when Private Key JWT is your application
+            authentication method.
+        client_assertion_type:
+          type: string
+          description: >-
+            The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+            Required when Private Key JWT is the application authentication
+            method.
+        client_secret:
+          type: string
+          description: >-
+            The client_secret of your application. Required when the Token
+            Endpoint Authentication Method field at your Application Settings is
+            Post or Basic. Specifically required for Regular Web Applications
+            only.
+        username:
+          type: string
+          description: >-
+            The user's phone number if realm=sms, or the user's email if
+            realm=email.
+        realm:
+          type: string
+          description: Use sms or email (should be the same as POST /passwordless/start)
+        otp:
+          type: string
+          description: The user's verification code.
+        audience:
+          type: string
+          description: API Identifier of the API for which you want to get an Access Token.
+        scope:
+          type: string
+          description: >-
+            Use openid to get an ID Token, or openid profile email to also
+            include user profile information in the ID Token.
+        redirect_uri:
+          type: string
+          description: >-
+            A callback URL that has been registered with your application's
+            Allowed Callback URLs.
+    OTP:
+      description: >-
+        To verify MFA with an OTP, prompt the user to get the OTP code, then
+        make a request to the /oauth/token endpoint. The request must have the
+        OTP code, the mfa_token you received (from the mfa_required error), and
+        the grant_type set to http://auth0.com/oauth/grant-type/mfa-otp. The
+        response is the same as responses for password or
+        http://auth0.com/oauth/grant-type/password-realm grant types.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For OTP MFA use
+            http://auth0.com/oauth/grant-type/mfa-otp.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_assertion:
+          type: string
+          description: >-
+            A JWT containing a signed assertion with your application
+            credentials. Required when Private Key JWT is your application
+            authentication method.
+        client_assertion_type:
+          type: string
+          description: >-
+            The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+            Required when Private Key JWT is the application authentication
+            method.
+        client_secret:
+          type: string
+          description: >-
+            Your application's Client Secret. Required when the Token Endpoint
+            Authentication Method field at your Application Settings is Post or
+            Basic.
+        mfa_token:
+          type: string
+          description: The mfa_token you received from mfa_required error.
+        otp:
+          type: string
+          description: OTP Code provided by the user.
+    OOB:
+      description: >-
+        To verify MFA using an OOB challenge, your application must make a
+        request to /oauth/token with
+        grant_type=http://auth0.com/oauth/grant-type/mfa-oob. Include the
+        oob_code you received from the challenge response, as well as the
+        mfa_token you received as part of mfa_required error.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For OTP MFA, use
+            http://auth0.com/oauth/grant-type/mfa-oob.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_assertion:
+          type: string
+          description: >-
+            A JWT containing a signed assertion with your application
+            credentials. Required when Private Key JWT is your application
+            authentication method.
+        client_assertion_type:
+          type: string
+          description: >-
+            The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+            Required when Private Key JWT is the application authentication
+            method.
+        client_secret:
+          type: string
+          description: >-
+            Your application's Client Secret. Required when the Token Endpoint
+            Authentication Method field at your Application Settings is Post or
+            Basic.
+        mfa_token:
+          type: string
+          description: The mfa_token you received from mfa_required error.
+        oob_code:
+          type: string
+          description: The oob code received from the challenge request.
+        binding_code:
+          type: string
+          description: >-
+            A code used to bind the side channel (used to deliver the challenge)
+            with the main channel you are using to authenticate. This is usually
+            an OTP-like code delivered as part of the challenge message.
+    RecoveryCode:
+      description: >-
+        Some multi-factor authentication (MFA) providers (such as Guardian)
+        support using a recovery code to login. Use this method to authenticate
+        when the user's enrolled device is unavailable, or the user cannot
+        receive the challenge or accept it due to connectivity issues.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For recovery code use
+            http://auth0.com/oauth/grant-type/mfa-recovery-code.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_assertion:
+          type: string
+          description: >-
+            A JWT containing a signed assertion with your application
+            credentials. Required when Private Key JWT is your application
+            authentication method.
+        client_assertion_type:
+          type: string
+          description: >-
+            The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+            Required when Private Key JWT is the application authentication
+            method.
+        client_secret:
+          type: string
+          description: >-
+            Your application's Client Secret. Required when the Token Endpoint
+            Authentication Method field at your Application Settings is Post or
+            Basic.
+        mfa_token:
+          type: string
+          description: The mfa_token you received from mfa_required error.
+        recovery_code:
+          type: string
+          description: Recovery code provided by the end-user.
+    AuthorizationCode:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - client_secret
+        - code
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For Authorization Code, use
+            authorization_code.
+          enum:
+            - authorization_code
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: Your application's Client Secret.
+        code:
+          type: string
+          description: The Authorization Code received from the initial /authorize call.
+        redirect_uri:
+          type: string
+          description: >-
+            This is required only if it was set at the GET /authorize endpoint.
+            The values must match.
+          format: uri
+    AuthorizationCodePKCE:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - code
+        - code_verifier
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For Authorization Code (PKCE), use
+            authorization_code.
+          enum:
+            - authorization_code
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        code:
+          type: string
+          description: The Authorization Code received from the initial /authorize call.
+        code_verifier:
+          type: string
+          description: >-
+            Cryptographically random key that was used to generate the
+            code_challenge passed to /authorize.
+        redirect_uri:
+          type: string
+          description: >-
+            This is required only if it was set at the GET /authorize endpoint.
+            The values must match.
+          format: uri
+    ClientCredentials:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - client_secret
+        - audience
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For Client Credentials, use
+            client_credentials.
+          enum:
+            - client_credentials
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: Your application's Client Secret.
+        audience:
+          type: string
+          description: The unique identifier of the target API you want to access.
+    ResourceOwnerPassword:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - username
+        - password
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For Resource Owner Password, use
+            password.
+          enum:
+            - password
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: >-
+            Your application's Client Secret. Required when the Token Endpoint
+            Authentication Method field at your Application Settings is Post or
+            Basic.
+        audience:
+          type: string
+          description: The unique identifier of the target API you want to access.
+        username:
+          type: string
+          description: Resource Owner's identifier, such as a username or email address.
+        password:
+          type: string
+          description: Resource Owner's secret.
+        scope:
+          type: string
+          description: >-
+            String value of the different scopes the application is asking for.
+            Multiple scopes are separated with whitespace.
+        realm:
+          type: string
+          description: >-
+            String value of the realm the user belongs. Set this if you want to
+            add realm support at this grant. For more information on what realms
+            are refer to Realm Support.
+    DeviceAuthorization:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - device_code
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For Device Authorization, use
+            urn:ietf:params:oauth:grant-type:device_code.
+          enum:
+            - urn:ietf:params:oauth:grant-type:device_code
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        device_code:
+          type: string
+          description: >-
+            The device code previously returned from the /oauth/device/code
+            endpoint.
+    RefreshToken:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - refresh_token
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. To refresh a token, use
+            refresh_token.
+          enum:
+            - refresh_token
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: >-
+            Your application's Client Secret. Required when the Token Endpoint
+            Authentication Method field at your Application Settings is Post or
+            Basic.
+        refresh_token:
+          type: string
+          description: The Refresh Token to use.
+        scope:
+          type: string
+          description: >-
+            A space-delimited list of requested scope permissions. If not sent,
+            the original scopes will be used; otherwise you can request a
+            reduced set of scopes. Note that this must be URL encoded.
+    NativeSocialTokenExchange:
+      type: object
+      required:
+        - grant_type
+        - subject_token
+        - subject_token_type
+        - client_id
+      properties:
+        grant_type:
+          type: string
+          description: >-
+            Denotes the flow you are using. For Token Exchange for Native
+            Social, use urn:ietf:params:oauth:grant-type:token-exchange.
+          enum:
+            - urn:ietf:params:oauth:grant-type:token-exchange
+        subject_token:
+          type: string
+          description: Externally-issued identity artifact, representing the user.
+        subject_token_type:
+          type: string
+          description: >-
+            Identifier that indicates the type of subject_token. Currently
+            supported native social values are:
+            http://auth0.com/oauth/token-type/apple-authz-code.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        audience:
+          type: string
+          description: The unique identifier of the target API you want to access.
+        scope:
+          type: string
+          description: >-
+            String value of the different scopes the application is requesting.
+            Multiple scopes are separated with whitespace.
+        user_profile:
+          type: string
+          description: >-
+            Optional element used for native iOS interactions for which profile
+            updates can occur. Expected parameter value will be JSON in the form
+            of: { name: { firstName: 'John', lastName: 'Smith }}
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    MethodNotAllowed:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    InternalServerError:
+      description: Internal Server Error
+    NotImplemented:
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
