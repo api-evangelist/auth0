@@ -9,15 +9,14 @@ Auth0 is a leading identity and access management platform that provides secure,
 - **Position:** Consuming 
 - **Access:** 3rd-Party 
 
-## Tags
+## Tags:
 
-- Authentication
-- Identities
+ - Authentication, Identities, Platform
 
 ## Timestamps
 
 - **Created:** 2024/04/14 
-- **Modified:** 2024-12-14 
+- **Modified:** 2025-01-13 
 
 ## APIs
 
@@ -25,8 +24,14 @@ Auth0 is a leading identity and access management platform that provides secure,
 Auth0 exposes the following APIs for developers to consume in their applications.
 
 
-#### Tags
+#### Tags:
 
+ - Authentication, Authorization
+
+#### Properties
+
+- [OpenAPI](properties/auth0-api-openapi.yml)
+- [Documentation](https://auth0.com/docs/api)
 
 ## Maintainers
 
