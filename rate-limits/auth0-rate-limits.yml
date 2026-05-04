@@ -1,0 +1,47 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Auth0
+providerId: auth0
+created: '2026-05-04'
+modified: '2026-05-04'
+reconciled: true
+tags:
+  - Rate Limiting
+  - Identity
+description: Auth0 rate limits depend on tenant subscription tier.
+sources:
+  - https://auth0.com/pricing
+  - https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy
+headers:
+  limit: X-RateLimit-Limit
+  remaining: X-RateLimit-Remaining
+  reset: X-RateLimit-Reset
+responseCodes:
+  throttled: 429
+  anomalyDetection: 429
+limits:
+  - name: Free Authentication API
+    scope: tenant
+    metric: requests_per_second
+    limit: 100
+    timeFrame: second
+  - name: Paid Authentication API
+    scope: tenant
+    metric: requests_per_second
+    limit: 200
+    timeFrame: second
+  - name: Management API (Free)
+    scope: tenant
+    metric: requests_per_second
+    limit: 2
+    timeFrame: second
+  - name: Management API (Paid)
+    scope: tenant
+    metric: requests_per_second
+    limit: 15
+    timeFrame: second
+  - name: Anomaly Detection (per IP)
+    scope: ip
+    metric: auth_attempts
+    limit: configurable
