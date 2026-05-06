@@ -1,0 +1,1304 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Auth0 API
+  description: Auth0 exposes the following APIs for developers to consume in their applications.
+  tags:
+  - Auth0
+  - API
+  created: '2026-05-06'
+  modified: '2026-05-06'
+capability:
+  consumes:
+  - type: http
+    namespace: auth0
+    baseUri: https://demo.us.auth0.com
+    description: Auth0 API HTTP API.
+    resources:
+    - name: authorize
+      path: /authorize
+      operations:
+      - name: authorize
+        method: GET
+        description: Auth0 Authenticate a user with a social provider, Database/AD/LDAP (Passive), SAML/Windows Azure AD (Passive),
+          Authorization Code Flow, Authorization Code Grant (PKCE) Flow, or Implicit Flow
+        inputParameters:
+        - name: audience
+          in: query
+          type: string
+          description: The unique identifier of the target API you want to access
+        - name: scope
+          in: query
+          type: string
+          description: The scopes which you want to request authorization for. These must be separated by a space. You can
+            request any of the standard OpenID Connect (OIDC) scopes abo
+        - name: response_type
+          in: query
+          type: string
+          required: true
+          description: 'Indicates to Auth0 which OAuth 2.0 flow you want to perform. Use code for Authorization Code Grant
+            Flow, token for Implicit Flow, or id_token token for both an '
+        - name: client_id
+          in: query
+          type: string
+          required: true
+          description: Your application's ID.
+        - name: redirect_uri
+          in: query
+          type: string
+          description: The URL to which Auth0 will redirect the browser after authorization has been granted by the user.
+        - name: state
+          in: query
+          type: string
+          description: An opaque value the applications adds to the initial request that the authorization server includes
+            when redirecting the back to the application. This value mus
+        - name: nonce
+          in: query
+          type: string
+          description: A string value which will be included in the ID Token response from Auth0, used to prevent token replay
+            attacks. It is required for response_type=id_token token
+        - name: code_challenge_method
+          in: query
+          type: string
+          description: Method used to generate the challenge. The PKCE spec defines two methods, S256 and plain, however,
+            Auth0 supports only S256 since the latter is discouraged.
+        - name: code_challenge
+          in: query
+          type: string
+          description: Generated challenge from the code_verifier.
+        - name: connection
+          in: query
+          type: string
+          description: The name of the connection configured to your application.
+        - name: prompt
+          in: query
+          type: string
+          description: To initiate a silent authentication request, use prompt=none.
+        - name: organization
+          in: query
+          type: string
+          description: 'ID of the organization to use when authenticating a user. When not provided, if your application is
+            configured to Display Organization Prompt, the user will be '
+        - name: invitation
+          in: query
+          type: string
+          description: Ticket ID of the organization invitation. When inviting a member to an Organization, your application
+            should handle invitation acceptance by forwarding the invi
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v2-logout
+      path: /v2/logout
+      operations:
+      - name: logout
+        method: GET
+        description: Auth0 Logout a user
+        inputParameters:
+        - name: returnTo
+          in: query
+          type: string
+          description: URL to redirect the user after the logout.
+        - name: client_id
+          in: query
+          type: string
+          description: The client_id of your application.
+        - name: federated
+          in: query
+          type: string
+          description: Add this query string parameter to the logout URL, to log the user out of their identity provider,
+            as well.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oidc-logout
+      path: /oidc/logout
+      operations:
+      - name: oidc-logout
+        method: GET
+        description: Auth0 Logout a user
+        inputParameters:
+        - name: id_token_hint
+          in: query
+          type: string
+          description: Previously issued ID Token for the user. This is used to indicate which user to log out.
+        - name: logout_hint
+          in: query
+          type: string
+          description: Optional sid (session ID) value to indicate which user to log out. Should be provided when id_token_hint
+            is not available.
+        - name: post_logout_redirect_uri
+          in: query
+          type: string
+          description: URL to redirect the user after the logout.
+        - name: client_id
+          in: query
+          type: string
+          description: The client_id of your application.
+        - name: federated
+          in: query
+          type: string
+          description: Add this query string parameter to log the user out of their identity provider.
+        - name: state
+          in: query
+          type: string
+          description: An opaque value the applications adds to the initial request that the authorization server includes
+            when redirecting the back to the post_logout_redirect_uri.
+        - name: ui_locales
+          in: query
+          type: string
+          description: Space-delimited list of locales used to constrain the language list for the request. The first locale
+            on the list must match the enabled locale in your tenant.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: samlp-client-id-logout
+      path: /samlp/{CLIENT_ID}/logout
+      operations:
+      - name: saml-logout
+        method: POST
+        description: Auth0 Logout a user
+        inputParameters:
+        - name: CLIENT_ID
+          in: path
+          type: string
+          required: true
+          description: Client ID of your application configured with the SAML2 Web App addon.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: passwordless-start
+      path: /passwordless/start
+      operations:
+      - name: passwordless-start
+        method: POST
+        description: Auth0 Start Passwordless flow
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: passwordless-verify
+      path: /passwordless/verify
+      operations:
+      - name: passwordless-verify
+        method: POST
+        description: Auth0 Verify with verification code
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oauth-token
+      path: /oauth/token
+      operations:
+      - name: oauth-token
+        method: POST
+        description: Auth0 Authenticates a user using a verification code, verifies multi-factor authentication (MFA) using
+          a one-time password (OTP), out-of-band (OOB) challenge, or a recovery code, or exchanges an Authorization Code for
+          a Token
+        inputParameters:
+        - name: auth0-forwarded-for
+          in: header
+          type: string
+          description: End-user IP as a string value. Set this if you want brute-force protection to work in server-side scenarios.
+            For more information on how and when to use this he
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: dbconnections-signup
+      path: /dbconnections/signup
+      operations:
+      - name: dbconnections-signup
+        method: POST
+        description: Auth0 Signup with user's credentials
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: dbconnections-change-password
+      path: /dbconnections/change_password
+      operations:
+      - name: dbconnections-change-password
+        method: POST
+        description: Auth0 Send a change password email
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: userinfo
+      path: /userinfo
+      operations:
+      - name: userinfo
+        method: GET
+        description: Auth0 Returns a user's profile
+        inputParameters:
+        - name: access_token
+          in: header
+          type: string
+          required: true
+          description: The Auth0 Access Token obtained during login.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: mfa-challenge
+      path: /mfa/challenge
+      operations:
+      - name: mfa-challenge
+        method: POST
+        description: Auth0 Request a challenge for multi-factor authentication
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: mfa-associate
+      path: /mfa/associate
+      operations:
+      - name: mfa-associate
+        method: POST
+        description: Auth0 Associates or adds a new authenticator for multi-factor authentication (MFA).
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: mfa-authenticators
+      path: /mfa/authenticators
+      operations:
+      - name: mfa-authenticators
+        method: GET
+        description: Auth0 Returns a list of authenticators associated with your application.
+        inputParameters:
+        - name: ACCESS_TOKEN
+          in: header
+          type: string
+          required: true
+          description: The Access Token obtained during login.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: mfa-authenticators-authenticator-id
+      path: /mfa/authenticators/{AUTHENTICATOR_ID}
+      operations:
+      - name: mfa-authenticators-delete
+        method: DELETE
+        description: Auth0 Deletes an associated authenticator using its ID.
+        inputParameters:
+        - name: ACCESS_TOKEN
+          in: header
+          type: string
+          required: true
+          description: The Access Token obtained during login.
+        - name: AUTHENTICATOR_ID
+          in: path
+          type: string
+          required: true
+          description: The ID of the authenticator to delete.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: samlp-client-id
+      path: /samlp/{client_id}
+      operations:
+      - name: samlp-login
+        method: GET
+        description: Auth0 Use this endpoint to accept a SAML request to initiate a login.
+        inputParameters:
+        - name: client_id
+          in: path
+          type: string
+          required: true
+          description: Client ID of your application.
+        - name: connection
+          in: query
+          type: string
+          description: Connection to use during login.
+        - name: organization
+          in: query
+          type: string
+          description: Organization ID, if authenticating in the context of an organization.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: samlp-metadata-client-id
+      path: /samlp/metadata/{client_id}
+      operations:
+      - name: samlp-metadata
+        method: GET
+        description: Auth0 This endpoint returns the SAML 2.0 metadata.
+        inputParameters:
+        - name: client_id
+          in: path
+          type: string
+          required: true
+          description: The client_id of your application.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: login-callback
+      path: /login/callback
+      operations:
+      - name: login-callback
+        method: POST
+        description: Auth0 This endpoint accepts an IdP-Initiated Sign On SAMLResponse from a SAML Identity Provider.
+        inputParameters:
+        - name: connection
+          in: query
+          type: string
+          required: true
+          description: The name of an identity provider configured to your application.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: wsfed-client-id
+      path: /wsfed/{client_id}
+      operations:
+      - name: wsfed-login
+        method: GET
+        description: Auth0 This endpoint accepts a WS-Federation request to initiate a login.
+        inputParameters:
+        - name: client_id
+          in: path
+          type: string
+          required: true
+          description: The client-id of your application.
+        - name: wtrealm
+          in: query
+          type: string
+          description: Can be used in place of client-id.
+        - name: whr
+          in: query
+          type: string
+          description: The name of the connection (used to skip the login page).
+        - name: wctx
+          in: query
+          type: string
+          description: Your application's state.
+        - name: wreply
+          in: query
+          type: string
+          description: The callback URL.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: wsfed-federationmetadata-2007-06-federationmetad
+      path: /wsfed/FederationMetadata/2007-06/FederationMetadata.xml
+      operations:
+      - name: wsfed-metadata
+        method: GET
+        description: Auth0 This endpoint returns the WS-Federation metadata.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oidc-register
+      path: /oidc/register
+      operations:
+      - name: oidc-register
+        method: POST
+        description: With a name and the necessary callback URL, you can dynamically register a client with Auth0. No token
+          is needed for this request.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oauth-device-code
+      path: /oauth/device/code
+      operations:
+      - name: oauth-device-code
+        method: POST
+        description: Auth0 Get Device Code
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oauth-revoke
+      path: /oauth/revoke
+      operations:
+      - name: oauth-revoke
+        method: POST
+        description: Auth0 Revoke Refresh Token
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oauth-access-token
+      path: /oauth/access_token
+      operations:
+      - name: oauth-access-token
+        method: POST
+        description: Auth0 Login using a social provider's access token
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: oauth-ro
+      path: /oauth/ro
+      operations:
+      - name: oauth-ro
+        method: POST
+        description: Auth0 Given the user's credentials, this endpoint will authenticate the user with the provider and return
+          a JSON object with the Access Token and an ID Token.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: tokeninfo
+      path: /tokeninfo
+      operations:
+      - name: tokeninfo
+        method: POST
+        description: Auth0 [Deprecated] Return a user profile based on the user's JWT
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: delegation
+      path: /delegation
+      operations:
+      - name: delegation
+        method: POST
+        description: Auth0 Obtain a delegation token (from a refresh_token)
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: unlink
+      path: /unlink
+      operations:
+      - name: unlink
+        method: POST
+        description: Auth0 Unlink an account
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: users-user-id-impersonate
+      path: /users/{user_id}/impersonate
+      operations:
+      - name: impersonate
+        method: POST
+        description: Auth0 Obtain an impersonation URL
+        inputParameters:
+        - name: user_id
+          in: path
+          type: string
+          required: true
+          description: The ID of the user to impersonate.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    port: 8080
+    namespace: auth0-rest
+    description: REST adapter for Auth0 API.
+    resources:
+    - path: /authorize
+      name: authorize
+      operations:
+      - method: GET
+        name: authorize
+        description: Auth0 Authenticate a user with a social provider, Database/AD/LDAP (Passive), SAML/Windows Azure AD (Passive),
+          Authorization Code Flow, Authorization Code Grant (PKCE) Flow, or Implicit Flow
+        call: auth0.authorize
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v2/logout
+      name: logout
+      operations:
+      - method: GET
+        name: logout
+        description: Auth0 Logout a user
+        call: auth0.logout
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oidc/logout
+      name: oidc-logout
+      operations:
+      - method: GET
+        name: oidc-logout
+        description: Auth0 Logout a user
+        call: auth0.oidc-logout
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /samlp/{CLIENT_ID}/logout
+      name: saml-logout
+      operations:
+      - method: POST
+        name: saml-logout
+        description: Auth0 Logout a user
+        call: auth0.saml-logout
+        with:
+          CLIENT_ID: rest.CLIENT_ID
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /passwordless/start
+      name: passwordless-start
+      operations:
+      - method: POST
+        name: passwordless-start
+        description: Auth0 Start Passwordless flow
+        call: auth0.passwordless-start
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /passwordless/verify
+      name: passwordless-verify
+      operations:
+      - method: POST
+        name: passwordless-verify
+        description: Auth0 Verify with verification code
+        call: auth0.passwordless-verify
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oauth/token
+      name: oauth-token
+      operations:
+      - method: POST
+        name: oauth-token
+        description: Auth0 Authenticates a user using a verification code, verifies multi-factor authentication (MFA) using
+          a one-time password (OTP), out-of-band (OOB) challenge, or a recovery code, or exchanges an Authorization Code for
+          a Token
+        call: auth0.oauth-token
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /dbconnections/signup
+      name: dbconnections-signup
+      operations:
+      - method: POST
+        name: dbconnections-signup
+        description: Auth0 Signup with user's credentials
+        call: auth0.dbconnections-signup
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /dbconnections/change_password
+      name: dbconnections-change-password
+      operations:
+      - method: POST
+        name: dbconnections-change-password
+        description: Auth0 Send a change password email
+        call: auth0.dbconnections-change-password
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /userinfo
+      name: userinfo
+      operations:
+      - method: GET
+        name: userinfo
+        description: Auth0 Returns a user's profile
+        call: auth0.userinfo
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /mfa/challenge
+      name: mfa-challenge
+      operations:
+      - method: POST
+        name: mfa-challenge
+        description: Auth0 Request a challenge for multi-factor authentication
+        call: auth0.mfa-challenge
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /mfa/associate
+      name: mfa-associate
+      operations:
+      - method: POST
+        name: mfa-associate
+        description: Auth0 Associates or adds a new authenticator for multi-factor authentication (MFA).
+        call: auth0.mfa-associate
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /mfa/authenticators
+      name: mfa-authenticators
+      operations:
+      - method: GET
+        name: mfa-authenticators
+        description: Auth0 Returns a list of authenticators associated with your application.
+        call: auth0.mfa-authenticators
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /mfa/authenticators/{AUTHENTICATOR_ID}
+      name: mfa-authenticators-delete
+      operations:
+      - method: DELETE
+        name: mfa-authenticators-delete
+        description: Auth0 Deletes an associated authenticator using its ID.
+        call: auth0.mfa-authenticators-delete
+        with:
+          AUTHENTICATOR_ID: rest.AUTHENTICATOR_ID
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /samlp/{client_id}
+      name: samlp-login
+      operations:
+      - method: GET
+        name: samlp-login
+        description: Auth0 Use this endpoint to accept a SAML request to initiate a login.
+        call: auth0.samlp-login
+        with:
+          client_id: rest.client_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /samlp/metadata/{client_id}
+      name: samlp-metadata
+      operations:
+      - method: GET
+        name: samlp-metadata
+        description: Auth0 This endpoint returns the SAML 2.0 metadata.
+        call: auth0.samlp-metadata
+        with:
+          client_id: rest.client_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /login/callback
+      name: login-callback
+      operations:
+      - method: POST
+        name: login-callback
+        description: Auth0 This endpoint accepts an IdP-Initiated Sign On SAMLResponse from a SAML Identity Provider.
+        call: auth0.login-callback
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /wsfed/{client_id}
+      name: wsfed-login
+      operations:
+      - method: GET
+        name: wsfed-login
+        description: Auth0 This endpoint accepts a WS-Federation request to initiate a login.
+        call: auth0.wsfed-login
+        with:
+          client_id: rest.client_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /wsfed/FederationMetadata/2007-06/FederationMetadata.xml
+      name: wsfed-metadata
+      operations:
+      - method: GET
+        name: wsfed-metadata
+        description: Auth0 This endpoint returns the WS-Federation metadata.
+        call: auth0.wsfed-metadata
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oidc/register
+      name: oidc-register
+      operations:
+      - method: POST
+        name: oidc-register
+        description: With a name and the necessary callback URL, you can dynamically register a client with Auth0. No token
+          is needed for this request.
+        call: auth0.oidc-register
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oauth/device/code
+      name: oauth-device-code
+      operations:
+      - method: POST
+        name: oauth-device-code
+        description: Auth0 Get Device Code
+        call: auth0.oauth-device-code
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oauth/revoke
+      name: oauth-revoke
+      operations:
+      - method: POST
+        name: oauth-revoke
+        description: Auth0 Revoke Refresh Token
+        call: auth0.oauth-revoke
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oauth/access_token
+      name: oauth-access-token
+      operations:
+      - method: POST
+        name: oauth-access-token
+        description: Auth0 Login using a social provider's access token
+        call: auth0.oauth-access-token
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /oauth/ro
+      name: oauth-ro
+      operations:
+      - method: POST
+        name: oauth-ro
+        description: Auth0 Given the user's credentials, this endpoint will authenticate the user with the provider and return
+          a JSON object with the Access Token and an ID Token.
+        call: auth0.oauth-ro
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /tokeninfo
+      name: tokeninfo
+      operations:
+      - method: POST
+        name: tokeninfo
+        description: Auth0 [Deprecated] Return a user profile based on the user's JWT
+        call: auth0.tokeninfo
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /delegation
+      name: delegation
+      operations:
+      - method: POST
+        name: delegation
+        description: Auth0 Obtain a delegation token (from a refresh_token)
+        call: auth0.delegation
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /unlink
+      name: unlink
+      operations:
+      - method: POST
+        name: unlink
+        description: Auth0 Unlink an account
+        call: auth0.unlink
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /users/{user_id}/impersonate
+      name: impersonate
+      operations:
+      - method: POST
+        name: impersonate
+        description: Auth0 Obtain an impersonation URL
+        call: auth0.impersonate
+        with:
+          user_id: rest.user_id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    port: 9090
+    namespace: auth0-mcp
+    transport: http
+    description: MCP adapter for Auth0 API for AI agent use.
+    tools:
+    - name: authorize
+      description: Auth0 Authenticate a user with a social provider, Database/AD/LDAP (Passive), SAML/Windows Azure AD (Passive),
+        Authorization Code Flow, Authorization Code Grant (PKCE) Flow, or Implicit Flow
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.authorize
+      with:
+        audience: tools.audience
+        scope: tools.scope
+        response_type: tools.response_type
+        client_id: tools.client_id
+        redirect_uri: tools.redirect_uri
+        state: tools.state
+        nonce: tools.nonce
+        code_challenge_method: tools.code_challenge_method
+        code_challenge: tools.code_challenge
+        connection: tools.connection
+        prompt: tools.prompt
+        organization: tools.organization
+        invitation: tools.invitation
+      inputParameters:
+      - name: audience
+        type: string
+        description: The unique identifier of the target API you want to access
+      - name: scope
+        type: string
+        description: The scopes which you want to request authorization for. These must be separated by a space. You can request
+          any of the standard OpenID Connect (OIDC) scopes abo
+      - name: response_type
+        type: string
+        description: 'Indicates to Auth0 which OAuth 2.0 flow you want to perform. Use code for Authorization Code Grant Flow,
+          token for Implicit Flow, or id_token token for both an '
+        required: true
+      - name: client_id
+        type: string
+        description: Your application's ID.
+        required: true
+      - name: redirect_uri
+        type: string
+        description: The URL to which Auth0 will redirect the browser after authorization has been granted by the user.
+      - name: state
+        type: string
+        description: An opaque value the applications adds to the initial request that the authorization server includes when
+          redirecting the back to the application. This value mus
+      - name: nonce
+        type: string
+        description: A string value which will be included in the ID Token response from Auth0, used to prevent token replay
+          attacks. It is required for response_type=id_token token
+      - name: code_challenge_method
+        type: string
+        description: Method used to generate the challenge. The PKCE spec defines two methods, S256 and plain, however, Auth0
+          supports only S256 since the latter is discouraged.
+      - name: code_challenge
+        type: string
+        description: Generated challenge from the code_verifier.
+      - name: connection
+        type: string
+        description: The name of the connection configured to your application.
+      - name: prompt
+        type: string
+        description: To initiate a silent authentication request, use prompt=none.
+      - name: organization
+        type: string
+        description: 'ID of the organization to use when authenticating a user. When not provided, if your application is
+          configured to Display Organization Prompt, the user will be '
+      - name: invitation
+        type: string
+        description: Ticket ID of the organization invitation. When inviting a member to an Organization, your application
+          should handle invitation acceptance by forwarding the invi
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: logout
+      description: Auth0 Logout a user
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.logout
+      with:
+        returnTo: tools.returnTo
+        client_id: tools.client_id
+        federated: tools.federated
+      inputParameters:
+      - name: returnTo
+        type: string
+        description: URL to redirect the user after the logout.
+      - name: client_id
+        type: string
+        description: The client_id of your application.
+      - name: federated
+        type: string
+        description: Add this query string parameter to the logout URL, to log the user out of their identity provider, as
+          well.
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oidc-logout
+      description: Auth0 Logout a user
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.oidc-logout
+      with:
+        id_token_hint: tools.id_token_hint
+        logout_hint: tools.logout_hint
+        post_logout_redirect_uri: tools.post_logout_redirect_uri
+        client_id: tools.client_id
+        federated: tools.federated
+        state: tools.state
+        ui_locales: tools.ui_locales
+      inputParameters:
+      - name: id_token_hint
+        type: string
+        description: Previously issued ID Token for the user. This is used to indicate which user to log out.
+      - name: logout_hint
+        type: string
+        description: Optional sid (session ID) value to indicate which user to log out. Should be provided when id_token_hint
+          is not available.
+      - name: post_logout_redirect_uri
+        type: string
+        description: URL to redirect the user after the logout.
+      - name: client_id
+        type: string
+        description: The client_id of your application.
+      - name: federated
+        type: string
+        description: Add this query string parameter to log the user out of their identity provider.
+      - name: state
+        type: string
+        description: An opaque value the applications adds to the initial request that the authorization server includes when
+          redirecting the back to the post_logout_redirect_uri.
+      - name: ui_locales
+        type: string
+        description: Space-delimited list of locales used to constrain the language list for the request. The first locale
+          on the list must match the enabled locale in your tenant.
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: saml-logout
+      description: Auth0 Logout a user
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.saml-logout
+      with:
+        CLIENT_ID: tools.CLIENT_ID
+      inputParameters:
+      - name: CLIENT_ID
+        type: string
+        description: Client ID of your application configured with the SAML2 Web App addon.
+        required: true
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: passwordless-start
+      description: Auth0 Start Passwordless flow
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.passwordless-start
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: passwordless-verify
+      description: Auth0 Verify with verification code
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.passwordless-verify
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oauth-token
+      description: Auth0 Authenticates a user using a verification code, verifies multi-factor authentication (MFA) using
+        a one-time password (OTP), out-of-band (OOB) challenge, or a recovery code, or exchanges an Authorization Code for
+        a Token
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.oauth-token
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: dbconnections-signup
+      description: Auth0 Signup with user's credentials
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.dbconnections-signup
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: dbconnections-change-password
+      description: Auth0 Send a change password email
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.dbconnections-change-password
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: userinfo
+      description: Auth0 Returns a user's profile
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.userinfo
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: mfa-challenge
+      description: Auth0 Request a challenge for multi-factor authentication
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.mfa-challenge
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: mfa-associate
+      description: Auth0 Associates or adds a new authenticator for multi-factor authentication (MFA).
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.mfa-associate
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: mfa-authenticators
+      description: Auth0 Returns a list of authenticators associated with your application.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.mfa-authenticators
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: mfa-authenticators-delete
+      description: Auth0 Deletes an associated authenticator using its ID.
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: auth0.mfa-authenticators-delete
+      with:
+        AUTHENTICATOR_ID: tools.AUTHENTICATOR_ID
+      inputParameters:
+      - name: AUTHENTICATOR_ID
+        type: string
+        description: The ID of the authenticator to delete.
+        required: true
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: samlp-login
+      description: Auth0 Use this endpoint to accept a SAML request to initiate a login.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.samlp-login
+      with:
+        client_id: tools.client_id
+        connection: tools.connection
+        organization: tools.organization
+      inputParameters:
+      - name: client_id
+        type: string
+        description: Client ID of your application.
+        required: true
+      - name: connection
+        type: string
+        description: Connection to use during login.
+      - name: organization
+        type: string
+        description: Organization ID, if authenticating in the context of an organization.
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: samlp-metadata
+      description: Auth0 This endpoint returns the SAML 2.0 metadata.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.samlp-metadata
+      with:
+        client_id: tools.client_id
+      inputParameters:
+      - name: client_id
+        type: string
+        description: The client_id of your application.
+        required: true
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: login-callback
+      description: Auth0 This endpoint accepts an IdP-Initiated Sign On SAMLResponse from a SAML Identity Provider.
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.login-callback
+      with:
+        connection: tools.connection
+      inputParameters:
+      - name: connection
+        type: string
+        description: The name of an identity provider configured to your application.
+        required: true
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: wsfed-login
+      description: Auth0 This endpoint accepts a WS-Federation request to initiate a login.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.wsfed-login
+      with:
+        client_id: tools.client_id
+        wtrealm: tools.wtrealm
+        whr: tools.whr
+        wctx: tools.wctx
+        wreply: tools.wreply
+      inputParameters:
+      - name: client_id
+        type: string
+        description: The client-id of your application.
+        required: true
+      - name: wtrealm
+        type: string
+        description: Can be used in place of client-id.
+      - name: whr
+        type: string
+        description: The name of the connection (used to skip the login page).
+      - name: wctx
+        type: string
+        description: Your application's state.
+      - name: wreply
+        type: string
+        description: The callback URL.
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: wsfed-metadata
+      description: Auth0 This endpoint returns the WS-Federation metadata.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0.wsfed-metadata
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oidc-register
+      description: With a name and the necessary callback URL, you can dynamically register a client with Auth0. No token
+        is needed for this request.
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.oidc-register
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oauth-device-code
+      description: Auth0 Get Device Code
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.oauth-device-code
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oauth-revoke
+      description: Auth0 Revoke Refresh Token
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.oauth-revoke
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oauth-access-token
+      description: Auth0 Login using a social provider's access token
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.oauth-access-token
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: oauth-ro
+      description: Auth0 Given the user's credentials, this endpoint will authenticate the user with the provider and return
+        a JSON object with the Access Token and an ID Token.
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.oauth-ro
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: tokeninfo
+      description: Auth0 [Deprecated] Return a user profile based on the user's JWT
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.tokeninfo
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delegation
+      description: Auth0 Obtain a delegation token (from a refresh_token)
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.delegation
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: unlink
+      description: Auth0 Unlink an account
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.unlink
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: impersonate
+      description: Auth0 Obtain an impersonation URL
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0.impersonate
+      with:
+        user_id: tools.user_id
+      inputParameters:
+      - name: user_id
+        type: string
+        description: The ID of the user to impersonate.
+        required: true
+      outputParameters:
+      - type: object
+        mapping: $.
