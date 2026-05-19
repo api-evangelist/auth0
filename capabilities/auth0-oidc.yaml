@@ -1,0 +1,81 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Auth0 API — OIDC
+  description: 'Auth0 API — OIDC. 1 operations. Lead operation: With a name and the necessary callback URL, you can dynamically
+    register a client with Auth0. No token is needed for this request.. Self-contained Naftiko capability covering one Auth0
+    business surface.'
+  tags:
+  - Auth0
+  - OIDC
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AUTH0_API_KEY: AUTH0_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: auth0-oidc
+    baseUri: ''
+    description: Auth0 API — OIDC business capability. Self-contained, no shared references.
+    resources:
+    - name: oidc-register
+      path: /oidc/register
+      operations:
+      - name: oidcregister
+        method: POST
+        description: With a name and the necessary callback URL, you can dynamically register a client with Auth0. No token
+          is needed for this request.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+  exposes:
+  - type: rest
+    namespace: auth0-oidc-rest
+    port: 8080
+    description: REST adapter for Auth0 API — OIDC. One Spectral-compliant resource per consumed operation, prefixed with
+      /v1.
+    resources:
+    - path: /v1/oidc/register
+      name: oidc-register
+      description: REST surface for oidc-register.
+      operations:
+      - method: POST
+        name: oidcregister
+        description: With a name and the necessary callback URL, you can dynamically register a client with Auth0. No token
+          is needed for this request.
+        call: auth0-oidc.oidcregister
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: auth0-oidc-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Auth0 API — OIDC. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: name-and-necessary-callback-url
+      description: With a name and the necessary callback URL, you can dynamically register a client with Auth0. No token
+        is needed for this request.
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0-oidc.oidcregister
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,77 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Auth0 API — User Profile
+  description: 'Auth0 API — User Profile. 1 operations. Lead operation: Auth0 Returns a user''s profile. Self-contained Naftiko
+    capability covering one Auth0 business surface.'
+  tags:
+  - Auth0
+  - User Profile
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AUTH0_API_KEY: AUTH0_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: auth0-user-profile
+    baseUri: ''
+    description: Auth0 API — User Profile business capability. Self-contained, no shared references.
+    resources:
+    - name: userinfo
+      path: /userinfo
+      operations:
+      - name: userinfo
+        method: GET
+        description: Auth0 Returns a user's profile
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: access_token
+          in: header
+          type: string
+          description: The Auth0 Access Token obtained during login.
+          required: true
+  exposes:
+  - type: rest
+    namespace: auth0-user-profile-rest
+    port: 8080
+    description: REST adapter for Auth0 API — User Profile. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/userinfo
+      name: userinfo
+      description: REST surface for userinfo.
+      operations:
+      - method: GET
+        name: userinfo
+        description: Auth0 Returns a user's profile
+        call: auth0-user-profile.userinfo
+        with:
+          access_token: rest.access_token
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: auth0-user-profile-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Auth0 API — User Profile. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: auth0-returns-user-s-profile
+      description: Auth0 Returns a user's profile
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0-user-profile.userinfo
+      with:
+        access_token: tools.access_token
+      outputParameters:
+      - type: object
+        mapping: $.

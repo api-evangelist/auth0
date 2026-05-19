@@ -1,0 +1,77 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Auth0 API — DbConnections
+  description: 'Auth0 API — DbConnections. 1 operations. Lead operation: Auth0 Signup with user''s credentials. Self-contained
+    Naftiko capability covering one Auth0 business surface.'
+  tags:
+  - Auth0
+  - DbConnections
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AUTH0_API_KEY: AUTH0_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: auth0-dbconnections
+    baseUri: ''
+    description: Auth0 API — DbConnections business capability. Self-contained, no shared references.
+    resources:
+    - name: dbconnections-signup
+      path: /dbconnections/signup
+      operations:
+      - name: dbconnectionssignup
+        method: POST
+        description: Auth0 Signup with user's credentials
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+  exposes:
+  - type: rest
+    namespace: auth0-dbconnections-rest
+    port: 8080
+    description: REST adapter for Auth0 API — DbConnections. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/dbconnections/signup
+      name: dbconnections-signup
+      description: REST surface for dbconnections-signup.
+      operations:
+      - method: POST
+        name: dbconnectionssignup
+        description: Auth0 Signup with user's credentials
+        call: auth0-dbconnections.dbconnectionssignup
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: auth0-dbconnections-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Auth0 API — DbConnections. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: auth0-signup-user-s-credentials
+      description: Auth0 Signup with user's credentials
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0-dbconnections.dbconnectionssignup
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,77 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Auth0 API — DB Connections
+  description: 'Auth0 API — DB Connections. 1 operations. Lead operation: Auth0 Send a change password email. Self-contained
+    Naftiko capability covering one Auth0 business surface.'
+  tags:
+  - Auth0
+  - DB Connections
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AUTH0_API_KEY: AUTH0_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: auth0-db-connections
+    baseUri: ''
+    description: Auth0 API — DB Connections business capability. Self-contained, no shared references.
+    resources:
+    - name: dbconnections-change_password
+      path: /dbconnections/change_password
+      operations:
+      - name: dbconnectionschangepassword
+        method: POST
+        description: Auth0 Send a change password email
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+  exposes:
+  - type: rest
+    namespace: auth0-db-connections-rest
+    port: 8080
+    description: REST adapter for Auth0 API — DB Connections. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/dbconnections/change-password
+      name: dbconnections-change-password
+      description: REST surface for dbconnections-change_password.
+      operations:
+      - method: POST
+        name: dbconnectionschangepassword
+        description: Auth0 Send a change password email
+        call: auth0-db-connections.dbconnectionschangepassword
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: auth0-db-connections-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Auth0 API — DB Connections. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: auth0-send-change-password-email
+      description: Auth0 Send a change password email
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: auth0-db-connections.dbconnectionschangepassword
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

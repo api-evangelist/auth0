@@ -1,0 +1,131 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Auth0 API — SAML
+  description: 'Auth0 API — SAML. 2 operations. Lead operation: Auth0 This endpoint returns the SAML 2.0 metadata.. Self-contained
+    Naftiko capability covering one Auth0 business surface.'
+  tags:
+  - Auth0
+  - SAML
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AUTH0_API_KEY: AUTH0_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: auth0-saml
+    baseUri: ''
+    description: Auth0 API — SAML business capability. Self-contained, no shared references.
+    resources:
+    - name: samlp-metadata-client_id
+      path: /samlp/metadata/{client_id}
+      operations:
+      - name: samlpmetadata
+        method: GET
+        description: Auth0 This endpoint returns the SAML 2.0 metadata.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: client_id
+          in: path
+          type: string
+          description: The client_id of your application.
+          required: true
+    - name: samlp-client_id
+      path: /samlp/{client_id}
+      operations:
+      - name: samlplogin
+        method: GET
+        description: Auth0 Use this endpoint to accept a SAML request to initiate a login.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: client_id
+          in: path
+          type: string
+          description: Client ID of your application.
+          required: true
+        - name: connection
+          in: query
+          type: string
+          description: Connection to use during login.
+        - name: organization
+          in: query
+          type: string
+          description: Organization ID, if authenticating in the context of an organization.
+  exposes:
+  - type: rest
+    namespace: auth0-saml-rest
+    port: 8080
+    description: REST adapter for Auth0 API — SAML. One Spectral-compliant resource per consumed operation, prefixed with
+      /v1.
+    resources:
+    - path: /v1/samlp/metadata/{client-id}
+      name: samlp-metadata-client-id
+      description: REST surface for samlp-metadata-client_id.
+      operations:
+      - method: GET
+        name: samlpmetadata
+        description: Auth0 This endpoint returns the SAML 2.0 metadata.
+        call: auth0-saml.samlpmetadata
+        with:
+          client_id: rest.client_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/samlp/{client-id}
+      name: samlp-client-id
+      description: REST surface for samlp-client_id.
+      operations:
+      - method: GET
+        name: samlplogin
+        description: Auth0 Use this endpoint to accept a SAML request to initiate a login.
+        call: auth0-saml.samlplogin
+        with:
+          client_id: rest.client_id
+          connection: rest.connection
+          organization: rest.organization
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: auth0-saml-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Auth0 API — SAML. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: auth0-this-endpoint-returns-saml
+      description: Auth0 This endpoint returns the SAML 2.0 metadata.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0-saml.samlpmetadata
+      with:
+        client_id: tools.client_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: auth0-use-this-endpoint-accept
+      description: Auth0 Use this endpoint to accept a SAML request to initiate a login.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: auth0-saml.samlplogin
+      with:
+        client_id: tools.client_id
+        connection: tools.connection
+        organization: tools.organization
+      outputParameters:
+      - type: object
+        mapping: $.
