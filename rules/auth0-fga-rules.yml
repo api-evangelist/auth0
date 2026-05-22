@@ -1,0 +1,19 @@
+extends:
+  - spectral:oas
+rules:
+  fga-summary-title-case:
+    description: OpenFGA summaries must use Title Case.
+    given: $.paths.*[get,post,put,patch,delete].summary
+    severity: warn
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[A-Z]"
+  fga-store-scoped-paths:
+    description: Most paths should be scoped to a store via /stores/{store_id}.
+    given: $.paths
+    severity: info
+    then:
+      function: pattern
+      functionOptions:
+        match: "stores/\\{store_id\\}|/stores$|/stores/\\{"

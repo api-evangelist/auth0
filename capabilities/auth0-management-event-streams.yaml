@@ -1,0 +1,84 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: "Auth0 Management API \u2014 Event Streams"
+  description: Auth0 Management API capability covering the Event Streams resource group (7 paths). Self-contained Naftiko capability covering
+    one Auth0 Management surface. 10 operations.
+  tags:
+  - Auth0
+  - Management API
+  - Event Streams
+  created: '2026-05-22'
+  modified: '2026-05-22'
+binds:
+- namespace: env
+  keys:
+    AUTH0_DOMAIN: AUTH0_DOMAIN
+    AUTH0_MGMT_TOKEN: AUTH0_MGMT_TOKEN
+capability:
+  consumes:
+  - type: http
+    namespace: auth0-management-event-streams
+    baseUri: https://{AUTH0_DOMAIN}/api/v2
+    description: "Auth0 Management API \u2014 Event Streams resource group. Self-contained."
+    resources:
+    - name: event-streams
+      path: /event-streams
+      operations:
+      - name: get_event-streams
+        method: GET
+        description: Get Event Streams
+        outputRawFormat: json
+      - name: post_event-streams
+        method: POST
+        description: Create an Event Stream
+        outputRawFormat: json
+    - name: event-streams-id
+      path: /event-streams/{id}
+      operations:
+      - name: get_event-streams_by_id
+        method: GET
+        description: Get an Event Stream by ID
+        outputRawFormat: json
+      - name: delete_event-streams_by_id
+        method: DELETE
+        description: Delete an Event Stream
+        outputRawFormat: json
+      - name: patch_event-streams_by_id
+        method: PATCH
+        description: Update an Event Stream
+        outputRawFormat: json
+    - name: event-streams-id-deliveries
+      path: /event-streams/{id}/deliveries
+      operations:
+      - name: get_event_deliveries
+        method: GET
+        description: Get This Event Stream's Delivery History
+        outputRawFormat: json
+    - name: event-streams-id-deliveries-event_id
+      path: /event-streams/{id}/deliveries/{event_id}
+      operations:
+      - name: get_deliveries_by_event_id
+        method: GET
+        description: Get a Specific Event's Delivery History
+        outputRawFormat: json
+    - name: event-streams-id-redeliver
+      path: /event-streams/{id}/redeliver
+      operations:
+      - name: post_redeliver
+        method: POST
+        description: Redeliver Failed Events
+        outputRawFormat: json
+    - name: event-streams-id-redeliver-event_id
+      path: /event-streams/{id}/redeliver/{event_id}
+      operations:
+      - name: post_redeliver_by_event_id
+        method: POST
+        description: Redeliver a Single Failed Event by ID
+        outputRawFormat: json
+    - name: event-streams-id-test
+      path: /event-streams/{id}/test
+      operations:
+      - name: post_test_event
+        method: POST
+        description: Send a Test Event to an Event Stream
+        outputRawFormat: json

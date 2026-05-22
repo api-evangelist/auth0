@@ -1,0 +1,33 @@
+extends:
+  - spectral:oas
+rules:
+  auth0-operation-summary-title-case:
+    description: Operation summaries must use Title Case.
+    given: $.paths.*[get,post,put,patch,delete].summary
+    severity: warn
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[A-Z]"
+  auth0-operation-must-have-tag:
+    description: Every operation should belong to a resource group.
+    given: $.paths.*[get,post,put,patch,delete]
+    severity: warn
+    then:
+      field: tags
+      function: truthy
+  auth0-management-bearer-auth:
+    description: Management API operations require bearer JWT.
+    given: $.paths.*[get,post,put,patch,delete]
+    severity: error
+    then:
+      field: security
+      function: truthy
+  auth0-snake-case-paths:
+    description: Auth0 uses hyphen-separated lowercase path segments.
+    given: $.paths
+    severity: warn
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/[a-z0-9-{}/_]+$"

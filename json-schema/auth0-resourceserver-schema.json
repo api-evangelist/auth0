@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/auth0/main/json-schema/auth0-resourceserver-schema.json",
+  "title": "Auth0 ResourceServer",
+  "description": "JSON Schema for Auth0 ResourceServer entity, extracted from the Auth0 Management API OpenAPI v2.0 spec (component: ResourceServer).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "ID of the API (resource server)."
+    },
+    "name": {
+      "type": "string",
+      "description": "Friendly name for this resource server. Can not contain `<` or `>` characters."
+    },
+    "is_system": {
+      "type": "boolean",
+      "description": "Whether this is an Auth0 system API (true) or a custom API (false)."
+    },
+    "identifier": {
+      "type": "string",
+      "description": "Unique identifier for the API used as the audience parameter on authorization calls. Can not be changed once set."
+    },
+    "scopes": {
+      "type": "array",
+      "description": "List of permissions (scopes) that this API uses.",
+      "items": {
+        "$ref": "#/components/schemas/ResourceServerScope"
+      }
+    },
+    "signing_alg": {
+      "$ref": "#/components/schemas/SigningAlgorithmEnum"
+    },
+    "signing_secret": {
+      "type": "string",
+      "description": "Secret used to sign tokens when using symmetric algorithms (HS256).",
+      "minLength": 16
+    },
+    "allow_offline_access": {
+      "type": "boolean",
+      "description": "Whether refresh tokens can be issued for this API (true) or not (false)."
+    },
+    "allow_online_access": {
+      "type": "boolean",
+      "description": "Whether Online Refresh Tokens can be issued for this API (true) or not (false)."
+    },
+    "skip_consent_for_verifiable_first_party_clients": {
+      "type": "boolean",
+      "description": "Whether to skip user consent for applications flagged as first party (true) or not (false)."
+    },
+    "token_lifetime": {
+      "type": "integer",
+      "description": "Expiration value (in seconds) for access tokens issued for this API from the token endpoint."
+    },
+    "token_lifetime_for_web": {
+      "type": "integer",
+      "description": "Expiration value (in seconds) for access tokens issued for this API via Implicit or Hybrid Flows. Cannot be greater than the `token_lifetime` value."
+    },
+    "enforce_policies": {
+      "type": "boolean",
+      "description": "Whether authorization polices are enforced (true) or unenforced (false)."
+    },
+    "token_dialect": {
+      "$ref": "#/components/schemas/ResourceServerTokenDialectResponseEnum"
+    },
+    "token_encryption": {
+      "$ref": "#/components/schemas/ResourceServerTokenEncryption"
+    },
+    "consent_policy": {
+      "$ref": "#/components/schemas/ResourceServerConsentPolicyEnum"
+    },
+    "authorization_details": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "proof_of_possession": {
+      "$ref": "#/components/schemas/ResourceServerProofOfPossession"
+    },
+    "subject_type_authorization": {
+      "$ref": "#/components/schemas/ResourceServerSubjectTypeAuthorization"
+    },
+    "authorization_policy": {
+      "$ref": "#/components/schemas/ResourceServerAuthorizationPolicy",
+      "x-release-lifecycle": "EA"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "The client ID of the client that this resource server is linked to",
+      "format": "client-id"
+    }
+  }
+}

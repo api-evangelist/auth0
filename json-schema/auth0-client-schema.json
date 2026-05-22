@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/auth0/main/json-schema/auth0-client-schema.json",
+  "title": "Auth0 Client",
+  "description": "JSON Schema for Auth0 Client entity, extracted from the Auth0 Management API OpenAPI v2.0 spec (component: Client).",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of this client.",
+      "default": "AaiyAPdpYdesoKnqjj8HJqRn4T5titww"
+    },
+    "tenant": {
+      "type": "string",
+      "description": "Name of the tenant this client belongs to.",
+      "default": ""
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of this client (min length: 1 character, does not allow `<` or `>`).",
+      "default": "My application"
+    },
+    "description": {
+      "type": "string",
+      "description": "Free text description of this client (max length: 140 characters).",
+      "default": ""
+    },
+    "global": {
+      "type": "boolean",
+      "description": "Whether this is your global 'All Applications' client representing legacy tenant settings (true) or a regular client (false).",
+      "default": false
+    },
+    "client_secret": {
+      "type": "string",
+      "description": "Client secret (which you must not make public).",
+      "default": "MG_TNT2ver-SylNat-_VeMmd-4m0Waba0jr1troztBniSChEw0glxEmgEi2Kw40H"
+    },
+    "app_type": {
+      "$ref": "#/components/schemas/ClientAppTypeEnum"
+    },
+    "logo_uri": {
+      "type": "string",
+      "description": "URL of the logo to display for this client. Recommended size is 150x150 pixels."
+    },
+    "is_first_party": {
+      "type": "boolean",
+      "description": "Whether this client a first party client (true) or not (false).",
+      "default": false
+    },
+    "oidc_conformant": {
+      "type": "boolean",
+      "description": "Whether this client conforms to <a href='https://auth0.com/docs/api-auth/tutorials/adoption'>strict OIDC specifications</a> (true) or uses legacy features (false).",
+      "default": false
+    },
+    "callbacks": {
+      "type": "array",
+      "description": "Comma-separated list of URLs whitelisted for Auth0 to use as a callback to the client after authentication.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_origins": {
+      "type": "array",
+      "description": "Comma-separated list of URLs allowed to make requests from JavaScript to Auth0 API (typically used with CORS). By default, all your callback URLs will be allowed. This field allows you to enter other origins if necessary. You can also use wildcards at the subdomain level (e.g., https://*.contoso.com). Query strings and hash information are not taken into account when validating these URLs.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "web_origins": {
+      "type": "array",
+      "description": "Comma-separated list of allowed origins for use with <a href='https://auth0.com/docs/cross-origin-authentication'>Cross-Origin Authentication</a>, <a href='https://auth0.com/docs/flows/concepts/device-auth'>Device Flow</a>, and <a href='https://auth0.com/docs/protocols/oauth2#how-response-mode-works'>web message response mode</a>.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "client_aliases": {
+      "type": "array",
+      "description": "List of audiences/realms for SAML protocol. Used by the wsfed addon.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_clients": {
+      "type": "array",
+      "description": "List of allow clients and API ids that are allowed to make delegation requests. Empty means all all your clients are allowed.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_logout_urls": {
+      "type": "array",
+      "description": "Comma-separated list of URLs that are valid to redirect to after logout from Auth0. Wildcards are allowed for subdomains.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "session_transfer": {
+      "$ref": "#/components/schemas/ClientSessionTransferConfiguration"
+    },
+    "oidc_logout": {
+      "$ref": "#/components/schemas/ClientOIDCBackchannelLogoutSettings"
+    },
+    "grant_types": {
+      "type": "array",
+      "description": "List of grant types supported for this application. Can include `authorization_code`, `implicit`, `refresh_token`, `client_credentials`, `password`, `http://auth0.com/oauth/grant-type/password-realm`, `http://auth0.com/oauth/grant-type/mfa-oob`, `http://auth0.com/oauth/grant-type/mfa-otp`, `http://auth0.com/oauth/grant-type/mfa-recovery-code`, `urn:openid:params:grant-type:ciba`, `urn:ietf:params:oauth:grant-type:device_code`, and `urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token`.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "jwt_configuration": {
+      "$ref": "#/components/schemas/ClientJwtConfiguration"
+    },
+    "signing_keys": {
+      "$ref": "#/components/schemas/ClientSigningKeys"
+    },
+    "encryption_key": {
+      "$ref": "#/components/schemas/ClientEncryptionKey"
+    },
+    "sso": {
+      "type": "boolean",
+      "description": "Applies only to SSO clients and determines whether Auth0 will handle Single Sign On (true) or whether the Identity Provider will (false).",
+      "default": false
+    },
+    "sso_disabled": {
+      "type": "boolean",
+      "description": "Whether Single Sign On is disabled (true) or enabled (true). Defaults to true.",
+      "default": false
+    },
+    "cross_origin_authentication": {
+      "type": "boolean",
+      "description": "Whether this client can be used to make cross-origin authentication requests (true) or it is not allowed to make such requests (false)."
+    },
+    "cross_origin_loc": {
+      "type": "string",
+      "description": "URL of the location in your site where the cross origin verification takes place for the cross-origin auth flow when performing Auth in your own domain instead of Auth0 hosted login page.",
+      "format": "url"
+    },
+    "custom_login_page_on": {
+      "type": "boolean",
+      "description": "Whether a custom login page is to be used (true) or the default provided login page (false).",
+      "default": true
+    },
+    "custom_login_page": {
+      "type": "string",
+      "description": "The content (HTML, CSS, JS) of the custom login page.",
+      "default": ""
+    },
+    "custom_login_page_preview": {
+      "type": "string",
+      "description": "The content (HTML, CSS, JS) of the custom login page. (Used on Previews)",
+      "default": ""
+    },
+    "form_template": {
+      "type": "string",
+      "description": "HTML form template to be used for WS-Federation.",
+      "default": ""
+    },
+    "addons": {
+      "$ref": "#/components/schemas/ClientAddons"
+    },
+    "token_endpoint_auth_method": {
+      "$ref": "#/components/schemas/ClientTokenEndpointAuthMethodEnum"
+    },
+    "is_token_endpoint_ip_header_trusted": {
+      "type": "boolean",
+      "description": "If true, trust that the IP specified in the `auth0-forwarded-for` header is the end-user's IP for brute-force-protection on token endpoint.",
+      "default": false
+    },
+    "client_metadata": {
+      "$ref": "#/components/schemas/ClientMetadata"
+    },
+    "mobile": {
+      "$ref": "#/components/schemas/ClientMobile"
+    },
+    "initiate_login_uri": {
+      "type": "string",
+      "description": "Initiate login uri, must be https",
+      "format": "absolute-https-uri-with-placeholders-or-empty"
+    },
+    "native_social_login": {},
+    "refresh_token": {
+      "$ref": "#/components/schemas/ClientRefreshTokenConfiguration"
+    },
+    "default_organization": {
+      "$ref": "#/components/schemas/ClientDefaultOrganization"
+    },
+    "organization_usage": {
+      "$ref": "#/components/schemas/ClientOrganizationUsageEnum"
+    },
+    "organization_require_behavior": {
+      "$ref": "#/components/schemas/ClientOrganizationRequireBehaviorEnum"
+    },
+    "organization_discovery_methods": {
+      "type": "array",
+      "description": "Defines the available methods for organization discovery during the `pre_login_prompt`. Users can discover their organization either by `email`, `organization_name` or both.",
+      "minItems": 1,
+      "x-release-lifecycle": "EA",
+      "items": {
+        "$ref": "#/components/schemas/ClientOrganizationDiscoveryEnum"
+      }
+    },
+    "client_authentication_methods": {
+      "$ref": "#/components/schemas/ClientAuthenticationMethod"
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean",
+      "description": "Makes the use of Pushed Authorization Requests mandatory for this client",
+      "default": false
+    },
+    "require_proof_of_possession": {
+      "type": "boolean",
+      "description": "Makes the use of Proof-of-Possession mandatory for this client",
+      "default": false
+    },
+    "signed_request_object": {
+      "$ref": "#/components/schemas/ClientSignedRequestObjectWithCredentialId"
+    },
+    "compliance_level": {
+      "$ref": "#/components/schemas/ClientComplianceLevelEnum"
+    },
+    "skip_non_verifiable_callback_uri_confirmation_prompt": {
+      "type": "boolean",
+      "description": "Controls whether a confirmation prompt is shown during login flows when the redirect URI uses non-verifiable callback URIs (for example, a custom URI schema such as `myapp://`, or `localhost`).\nIf set to true, a confirmation prompt will not be shown. We recommend that this is set to false for improved protection from malicious apps.\nSee https://auth0.com/docs/secure/security-guidance/measures-against-app-impersonation for more information."
+    },
+    "token_exchange": {
+      "$ref": "#/components/schemas/ClientTokenExchangeConfiguration",
+      "x-release-lifecycle": "GA"
+    },
+    "par_request_expiry": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Specifies how long, in seconds, a Pushed Authorization Request URI remains valid",
+      "minimum": 10,
+      "maximum": 600
+    },
+    "token_quota": {
+      "$ref": "#/components/schemas/TokenQuota",
+      "x-release-lifecycle": "EA"
+    },
+    "express_configuration": {
+      "$ref": "#/components/schemas/ExpressConfiguration"
+    },
+    "my_organization_configuration": {
+      "$ref": "#/components/schemas/ClientMyOrganizationResponseConfiguration",
+      "x-release-lifecycle": "EA"
+    },
+    "third_party_security_mode": {
+      "$ref": "#/components/schemas/ClientThirdPartySecurityModeEnum",
+      "x-release-lifecycle": "GA"
+    },
+    "redirection_policy": {
+      "$ref": "#/components/schemas/ClientRedirectionPolicyEnum",
+      "x-release-lifecycle": "GA"
+    },
+    "resource_server_identifier": {
+      "type": "string",
+      "description": "The identifier of the resource server that this client is linked to."
+    },
+    "async_approval_notification_channels": {
+      "$ref": "#/components/schemas/ClientAsyncApprovalNotificationsChannelsAPIPostConfiguration"
+    },
+    "external_metadata_type": {
+      "$ref": "#/components/schemas/ClientExternalMetadataTypeEnum"
+    },
+    "external_metadata_created_by": {
+      "$ref": "#/components/schemas/ClientExternalMetadataCreatedByEnum"
+    },
+    "external_client_id": {
+      "type": "string",
+      "description": "An alternate client identifier to be used during authorization flows. Only supports CIMD-based client identifiers.",
+      "format": "absolute-https-uri-or-empty"
+    },
+    "jwks_uri": {
+      "type": "string",
+      "description": "URL for the JSON Web Key Set (JWKS) containing the public keys used for private_key_jwt authentication. Only present for CIMD clients using private_key_jwt authentication.",
+      "format": "absolute-https-uri-or-empty"
+    }
+  }
+}

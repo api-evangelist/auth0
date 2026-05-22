@@ -4,7 +4,7 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Auth0
 providerId: auth0
 created: '2026-05-04'
-modified: '2026-05-04'
+modified: '2026-05-22'
 reconciled: true
 tags:
   - Rate Limiting
@@ -45,3 +45,26 @@ limits:
     scope: ip
     metric: auth_attempts
     limit: configurable
+  - name: MFA SMS Messages
+    scope: device
+    metric: sms_per_hour
+    limit: 10
+    timeFrame: hour
+    description: If more than 10 SMS messages are sent to a device within an hour, an error is returned.
+  - name: Database Login Brute Force
+    scope: ip+account
+    metric: attempts_per_minute
+    limit: 20
+    timeFrame: minute
+    description: 20 login attempts per minute per IP to same user account before rate limit triggers; then 10/minute.
+  - name: Extensibility Concurrency (Public Cloud)
+    scope: tenant
+    metric: concurrent_requests
+    limit: 250
+    description: Concurrent extensibility requests per tenant on Public Cloud (Private Cloud 100–1200 by tier).
+  - name: Public Performance Burst (Enterprise add-on)
+    scope: tenant
+    metric: rps_multiplier
+    limit: 4
+    timeFrame: 48-hours-per-month
+    description: 2x/3x/4x multiplier over default 100 RPS for up to 48 hours/month.

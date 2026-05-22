@@ -1,0 +1,124 @@
+name: Auth0 Vocabulary
+description: >-
+  Operational and capability vocabulary for the Auth0 (Okta) identity platform,
+  spanning Authentication API, Management API, My Account API, My Organization API,
+  FGA (Fine-Grained Authorization), and Auth0 for AI Agents.
+version: '0.1'
+modified: '2026-05-22'
+sources:
+  - https://auth0.com/docs
+  - https://auth0.com/docs/api/management/openapi.json
+  - https://openfga.dev
+
+domains:
+  - name: Authentication
+    description: Verifying identity claims of humans, services, and agents.
+    terms:
+      - term: OpenID Connect (OIDC)
+        definition: Identity layer on top of OAuth 2.0 that issues id_tokens with user claims.
+      - term: OAuth 2.0
+        definition: Authorization framework issuing access_tokens and refresh_tokens to clients on behalf of resource owners.
+      - term: SAML 2.0
+        definition: Enterprise SSO assertion format used by many workforce IdPs.
+      - term: WS-Federation
+        definition: Legacy Microsoft-ecosystem federation protocol still supported by Auth0.
+      - term: Passwordless
+        definition: Authentication via magic link, SMS code, or email code without a password.
+      - term: Universal Login
+        definition: Auth0-hosted login page that handles all auth flows centrally.
+
+  - name: Authorization
+    description: Deciding what an authenticated principal can do.
+    terms:
+      - term: Scope
+        definition: OAuth permission identifier requested by a client (e.g., read:users).
+      - term: Audience
+        definition: The API the access_token is intended for (the resource server identifier).
+      - term: Resource Server
+        definition: An API protected by Auth0; defined in the Management API with scopes and signing config.
+      - term: Role
+        definition: A named bundle of permissions assignable to users.
+      - term: Permission
+        definition: A scoped action on a Resource Server.
+      - term: FGA Tuple
+        definition: A (user, relation, object) triple stored in an FGA store representing a relationship.
+      - term: FGA Model
+        definition: The authorization schema declaring types and allowed relations, inspired by Google Zanzibar.
+
+  - name: Tokens
+    description: Bearer credentials issued by Auth0.
+    terms:
+      - term: Access Token
+        definition: JWT issued to a client to call a Resource Server.
+      - term: ID Token
+        definition: JWT containing authenticated user claims (OIDC).
+      - term: Refresh Token
+        definition: Long-lived credential used to obtain new access tokens; can be online-bound to a session.
+      - term: Multi-Resource Refresh Token (MRRT)
+        definition: A refresh token redeemable across multiple Resource Servers.
+      - term: Token Exchange
+        definition: RFC 8693 exchange of one token type for another, including custom token exchange.
+      - term: Online Refresh Token
+        definition: Beta refresh token bound to the SPA session it originated from.
+
+  - name: Tenancy & Organizations
+    description: Multi-tenant identity structures.
+    terms:
+      - term: Tenant
+        definition: Auth0 top-level container per customer; isolated config and data.
+      - term: Organization
+        definition: B2B sub-tenant with its own branding, connections, members, and SCIM.
+      - term: Connection
+        definition: A configured identity provider (database, social, enterprise, passwordless).
+      - term: Self-Service SSO
+        definition: A flow that lets B2B customers configure their own enterprise SSO connection.
+      - term: Organization Discovery
+        definition: Routing users to the correct organization by email domain before login.
+
+  - name: Pipelines & Extensibility
+    description: Customization points around authentication.
+    terms:
+      - term: Action
+        definition: Node.js code executed at a defined trigger (post-login, credential exchange, etc).
+      - term: Trigger
+        definition: A point in the auth pipeline where an Action runs.
+      - term: Rule
+        definition: Legacy predecessor to Actions; deprecated.
+      - term: Hook
+        definition: Legacy serverless extension point; deprecated in favor of Actions.
+      - term: Form
+        definition: A custom authentication form built and published via the Management API.
+
+  - name: AI Agent Identity
+    description: Identity for AI agents and the tools they invoke.
+    terms:
+      - term: Auth0 for AI Agents
+        definition: Product line for issuing agent identities, scoping tool access, and brokering tokens to third-party APIs.
+      - term: Token Vault
+        definition: Auth0-managed store of user-delegated API credentials (Google, GitHub, Slack) with automatic refresh.
+      - term: Asynchronous Authorization
+        definition: Human-in-the-loop approval workflow for high-stakes agent actions.
+      - term: Auth for MCP
+        definition: Generally available bundle (Client ID Metadata Registration + Token Exchange + Resource Parameter Compatibility) for securing MCP servers.
+      - term: MCP Server
+        definition: Auth0's official Model Context Protocol server (auth0-mcp-server) exposing Management API tools to AI agents.
+      - term: Agent Skills
+        definition: 27 prebuilt Auth0 skills usable with Claude Code, Cursor, GitHub Copilot, and other Agent-Skills-compatible assistants.
+      - term: FGA Permissions Index
+        definition: Developer-preview pre-calculation of permission paths for AI retrieval and enterprise search.
+      - term: Cross App Access (XAA)
+        definition: Forthcoming protocol for sharing agent authorization across applications.
+
+  - name: Operations
+    description: Runtime concerns.
+    terms:
+      - term: Rate Limit
+        definition: Per-tenant request limits — Authentication API 100 RPS Free / 200 RPS Paid; Management API 2 RPS Free / 15 RPS Paid.
+      - term: Public Performance Burst
+        definition: Enterprise add-on raising the default 100 RPS by 2x/3x/4x for up to 48 hours/month.
+      - term: Event Stream
+        definition: GA delivery of user/organization/group events to EventBridge, Actions, or webhooks.
+      - term: Log Stream
+        definition: Push of tenant audit logs to SIEM destinations.
+      - term: Suspicious IP Throttling
+        definition: Configurable throttle on high-velocity traffic from suspicious IPs during custom token exchange.
