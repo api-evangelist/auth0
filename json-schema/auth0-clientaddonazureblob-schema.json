@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/ClientAddonAzureBlob",
+  "title": "ClientAddonAzureBlob",
+  "type": "object",
+  "description": "Azure Blob Storage addon configuration.",
+  "additionalProperties": true,
+  "properties": {
+    "accountName": {
+      "type": "string",
+      "description": "Your Azure storage account name. Usually first segment in your Azure storage URL. e.g. `https://acme-org.blob.core.windows.net` would be the account name `acme-org`.",
+      "pattern": "^([a-z0-9]){3,24}$"
+    },
+    "storageAccessKey": {
+      "type": "string",
+      "description": "Access key associated with this storage account.",
+      "pattern": "^([A-Za-z0-9+/]){86}==$"
+    },
+    "containerName": {
+      "type": "string",
+      "description": "Container to request a token for. e.g. `my-container`.",
+      "pattern": "^([a-z0-9]){1}([a-z0-9-]){2,62}$"
+    },
+    "blobName": {
+      "type": "string",
+      "description": "Entity to request a token for. e.g. `my-blob`. If blank the computed SAS will apply to the entire storage container.",
+      "pattern": "^(.){1,1024}$"
+    },
+    "expiration": {
+      "type": "integer",
+      "description": "Expiration in minutes for the generated token (default of 5 minutes).",
+      "minimum": 0
+    },
+    "signedIdentifier": {
+      "type": "string",
+      "description": "Shared access policy identifier defined in your storage account resource."
+    },
+    "blob_read": {
+      "type": "boolean",
+      "description": "Indicates if the issued token has permission to read the content, properties, metadata and block list. Use the blob as the source of a copy operation."
+    },
+    "blob_write": {
+      "type": "boolean",
+      "description": "Indicates if the issued token has permission to create or write content, properties, metadata, or block list. Snapshot or lease the blob. Resize the blob (page blob only). Use the blob as the destination of a copy operation within the same account."
+    },
+    "blob_delete": {
+      "type": "boolean",
+      "description": "Indicates if the issued token has permission to delete the blob."
+    },
+    "container_read": {
+      "type": "boolean",
+      "description": "Indicates if the issued token has permission to read the content, properties, metadata or block list of any blob in the container. Use any blob in the container as the source of a copy operation"
+    },
+    "container_write": {
+      "type": "boolean",
+      "description": "Indicates that for any blob in the container if the issued token has permission to create or write content, properties, metadata, or block list. Snapshot or lease the blob. Resize the blob (page blob only). Use the blob as the destination of a copy operation within the same account."
+    },
+    "container_delete": {
+      "type": "boolean",
+      "description": "Indicates if issued token has permission to delete any blob in the container."
+    },
+    "container_list": {
+      "type": "boolean",
+      "description": "Indicates if the issued token has permission to list blobs in the container."
+    }
+  }
+}

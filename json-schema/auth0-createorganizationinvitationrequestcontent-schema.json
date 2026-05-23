@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateOrganizationInvitationRequestContent",
+  "title": "CreateOrganizationInvitationRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "inviter",
+    "invitee",
+    "client_id"
+  ],
+  "properties": {
+    "inviter": {
+      "$ref": "#/components/schemas/OrganizationInvitationInviter"
+    },
+    "invitee": {
+      "$ref": "#/components/schemas/OrganizationInvitationInvitee"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Auth0 client ID. Used to resolve the application's login initiation endpoint.",
+      "default": "AaiyAPdpYdesoKnqjj8HJqRn4T5titww",
+      "format": "client-id"
+    },
+    "connection_id": {
+      "type": "string",
+      "description": "The id of the connection to force invitee to authenticate with.",
+      "default": "con_0000000000000001",
+      "format": "connection-id"
+    },
+    "app_metadata": {
+      "$ref": "#/components/schemas/AppMetadata"
+    },
+    "user_metadata": {
+      "$ref": "#/components/schemas/UserMetadata"
+    },
+    "ttl_sec": {
+      "type": "integer",
+      "description": "Number of seconds for which the invitation is valid before expiration. If unspecified or set to 0, this value defaults to 604800 seconds (7 days). Max value: 2592000 seconds (30 days).",
+      "minimum": 0,
+      "maximum": 2592000
+    },
+    "roles": {
+      "type": "array",
+      "description": "List of roles IDs to associated with the user.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "format": "role-id"
+      }
+    },
+    "send_invitation_email": {
+      "type": "boolean",
+      "description": "Whether the user will receive an invitation email (true) or no email (false), true by default",
+      "default": true
+    }
+  }
+}

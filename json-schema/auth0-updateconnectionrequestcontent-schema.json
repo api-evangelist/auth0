@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/UpdateConnectionRequestContent",
+  "title": "UpdateConnectionRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "display_name": {
+      "type": "string",
+      "description": "The connection name used in the new universal login experience. If display_name is not included in the request, the field will be overwritten with the name value.",
+      "maxLength": 128
+    },
+    "options": {
+      "$ref": "#/components/schemas/UpdateConnectionOptions"
+    },
+    "enabled_clients": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "DEPRECATED property. Use the PATCH /v2/connections/{id}/clients endpoint to enable or disable the connection for any clients.",
+      "x-release-lifecycle": "deprecated",
+      "items": {
+        "type": "string",
+        "description": "The client_id of the client to for which the connection is to be enabled",
+        "format": "client-id"
+      }
+    },
+    "is_domain_connection": {
+      "type": "boolean",
+      "description": "<code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)"
+    },
+    "show_as_button": {
+      "type": "boolean",
+      "description": "Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)"
+    },
+    "realms": {
+      "type": "array",
+      "description": "Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.",
+      "items": {
+        "type": "string",
+        "description": "The realm where this connection belongs",
+        "format": "connection-realm"
+      }
+    },
+    "metadata": {
+      "$ref": "#/components/schemas/ConnectionsMetadata"
+    },
+    "authentication": {
+      "$ref": "#/components/schemas/ConnectionAuthenticationPurpose",
+      "x-release-lifecycle": "GA"
+    },
+    "connected_accounts": {
+      "$ref": "#/components/schemas/ConnectionConnectedAccountsPurpose",
+      "x-release-lifecycle": "GA"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateOrganizationDiscoveryDomainResponseContent",
+  "title": "CreateOrganizationDiscoveryDomainResponseContent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "domain",
+    "status",
+    "verification_host",
+    "verification_txt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Organization discovery domain identifier.",
+      "format": "organization-discovery-domain-id"
+    },
+    "domain": {
+      "type": "string",
+      "description": "The domain name to associate with the organization e.g. acme.com.",
+      "minLength": 3,
+      "maxLength": 255,
+      "pattern": "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$"
+    },
+    "status": {
+      "$ref": "#/components/schemas/OrganizationDiscoveryDomainStatus"
+    },
+    "use_for_organization_discovery": {
+      "type": "boolean",
+      "description": "Indicates whether this domain should be used for organization discovery."
+    },
+    "verification_txt": {
+      "type": "string",
+      "description": "A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership."
+    },
+    "verification_host": {
+      "type": "string",
+      "description": "The full domain where the TXT record should be added."
+    }
+  }
+}

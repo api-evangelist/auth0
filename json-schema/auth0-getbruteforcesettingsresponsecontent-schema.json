@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/GetBruteForceSettingsResponseContent",
+  "title": "GetBruteForceSettingsResponseContent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether or not brute force attack protections are active."
+    },
+    "shields": {
+      "type": "array",
+      "description": "Action to take when a brute force protection threshold is violated.\n        Possible values: <code>block</code>, <code>user_notification</code>.",
+      "items": {
+        "$ref": "#/components/schemas/BruteForceProtectionShieldsEnum"
+      }
+    },
+    "allowlist": {
+      "type": "array",
+      "description": "List of trusted IP addresses that will not have attack protection enforced against them.",
+      "items": {
+        "type": "string",
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "ipv4"
+          },
+          {
+            "type": "string",
+            "format": "cidr"
+          },
+          {
+            "type": "string",
+            "format": "ipv6"
+          },
+          {
+            "type": "string",
+            "format": "ipv6_cidr"
+          }
+        ]
+      }
+    },
+    "mode": {
+      "$ref": "#/components/schemas/BruteForceProtectionModeEnum"
+    },
+    "max_attempts": {
+      "type": "integer",
+      "description": "Maximum number of unsuccessful attempts.",
+      "default": 10,
+      "minimum": 1,
+      "maximum": 100
+    }
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/UpdateClientRequestContent",
+  "title": "UpdateClientRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the client. Must contain at least one character. Does not allow '<' or '>'.",
+      "pattern": "^[^<>]+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Free text description of the purpose of the Client. (Max character length: <code>140</code>)",
+      "maxLength": 140
+    },
+    "client_secret": {
+      "type": "string",
+      "description": "The secret used to sign tokens for the client",
+      "minLength": 1
+    },
+    "logo_uri": {
+      "type": "string",
+      "description": "The URL of the client logo (recommended size: 150x150)",
+      "format": "absolute-uri-or-empty"
+    },
+    "callbacks": {
+      "type": "array",
+      "description": "A set of URLs that are valid to call back from Auth0 when authenticating users",
+      "items": {
+        "type": "string",
+        "format": "callback-url"
+      }
+    },
+    "oidc_logout": {
+      "$ref": "#/components/schemas/ClientOIDCBackchannelLogoutSettings"
+    },
+    "oidc_backchannel_logout": {
+      "$ref": "#/components/schemas/ClientOIDCBackchannelLogoutSettings",
+      "x-release-lifecycle": "deprecated",
+      "description": "Configuration for OIDC backchannel logout (deprecated, in favor of oidc_logout)"
+    },
+    "session_transfer": {
+      "$ref": "#/components/schemas/ClientSessionTransferConfiguration"
+    },
+    "allowed_origins": {
+      "type": "array",
+      "description": "A set of URLs that represents valid origins for CORS",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "web_origins": {
+      "type": "array",
+      "description": "A set of URLs that represents valid web origins for use with web message response mode",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "grant_types": {
+      "type": "array",
+      "description": "A set of grant types that the client is authorized to use. Can include `authorization_code`, `implicit`, `refresh_token`, `client_credentials`, `password`, `http://auth0.com/oauth/grant-type/password-realm`, `http://auth0.com/oauth/grant-type/mfa-oob`, `http://auth0.com/oauth/grant-type/mfa-otp`, `http://auth0.com/oauth/grant-type/mfa-recovery-code`, `urn:openid:params:grant-type:ciba`, `urn:ietf:params:oauth:grant-type:device_code`, and `urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token`.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "client_aliases": {
+      "type": "array",
+      "description": "List of audiences for SAML protocol",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_clients": {
+      "type": "array",
+      "description": "Ids of clients that will be allowed to perform delegation requests. Clients that will be allowed to make delegation request. By default, all your clients will be allowed. This field allows you to specify specific clients",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_logout_urls": {
+      "type": "array",
+      "description": "URLs that are valid to redirect to after logout from Auth0",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "jwt_configuration": {
+      "$ref": "#/components/schemas/ClientJwtConfiguration",
+      "description": "An object that holds settings related to how JWTs are created"
+    },
+    "encryption_key": {
+      "$ref": "#/components/schemas/ClientEncryptionKey",
+      "description": "The client's encryption key"
+    },
+    "sso": {
+      "type": "boolean",
+      "description": "<code>true</code> to use Auth0 instead of the IdP to do Single Sign On, <code>false</code> otherwise (default: <code>false</code>)"
+    },
+    "cross_origin_authentication": {
+      "type": "boolean",
+      "description": "<code>true</code> if this client can be used to make cross-origin authentication requests, <code>false</code> otherwise if cross origin is disabled"
+    },
+    "cross_origin_loc": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "URL for the location in your site where the cross origin verification takes place for the cross-origin auth flow when performing Auth in your own domain instead of Auth0 hosted login page.",
+      "format": "url-or-null"
+    },
+    "sso_disabled": {
+      "type": "boolean",
+      "description": "<code>true</code> to disable Single Sign On, <code>false</code> otherwise (default: <code>false</code>)"
+    },
+    "custom_login_page_on": {
+      "type": "boolean",
+      "description": "<code>true</code> if the custom login page is to be used, <code>false</code> otherwise."
+    },
+    "token_endpoint_auth_method": {
+      "$ref": "#/components/schemas/ClientTokenEndpointAuthMethodOrNullEnum"
+    },
+    "is_token_endpoint_ip_header_trusted": {
+      "type": "boolean",
+      "description": "If true, trust that the IP specified in the `auth0-forwarded-for` header is the end-user's IP for brute-force-protection on token endpoint.",
+      "default": false
+    },
+    "app_type": {
+      "$ref": "#/components/schemas/ClientAppTypeEnum"
+    },
+    "is_first_party": {
+      "type": "boolean",
+      "description": "Whether this client a first party client or not",
+      "default": true
+    },
+    "oidc_conformant": {
+      "type": "boolean",
+      "description": "Whether this client will conform to strict OIDC specifications",
+      "default": false
+    },
+    "custom_login_page": {
+      "type": "string",
+      "description": "The content (HTML, CSS, JS) of the custom login page"
+    },
+    "custom_login_page_preview": {
+      "type": "string"
+    },
+    "token_quota": {
+      "$ref": "#/components/schemas/UpdateTokenQuota",
+      "x-release-lifecycle": "EA"
+    },
+    "form_template": {
+      "type": "string",
+      "description": "Form template for WS-Federation protocol"
+    },
+    "addons": {
+      "$ref": "#/components/schemas/ClientAddons"
+    },
+    "client_metadata": {
+      "$ref": "#/components/schemas/ClientMetadata"
+    },
+    "mobile": {
+      "$ref": "#/components/schemas/ClientMobile",
+      "description": "Configuration related to native mobile apps"
+    },
+    "initiate_login_uri": {
+      "type": "string",
+      "description": "Initiate login uri, must be https",
+      "format": "absolute-https-uri-with-placeholders-or-empty"
+    },
+    "native_social_login": {
+      "$ref": "#/components/schemas/NativeSocialLogin"
+    },
+    "refresh_token": {
+      "$ref": "#/components/schemas/ClientRefreshTokenConfiguration"
+    },
+    "default_organization": {
+      "$ref": "#/components/schemas/ClientDefaultOrganization"
+    },
+    "organization_usage": {
+      "$ref": "#/components/schemas/ClientOrganizationUsagePatchEnum"
+    },
+    "organization_require_behavior": {
+      "$ref": "#/components/schemas/ClientOrganizationRequireBehaviorPatchEnum"
+    },
+    "organization_discovery_methods": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Defines the available methods for organization discovery during the `pre_login_prompt`. Users can discover their organization either by `email`, `organization_name` or both.",
+      "minItems": 1,
+      "x-release-lifecycle": "EA",
+      "items": {
+        "$ref": "#/components/schemas/ClientOrganizationDiscoveryEnum"
+      }
+    },
+    "client_authentication_methods": {
+      "$ref": "#/components/schemas/ClientAuthenticationMethod"
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean",
+      "description": "Makes the use of Pushed Authorization Requests mandatory for this client",
+      "default": false
+    },
+    "require_proof_of_possession": {
+      "type": "boolean",
+      "description": "Makes the use of Proof-of-Possession mandatory for this client",
+      "default": false
+    },
+    "signed_request_object": {
+      "$ref": "#/components/schemas/ClientSignedRequestObjectWithCredentialId"
+    },
+    "compliance_level": {
+      "$ref": "#/components/schemas/ClientComplianceLevelEnum"
+    },
+    "skip_non_verifiable_callback_uri_confirmation_prompt": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Controls whether a confirmation prompt is shown during login flows when the redirect URI uses non-verifiable callback URIs (for example, a custom URI schema such as `myapp://`, or `localhost`).\nIf set to true, a confirmation prompt will not be shown. We recommend that this is set to false for improved protection from malicious apps.\nSee https://auth0.com/docs/secure/security-guidance/measures-against-app-impersonation for more information."
+    },
+    "token_exchange": {
+      "$ref": "#/components/schemas/ClientTokenExchangeConfigurationOrNull",
+      "x-release-lifecycle": "GA"
+    },
+    "par_request_expiry": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Specifies how long, in seconds, a Pushed Authorization Request URI remains valid",
+      "minimum": 10,
+      "maximum": 600
+    },
+    "express_configuration": {
+      "$ref": "#/components/schemas/ExpressConfigurationOrNull"
+    },
+    "my_organization_configuration": {
+      "$ref": "#/components/schemas/ClientMyOrganizationPatchConfiguration",
+      "x-release-lifecycle": "EA"
+    },
+    "async_approval_notification_channels": {
+      "$ref": "#/components/schemas/ClientAsyncApprovalNotificationsChannelsAPIPatchConfiguration"
+    },
+    "third_party_security_mode": {
+      "$ref": "#/components/schemas/ClientThirdPartySecurityModeEnum",
+      "x-release-lifecycle": "GA"
+    },
+    "redirection_policy": {
+      "$ref": "#/components/schemas/ClientRedirectionPolicyEnum",
+      "x-release-lifecycle": "GA"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateOrganizationRequestContent",
+  "title": "CreateOrganizationRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of this organization.",
+      "default": "organization-1",
+      "minLength": 1,
+      "maxLength": 50,
+      "format": "organization-name"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Friendly name of this organization.",
+      "default": "Acme Users",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "branding": {
+      "$ref": "#/components/schemas/OrganizationBranding"
+    },
+    "metadata": {
+      "$ref": "#/components/schemas/OrganizationMetadata"
+    },
+    "enabled_connections": {
+      "type": "array",
+      "description": "Connections that will be enabled for this organization. See POST enabled_connections endpoint for the object format. (Max of 10 connections allowed)",
+      "items": {
+        "$ref": "#/components/schemas/ConnectionForOrganization"
+      }
+    },
+    "token_quota": {
+      "$ref": "#/components/schemas/CreateTokenQuota",
+      "x-release-lifecycle": "EA"
+    }
+  }
+}

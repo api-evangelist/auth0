@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/GetActionResponseContent",
+  "title": "GetActionResponseContent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "The unique ID of the action.",
+      "default": "910b1053-577f-4d81-a8c8-020e7319a38a"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of an action.",
+      "default": "my-action"
+    },
+    "supported_triggers": {
+      "type": "array",
+      "description": "The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/components/schemas/ActionTrigger",
+        "x-release-lifecycle": "GA"
+      }
+    },
+    "all_changes_deployed": {
+      "type": "boolean",
+      "description": "True if all of an Action's contents have been deployed.",
+      "default": false
+    },
+    "created_at": {
+      "type": "string",
+      "description": "The time when this action was created.",
+      "default": "2021-01-01T00:00:00.000Z",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "The time when this action was updated.",
+      "default": "2021-01-01T00:00:00.000Z",
+      "format": "date-time"
+    },
+    "code": {
+      "type": "string",
+      "description": "The source code of the action.",
+      "default": "module.exports = () => {}"
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "The list of third party npm modules, and their versions, that this action depends on.",
+      "items": {
+        "$ref": "#/components/schemas/ActionVersionDependency"
+      }
+    },
+    "runtime": {
+      "type": "string",
+      "description": "The Node runtime. For example: `node22`, defaults to `node22`",
+      "default": "node22"
+    },
+    "secrets": {
+      "type": "array",
+      "description": "The list of secrets that are included in an action or a version of an action.",
+      "items": {
+        "$ref": "#/components/schemas/ActionSecretResponse"
+      }
+    },
+    "deployed_version": {
+      "$ref": "#/components/schemas/ActionDeployedVersion"
+    },
+    "installed_integration_id": {
+      "type": "string",
+      "description": "installed_integration_id is the fk reference to the InstalledIntegration entity.",
+      "default": "7d2bc0c9-c0c2-433a-9f4e-86ef80270aad"
+    },
+    "integration": {
+      "$ref": "#/components/schemas/Integration"
+    },
+    "status": {
+      "$ref": "#/components/schemas/ActionBuildStatusEnum"
+    },
+    "built_at": {
+      "type": "string",
+      "description": "The time when this action was built successfully.",
+      "default": "2021-01-01T00:00:00.000Z",
+      "format": "date-time"
+    },
+    "deploy": {
+      "type": "boolean",
+      "description": "True if the action should be deployed after creation.",
+      "default": false
+    },
+    "modules": {
+      "type": "array",
+      "description": "The list of action modules and their versions used by this action.",
+      "items": {
+        "$ref": "#/components/schemas/ActionModuleReference"
+      }
+    }
+  }
+}

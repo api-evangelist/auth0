@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/ClientRefreshTokenConfiguration",
+  "title": "ClientRefreshTokenConfiguration",
+  "type": [
+    "object",
+    "null"
+  ],
+  "description": "Refresh token configuration",
+  "additionalProperties": false,
+  "required": [
+    "rotation_type",
+    "expiration_type"
+  ],
+  "properties": {
+    "rotation_type": {
+      "$ref": "#/components/schemas/RefreshTokenRotationTypeEnum"
+    },
+    "expiration_type": {
+      "$ref": "#/components/schemas/RefreshTokenExpirationTypeEnum"
+    },
+    "leeway": {
+      "type": "integer",
+      "description": "Period in seconds where the previous refresh token can be exchanged without triggering breach detection",
+      "default": 0,
+      "minimum": 0
+    },
+    "token_lifetime": {
+      "type": "integer",
+      "description": "Period (in seconds) for which refresh tokens will remain valid",
+      "minimum": 1,
+      "maximum": 157788000
+    },
+    "infinite_token_lifetime": {
+      "type": "boolean",
+      "description": "Prevents tokens from having a set lifetime when `true` (takes precedence over `token_lifetime` values)"
+    },
+    "idle_token_lifetime": {
+      "type": "integer",
+      "description": "Period (in seconds) for which refresh tokens will remain valid without use",
+      "minimum": 1
+    },
+    "infinite_idle_token_lifetime": {
+      "type": "boolean",
+      "description": "Prevents tokens from expiring without use when `true` (takes precedence over `idle_token_lifetime` values)",
+      "default": false
+    },
+    "policies": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "A collection of policies governing multi-resource refresh token exchange (MRRT), defining how refresh tokens can be used across different resource servers",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/components/schemas/ClientRefreshTokenPolicy"
+      }
+    }
+  }
+}

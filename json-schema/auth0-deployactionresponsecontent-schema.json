@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/DeployActionResponseContent",
+  "title": "DeployActionResponseContent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "The unique id of an action version.",
+      "default": "12a3b9e6-06e6-4a29-96bf-90c82fe79a0d"
+    },
+    "action_id": {
+      "type": "string",
+      "description": "The id of the action to which this version belongs.",
+      "default": "910b1053-577f-4d81-a8c8-020e7319a38a"
+    },
+    "code": {
+      "type": "string",
+      "description": "The source code of this specific version of the action.",
+      "default": "module.exports = () => {}"
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "The list of third party npm modules, and their versions, that this specific version depends on. ",
+      "items": {
+        "$ref": "#/components/schemas/ActionVersionDependency"
+      }
+    },
+    "deployed": {
+      "type": "boolean",
+      "description": "Indicates if this specific version is the currently one deployed.",
+      "default": true
+    },
+    "runtime": {
+      "type": "string",
+      "description": "The Node runtime. For example: `node22`",
+      "default": "node22"
+    },
+    "secrets": {
+      "type": "array",
+      "description": "The list of secrets that are included in an action or a version of an action.",
+      "items": {
+        "$ref": "#/components/schemas/ActionSecretResponse"
+      }
+    },
+    "status": {
+      "$ref": "#/components/schemas/ActionVersionBuildStatusEnum"
+    },
+    "number": {
+      "type": "number",
+      "description": "The index of this version in list of versions for the action.",
+      "default": 1
+    },
+    "errors": {
+      "type": "array",
+      "description": "Any errors that occurred while the version was being built.",
+      "items": {
+        "$ref": "#/components/schemas/ActionError"
+      }
+    },
+    "action": {
+      "$ref": "#/components/schemas/ActionBase"
+    },
+    "built_at": {
+      "type": "string",
+      "description": "The time when this version was built successfully.",
+      "default": "2021-01-01T00:00:00.000Z",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "The time when this version was created.",
+      "default": "2021-01-01T00:00:00.000Z",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "The time when a version was updated. Versions are never updated externally. Only Auth0 will update an action version as it is being built.",
+      "default": "2021-01-01T00:00:00.000Z",
+      "format": "date-time"
+    },
+    "supported_triggers": {
+      "type": "array",
+      "description": "The list of triggers that this version supports. At this time, a version can only target a single trigger at a time.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/components/schemas/ActionTrigger",
+        "x-release-lifecycle": "GA"
+      }
+    },
+    "modules": {
+      "type": "array",
+      "description": "The list of action modules and their versions used by this action version.",
+      "items": {
+        "$ref": "#/components/schemas/ActionModuleReference"
+      }
+    }
+  }
+}

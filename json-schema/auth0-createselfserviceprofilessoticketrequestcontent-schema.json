@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateSelfServiceProfileSsoTicketRequestContent",
+  "title": "CreateSelfServiceProfileSsoTicketRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "connection_id": {
+      "type": "string",
+      "description": "If provided, this will allow editing of the provided connection during the Self-Service Enterprise Configuration flow",
+      "format": "connection-id"
+    },
+    "connection_config": {
+      "$ref": "#/components/schemas/SelfServiceProfileSsoTicketConnectionConfig"
+    },
+    "enabled_clients": {
+      "type": "array",
+      "description": "List of client_ids that the connection will be enabled for.",
+      "minItems": 0,
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabled_organizations": {
+      "type": "array",
+      "description": "List of organizations that the connection will be enabled for.",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/components/schemas/SelfServiceProfileSsoTicketEnabledOrganization"
+      }
+    },
+    "ttl_sec": {
+      "type": "integer",
+      "description": "Number of seconds for which the ticket is valid before expiration. If unspecified or set to 0, this value defaults to 432000 seconds (5 days).",
+      "minimum": 0,
+      "maximum": 432000
+    },
+    "domain_aliases_config": {
+      "$ref": "#/components/schemas/SelfServiceProfileSsoTicketDomainAliasesConfig"
+    },
+    "provisioning_config": {
+      "$ref": "#/components/schemas/SelfServiceProfileSsoTicketProvisioningConfig",
+      "x-release-lifecycle": "GA"
+    },
+    "use_for_organization_discovery": {
+      "type": "boolean",
+      "description": "Indicates whether a verified domain should be used for organization discovery during authentication.",
+      "x-release-lifecycle": "GA"
+    },
+    "enabled_features": {
+      "$ref": "#/components/schemas/SelfServiceProfileSsoTicketEnabledFeatures",
+      "x-release-lifecycle": "GA"
+    }
+  }
+}

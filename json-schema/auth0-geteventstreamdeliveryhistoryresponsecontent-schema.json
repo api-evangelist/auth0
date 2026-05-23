@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/GetEventStreamDeliveryHistoryResponseContent",
+  "title": "GetEventStreamDeliveryHistoryResponseContent",
+  "type": "object",
+  "description": "Metadata about a specific attempt to deliver an event",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "event_stream_id",
+    "status",
+    "event_type",
+    "attempts"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the delivery"
+    },
+    "event_stream_id": {
+      "type": "string",
+      "description": "Unique identifier for the event stream.",
+      "minLength": 26,
+      "maxLength": 26,
+      "format": "event-stream-id"
+    },
+    "status": {
+      "$ref": "#/components/schemas/EventStreamDeliveryStatusEnum"
+    },
+    "event_type": {
+      "$ref": "#/components/schemas/EventStreamDeliveryEventTypeEnum"
+    },
+    "attempts": {
+      "type": "array",
+      "description": "Results of delivery attempts",
+      "items": {
+        "$ref": "#/components/schemas/EventStreamDeliveryAttempt"
+      }
+    },
+    "event": {
+      "$ref": "#/components/schemas/EventStreamCloudEvent"
+    }
+  }
+}

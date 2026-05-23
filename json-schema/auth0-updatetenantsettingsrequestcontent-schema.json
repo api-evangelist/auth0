@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/UpdateTenantSettingsRequestContent",
+  "title": "UpdateTenantSettingsRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "change_password": {
+      "$ref": "#/components/schemas/TenantSettingsPasswordPage"
+    },
+    "device_flow": {
+      "$ref": "#/components/schemas/TenantSettingsDeviceFlow",
+      "description": "Device Flow configuration."
+    },
+    "guardian_mfa_page": {
+      "$ref": "#/components/schemas/TenantSettingsGuardianPage"
+    },
+    "default_audience": {
+      "type": "string",
+      "description": "Default audience for API Authorization.",
+      "default": ""
+    },
+    "default_directory": {
+      "type": "string",
+      "description": "Name of connection used for password grants at the `/token` endpoint. The following connection types are supported: LDAP, AD, Database Connections, Passwordless, Windows Azure Active Directory, ADFS.",
+      "default": ""
+    },
+    "error_page": {
+      "$ref": "#/components/schemas/TenantSettingsErrorPage"
+    },
+    "default_token_quota": {
+      "$ref": "#/components/schemas/DefaultTokenQuota",
+      "x-release-lifecycle": "EA"
+    },
+    "flags": {
+      "$ref": "#/components/schemas/TenantSettingsFlags"
+    },
+    "friendly_name": {
+      "type": "string",
+      "description": "Friendly name for this tenant.",
+      "default": "My Company"
+    },
+    "picture_url": {
+      "type": "string",
+      "description": "URL of logo to be shown for this tenant (recommended size: 150x150)",
+      "default": "https://mycompany.org/logo.png",
+      "format": "absolute-uri-or-empty"
+    },
+    "support_email": {
+      "type": "string",
+      "description": "End-user support email.",
+      "default": "support@mycompany.org",
+      "format": "email-or-empty"
+    },
+    "support_url": {
+      "type": "string",
+      "description": "End-user support url.",
+      "default": "https://mycompany.org/support",
+      "format": "absolute-uri-or-empty"
+    },
+    "allowed_logout_urls": {
+      "type": "array",
+      "description": "URLs that are valid to redirect to after logout from Auth0.",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "session_lifetime": {
+      "type": "integer",
+      "description": "Number of hours a session will stay valid.",
+      "default": 168,
+      "minimum": 1
+    },
+    "idle_session_lifetime": {
+      "type": "integer",
+      "description": "Number of hours for which a session can be inactive before the user must log in again.",
+      "default": 72,
+      "minimum": 1
+    },
+    "ephemeral_session_lifetime": {
+      "type": "integer",
+      "description": "Number of hours an ephemeral (non-persistent) session will stay valid.",
+      "default": 72,
+      "minimum": 1
+    },
+    "idle_ephemeral_session_lifetime": {
+      "type": "integer",
+      "description": "Number of hours for which an ephemeral (non-persistent) session can be inactive before the user must log in again.",
+      "default": 24,
+      "minimum": 1
+    },
+    "sandbox_version": {
+      "type": "string",
+      "description": "Selected sandbox version for the extensibility environment",
+      "default": "22",
+      "maxLength": 8
+    },
+    "legacy_sandbox_version": {
+      "type": "string",
+      "description": "Selected legacy sandbox version for the extensibility environment",
+      "maxLength": 8
+    },
+    "default_redirection_uri": {
+      "type": "string",
+      "description": "The default absolute redirection uri, must be https",
+      "format": "absolute-https-uri-or-empty"
+    },
+    "enabled_locales": {
+      "type": "array",
+      "description": "Supported locales for the user interface",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/components/schemas/TenantSettingsSupportedLocalesEnum"
+      }
+    },
+    "session_cookie": {
+      "$ref": "#/components/schemas/SessionCookieSchema"
+    },
+    "sessions": {
+      "$ref": "#/components/schemas/TenantSettingsSessions"
+    },
+    "oidc_logout": {
+      "$ref": "#/components/schemas/TenantOIDCLogoutSettings"
+    },
+    "customize_mfa_in_postlogin_action": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Whether to enable flexible factors for MFA in the PostLogin action",
+      "default": false
+    },
+    "allow_organization_name_in_authentication_api": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Whether to accept an organization name instead of an ID on auth endpoints",
+      "default": false
+    },
+    "acr_values_supported": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Supported ACR values",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "format": "acr"
+      }
+    },
+    "mtls": {
+      "$ref": "#/components/schemas/TenantSettingsMTLS"
+    },
+    "pushed_authorization_requests_supported": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Enables the use of Pushed Authorization Requests",
+      "default": false
+    },
+    "authorization_response_iss_parameter_supported": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Supports iss parameter in authorization responses",
+      "default": false
+    },
+    "skip_non_verifiable_callback_uri_confirmation_prompt": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Controls whether a confirmation prompt is shown during login flows when the redirect URI uses non-verifiable callback URIs (for example, a custom URI schema such as `myapp://`, or `localhost`).\nIf set to true, a confirmation prompt will not be shown. We recommend that this is set to false for improved protection from malicious apps.\nSee https://auth0.com/docs/secure/security-guidance/measures-against-app-impersonation for more information."
+    },
+    "resource_parameter_profile": {
+      "$ref": "#/components/schemas/TenantSettingsResourceParameterProfile",
+      "x-release-lifecycle": "GA"
+    },
+    "client_id_metadata_document_supported": {
+      "type": "boolean",
+      "description": "Whether the authorization server supports retrieving client metadata from a client_id URL.",
+      "default": false,
+      "x-release-lifecycle": "EA"
+    },
+    "enable_ai_guide": {
+      "type": "boolean",
+      "description": "Whether Auth0 Guide (AI-powered assistance) is enabled for this tenant."
+    },
+    "phone_consolidated_experience": {
+      "type": "boolean",
+      "description": "Whether Phone Consolidated Experience is enabled for this tenant."
+    },
+    "dynamic_client_registration_security_mode": {
+      "$ref": "#/components/schemas/TenantSettingsDynamicClientRegistrationSecurityMode",
+      "x-release-lifecycle": "GA"
+    }
+  }
+}

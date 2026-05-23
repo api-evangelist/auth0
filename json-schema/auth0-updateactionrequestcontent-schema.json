@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/UpdateActionRequestContent",
+  "title": "UpdateActionRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of an action.",
+      "default": "my-action"
+    },
+    "supported_triggers": {
+      "type": "array",
+      "description": "The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/components/schemas/ActionTrigger",
+        "x-release-lifecycle": "GA"
+      }
+    },
+    "code": {
+      "type": "string",
+      "description": "The source code of the action.",
+      "default": "module.exports = () => {}"
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "The list of third party npm modules, and their versions, that this action depends on.",
+      "items": {
+        "$ref": "#/components/schemas/ActionVersionDependency"
+      }
+    },
+    "runtime": {
+      "type": "string",
+      "description": "The Node runtime. For example: `node22`, defaults to `node22`",
+      "default": "node22"
+    },
+    "secrets": {
+      "type": "array",
+      "description": "The list of secrets that are included in an action or a version of an action.",
+      "items": {
+        "$ref": "#/components/schemas/ActionSecretRequest"
+      }
+    },
+    "modules": {
+      "type": "array",
+      "description": "The list of action modules and their versions used by this action.",
+      "items": {
+        "$ref": "#/components/schemas/ActionModuleReference"
+      }
+    }
+  }
+}

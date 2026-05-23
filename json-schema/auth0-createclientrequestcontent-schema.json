@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateClientRequestContent",
+  "title": "CreateClientRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of this client (min length: 1 character, does not allow `<` or `>`).",
+      "pattern": "^[^<>]+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Free text description of this client (max length: 140 characters).",
+      "maxLength": 140
+    },
+    "logo_uri": {
+      "type": "string",
+      "description": "URL of the logo to display for this client. Recommended size is 150x150 pixels.",
+      "format": "absolute-uri-or-empty"
+    },
+    "callbacks": {
+      "type": "array",
+      "description": "Comma-separated list of URLs whitelisted for Auth0 to use as a callback to the client after authentication.",
+      "items": {
+        "type": "string",
+        "format": "callback-url"
+      }
+    },
+    "oidc_logout": {
+      "$ref": "#/components/schemas/ClientOIDCBackchannelLogoutSettings"
+    },
+    "oidc_backchannel_logout": {
+      "$ref": "#/components/schemas/ClientOIDCBackchannelLogoutSettings",
+      "x-release-lifecycle": "deprecated",
+      "description": "Configuration for OIDC backchannel logout (deprecated, in favor of oidc_logout)"
+    },
+    "session_transfer": {
+      "$ref": "#/components/schemas/ClientSessionTransferConfiguration"
+    },
+    "allowed_origins": {
+      "type": "array",
+      "description": "Comma-separated list of URLs allowed to make requests from JavaScript to Auth0 API (typically used with CORS). By default, all your callback URLs will be allowed. This field allows you to enter other origins if necessary. You can also use wildcards at the subdomain level (e.g., https://*.contoso.com). Query strings and hash information are not taken into account when validating these URLs.",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "web_origins": {
+      "type": "array",
+      "description": "Comma-separated list of allowed origins for use with <a href='https://auth0.com/docs/cross-origin-authentication'>Cross-Origin Authentication</a>, <a href='https://auth0.com/docs/flows/concepts/device-auth'>Device Flow</a>, and <a href='https://auth0.com/docs/protocols/oauth2#how-response-mode-works'>web message response mode</a>.",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "client_aliases": {
+      "type": "array",
+      "description": "List of audiences/realms for SAML protocol. Used by the wsfed addon.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_clients": {
+      "type": "array",
+      "description": "List of allow clients and API ids that are allowed to make delegation requests. Empty means all all your clients are allowed.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_logout_urls": {
+      "type": "array",
+      "description": "Comma-separated list of URLs that are valid to redirect to after logout from Auth0. Wildcards are allowed for subdomains.",
+      "items": {
+        "type": "string",
+        "format": "url-with-placeholders"
+      }
+    },
+    "grant_types": {
+      "type": "array",
+      "description": "List of grant types supported for this application. Can include `authorization_code`, `implicit`, `refresh_token`, `client_credentials`, `password`, `http://auth0.com/oauth/grant-type/password-realm`, `http://auth0.com/oauth/grant-type/mfa-oob`, `http://auth0.com/oauth/grant-type/mfa-otp`, `http://auth0.com/oauth/grant-type/mfa-recovery-code`, `urn:openid:params:grant-type:ciba`, `urn:ietf:params:oauth:grant-type:device_code`, and `urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token`.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "token_endpoint_auth_method": {
+      "$ref": "#/components/schemas/ClientTokenEndpointAuthMethodEnum"
+    },
+    "is_token_endpoint_ip_header_trusted": {
+      "type": "boolean",
+      "description": "If true, trust that the IP specified in the `auth0-forwarded-for` header is the end-user's IP for brute-force-protection on token endpoint.",
+      "default": false
+    },
+    "app_type": {
+      "$ref": "#/components/schemas/ClientAppTypeEnum"
+    },
+    "is_first_party": {
+      "type": "boolean",
+      "description": "Whether this client a first party client or not",
+      "default": true
+    },
+    "oidc_conformant": {
+      "type": "boolean",
+      "description": "Whether this client conforms to <a href='https://auth0.com/docs/api-auth/tutorials/adoption'>strict OIDC specifications</a> (true) or uses legacy features (false).",
+      "default": false
+    },
+    "jwt_configuration": {
+      "$ref": "#/components/schemas/ClientJwtConfiguration"
+    },
+    "encryption_key": {
+      "$ref": "#/components/schemas/ClientEncryptionKey"
+    },
+    "sso": {
+      "type": "boolean",
+      "description": "Applies only to SSO clients and determines whether Auth0 will handle Single Sign On (true) or whether the Identity Provider will (false)."
+    },
+    "cross_origin_authentication": {
+      "type": "boolean",
+      "description": "Whether this client can be used to make cross-origin authentication requests (true) or it is not allowed to make such requests (false).",
+      "default": false
+    },
+    "cross_origin_loc": {
+      "type": "string",
+      "description": "URL of the location in your site where the cross origin verification takes place for the cross-origin auth flow when performing Auth in your own domain instead of Auth0 hosted login page.",
+      "format": "url"
+    },
+    "sso_disabled": {
+      "type": "boolean",
+      "description": "<code>true</code> to disable Single Sign On, <code>false</code> otherwise (default: <code>false</code>)"
+    },
+    "custom_login_page_on": {
+      "type": "boolean",
+      "description": "<code>true</code> if the custom login page is to be used, <code>false</code> otherwise. Defaults to <code>true</code>"
+    },
+    "custom_login_page": {
+      "type": "string",
+      "description": "The content (HTML, CSS, JS) of the custom login page.",
+      "minLength": 1
+    },
+    "custom_login_page_preview": {
+      "type": "string",
+      "description": "The content (HTML, CSS, JS) of the custom login page. (Used on Previews)",
+      "minLength": 1
+    },
+    "form_template": {
+      "type": "string",
+      "description": "HTML form template to be used for WS-Federation.",
+      "minLength": 1
+    },
+    "addons": {
+      "$ref": "#/components/schemas/ClientAddons"
+    },
+    "client_metadata": {
+      "$ref": "#/components/schemas/ClientMetadata"
+    },
+    "mobile": {
+      "$ref": "#/components/schemas/ClientMobile"
+    },
+    "initiate_login_uri": {
+      "type": "string",
+      "description": "Initiate login uri, must be https",
+      "format": "absolute-https-uri-with-placeholders-or-empty"
+    },
+    "native_social_login": {
+      "$ref": "#/components/schemas/NativeSocialLogin"
+    },
+    "refresh_token": {
+      "$ref": "#/components/schemas/ClientRefreshTokenConfiguration"
+    },
+    "default_organization": {
+      "$ref": "#/components/schemas/ClientDefaultOrganization"
+    },
+    "organization_usage": {
+      "$ref": "#/components/schemas/ClientOrganizationUsageEnum"
+    },
+    "organization_require_behavior": {
+      "$ref": "#/components/schemas/ClientOrganizationRequireBehaviorEnum"
+    },
+    "organization_discovery_methods": {
+      "type": "array",
+      "description": "Defines the available methods for organization discovery during the `pre_login_prompt`. Users can discover their organization either by `email`, `organization_name` or both.",
+      "minItems": 1,
+      "x-release-lifecycle": "EA",
+      "items": {
+        "$ref": "#/components/schemas/ClientOrganizationDiscoveryEnum"
+      }
+    },
+    "client_authentication_methods": {
+      "$ref": "#/components/schemas/ClientCreateAuthenticationMethod"
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean",
+      "description": "Makes the use of Pushed Authorization Requests mandatory for this client",
+      "default": false
+    },
+    "require_proof_of_possession": {
+      "type": "boolean",
+      "description": "Makes the use of Proof-of-Possession mandatory for this client",
+      "default": false
+    },
+    "signed_request_object": {
+      "$ref": "#/components/schemas/ClientSignedRequestObjectWithPublicKey"
+    },
+    "compliance_level": {
+      "$ref": "#/components/schemas/ClientComplianceLevelEnum"
+    },
+    "skip_non_verifiable_callback_uri_confirmation_prompt": {
+      "type": "boolean",
+      "description": "Controls whether a confirmation prompt is shown during login flows when the redirect URI uses non-verifiable callback URIs (for example, a custom URI schema such as `myapp://`, or `localhost`).\nIf set to true, a confirmation prompt will not be shown. We recommend that this is set to false for improved protection from malicious apps.\nSee https://auth0.com/docs/secure/security-guidance/measures-against-app-impersonation for more information."
+    },
+    "token_exchange": {
+      "$ref": "#/components/schemas/ClientTokenExchangeConfiguration",
+      "x-release-lifecycle": "GA"
+    },
+    "par_request_expiry": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Specifies how long, in seconds, a Pushed Authorization Request URI remains valid",
+      "minimum": 10,
+      "maximum": 600
+    },
+    "token_quota": {
+      "$ref": "#/components/schemas/CreateTokenQuota",
+      "x-release-lifecycle": "EA"
+    },
+    "resource_server_identifier": {
+      "type": "string",
+      "description": "The identifier of the resource server that this client is linked to.",
+      "minLength": 1,
+      "maxLength": 600
+    },
+    "third_party_security_mode": {
+      "$ref": "#/components/schemas/ClientThirdPartySecurityModeEnum",
+      "x-release-lifecycle": "GA"
+    },
+    "redirection_policy": {
+      "$ref": "#/components/schemas/ClientRedirectionPolicyEnum",
+      "x-release-lifecycle": "GA"
+    },
+    "express_configuration": {
+      "$ref": "#/components/schemas/ExpressConfiguration"
+    },
+    "my_organization_configuration": {
+      "$ref": "#/components/schemas/ClientMyOrganizationPostConfiguration",
+      "x-release-lifecycle": "EA"
+    },
+    "async_approval_notification_channels": {
+      "$ref": "#/components/schemas/ClientAsyncApprovalNotificationsChannelsAPIPostConfiguration"
+    }
+  }
+}

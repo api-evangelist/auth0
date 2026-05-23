@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateConnectionRequestContent",
+  "title": "CreateConnectionRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "strategy"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the connection. Must start and end with an alphanumeric character and can only contain alphanumeric characters and '-'. Max length 128",
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Connection name used in the new universal login experience",
+      "maxLength": 128
+    },
+    "strategy": {
+      "$ref": "#/components/schemas/ConnectionIdentityProviderEnum"
+    },
+    "options": {
+      "$ref": "#/components/schemas/ConnectionPropertiesOptions"
+    },
+    "enabled_clients": {
+      "type": "array",
+      "description": "Use of this property is NOT RECOMMENDED. Use the PATCH /v2/connections/{id}/clients endpoint to enable the connection for a set of clients.",
+      "items": {
+        "type": "string",
+        "description": "The id of the client for which the connection is to be enabled.",
+        "format": "client-id"
+      }
+    },
+    "is_domain_connection": {
+      "type": "boolean",
+      "description": "<code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)"
+    },
+    "show_as_button": {
+      "type": "boolean",
+      "description": "Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)"
+    },
+    "realms": {
+      "type": "array",
+      "description": "Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.",
+      "items": {
+        "type": "string",
+        "description": "The realm where this connection belongs",
+        "format": "connection-realm"
+      }
+    },
+    "metadata": {
+      "$ref": "#/components/schemas/ConnectionsMetadata"
+    },
+    "authentication": {
+      "$ref": "#/components/schemas/ConnectionAuthenticationPurpose",
+      "x-release-lifecycle": "GA"
+    },
+    "connected_accounts": {
+      "$ref": "#/components/schemas/ConnectionConnectedAccountsPurpose",
+      "x-release-lifecycle": "GA"
+    }
+  }
+}

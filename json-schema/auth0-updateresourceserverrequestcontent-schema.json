@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/UpdateResourceServerRequestContent",
+  "title": "UpdateResourceServerRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Friendly name for this resource server. Can not contain `<` or `>` characters.",
+      "maxLength": 200,
+      "pattern": "^[^<>]+$"
+    },
+    "scopes": {
+      "type": "array",
+      "description": "List of permissions (scopes) that this API uses.",
+      "items": {
+        "$ref": "#/components/schemas/ResourceServerScope"
+      }
+    },
+    "signing_alg": {
+      "$ref": "#/components/schemas/SigningAlgorithmEnum"
+    },
+    "signing_secret": {
+      "type": "string",
+      "description": "Secret used to sign tokens when using symmetric algorithms (HS256).",
+      "minLength": 16
+    },
+    "skip_consent_for_verifiable_first_party_clients": {
+      "type": "boolean",
+      "description": "Whether to skip user consent for applications flagged as first party (true) or not (false)."
+    },
+    "allow_offline_access": {
+      "type": "boolean",
+      "description": "Whether refresh tokens can be issued for this API (true) or not (false)."
+    },
+    "allow_online_access": {
+      "type": "boolean",
+      "description": "Whether Online Refresh Tokens can be issued for this API (true) or not (false)."
+    },
+    "token_lifetime": {
+      "type": "integer",
+      "description": "Expiration value (in seconds) for access tokens issued for this API from the token endpoint.",
+      "minimum": 0,
+      "maximum": 2592000
+    },
+    "token_dialect": {
+      "$ref": "#/components/schemas/ResourceServerTokenDialectSchemaEnum"
+    },
+    "enforce_policies": {
+      "type": "boolean",
+      "description": "Whether authorization policies are enforced (true) or not enforced (false)."
+    },
+    "token_encryption": {
+      "$ref": "#/components/schemas/ResourceServerTokenEncryption"
+    },
+    "consent_policy": {
+      "$ref": "#/components/schemas/ResourceServerConsentPolicyEnum"
+    },
+    "authorization_details": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "proof_of_possession": {
+      "$ref": "#/components/schemas/ResourceServerProofOfPossession"
+    },
+    "subject_type_authorization": {
+      "$ref": "#/components/schemas/ResourceServerSubjectTypeAuthorization"
+    },
+    "authorization_policy": {
+      "$ref": "#/components/schemas/ResourceServerAuthorizationPolicy",
+      "x-release-lifecycle": "EA"
+    }
+  }
+}

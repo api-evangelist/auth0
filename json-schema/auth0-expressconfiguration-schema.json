@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/ExpressConfiguration",
+  "title": "ExpressConfiguration",
+  "type": "object",
+  "description": "Application specific configuration for use with the OIN Express Configuration feature.",
+  "additionalProperties": false,
+  "required": [
+    "initiate_login_uri_template",
+    "user_attribute_profile_id",
+    "connection_profile_id",
+    "enable_client",
+    "enable_organization",
+    "okta_oin_client_id",
+    "admin_login_domain"
+  ],
+  "properties": {
+    "initiate_login_uri_template": {
+      "type": "string",
+      "description": "The URI users should bookmark to log in to this application. Variable substitution is permitted for the following properties: organization_name, organization_id, and connection_name.",
+      "format": "ec-initiate-login-uri-template-url"
+    },
+    "user_attribute_profile_id": {
+      "type": "string",
+      "description": "The ID of the user attribute profile to use for this application.",
+      "format": "user-attribute-profile-id"
+    },
+    "connection_profile_id": {
+      "type": "string",
+      "description": "The ID of the connection profile to use for this application.",
+      "format": "connection-profile-id"
+    },
+    "enable_client": {
+      "type": "boolean",
+      "description": "When true, all connections made via express configuration will be enabled for this application."
+    },
+    "enable_organization": {
+      "type": "boolean",
+      "description": "When true, all connections made via express configuration will have the associated organization enabled."
+    },
+    "linked_clients": {
+      "type": "array",
+      "description": "List of client IDs that are linked to this express configuration (e.g. web or mobile clients).",
+      "items": {
+        "$ref": "#/components/schemas/LinkedClientConfiguration"
+      }
+    },
+    "okta_oin_client_id": {
+      "type": "string",
+      "description": "This is the unique identifier for the Okta OIN Express Configuration Client, which Okta will use for this application.",
+      "format": "client-id"
+    },
+    "admin_login_domain": {
+      "type": "string",
+      "description": "This is the domain that admins are expected to log in via for authenticating for express configuration. It can be either the canonical domain or a registered custom domain.",
+      "minLength": 1
+    },
+    "oin_submission_id": {
+      "type": "string",
+      "description": "The identifier of the published application in the OKTA OIN.",
+      "minLength": 1,
+      "maxLength": 200
+    }
+  }
+}

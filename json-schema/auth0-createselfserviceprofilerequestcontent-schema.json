@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "#/components/schemas/CreateSelfServiceProfileRequestContent",
+  "title": "CreateSelfServiceProfileRequestContent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the self-service Profile.",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the self-service Profile.",
+      "minLength": 1,
+      "maxLength": 140
+    },
+    "branding": {
+      "$ref": "#/components/schemas/SelfServiceProfileBrandingProperties"
+    },
+    "allowed_strategies": {
+      "type": "array",
+      "description": "List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/components/schemas/SelfServiceProfileAllowedStrategyEnum"
+      }
+    },
+    "user_attributes": {
+      "type": "array",
+      "description": "List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.",
+      "items": {
+        "$ref": "#/components/schemas/SelfServiceProfileUserAttribute"
+      }
+    },
+    "user_attribute_profile_id": {
+      "type": "string",
+      "description": "ID of the user-attribute-profile to associate with this self-service profile.",
+      "format": "user-attribute-profile-id",
+      "x-release-lifecycle": "EA"
+    }
+  }
+}
