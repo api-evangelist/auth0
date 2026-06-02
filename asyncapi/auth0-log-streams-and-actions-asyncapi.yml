@@ -1,0 +1,1042 @@
+asyncapi: 2.6.0
+info:
+  title: Auth0 Log Streams and Actions Event Delivery
+  version: '1.0.0'
+  description: |-
+    AsyncAPI 2.6 description of Auth0's two primary outbound event-delivery
+    surfaces:
+
+      1. Log Streams — Custom Webhook (HTTP) destination
+         Auth0 streams tenant log events to a customer-hosted HTTPS endpoint
+         via HTTP POST. The payload is a JSON document containing a `logs`
+         array of Auth0 log records, each identified by a `type` code.
+
+         Other Log Stream destinations (Datadog, Splunk, Sumo Logic,
+         Amazon EventBridge, Azure Event Grid, Mixpanel, Segment, Elastic,
+         Logz.io, Slack, Panther, etc.) carry the same per-log record shape
+         but are delivered through provider-specific transports. Only the
+         HTTP destination is modelled in this document because it is the
+         destination that exposes a subscriber-visible AsyncAPI surface.
+
+      2. Actions — Trigger event payloads
+         Auth0 invokes customer-authored Actions code at well-defined points
+         in the auth pipeline (post-login, credentials-exchange,
+         pre-user-registration, post-user-registration, post-change-password,
+         send-phone-message, password-reset-post-challenge,
+         custom-token-exchange). Each invocation passes an `event` object
+         describing the current request, user, client, connection, tenant,
+         and transaction. While Actions run inside Auth0's serverless
+         runtime (not over HTTP), modelling these events as AsyncAPI
+         messages lets API consumers reason about the schemas Auth0
+         emits at each trigger point, and makes the surface comparable
+         to webhook-style integrations such as Hooks (the legacy
+         Webtask-based predecessor) or customer-built bridges that
+         forward Action events to external systems.
+
+    Source documentation (verified):
+      - Log Streams overview:
+        https://auth0.com/docs/customize/log-streams
+      - Custom Webhook Log Streams:
+        https://auth0.com/docs/customize/log-streams/custom-log-streams
+      - Log event type codes:
+        https://auth0.com/docs/deploy-monitor/logs/log-event-type-codes
+      - Actions triggers index:
+        https://auth0.com/docs/customize/actions/explore-triggers
+      - Post-Login event object:
+        https://auth0.com/docs/customize/actions/explore-triggers/signup-and-login-triggers/login-trigger/post-login-event-object
+      - Pre-User-Registration event object:
+        https://auth0.com/docs/customize/actions/explore-triggers/signup-and-login-triggers/pre-user-registration-trigger/pre-user-registration-event-object
+      - Post-User-Registration event object:
+        https://auth0.com/docs/customize/actions/explore-triggers/signup-and-login-triggers/post-user-registration-trigger/post-user-registration-event-object
+      - Credentials-Exchange event object:
+        https://auth0.com/docs/customize/actions/explore-triggers/machine-to-machine-trigger/credentials-exchange-event-object
+
+    Scope notes:
+      - This document models only fields that appear in the cited Auth0
+        documentation. Where Auth0 documents a property by name but does
+        not enumerate its sub-fields, the property is modelled as an
+        open object (`additionalProperties: true`) rather than fabricated.
+      - The send-phone-message, post-change-password, and
+        password-reset-post-challenge triggers are listed in the Actions
+        Triggers index but their dedicated event-object reference pages
+        were not retrievable at the time of authoring. They are noted in
+        the channel descriptions but their payloads are intentionally
+        left as open objects to avoid fabrication.
+      - Auth0 Hooks (Webtask-based extensibility) are the predecessor to
+        Actions and have been deprecated in favor of Actions. Hooks are
+        referenced here only to anchor historical context; their runtime
+        payloads are not separately modelled.
+
+  contact:
+    name: Auth0 (Okta) Support
+    url: https://support.auth0.com/
+  license:
+    name: Auth0 Terms of Service
+    url: https://auth0.com/legal/tos
+
+defaultContentType: application/json
+
+servers:
+  logStreamWebhook:
+    url: '{webhookUrl}'
+    protocol: https
+    description: |-
+      Customer-hosted HTTPS endpoint that receives Auth0 Log Stream Custom
+      Webhook POSTs. The endpoint is configured per Log Stream in the Auth0
+      Dashboard or via the Management API `/log-streams` resource.
+
+      Auth0 requires a 2xx response; non-2xx responses cause the Log Stream
+      to enter a suspended state after sustained failures, per the Log
+      Streams documentation.
+    variables:
+      webhookUrl:
+        default: https://example.com/auth0/log-stream
+        description: Fully-qualified HTTPS URL of the subscriber endpoint.
+    security:
+      - bearerAuthorization: []
+  actionsRuntime:
+    url: auth0-actions-runtime
+    protocol: in-process
+    description: |-
+      Pseudo-server representing the Auth0 Actions Node.js runtime. Actions
+      do not receive events over the network; they are invoked by Auth0's
+      serverless runtime which passes the `event` object as a function
+      argument to the Action's `onExecute*` handler. This server entry
+      exists purely so the Actions channels are well-formed AsyncAPI
+      channels.
+
+channels:
+  /auth0/log-stream:
+    description: |-
+      Auth0 Log Streams Custom Webhook delivery channel. Auth0 issues
+      `HTTP POST` requests with a JSON body to the configured webhook
+      URL. The body contains a `logs` array; each element is an Auth0
+      tenant log record. The Custom Webhook configuration exposes an
+      optional Authorization token that Auth0 sends in the
+      `Authorization` request header on every POST.
+    servers:
+      - logStreamWebhook
+    bindings:
+      http:
+        type: request
+        method: POST
+        bindingVersion: '0.3.0'
+    subscribe:
+      operationId: receiveAuth0LogStreamBatch
+      summary: Receive a batch of Auth0 tenant log records
+      description: |-
+        Auth0 POSTs a JSON envelope containing a `logs` array. Each log
+        record is identified by its `type` field, an Auth0 log event
+        type code (for example `s` for a successful login, `seacft` for
+        a successful Authorization Code exchange, `gd_auth_succeed` for
+        a successful MFA challenge).
+      message:
+        $ref: '#/components/messages/LogStreamBatch'
+
+  /auth0/actions/post-login:
+    description: |-
+      Auth0 Actions `post-login` trigger. Fires after a user is
+      authenticated but before the token is issued. The Action handler
+      receives an `event` object describing the login transaction.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handlePostLogin
+      summary: Handle a post-login Action invocation
+      message:
+        $ref: '#/components/messages/PostLoginEvent'
+
+  /auth0/actions/credentials-exchange:
+    description: |-
+      Auth0 Actions `credentials-exchange` trigger. Fires during a
+      machine-to-machine OAuth 2.0 Client Credentials grant, before
+      an access token is returned.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handleCredentialsExchange
+      summary: Handle a credentials-exchange Action invocation
+      message:
+        $ref: '#/components/messages/CredentialsExchangeEvent'
+
+  /auth0/actions/pre-user-registration:
+    description: |-
+      Auth0 Actions `pre-user-registration` trigger. Fires before a user
+      is created on a database connection. Does not run for social
+      connections.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handlePreUserRegistration
+      summary: Handle a pre-user-registration Action invocation
+      message:
+        $ref: '#/components/messages/PreUserRegistrationEvent'
+
+  /auth0/actions/post-user-registration:
+    description: |-
+      Auth0 Actions `post-user-registration` trigger. Fires asynchronously
+      after a user is created on a database connection. Does not run for
+      social connections.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handlePostUserRegistration
+      summary: Handle a post-user-registration Action invocation
+      message:
+        $ref: '#/components/messages/PostUserRegistrationEvent'
+
+  /auth0/actions/post-change-password:
+    description: |-
+      Auth0 Actions `post-change-password` trigger. Fires after a user's
+      password is changed on a database connection. The dedicated event
+      object reference page was not retrievable at the time of authoring,
+      so the payload is modelled as a generic Action event envelope.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handlePostChangePassword
+      summary: Handle a post-change-password Action invocation
+      message:
+        $ref: '#/components/messages/GenericActionEvent'
+
+  /auth0/actions/send-phone-message:
+    description: |-
+      Auth0 Actions `send-phone-message` trigger. Fires when a custom
+      provider is used to deliver MFA enrollment or challenge messages.
+      The dedicated event object reference page was not retrievable at the
+      time of authoring, so the payload is modelled as a generic Action
+      event envelope.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handleSendPhoneMessage
+      summary: Handle a send-phone-message Action invocation
+      message:
+        $ref: '#/components/messages/GenericActionEvent'
+
+  /auth0/actions/password-reset-post-challenge:
+    description: |-
+      Auth0 Actions `password-reset-post-challenge` trigger. Fires after
+      the first password-reset challenge is completed and before the
+      password is reset. The dedicated event object reference page was
+      not retrievable at the time of authoring, so the payload is
+      modelled as a generic Action event envelope.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handlePasswordResetPostChallenge
+      summary: Handle a password-reset-post-challenge Action invocation
+      message:
+        $ref: '#/components/messages/GenericActionEvent'
+
+  /auth0/actions/custom-token-exchange:
+    description: |-
+      Auth0 Actions `custom-token-exchange` trigger. Fires at the first
+      step of a Custom Token Exchange transaction, before the post-login
+      trigger. The dedicated event object reference page was not
+      retrievable at the time of authoring, so the payload is modelled
+      as a generic Action event envelope.
+    servers:
+      - actionsRuntime
+    subscribe:
+      operationId: handleCustomTokenExchange
+      summary: Handle a custom-token-exchange Action invocation
+      message:
+        $ref: '#/components/messages/GenericActionEvent'
+
+components:
+  securitySchemes:
+    bearerAuthorization:
+      type: httpApiKey
+      description: |-
+        Optional Authorization token configured on the Custom Webhook Log
+        Stream. Auth0 places the value verbatim in the `Authorization`
+        request header on every POST. The customer chooses the scheme
+        (commonly `Bearer <token>` but any opaque token is accepted).
+      name: Authorization
+      in: header
+
+  messages:
+    LogStreamBatch:
+      name: LogStreamBatch
+      title: Auth0 Log Stream Batch
+      summary: A batch of Auth0 tenant log records delivered to a Custom Webhook destination.
+      contentType: application/json
+      bindings:
+        http:
+          headers:
+            type: object
+            properties:
+              Content-Type:
+                type: string
+                const: application/json
+              Authorization:
+                type: string
+                description: Optional Authorization token configured on the Log Stream.
+          bindingVersion: '0.3.0'
+      payload:
+        $ref: '#/components/schemas/LogStreamBatchPayload'
+
+    PostLoginEvent:
+      name: PostLoginEvent
+      title: Actions post-login event
+      summary: Event object passed to a post-login Action handler.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PostLoginEventObject'
+
+    CredentialsExchangeEvent:
+      name: CredentialsExchangeEvent
+      title: Actions credentials-exchange event
+      summary: Event object passed to a credentials-exchange Action handler.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CredentialsExchangeEventObject'
+
+    PreUserRegistrationEvent:
+      name: PreUserRegistrationEvent
+      title: Actions pre-user-registration event
+      summary: Event object passed to a pre-user-registration Action handler.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PreUserRegistrationEventObject'
+
+    PostUserRegistrationEvent:
+      name: PostUserRegistrationEvent
+      title: Actions post-user-registration event
+      summary: Event object passed to a post-user-registration Action handler.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PostUserRegistrationEventObject'
+
+    GenericActionEvent:
+      name: GenericActionEvent
+      title: Generic Actions event envelope
+      summary: |-
+        Open envelope for Action triggers whose dedicated event-object
+        reference page was not retrievable at authoring time
+        (post-change-password, send-phone-message,
+        password-reset-post-challenge, custom-token-exchange).
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/GenericActionEventObject'
+
+  schemas:
+    # ------------------------------------------------------------------
+    # Log Stream payloads
+    # ------------------------------------------------------------------
+
+    LogStreamBatchPayload:
+      type: object
+      description: |-
+        Outer envelope POSTed by Auth0 to a Custom Webhook Log Stream
+        destination. Contains a `logs` array of Auth0 tenant log records.
+      required: [logs]
+      properties:
+        logs:
+          type: array
+          description: One or more Auth0 tenant log records.
+          items:
+            $ref: '#/components/schemas/LogRecord'
+
+    LogRecord:
+      type: object
+      description: |-
+        A single Auth0 tenant log record. The `type` field is an Auth0
+        log event type code (see `LogEventType`). Auth0 log records carry
+        a wide range of optional context fields depending on the event
+        type; this schema enumerates the commonly documented fields and
+        sets `additionalProperties: true` so destination-specific or
+        type-specific fields are preserved.
+      additionalProperties: true
+      properties:
+        log_id:
+          type: string
+          description: Globally unique identifier of this log record.
+        _id:
+          type: string
+          description: Internal identifier; equal to `log_id` in most cases.
+        date:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp at which the event was recorded.
+        type:
+          $ref: '#/components/schemas/LogEventType'
+        description:
+          type: string
+          description: Human-readable description of the event.
+        connection:
+          type: string
+          description: Name of the connection involved in the event, when applicable.
+        connection_id:
+          type: string
+          description: Identifier of the connection involved in the event.
+        client_id:
+          type: string
+          description: Auth0 application client ID associated with the event.
+        client_name:
+          type: string
+          description: Auth0 application name associated with the event.
+        ip:
+          type: string
+          description: Originating IP address of the end-user or caller.
+        hostname:
+          type: string
+          description: Hostname of the Auth0 tenant or custom domain handling the request.
+        user_id:
+          type: string
+          description: Auth0 user identifier associated with the event, when applicable.
+        user_name:
+          type: string
+          description: Username (or email) associated with the event, when applicable.
+        user_agent:
+          type: string
+          description: User-Agent header of the originating request.
+        audience:
+          type: string
+          description: Resource Server (API) identifier for token-related events.
+        scope:
+          type: string
+          description: Space-separated list of scopes for token-related events.
+        strategy:
+          type: string
+          description: Connection strategy (for example `auth0`, `google-oauth2`, `samlp`).
+        strategy_type:
+          type: string
+          description: Strategy classification (for example `database`, `social`, `enterprise`).
+        log_type_code:
+          type: string
+          description: Echo of the `type` field for downstream destinations that prefer an explicit name.
+        details:
+          type: object
+          description: Structured per-event detail object. Shape varies by `type`.
+          additionalProperties: true
+
+    LogEventType:
+      type: string
+      description: |-
+        Auth0 log event type code. Auth0 maintains a large enumeration of
+        type codes covering authentication, MFA, token exchange, password
+        and email changes, account/user management, rate limiting,
+        delegation/logout, administrative operations, and notifications.
+        The list below mirrors the codes published at
+        https://auth0.com/docs/deploy-monitor/logs/log-event-type-codes
+        and is illustrative rather than exhaustive — Auth0 may publish
+        additional codes; consumers should treat unknown codes as opaque.
+      enum:
+        # Authentication & login
+        - s
+        - f
+        - fp
+        - fu
+        - fc
+        - fco
+        - fcoa
+        - scoa
+        - fsa
+        - ssa
+        - fs
+        - ss
+        - signup_pwd_leak
+        # Password & email management
+        - fcp
+        - scp
+        - fcpr
+        - scpr
+        - fce
+        - sce
+        - fv
+        - sv
+        - fvr
+        - svr
+        - pwd_leak
+        - reset_pwd_leak
+        # Multi-factor authentication
+        - gd_auth_succeed
+        - gd_auth_failed
+        - gd_auth_rejected
+        - gd_enrollment_complete
+        - gd_start_auth
+        - gd_start_enroll
+        - gd_recovery_succeed
+        - gd_recovery_failed
+        - gd_otp_rate_limit_exceed
+        - mfar
+        - gd_send_sms
+        - gd_send_email
+        - gd_send_pn
+        # Token exchange
+        - seacft
+        - feacft
+        - sepft
+        - fepft
+        - sertft
+        - fertft
+        - seta
+        - feta
+        - sens
+        - fens
+        - success_on_behalf_of_token_exchange
+        - failed_on_behalf_of_token_exchange
+        # Device & passkey
+        - passkey_challenge_started
+        - passkey_challenge_failed
+        - fdeac
+        - fdeaz
+        - fdecc
+        # Account & user management
+        - fdu
+        - sdu
+        - fcu
+        - scu
+        - fi
+        - si
+        - fcpn
+        - scpn
+        - fui
+        - sui
+        # Rate limiting & security
+        - api_limit
+        - api_limit_warning
+        - limit_mu
+        - limit_sul
+        - limit_wc
+        # Logout & delegation
+        - slo
+        - flo
+        - sd
+        - fd
+        - oidc_backchannel_logout_succeeded
+        - oidc_backchannel_logout_failed
+        # Administrative & system
+        - sapi
+        - mgmt_api_read
+        - sscim
+        - actions_execution_failed
+        - flows_execution_completed
+        - flows_execution_failed
+        # Notifications & communications
+        - cls
+        - cs
+        - fn
+        - wn
+
+    # ------------------------------------------------------------------
+    # Shared Action event-object sub-schemas
+    # ------------------------------------------------------------------
+
+    ActionRequest:
+      type: object
+      description: |-
+        Request context shared by every Action trigger event. Documented
+        fields are enumerated; trigger-specific extensions are allowed.
+      additionalProperties: true
+      properties:
+        ip:
+          type: string
+          description: Originating IP address of the end-user or caller.
+        asn:
+          type: string
+          description: Autonomous System Number of the originating IP.
+        method:
+          type: string
+          description: HTTP method of the originating request.
+        hostname:
+          type: string
+          description: Hostname of the Auth0 tenant or custom domain handling the request.
+        user_agent:
+          type: string
+          description: User-Agent header of the originating request.
+        language:
+          type: string
+          description: Preferred language of the originating request.
+        body:
+          type: object
+          description: Request body, when applicable.
+          additionalProperties: true
+        query:
+          type: object
+          description: Query-string parameters.
+          additionalProperties: true
+        geoip:
+          $ref: '#/components/schemas/ActionGeoIP'
+
+    ActionGeoIP:
+      type: object
+      description: GeoIP-derived location for the originating IP.
+      additionalProperties: true
+      properties:
+        cityName: { type: string }
+        continentCode: { type: string }
+        countryCode: { type: string }
+        countryCode3: { type: string }
+        countryName: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        timeZone: { type: string }
+        subdivisionCode: { type: string }
+        subdivisionName: { type: string }
+
+    ActionClient:
+      type: object
+      description: Application (client) details associated with the transaction.
+      additionalProperties: true
+      properties:
+        client_id: { type: string }
+        name: { type: string }
+        metadata:
+          type: object
+          description: Client metadata dictionary.
+          additionalProperties:
+            type: string
+
+    ActionConnection:
+      type: object
+      description: Connection details associated with the transaction.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        name: { type: string }
+        strategy: { type: string }
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    ActionTenant:
+      type: object
+      description: Tenant identifier.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+
+    ActionOrganization:
+      type: object
+      description: Organization context for organization-scoped transactions.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        name: { type: string }
+        display_name: { type: string }
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    ActionCustomDomain:
+      type: object
+      description: Custom domain context for transactions issued on a tenant custom domain.
+      additionalProperties: true
+      properties:
+        domain: { type: string }
+        domain_metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    ActionSecurityContext:
+      type: object
+      description: TLS fingerprint signatures (available when fronted by Cloudflare).
+      additionalProperties: true
+      properties:
+        ja3: { type: string }
+        ja4: { type: string }
+
+    ActionResourceServer:
+      type: object
+      description: Resource Server (API) being addressed by the transaction.
+      additionalProperties: true
+      properties:
+        identifier: { type: string }
+
+    ActionStats:
+      type: object
+      description: Per-user login statistics.
+      additionalProperties: true
+      properties:
+        logins_count:
+          type: integer
+          minimum: 0
+
+    ActionTransaction:
+      type: object
+      description: |-
+        Transaction-level OAuth/OIDC parameters. The Auth0 documentation
+        enumerates the fields below; additional fields may appear for
+        specific protocols.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        protocol: { type: string }
+        acr_values:
+          type: array
+          items: { type: string }
+        locale: { type: string }
+        login_hint: { type: string }
+        prompt:
+          type: array
+          items: { type: string }
+        redirect_uri: { type: string }
+        requested_scopes:
+          type: array
+          items: { type: string }
+        response_mode: { type: string }
+        response_type:
+          oneOf:
+            - { type: string }
+            - { type: array, items: { type: string } }
+        state: { type: string }
+        ui_locales:
+          type: array
+          items: { type: string }
+        correlation_id: { type: string }
+        target_scopes:
+          type: array
+          items: { type: string }
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    ActionAuthenticationMethod:
+      type: object
+      description: A single authentication method asserted during the flow.
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: Method name (for example `federated`, `pwd`, `passkey`, `sms`, `email`).
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+
+    ActionAuthentication:
+      type: object
+      description: Authentication signals obtained during the flow.
+      additionalProperties: true
+      properties:
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionAuthenticationMethod'
+        riskAssessment:
+          type: object
+          description: |-
+            Risk assessment outputs for assessors such as ImpossibleTravel,
+            NewDevice, and UntrustedIP. Sub-fields are not modelled in
+            detail to avoid fabrication.
+          additionalProperties: true
+
+    ActionAuthorization:
+      type: object
+      description: Authorization grants applied to the user.
+      additionalProperties: true
+      properties:
+        roles:
+          type: array
+          items: { type: string }
+
+    ActionSession:
+      type: object
+      description: Session-level metadata for the post-login transaction.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        authenticated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        idle_expires_at:
+          type: string
+          format: date-time
+        user_id: { type: string }
+        device:
+          type: object
+          additionalProperties: true
+
+    ActionRefreshToken:
+      type: object
+      description: Refresh token associated with the post-login transaction.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        client_id: { type: string }
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        device:
+          type: object
+          additionalProperties: true
+        resource_servers:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    ActionAccessToken:
+      type: object
+      description: Access token under construction for credentials-exchange.
+      additionalProperties: true
+      properties:
+        customClaims:
+          type: object
+          additionalProperties: true
+        scope:
+          oneOf:
+            - { type: string }
+            - { type: array, items: { type: string } }
+
+    ActionSecrets:
+      type: object
+      description: |-
+        Securely-stored secret values made available to the Action handler.
+        Keys are caller-defined; values are strings.
+      additionalProperties:
+        type: string
+
+    ActionIdentity:
+      type: object
+      description: A linked identity record on a user profile.
+      additionalProperties: true
+      properties:
+        user_id: { type: string }
+        provider: { type: string }
+        connection: { type: string }
+        isSocial: { type: boolean }
+        profileData:
+          type: object
+          additionalProperties: true
+
+    ActionUser:
+      type: object
+      description: |-
+        Auth0 user profile representation passed to Action handlers. Fields
+        enumerated here are those documented for the post-login,
+        pre-user-registration, and post-user-registration trigger event
+        objects. Additional standard or custom fields are allowed.
+      additionalProperties: true
+      properties:
+        user_id: { type: string }
+        email:
+          type: string
+          format: email
+        email_verified: { type: boolean }
+        phone_number: { type: string }
+        phone_verified: { type: boolean }
+        username: { type: string }
+        name: { type: string }
+        nickname: { type: string }
+        given_name: { type: string }
+        family_name: { type: string }
+        picture:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        last_password_reset:
+          type: string
+          format: date-time
+        blocked: { type: boolean }
+        app_metadata:
+          type: object
+          additionalProperties: true
+        user_metadata:
+          type: object
+          additionalProperties: true
+        multifactor:
+          type: array
+          items: { type: string }
+        enrolledFactors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        identities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionIdentity'
+
+    # ------------------------------------------------------------------
+    # Trigger-specific event objects
+    # ------------------------------------------------------------------
+
+    PostLoginEventObject:
+      type: object
+      description: |-
+        `event` object passed to a post-login Action handler. Documented
+        properties are enumerated; additional Auth0-added properties are
+        allowed.
+      additionalProperties: true
+      properties:
+        authentication:
+          $ref: '#/components/schemas/ActionAuthentication'
+        authorization:
+          $ref: '#/components/schemas/ActionAuthorization'
+        client:
+          $ref: '#/components/schemas/ActionClient'
+        connection:
+          $ref: '#/components/schemas/ActionConnection'
+        organization:
+          $ref: '#/components/schemas/ActionOrganization'
+        custom_domain:
+          $ref: '#/components/schemas/ActionCustomDomain'
+        refresh_token:
+          $ref: '#/components/schemas/ActionRefreshToken'
+        request:
+          $ref: '#/components/schemas/ActionRequest'
+        resource_server:
+          $ref: '#/components/schemas/ActionResourceServer'
+        session:
+          $ref: '#/components/schemas/ActionSession'
+        session_id:
+          type: string
+          description: |-
+            Identifier of the session associated with the login.
+            Documented separately on the Post-Login trigger page; may also
+            be reachable through `event.session.id`.
+        stats:
+          $ref: '#/components/schemas/ActionStats'
+        tenant:
+          $ref: '#/components/schemas/ActionTenant'
+        transaction:
+          $ref: '#/components/schemas/ActionTransaction'
+        user:
+          $ref: '#/components/schemas/ActionUser'
+        secrets:
+          $ref: '#/components/schemas/ActionSecrets'
+        security_context:
+          $ref: '#/components/schemas/ActionSecurityContext'
+        prompt:
+          type: object
+          description: |-
+            Custom prompt data collected during Universal Login. The
+            documentation references `id`, `fields`, and `vars`; sub-field
+            shapes are not modelled in detail.
+          additionalProperties: true
+        session_transfer_token:
+          type: object
+          description: |-
+            Early Access Native-to-Web SSO context. Contains `client_id`,
+            request details, and a `scope` array; sub-field shapes are
+            not modelled in detail.
+          additionalProperties: true
+
+    CredentialsExchangeEventObject:
+      type: object
+      description: |-
+        `event` object passed to a credentials-exchange Action handler.
+      additionalProperties: true
+      properties:
+        accessToken:
+          $ref: '#/components/schemas/ActionAccessToken'
+        client:
+          $ref: '#/components/schemas/ActionClient'
+        custom_domain:
+          $ref: '#/components/schemas/ActionCustomDomain'
+        organization:
+          $ref: '#/components/schemas/ActionOrganization'
+        request:
+          $ref: '#/components/schemas/ActionRequest'
+        resource_server:
+          $ref: '#/components/schemas/ActionResourceServer'
+        secrets:
+          $ref: '#/components/schemas/ActionSecrets'
+        tenant:
+          $ref: '#/components/schemas/ActionTenant'
+        transaction:
+          $ref: '#/components/schemas/ActionTransaction'
+
+    PreUserRegistrationEventObject:
+      type: object
+      description: |-
+        `event` object passed to a pre-user-registration Action handler.
+      additionalProperties: true
+      properties:
+        authentication:
+          $ref: '#/components/schemas/ActionAuthentication'
+        client:
+          $ref: '#/components/schemas/ActionClient'
+        connection:
+          $ref: '#/components/schemas/ActionConnection'
+        custom_domain:
+          $ref: '#/components/schemas/ActionCustomDomain'
+        request:
+          $ref: '#/components/schemas/ActionRequest'
+        secrets:
+          $ref: '#/components/schemas/ActionSecrets'
+        security_context:
+          $ref: '#/components/schemas/ActionSecurityContext'
+        tenant:
+          $ref: '#/components/schemas/ActionTenant'
+        transaction:
+          $ref: '#/components/schemas/ActionTransaction'
+        user:
+          $ref: '#/components/schemas/ActionUser'
+
+    PostUserRegistrationEventObject:
+      type: object
+      description: |-
+        `event` object passed to a post-user-registration Action handler.
+      additionalProperties: true
+      properties:
+        authentication:
+          $ref: '#/components/schemas/ActionAuthentication'
+        connection:
+          $ref: '#/components/schemas/ActionConnection'
+        custom_domain:
+          $ref: '#/components/schemas/ActionCustomDomain'
+        request:
+          $ref: '#/components/schemas/ActionRequest'
+        secrets:
+          $ref: '#/components/schemas/ActionSecrets'
+        security_context:
+          $ref: '#/components/schemas/ActionSecurityContext'
+        tenant:
+          $ref: '#/components/schemas/ActionTenant'
+        transaction:
+          $ref: '#/components/schemas/ActionTransaction'
+        user:
+          $ref: '#/components/schemas/ActionUser'
+
+    GenericActionEventObject:
+      type: object
+      description: |-
+        Open `event` envelope used for Action triggers whose dedicated
+        event-object reference page was not retrievable at authoring
+        time. The properties below are the cross-trigger context fields
+        that the Actions documentation consistently lists; additional
+        trigger-specific fields are allowed.
+      additionalProperties: true
+      properties:
+        client:
+          $ref: '#/components/schemas/ActionClient'
+        connection:
+          $ref: '#/components/schemas/ActionConnection'
+        custom_domain:
+          $ref: '#/components/schemas/ActionCustomDomain'
+        request:
+          $ref: '#/components/schemas/ActionRequest'
+        secrets:
+          $ref: '#/components/schemas/ActionSecrets'
+        security_context:
+          $ref: '#/components/schemas/ActionSecurityContext'
+        tenant:
+          $ref: '#/components/schemas/ActionTenant'
+        transaction:
+          $ref: '#/components/schemas/ActionTransaction'
+        user:
+          $ref: '#/components/schemas/ActionUser'
