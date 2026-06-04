@@ -1,0 +1,88 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Organization and Add Connection
+  summary: Create an organization, associate an existing connection with it, then read the association back.
+  description: >-
+    Connects an identity source to an Auth0 Organization. The workflow creates a
+    new organization, associates an existing connection with it (optionally
+    auto-assigning membership on login), and reads the organization connection
+    back to confirm. Each step spells out its request inline so the flow can be
+    read and executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-org-add-connection
+  summary: Create an organization and attach an existing connection to it.
+  description: >-
+    Creates an organization, adds the supplied connection id to it, and reads
+    the organization connection back to verify.
+  inputs:
+    type: object
+    required:
+    - name
+    - connectionId
+    properties:
+      name:
+        type: string
+        description: The name of the organization (lowercase, used as the slug).
+      display_name:
+        type: string
+        description: Friendly display name for the organization.
+      connectionId:
+        type: string
+        description: Existing connection id to associate with the organization.
+      assignMembershipOnLogin:
+        type: boolean
+        description: Whether users logging in via this connection are auto-granted membership.
+  steps:
+  - stepId: createOrg
+    description: >-
+      Create a new organization within the tenant.
+    operationId: post_organizations
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.name
+        display_name: $inputs.display_name
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      orgId: $response.body#/id
+  - stepId: addConnection
+    description: >-
+      Associate the supplied connection with the new organization.
+    operationId: post_organization_connection
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    requestBody:
+      contentType: application/json
+      payload:
+        connection_id: $inputs.connectionId
+        assign_membership_on_login: $inputs.assignMembershipOnLogin
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      connectionId: $response.body#/connection_id
+  - stepId: getConnection
+    description: >-
+      Read the organization connection back to confirm the association.
+    operationId: get_organization_connection
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    - name: connection_id
+      in: path
+      value: $inputs.connectionId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      connectionId: $response.body#/connection_id
+  outputs:
+    orgId: $steps.createOrg.outputs.orgId
+    connectionId: $steps.getConnection.outputs.connectionId

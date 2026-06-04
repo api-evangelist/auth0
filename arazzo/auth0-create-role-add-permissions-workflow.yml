@@ -1,0 +1,92 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Role and Add Permissions
+  summary: Create a role, associate API permissions with it, then list the role's permissions to confirm.
+  description: >-
+    Builds a complete Role-Based Access Control role in a single flow. The
+    workflow creates a new user role, associates one or more
+    resource-server/permission pairs with it, and then lists the role's
+    permissions so the caller can confirm the associations. Each step spells out
+    its request inline so the flow can be read and executed without opening the
+    underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-role-add-permissions
+  summary: Create a role and attach API permissions to it.
+  description: >-
+    Creates a user role, adds the supplied permissions, and lists the role's
+    permissions to verify the result.
+  inputs:
+    type: object
+    required:
+    - name
+    - permissions
+    properties:
+      name:
+        type: string
+        description: Name of the new role.
+      description:
+        type: string
+        description: Optional human-friendly description of the role.
+      permissions:
+        type: array
+        description: Array of resource_server_identifier / permission_name pairs to associate with the role.
+        items:
+          type: object
+          required:
+          - resource_server_identifier
+          - permission_name
+          properties:
+            resource_server_identifier:
+              type: string
+            permission_name:
+              type: string
+  steps:
+  - stepId: createRole
+    description: >-
+      Create a new user role with the supplied name and optional description.
+      New roles start with no permissions.
+    operationId: post_roles
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.name
+        description: $inputs.description
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      roleId: $response.body#/id
+  - stepId: addPermissions
+    description: >-
+      Associate the supplied resource-server/permission pairs with the new role.
+    operationId: post_role_permission_assignment
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createRole.outputs.roleId
+    requestBody:
+      contentType: application/json
+      payload:
+        permissions: $inputs.permissions
+    successCriteria:
+    - condition: $statusCode == 201
+  - stepId: listPermissions
+    description: >-
+      List the permissions currently associated with the role to confirm the
+      additions.
+    operationId: get_role_permission
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createRole.outputs.roleId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      permissions: $response.body
+  outputs:
+    roleId: $steps.createRole.outputs.roleId
+    permissions: $steps.listPermissions.outputs.permissions

@@ -1,0 +1,81 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Organization and Add Members
+  summary: Create an organization, add existing users as members, then list the members.
+  description: >-
+    Stands up a new Auth0 Organization and populates it with members. The
+    workflow creates the organization, adds the supplied existing user ids as
+    members, and lists the organization's members to confirm. Each step spells
+    out its request inline so the flow can be read and executed without opening
+    the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-org-add-members
+  summary: Create an organization and add member users to it.
+  description: >-
+    Creates an organization, adds the supplied user ids as members, and lists
+    the members to verify.
+  inputs:
+    type: object
+    required:
+    - name
+    - members
+    properties:
+      name:
+        type: string
+        description: The name of the organization (lowercase, used as the slug).
+      display_name:
+        type: string
+        description: Friendly display name for the organization.
+      members:
+        type: array
+        description: List of existing user ids to add as organization members.
+        items:
+          type: string
+  steps:
+  - stepId: createOrg
+    description: >-
+      Create a new organization within the tenant.
+    operationId: post_organizations
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.name
+        display_name: $inputs.display_name
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      orgId: $response.body#/id
+  - stepId: addMembers
+    description: >-
+      Add the supplied existing users as members of the new organization.
+    operationId: post_members
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    requestBody:
+      contentType: application/json
+      payload:
+        members: $inputs.members
+    successCriteria:
+    - condition: $statusCode == 204
+  - stepId: listMembers
+    description: >-
+      List the organization's members to confirm they were added.
+    operationId: get_organization_members
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      members: $response.body
+  outputs:
+    orgId: $steps.createOrg.outputs.orgId
+    members: $steps.listMembers.outputs.members

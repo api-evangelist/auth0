@@ -1,0 +1,78 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Find Role by Name and Assign Users
+  summary: Resolve a role by name filter and, when found, assign users to it.
+  description: >-
+    A find-then-act role membership flow. The workflow looks up a role by a name
+    filter and branches on the result: when a matching role is found it assigns
+    the supplied users to that role, and when no role matches it ends without
+    making changes. Each step spells out its request inline so the flow can be
+    read and executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: find-role-assign-users
+  summary: Resolve a role by name then assign users to it when it exists.
+  description: >-
+    Searches roles by name filter and only when a match is found assigns the
+    supplied user ids to the matched role.
+  inputs:
+    type: object
+    required:
+    - roleName
+    - users
+    properties:
+      roleName:
+        type: string
+        description: Name (or partial name) of the role to find, case-insensitive.
+      users:
+        type: array
+        description: List of user ids to assign to the role when found.
+        items:
+          type: string
+  steps:
+  - stepId: findRole
+    description: >-
+      Search roles by name filter, returning the matching roles.
+    operationId: get_roles
+    parameters:
+    - name: name_filter
+      in: query
+      value: $inputs.roleName
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      matchedRoleId: $response.body#/0/id
+    onSuccess:
+    - name: roleFound
+      type: goto
+      stepId: assignUsers
+      criteria:
+      - context: $response.body
+        condition: $.length > 0
+        type: jsonpath
+    - name: roleMissing
+      type: end
+      criteria:
+      - context: $response.body
+        condition: $.length == 0
+        type: jsonpath
+  - stepId: assignUsers
+    description: >-
+      Assign the supplied user ids to the matched role.
+    operationId: post_role_users
+    parameters:
+    - name: id
+      in: path
+      value: $steps.findRole.outputs.matchedRoleId
+    requestBody:
+      contentType: application/json
+      payload:
+        users: $inputs.users
+    successCriteria:
+    - condition: $statusCode == 200
+  outputs:
+    matchedRoleId: $steps.findRole.outputs.matchedRoleId

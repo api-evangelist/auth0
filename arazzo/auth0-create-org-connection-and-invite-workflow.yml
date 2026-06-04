@@ -1,0 +1,106 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Organization, Attach Connection and Invite a User
+  summary: Create an organization, attach an existing connection, and invite a user to authenticate through it.
+  description: >-
+    Stands up a self-contained Auth0 Organization that an external user can join.
+    The workflow creates an organization, associates an existing connection with
+    it, and issues an invitation that forces the invitee to authenticate with
+    that connection. Each step spells out its request inline so the flow can be
+    read and executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-org-connection-and-invite
+  summary: Create an organization, attach a connection, and invite a user via that connection.
+  description: >-
+    Creates an organization, associates the supplied connection with it, then
+    invites the invitee to authenticate using that connection.
+  inputs:
+    type: object
+    required:
+    - name
+    - connectionId
+    - inviterName
+    - inviteeEmail
+    - clientId
+    properties:
+      name:
+        type: string
+        description: The name of the organization (lowercase, used as the slug).
+      display_name:
+        type: string
+        description: Friendly display name for the organization.
+      connectionId:
+        type: string
+        description: Existing connection id to associate with the organization.
+      inviterName:
+        type: string
+        description: Name of the person sending the invitation.
+      inviteeEmail:
+        type: string
+        description: Email address of the user being invited.
+      clientId:
+        type: string
+        description: Auth0 client id used to resolve the login initiation endpoint.
+  steps:
+  - stepId: createOrg
+    description: >-
+      Create a new organization within the tenant.
+    operationId: post_organizations
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.name
+        display_name: $inputs.display_name
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      orgId: $response.body#/id
+  - stepId: addConnection
+    description: >-
+      Associate the supplied connection with the new organization.
+    operationId: post_organization_connection
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    requestBody:
+      contentType: application/json
+      payload:
+        connection_id: $inputs.connectionId
+        assign_membership_on_login: true
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      connectionId: $response.body#/connection_id
+  - stepId: invite
+    description: >-
+      Invite the invitee to the organization, forcing authentication through the
+      associated connection.
+    operationId: post_invitations
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    requestBody:
+      contentType: application/json
+      payload:
+        inviter:
+          name: $inputs.inviterName
+        invitee:
+          email: $inputs.inviteeEmail
+        client_id: $inputs.clientId
+        connection_id: $inputs.connectionId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      invitationId: $response.body#/id
+      invitationUrl: $response.body#/invitation_url
+  outputs:
+    orgId: $steps.createOrg.outputs.orgId
+    invitationId: $steps.invite.outputs.invitationId
+    invitationUrl: $steps.invite.outputs.invitationUrl

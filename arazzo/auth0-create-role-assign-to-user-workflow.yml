@@ -1,0 +1,80 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Role and Assign to a User
+  summary: Create a role, assign an existing user to it, then list the role's users.
+  description: >-
+    Creates a new access role and immediately grants it to a user. The workflow
+    creates a user role, assigns the supplied existing user to that role, and
+    lists the role's users to confirm the membership. Each step spells out its
+    request inline so the flow can be read and executed without opening the
+    underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-role-assign-to-user
+  summary: Create a role and assign a user to it.
+  description: >-
+    Creates a role, assigns the supplied user id to it, and lists the role's
+    users to verify.
+  inputs:
+    type: object
+    required:
+    - roleName
+    - userId
+    properties:
+      roleName:
+        type: string
+        description: Name of the new role.
+      description:
+        type: string
+        description: Optional description of the role.
+      userId:
+        type: string
+        description: Existing user id to assign to the new role.
+  steps:
+  - stepId: createRole
+    description: >-
+      Create a new user role.
+    operationId: post_roles
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.roleName
+        description: $inputs.description
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      roleId: $response.body#/id
+  - stepId: assignUser
+    description: >-
+      Assign the supplied user to the new role.
+    operationId: post_role_users
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createRole.outputs.roleId
+    requestBody:
+      contentType: application/json
+      payload:
+        users:
+        - $inputs.userId
+    successCriteria:
+    - condition: $statusCode == 200
+  - stepId: listRoleUsers
+    description: >-
+      List the role's users to confirm the assignment.
+    operationId: get_role_user
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createRole.outputs.roleId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      users: $response.body
+  outputs:
+    roleId: $steps.createRole.outputs.roleId
+    users: $steps.listRoleUsers.outputs.users

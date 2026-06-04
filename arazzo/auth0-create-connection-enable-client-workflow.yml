@@ -1,0 +1,83 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Connection and Enable for a Client
+  summary: Create an identity connection, enable it for a client application, then list the connection's enabled clients.
+  description: >-
+    Wires a new identity connection to an application. The workflow creates a
+    connection of the given strategy, enables that connection for the supplied
+    client via the dedicated enabled-clients endpoint, and lists the
+    connection's enabled clients to confirm. Each step spells out its request
+    inline so the flow can be read and executed without opening the underlying
+    OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-connection-enable-client
+  summary: Create a connection and enable it for a client application.
+  description: >-
+    Creates a connection, enables it for the supplied client_id, and lists the
+    enabled clients for the connection to verify.
+  inputs:
+    type: object
+    required:
+    - name
+    - strategy
+    - clientId
+    properties:
+      name:
+        type: string
+        description: Name of the connection.
+      strategy:
+        type: string
+        description: Identity provider strategy for the connection (e.g. auth0).
+      clientId:
+        type: string
+        description: The client_id to enable the connection for.
+  steps:
+  - stepId: createConnection
+    description: >-
+      Create a new connection with the supplied name and strategy.
+    operationId: post_connections
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.name
+        strategy: $inputs.strategy
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      connectionId: $response.body#/id
+  - stepId: enableClient
+    description: >-
+      Enable the new connection for the supplied client by setting its status to
+      true via the enabled-clients endpoint.
+    operationId: patch_clients
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createConnection.outputs.connectionId
+    requestBody:
+      contentType: application/json
+      payload:
+      - client_id: $inputs.clientId
+        status: true
+    successCriteria:
+    - condition: $statusCode == 204
+  - stepId: listEnabledClients
+    description: >-
+      List the connection's enabled clients to confirm the client was enabled.
+    operationId: get_connection_clients
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createConnection.outputs.connectionId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      clients: $response.body
+  outputs:
+    connectionId: $steps.createConnection.outputs.connectionId
+    clients: $steps.listEnabledClients.outputs.clients

@@ -1,0 +1,105 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create Organization and Invite a User
+  summary: Create an organization, create an invitation for a new member, then read the invitation back.
+  description: >-
+    Onboards an external user to an Auth0 Organization via email invitation. The
+    workflow creates an organization, issues an invitation for an invitee email
+    on behalf of an inviter and client, and reads the invitation back to surface
+    its invitation URL. Each step spells out its request inline so the flow can
+    be read and executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: invite-user-to-org
+  summary: Create an organization and invite a user to join it.
+  description: >-
+    Creates an organization, sends an invitation to the invitee email, and reads
+    the invitation back to obtain its invitation URL.
+  inputs:
+    type: object
+    required:
+    - name
+    - inviterName
+    - inviteeEmail
+    - clientId
+    properties:
+      name:
+        type: string
+        description: The name of the organization (lowercase, used as the slug).
+      display_name:
+        type: string
+        description: Friendly display name for the organization.
+      inviterName:
+        type: string
+        description: Name of the person sending the invitation.
+      inviteeEmail:
+        type: string
+        description: Email address of the user being invited.
+      clientId:
+        type: string
+        description: Auth0 client id used to resolve the login initiation endpoint.
+      roles:
+        type: array
+        description: Optional list of role ids to associate with the invited user.
+        items:
+          type: string
+  steps:
+  - stepId: createOrg
+    description: >-
+      Create a new organization within the tenant.
+    operationId: post_organizations
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.name
+        display_name: $inputs.display_name
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      orgId: $response.body#/id
+  - stepId: createInvitation
+    description: >-
+      Create an invitation for the invitee email on behalf of the inviter and
+      client.
+    operationId: post_invitations
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    requestBody:
+      contentType: application/json
+      payload:
+        inviter:
+          name: $inputs.inviterName
+        invitee:
+          email: $inputs.inviteeEmail
+        client_id: $inputs.clientId
+        roles: $inputs.roles
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      invitationId: $response.body#/id
+      invitationUrl: $response.body#/invitation_url
+  - stepId: getInvitation
+    description: >-
+      Read the invitation back to confirm it and surface its invitation URL.
+    operationId: get_invitations_by_invitation_id
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createOrg.outputs.orgId
+    - name: invitation_id
+      in: path
+      value: $steps.createInvitation.outputs.invitationId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      invitationUrl: $response.body#/invitation_url
+  outputs:
+    orgId: $steps.createOrg.outputs.orgId
+    invitationId: $steps.createInvitation.outputs.invitationId
+    invitationUrl: $steps.getInvitation.outputs.invitationUrl

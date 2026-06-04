@@ -1,0 +1,97 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create User, Add to Organization with Roles
+  summary: Create a database user, add them as a member of an existing organization, and assign organization-scoped roles.
+  description: >-
+    End-to-end member onboarding into an existing Auth0 Organization. The
+    workflow creates a new user in a database connection, adds that user as a
+    member of the supplied organization, and assigns organization-scoped roles
+    to the member. Each step spells out its request inline so the flow can be
+    read and executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-user-add-to-org-with-roles
+  summary: Create a user, add them to an organization, and assign org-scoped roles.
+  description: >-
+    Creates a user in a database connection, adds them as a member of the given
+    organization, then assigns the supplied role ids within that organization.
+  inputs:
+    type: object
+    required:
+    - connection
+    - email
+    - password
+    - orgId
+    - roles
+    properties:
+      connection:
+        type: string
+        description: Name of the database connection the user should be created in.
+      email:
+        type: string
+        description: Email address for the new user.
+      password:
+        type: string
+        description: Initial password for the new user.
+      orgId:
+        type: string
+        description: Identifier of the existing organization to add the user to.
+      roles:
+        type: array
+        description: List of role ids to assign to the member within the organization.
+        items:
+          type: string
+  steps:
+  - stepId: createUser
+    description: >-
+      Create a new user in the supplied database connection.
+    operationId: post_users
+    requestBody:
+      contentType: application/json
+      payload:
+        connection: $inputs.connection
+        email: $inputs.email
+        password: $inputs.password
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      userId: $response.body#/user_id
+  - stepId: addMember
+    description: >-
+      Add the new user as a member of the supplied organization.
+    operationId: post_members
+    parameters:
+    - name: id
+      in: path
+      value: $inputs.orgId
+    requestBody:
+      contentType: application/json
+      payload:
+        members:
+        - $steps.createUser.outputs.userId
+    successCriteria:
+    - condition: $statusCode == 204
+  - stepId: assignMemberRoles
+    description: >-
+      Assign the supplied role ids to the member within the context of the
+      organization.
+    operationId: post_organization_member_roles
+    parameters:
+    - name: id
+      in: path
+      value: $inputs.orgId
+    - name: user_id
+      in: path
+      value: $steps.createUser.outputs.userId
+    requestBody:
+      contentType: application/json
+      payload:
+        roles: $inputs.roles
+    successCriteria:
+    - condition: $statusCode == 204
+  outputs:
+    userId: $steps.createUser.outputs.userId

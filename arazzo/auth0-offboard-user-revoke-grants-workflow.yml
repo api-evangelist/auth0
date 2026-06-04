@@ -1,0 +1,96 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Offboard User and Revoke Grants
+  summary: Find a user by email, list their authorization grants, and revoke the first grant when present.
+  description: >-
+    A find-then-act offboarding flow that revokes a user's standing OAuth
+    authorization grants. The workflow resolves the user by email, branches when
+    a user is found, lists the grants issued for that user, and then branches
+    again to delete the first grant when any exist. Each step spells out its
+    request inline so the flow can be read and executed without opening the
+    underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: offboard-user-revoke-grants
+  summary: Resolve a user, list their grants, and revoke a grant when present.
+  description: >-
+    Searches users by email, lists the matched user's authorization grants, and
+    revokes the first grant found.
+  inputs:
+    type: object
+    required:
+    - email
+    properties:
+      email:
+        type: string
+        description: Email address of the user to offboard (case-sensitive).
+  steps:
+  - stepId: findUser
+    description: >-
+      Search for a user by email address.
+    operationId: get_users-by-email
+    parameters:
+    - name: email
+      in: query
+      value: $inputs.email
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      matchedUserId: $response.body#/0/user_id
+    onSuccess:
+    - name: userFound
+      type: goto
+      stepId: listGrants
+      criteria:
+      - context: $response.body
+        condition: $.length > 0
+        type: jsonpath
+    - name: userMissing
+      type: end
+      criteria:
+      - context: $response.body
+        condition: $.length == 0
+        type: jsonpath
+  - stepId: listGrants
+    description: >-
+      List the authorization grants issued for the matched user.
+    operationId: get_grants
+    parameters:
+    - name: user_id
+      in: query
+      value: $steps.findUser.outputs.matchedUserId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      firstGrantId: $response.body#/0/id
+    onSuccess:
+    - name: grantsExist
+      type: goto
+      stepId: revokeGrant
+      criteria:
+      - context: $response.body
+        condition: $.length > 0
+        type: jsonpath
+    - name: noGrants
+      type: end
+      criteria:
+      - context: $response.body
+        condition: $.length == 0
+        type: jsonpath
+  - stepId: revokeGrant
+    description: >-
+      Delete the first authorization grant found for the user.
+    operationId: delete_grants_by_id
+    parameters:
+    - name: id
+      in: path
+      value: $steps.listGrants.outputs.firstGrantId
+    successCriteria:
+    - condition: $statusCode == 204
+  outputs:
+    matchedUserId: $steps.findUser.outputs.matchedUserId
+    revokedGrantId: $steps.listGrants.outputs.firstGrantId

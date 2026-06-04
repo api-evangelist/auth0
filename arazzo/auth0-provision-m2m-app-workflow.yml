@@ -1,0 +1,102 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Provision Machine-to-Machine Application
+  summary: Create an API (resource server), create a non-interactive client, and grant the client access to the API.
+  description: >-
+    Sets up a complete machine-to-machine integration. The workflow registers a
+    new API (resource server) with its scopes, creates a client application, and
+    then creates a client grant authorizing that client to request tokens for
+    the API audience. Each step spells out its request inline so the flow can be
+    read and executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: provision-m2m-app
+  summary: Register an API, create a client, and authorize the client for the API.
+  description: >-
+    Creates a resource server with scopes, creates a client, and creates a
+    client grant binding the client to the API audience with the requested
+    scopes.
+  inputs:
+    type: object
+    required:
+    - apiName
+    - identifier
+    - clientName
+    properties:
+      apiName:
+        type: string
+        description: Friendly name for the API (resource server).
+      identifier:
+        type: string
+        description: Unique audience identifier for the API.
+      scopes:
+        type: array
+        description: List of scope definitions for the API.
+        items:
+          type: object
+          required:
+          - value
+          properties:
+            value:
+              type: string
+            description:
+              type: string
+      clientName:
+        type: string
+        description: Name for the client application.
+      grantScopes:
+        type: array
+        description: Scopes the client grant should allow for this audience.
+        items:
+          type: string
+  steps:
+  - stepId: createApi
+    description: >-
+      Register a new API (resource server) with the supplied audience
+      identifier and scopes.
+    operationId: post_resource-servers
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.apiName
+        identifier: $inputs.identifier
+        scopes: $inputs.scopes
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      apiId: $response.body#/id
+  - stepId: createClient
+    description: >-
+      Create a client application that will request tokens for the API.
+    operationId: post_clients
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.clientName
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      clientId: $response.body#/client_id
+  - stepId: createGrant
+    description: >-
+      Authorize the client to obtain tokens for the API audience with the
+      requested scopes.
+    operationId: post_client-grants
+    requestBody:
+      contentType: application/json
+      payload:
+        client_id: $steps.createClient.outputs.clientId
+        audience: $inputs.identifier
+        scope: $inputs.grantScopes
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      grantId: $response.body#/id
+  outputs:
+    apiId: $steps.createApi.outputs.apiId
+    clientId: $steps.createClient.outputs.clientId
+    grantId: $steps.createGrant.outputs.grantId

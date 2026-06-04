@@ -1,0 +1,108 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create API, Role and Bind Permissions
+  summary: Register an API with scopes, create a role, and associate the API's scopes with that role as permissions.
+  description: >-
+    Builds an API and a matching access role in one flow. The workflow registers
+    a new API (resource server) with its scopes, creates a user role, and
+    associates the API's permissions with that role for Role-Based Access
+    Control. Each step spells out its request inline so the flow can be read and
+    executed without opening the underlying OpenAPI description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-resource-server-role-permissions
+  summary: Register an API, create a role, and attach the API's permissions to the role.
+  description: >-
+    Creates a resource server with scopes, creates a role, and associates the
+    supplied permission pairs (for the API identifier) with the role.
+  inputs:
+    type: object
+    required:
+    - apiName
+    - identifier
+    - scopes
+    - roleName
+    - permissions
+    properties:
+      apiName:
+        type: string
+        description: Friendly name for the API (resource server).
+      identifier:
+        type: string
+        description: Unique audience identifier for the API.
+      scopes:
+        type: array
+        description: List of scope definitions for the API.
+        items:
+          type: object
+          required:
+          - value
+          properties:
+            value:
+              type: string
+            description:
+              type: string
+      roleName:
+        type: string
+        description: Name of the role to create.
+      permissions:
+        type: array
+        description: Array of resource_server_identifier / permission_name pairs to associate with the role.
+        items:
+          type: object
+          required:
+          - resource_server_identifier
+          - permission_name
+          properties:
+            resource_server_identifier:
+              type: string
+            permission_name:
+              type: string
+  steps:
+  - stepId: createApi
+    description: >-
+      Register a new API (resource server) with the supplied scopes.
+    operationId: post_resource-servers
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.apiName
+        identifier: $inputs.identifier
+        scopes: $inputs.scopes
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      apiId: $response.body#/id
+  - stepId: createRole
+    description: >-
+      Create a user role to hold the API's permissions.
+    operationId: post_roles
+    requestBody:
+      contentType: application/json
+      payload:
+        name: $inputs.roleName
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      roleId: $response.body#/id
+  - stepId: bindPermissions
+    description: >-
+      Associate the supplied API permissions with the new role.
+    operationId: post_role_permission_assignment
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createRole.outputs.roleId
+    requestBody:
+      contentType: application/json
+      payload:
+        permissions: $inputs.permissions
+    successCriteria:
+    - condition: $statusCode == 201
+  outputs:
+    apiId: $steps.createApi.outputs.apiId
+    roleId: $steps.createRole.outputs.roleId

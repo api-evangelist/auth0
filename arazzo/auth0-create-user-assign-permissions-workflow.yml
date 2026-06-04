@@ -1,0 +1,96 @@
+arazzo: 1.0.1
+info:
+  title: Auth0 Create User and Assign Direct Permissions
+  summary: Create a database user, assign direct API permissions, then list those permissions.
+  description: >-
+    Provisions a user and grants them direct permissions without going through a
+    role. The workflow creates a user in a database connection, assigns one or
+    more resource-server/permission pairs directly to the user, and lists the
+    user's permissions to confirm. Each step spells out its request inline so the
+    flow can be read and executed without opening the underlying OpenAPI
+    description.
+  version: 1.0.0
+sourceDescriptions:
+- name: auth0ManagementApi
+  url: ../openapi/auth0-management-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: create-user-assign-permissions
+  summary: Create a user and grant direct API permissions.
+  description: >-
+    Creates a user in a database connection, assigns the supplied direct
+    permissions, and lists the user's permissions to verify.
+  inputs:
+    type: object
+    required:
+    - connection
+    - email
+    - password
+    - permissions
+    properties:
+      connection:
+        type: string
+        description: Name of the database connection the user should be created in.
+      email:
+        type: string
+        description: Email address for the new user.
+      password:
+        type: string
+        description: Initial password for the new user.
+      permissions:
+        type: array
+        description: Array of resource_server_identifier / permission_name pairs to assign directly to the user.
+        items:
+          type: object
+          required:
+          - resource_server_identifier
+          - permission_name
+          properties:
+            resource_server_identifier:
+              type: string
+            permission_name:
+              type: string
+  steps:
+  - stepId: createUser
+    description: >-
+      Create a new user in the supplied database connection.
+    operationId: post_users
+    requestBody:
+      contentType: application/json
+      payload:
+        connection: $inputs.connection
+        email: $inputs.email
+        password: $inputs.password
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      userId: $response.body#/user_id
+  - stepId: assignPermissions
+    description: >-
+      Assign the supplied direct permissions to the new user.
+    operationId: post_permissions
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createUser.outputs.userId
+    requestBody:
+      contentType: application/json
+      payload:
+        permissions: $inputs.permissions
+    successCriteria:
+    - condition: $statusCode == 201
+  - stepId: listPermissions
+    description: >-
+      List the user's permissions to confirm the direct assignments.
+    operationId: get_permissions
+    parameters:
+    - name: id
+      in: path
+      value: $steps.createUser.outputs.userId
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      permissions: $response.body
+  outputs:
+    userId: $steps.createUser.outputs.userId
+    permissions: $steps.listPermissions.outputs.permissions
