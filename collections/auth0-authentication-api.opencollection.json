@@ -1,0 +1,811 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Authorize User",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Authenticate a User with a Social Provider, Database/AD/LDAP (Passive), SAML/Windows Azure AD (Passive), Authorization Code Flow, Authorization Code Grant (PKCE) Flow, or Implicit Flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/authorize",
+            "params": [
+              {
+                "name": "audience",
+                "value": "",
+                "type": "query",
+                "description": "The unique identifier of the target API you want to access"
+              },
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query",
+                "description": "The scopes which you want to request authorization for. These must be separated by a space. You can request any of the standard OpenID Connect (OIDC) scopes about users, such as profile and email, custom claims that must conform to a namespaced format, or any scopes supported by the target API (for example, read:contacts). Include offline_access to get a Refresh Token."
+              },
+              {
+                "name": "response_type",
+                "value": "",
+                "type": "query",
+                "description": "Indicates to Auth0 which OAuth 2.0 flow you want to perform. Use code for Authorization Code Grant Flow, token for Implicit Flow, or id_token token for both an ID Token and an Access Token."
+              },
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "query",
+                "description": "Your application's ID."
+              },
+              {
+                "name": "redirect_uri",
+                "value": "",
+                "type": "query",
+                "description": "The URL to which Auth0 will redirect the browser after authorization has been granted by the user."
+              },
+              {
+                "name": "state",
+                "value": "",
+                "type": "query",
+                "description": "An opaque value the applications adds to the initial request that the authorization server includes when redirecting the back to the application. This value must be used by the application to prevent CSRF attacks."
+              },
+              {
+                "name": "nonce",
+                "value": "",
+                "type": "query",
+                "description": "A string value which will be included in the ID Token response from Auth0, used to prevent token replay attacks. It is required for response_type=id_token token."
+              },
+              {
+                "name": "code_challenge_method",
+                "value": "",
+                "type": "query",
+                "description": "Method used to generate the challenge. The PKCE spec defines two methods, S256 and plain, however, Auth0 supports only S256 since the latter is discouraged."
+              },
+              {
+                "name": "code_challenge",
+                "value": "",
+                "type": "query",
+                "description": "Generated challenge from the code_verifier."
+              },
+              {
+                "name": "connection",
+                "value": "",
+                "type": "query",
+                "description": "The name of the connection configured to your application."
+              },
+              {
+                "name": "prompt",
+                "value": "",
+                "type": "query",
+                "description": "To initiate a silent authentication request, use prompt=none."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "query",
+                "description": "ID of the organization to use when authenticating a user. When not provided, if your application is configured to Display Organization Prompt, the user will be able to enter the organization name when authenticating."
+              },
+              {
+                "name": "invitation",
+                "value": "",
+                "type": "query",
+                "description": "Ticket ID of the organization invitation. When inviting a member to an Organization, your application should handle invitation acceptance by forwarding the invitation and organization key-value pairs when the user accepts the invitation."
+              }
+            ]
+          },
+          "docs": "Use this endpoint to authenticate a user. The following flows are supported:\n  - Social Provider Authentication\n  - Database/AD/LDAP (Passive) Authentication\n  - SAML/Windows Azure AD (Passive) Authentication\n  - Authorization Code Flow\n  - Authorization Code Grant (PKCE) Flow\n  - Implicit Flow\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Logout",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Logout a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/v2/logout",
+            "params": [
+              {
+                "name": "returnTo",
+                "value": "",
+                "type": "query",
+                "description": "URL to redirect the user after the logout."
+              },
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "query",
+                "description": "The client_id of your application."
+              },
+              {
+                "name": "federated",
+                "value": "",
+                "type": "query",
+                "description": "Add this query string parameter to the logout URL, to log the user out of their identity provider, as well."
+              }
+            ]
+          },
+          "docs": "Use this endpoint to logout a user. If you want to navigate the user to a specific URL after the logout, set that URL at the returnTo parameter. The URL should be included in any the appropriate Allowed Logout URLs list."
+        },
+        {
+          "info": {
+            "name": "Auth0 Logout a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/oidc/logout",
+            "params": [
+              {
+                "name": "id_token_hint",
+                "value": "",
+                "type": "query",
+                "description": "Previously issued ID Token for the user. This is used to indicate which user to log out."
+              },
+              {
+                "name": "logout_hint",
+                "value": "",
+                "type": "query",
+                "description": "Optional sid (session ID) value to indicate which user to log out. Should be provided when id_token_hint is not available."
+              },
+              {
+                "name": "post_logout_redirect_uri",
+                "value": "",
+                "type": "query",
+                "description": "URL to redirect the user after the logout."
+              },
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "query",
+                "description": "The client_id of your application."
+              },
+              {
+                "name": "federated",
+                "value": "",
+                "type": "query",
+                "description": "Add this query string parameter to log the user out of their identity provider."
+              },
+              {
+                "name": "state",
+                "value": "",
+                "type": "query",
+                "description": "An opaque value the applications adds to the initial request that the authorization server includes when redirecting the back to the post_logout_redirect_uri."
+              },
+              {
+                "name": "ui_locales",
+                "value": "",
+                "type": "query",
+                "description": "Space-delimited list of locales used to constrain the language list for the request. The first locale on the list must match the enabled locale in your tenant."
+              }
+            ]
+          },
+          "docs": "Use this endpoint to logout a user. If you want to navigate the user to a specific URL after the logout, set that URL at the post_logout_redirect_uri parameter. The URL should be included in the appropriate Allowed Logout URLs list."
+        },
+        {
+          "info": {
+            "name": "Auth0 Logout a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/samlp/:CLIENT_ID/logout",
+            "params": [
+              {
+                "name": "CLIENT_ID",
+                "value": "",
+                "type": "path",
+                "description": "Client ID of your application configured with the SAML2 Web App addon."
+              }
+            ]
+          },
+          "docs": "Use this endpoint to log out a user from an Auth0 tenant configured as a SAML identity provider (IdP). Logout behavior is determined by the configuration of the SAML2 Web App addon for the application on the Auth0 tenant acting as the SAML IdP."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Passwordless",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Start Passwordless Flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/passwordless/start",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "You have three options for passwordless authentication: Send a verification code using email, Send a link using email, Send a verification code using SMS."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Deprecated > Passwordless",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Verify with Verification Code",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/passwordless/verify",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Once you have a verification code, use this endpoint to login the user with their phone number/email and verification code. This is active authentication, so the user must enter the code in your app."
+        },
+        {
+          "info": {
+            "name": "Auth0 Given the User's Credentials, This Endpoint Will Authenticate the User with the Provider and Return a JSON Object with the Access Token and an ID Token.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/oauth/ro",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Given the user credentials and the connection specified, it will do the authentication on the provider and return a JSON with the access_token and id_token. This endpoint only works for database connections, passwordless connections, Active Directory/LDAP, Windows Azure AD and ADFS.\n**This endpoint is deprecated**."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "OAuth Token",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Authenticates a User Using a Verification Code, Verifies Multi-factor Authentication (MFA) Using a One-time Password (OTP), Out-of-band (OOB) Challenge, or a Recovery Code, or Exchanges an Authorization Code for a Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/oauth/token",
+            "headers": [
+              {
+                "name": "auth0-forwarded-for",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This endpoint supports multiple methods. Depending on the method, different parameters are required in the request body. The supported methods are:\n  - Authenticate User with verification code\n  - OTP\n  - OOB\n  - Recovery Code\n  - Authorization Code\n  - Authorization Code PKCE\n  - Client Credentials\n  - Resource Owner Password\n  - Device Authorization\n  - Refresh Token\n  - Native Social Token Exchange\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "DbConnections",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Signup with User's Credentials",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/dbconnections/signup",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Given a user's credentials, and a connection, this endpoint will create a new user using active authentication. This endpoint only works for database connections."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "DB Connections",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Send a Change Password Email",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/dbconnections/change_password",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Send a change password email to the user's provided email address and connection. Optionally, you may provide an Organization ID to support Organization-specific variables in customized email templates and to include the organization_id and organization_name parameters in the Redirect To URL. Note: This endpoint only works for database connections.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "User Profile",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Returns a User's Profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/userinfo",
+            "headers": [
+              {
+                "name": "access_token",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ]
+          },
+          "docs": "Given the Auth0 Access Token obtained during login, this endpoint returns a user's profile. This endpoint will work only if openid was granted as a scope for the Access Token. The user profile information included in the response depends on the scopes requested. For example, a scope of just openid may return less information than a a scope of openid profile email."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "MFA",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Request a Challenge for Multi-factor Authentication",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/mfa/challenge",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Request a challenge for multi-factor authentication (MFA) based on the challenge types supported by the application and user. The challenge_type is how the user will get the challenge and prove possession. Supported challenge types include otp for one-time password (OTP), oob for SMS/Voice messages or out-of-band (OOB). If OTP is supported by the user and you don't want to request a different factor, you can skip the challenge request and verify the multi-factor authentication with a one-time pa"
+        },
+        {
+          "info": {
+            "name": "Auth0 Associates or Adds a New Authenticator for Multi-factor Authentication (MFA).",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/mfa/associate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "If the user has active authenticators, an Access Token with the enroll scope and the audience set to https://{yourDomain}/mfa/ is required to use this endpoint.\nIf the user has no active authenticators, you can use the mfa_token from the mfa_required error in place of an Access Token for this request.\nAfter an authenticator is added, it must be verified. To verify the authenticator, use the response values from the /mfa/associate request in place of the values returned from the /mfa/challenge en"
+        },
+        {
+          "info": {
+            "name": "Auth0 Returns a List of Authenticators Associated with Your Application.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/mfa/authenticators",
+            "headers": [
+              {
+                "name": "ACCESS_TOKEN",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "To access this endpoint you must set an Access Token at the Authorization header, with the following claims:\nscope: read:authenticators\naudience: https://{yourDomain}/mfa/\n"
+        },
+        {
+          "info": {
+            "name": "Auth0 Deletes an Associated Authenticator Using Its ID.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/mfa/authenticators/:AUTHENTICATOR_ID",
+            "headers": [
+              {
+                "name": "ACCESS_TOKEN",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "AUTHENTICATOR_ID",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the authenticator to delete."
+              }
+            ]
+          },
+          "docs": "You can get authenticator IDs by listing the authenticators.\nTo access this endpoint, you must set an Access Token at the Authorization header, with the following claims:\nscope: remove:authenticators\naudience: https://{yourDomain}/mfa/\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "SAML",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Use This Endpoint to Accept a SAML Request to Initiate a Login.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/samlp/:client_id",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "Client ID of your application."
+              },
+              {
+                "name": "connection",
+                "value": "",
+                "type": "query",
+                "description": "Connection to use during login."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "query",
+                "description": "Organization ID, if authenticating in the context of an organization."
+              }
+            ]
+          },
+          "docs": "Optionally, you can include a connection parameter to log in with a specific provider. If no connection is specified, the Auth0 Login Page will be shown.\nOptionally, SP-initiated login requests can include an organization parameter to authenticate users in the context of an organization. To learn more, see Organizations.\n"
+        },
+        {
+          "info": {
+            "name": "Auth0 This Endpoint Returns the SAML 2.0 Metadata.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/samlp/metadata/:client_id",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "The client_id of your application."
+              }
+            ]
+          },
+          "docs": "Auth0 This Endpoint Returns the SAML 2.0 Metadata."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "SSO",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 This Endpoint Accepts an IdP-Initiated Sign on SAMLResponse from a SAML Identity Provider.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/login/callback",
+            "params": [
+              {
+                "name": "connection",
+                "value": "",
+                "type": "query",
+                "description": "The name of an identity provider configured to your application."
+              }
+            ],
+            "body": {
+              "type": "form-urlencoded",
+              "data": [
+                {
+                  "name": "SAMLResponse",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "The connection corresponding to the identity provider is specified in the query string. The user will be redirected to the application that is specified in the SAML Provider IdP-Initiated Sign On section.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "WS-Federation",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 This Endpoint Accepts a WS-Federation Request to Initiate a Login.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/wsfed/:client_id",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "The client-id of your application."
+              },
+              {
+                "name": "wtrealm",
+                "value": "",
+                "type": "query",
+                "description": "Can be used in place of client-id."
+              },
+              {
+                "name": "whr",
+                "value": "",
+                "type": "query",
+                "description": "The name of the connection (used to skip the login page)."
+              },
+              {
+                "name": "wctx",
+                "value": "",
+                "type": "query",
+                "description": "Your application's state."
+              },
+              {
+                "name": "wreply",
+                "value": "",
+                "type": "query",
+                "description": "The callback URL."
+              }
+            ]
+          },
+          "docs": "Auth0 This Endpoint Accepts a WS-Federation Request to Initiate a Login."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "WS-Fed",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 This Endpoint Returns the WS-Federation Metadata.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/wsfed/FederationMetadata/2007-06/FederationMetadata.xml"
+          },
+          "docs": "Auth0 This Endpoint Returns the WS-Federation Metadata."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "OIDC",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "With a Name and the Necessary Callback URL, You Can Dynamically Register a Client with Auth0. No Token Is Needed for This Request.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/oidc/register",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "With a Name and the Necessary Callback URL, You Can Dynamically Register a Client with Auth0. No Token Is Needed for This Request."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Device Flow",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Get Device Code",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/oauth/device/code",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This is the flow that input-constrained devices use to access an API. Use this endpoint to get a device code."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Revoke Refresh Token",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Revoke Refresh Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/oauth/revoke",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Use this endpoint to invalidate a Refresh Token if it has been compromised. The behaviour of this endpoint depends on the state of the Refresh Token Revocation Deletes Grant toggle. If this toggle is enabled, then each revocation request invalidates not only the specific token, but all other tokens based on the same authorization grant. This means that all Refresh Tokens that have been issued for the same user, application, and audience will be revoked. If this toggle is disabled, then only the "
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Deprecated > Authenticate",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Login Using a Social Provider's Access Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/oauth/access_token",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Given the social provider's access_token and the connection specified, it will do the authentication on the provider and return a JSON with the access_token and id_token. Currently, this endpoint only works for Facebook, Google, Twitter and Weibo. **This endpoint has been deprecated**."
+        },
+        {
+          "info": {
+            "name": "Auth0 [Deprecated] Return a User Profile Based on the User's JWT",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/tokeninfo",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Validates a JSON Web Token (signature and expiration) and returns the user information associated with the user id (sub property) of the token."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Deprecated > Delegated Authentication",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Obtain a Delegation Token (from a Refresh_token)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/delegation",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Given an refrersh token, this endpoint will generate a refreshed id_token and access_token. **This endpoint has been deprecated**, please use the [OAuth2 conformant Refresh Token flow](https://auth0.com/docs/tokens/refresh-token/current)."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Deprecated > Link Accounts",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Unlink an Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/unlink",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "**This endpoint is deprecated**. The `DELETE /api/v2/users/{id}/identities/{provider}/{user_id}` (from Management API v2) should be used instead."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Deprecated > Impersonation",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Obtain an Impersonation URL",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:user_id/impersonate",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user to impersonate."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Use this endpoint to obtain an impersonation URL to login as another user. Useful for troubleshooting."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
