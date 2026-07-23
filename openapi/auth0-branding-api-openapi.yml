@@ -1,0 +1,2344 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions branding API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: branding
+paths:
+  /branding:
+    get:
+      summary: Get Branding Settings
+      description: Retrieve branding settings.
+      tags:
+      - branding
+      responses:
+        '200':
+          description: Branding settings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBrandingResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: The specified client cannot perform the requested operation.
+          x-description-1: 'Insufficient scope; expected any of: read:branding.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_branding
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: branding
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:branding
+    patch:
+      summary: Update Branding Settings
+      description: Update branding settings.
+      tags:
+      - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandingRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandingRequestContent'
+      responses:
+        '200':
+          description: Branding settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBrandingResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:branding.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_branding
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: branding
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:branding
+  /branding/phone/providers:
+    get:
+      summary: Get a List of Phone Providers
+      description: 'Retrieve a list of <a href="https://auth0.com/docs/customize/phone-messages/configure-phone-messaging-providers">phone providers</a> details set for a Tenant. A list of fields to include or exclude may also be specified.
+
+        '
+      tags:
+      - branding
+      parameters:
+      - name: disabled
+        in: query
+        description: Whether the provider is enabled (false) or disabled (true).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Phone providers have been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBrandingPhoneProvidersResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:phone_provider.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_branding_phone_providers
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListBrandingPhoneProvidersRequestParameters
+      x-operation-group:
+      - branding
+      - phone
+      - providers
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:phone_providers
+    post:
+      summary: Configure the Phone Provider
+      description: 'Create a <a href="https://auth0.com/docs/customize/phone-messages/configure-phone-messaging-providers">phone provider</a>.
+
+        The <code>credentials</code> object requires different properties depending on the phone provider (which is specified using the <code>name</code> property).
+
+        '
+      tags:
+      - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBrandingPhoneProviderRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateBrandingPhoneProviderRequestContent'
+      responses:
+        '201':
+          description: Phone notification provider successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBrandingPhoneProviderResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:phone_provider.'
+        '409':
+          description: Custom phone provider conflict.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: create_phone_provider
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - branding
+      - phone
+      - providers
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:phone_providers
+  /branding/phone/providers/{id}:
+    get:
+      summary: Get a Phone Provider
+      description: 'Retrieve <a href="https://auth0.com/docs/customize/phone-messages/configure-phone-messaging-providers">phone provider</a> details. A list of fields to include or exclude may also be specified.
+
+        '
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      responses:
+        '200':
+          description: Phone provider successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBrandingPhoneProviderResponseContent'
+        '400':
+          description: Invalid id for provider.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:phone_provider.'
+        '404':
+          description: Phone provider has not been configured.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_phone_provider
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - branding
+      - phone
+      - providers
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:phone_providers
+    delete:
+      summary: Deletes a Phone Provider
+      description: 'Delete the configured phone provider.
+
+        '
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      responses:
+        '204':
+          description: Phone provider successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:phone_provider.'
+        '404':
+          description: Phone provider has not been configured.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_phone_provider
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - branding
+      - phone
+      - providers
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:phone_providers
+    patch:
+      summary: Update the Phone Provider
+      description: 'Update a <a href="https://auth0.com/docs/customize/phone-messages/configure-phone-messaging-providers">phone provider</a>.
+
+        The <code>credentials</code> object requires different properties depending on the phone provider (which is specified using the <code>name</code> property).
+
+        '
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandingPhoneProviderRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandingPhoneProviderRequestContent'
+      responses:
+        '200':
+          description: Phone provider successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBrandingPhoneProviderResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:phone_provider.'
+        '404':
+          description: Phone provider has not been configured.
+        '409':
+          description: Custom phone provider conflict.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: update_phone_provider
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - branding
+      - phone
+      - providers
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:phone_providers
+  /branding/phone/providers/{id}/try:
+    post:
+      summary: Send a Test Phone Notification for the Configured Provider
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePhoneProviderSendTestRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePhoneProviderSendTestRequestContent'
+      responses:
+        '202':
+          description: Phone notification sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePhoneProviderSendTestResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: create:phone_provider.'
+        '404':
+          description: Phone provider has not been configured.
+        '409':
+          description: Custom phone provider conflict.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: try_phone_provider
+      x-release-lifecycle: GA
+      x-operation-name: test
+      x-operation-group:
+      - branding
+      - phone
+      - providers
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:phone_providers
+  /branding/phone/templates:
+    get:
+      summary: Get a List of Phone Notification Templates
+      tags:
+      - branding
+      parameters:
+      - name: disabled
+        in: query
+        description: Whether the template is enabled (false) or disabled (true).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The phone notification templates were retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPhoneTemplatesResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:phone_templates'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_phone_templates
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListPhoneTemplatesRequestParameters
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:phone_templates
+    post:
+      summary: Create a Phone Notification Template
+      tags:
+      - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePhoneTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePhoneTemplateRequestContent'
+      responses:
+        '201':
+          description: The phone notification template was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePhoneTemplateResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: create:phone_templates'
+        '409':
+          description: Phone template already configured for tenant
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: create_phone_template
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:phone_templates
+  /branding/phone/templates/{id}:
+    get:
+      summary: Get a Phone Notification Template
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      responses:
+        '200':
+          description: The phone notification template were retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPhoneTemplateResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:phone_templates'
+        '404':
+          description: Phone template does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_phone_template
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:phone_templates
+    delete:
+      summary: Delete a Phone Notification Template
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      responses:
+        '204':
+          description: The phone notification template was deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: delete:phone_templates'
+        '404':
+          description: Phone template does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_phone_template
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:phone_templates
+    patch:
+      summary: Update a Phone Notification Template
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePhoneTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdatePhoneTemplateRequestContent'
+      responses:
+        '200':
+          description: The phone notification template was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePhoneTemplateResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: update:phone_templates'
+        '404':
+          description: Phone template does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: update_phone_template
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:phone_templates
+  /branding/phone/templates/{id}/reset:
+    patch:
+      summary: Resets a Phone Notification Template Values
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPhoneTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPhoneTemplateRequestContent'
+      responses:
+        '200':
+          description: The phone notification template was reset.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPhoneTemplateResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: create:phone_templates'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: reset_phone_template
+      x-release-lifecycle: GA
+      x-operation-name: reset
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:phone_templates
+  /branding/phone/templates/{id}/try:
+    post:
+      summary: Send a Test Phone Notification for the Configured Template
+      tags:
+      - branding
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePhoneTemplateTestNotificationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePhoneTemplateTestNotificationRequestContent'
+      responses:
+        '202':
+          description: The phone testing notification for the template was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePhoneTemplateTestNotificationResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: create:phone_templates'
+        '404':
+          description: Phone template does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: try_phone_template
+      x-release-lifecycle: GA
+      x-operation-name: test
+      x-operation-group:
+      - branding
+      - phone
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:phone_templates
+  /branding/templates/universal-login:
+    get:
+      summary: Get Template for New Universal Login Experience
+      tags:
+      - branding
+      responses:
+        '200':
+          description: Template successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUniversalLoginTemplateResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required for this feature.
+        '403':
+          description: 'Insufficient scope; expected: read:branding'
+        '404':
+          description: Template does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_universal-login
+      x-release-lifecycle: GA
+      x-operation-name: getUniversalLogin
+      x-operation-group:
+      - branding
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:branding
+    delete:
+      summary: Delete Template for New Universal Login Experience
+      tags:
+      - branding
+      responses:
+        '204':
+          description: Template successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required for this feature.
+        '403':
+          description: 'Insufficient scope; expected: delete:branding.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_universal-login
+      x-release-lifecycle: GA
+      x-operation-name: deleteUniversalLogin
+      x-operation-group:
+      - branding
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:branding
+    put:
+      summary: Set Template for New Universal Login Experience
+      description: "Update the Universal Login branding template.\n\n<p>When <code>content-type</code> header is set to <code>application/json</code>:</p>\n<pre>\n{\n  \"template\": \"&lt;!DOCTYPE html&gt;{% assign resolved_dir = dir | default: \"auto\" %}&lt;html lang=\"{{locale}}\" dir=\"{{resolved_dir}}\"&gt;&lt;head&gt;{%- auth0:head -%}&lt;/head&gt;&lt;body class=\"_widget-auto-layout\"&gt;{%- auth0:widget -%}&lt;/body&gt;&lt;/html&gt;\"\n}\n</pre>\n\n<p>\n  When <code>content-type</code> header is set to <code>text/html</code>:\n</p>\n<pre>\n&lt!DOCTYPE html&gt;\n{% assign resolved_dir = dir | default: \"auto\" %}\n&lt;html lang=\"{{locale}}\" dir=\"{{resolved_dir}}\"&gt;\n  &lt;head&gt;\n    {%- auth0:head -%}\n  &lt;/head&gt;\n  &lt;body class=\"_widget-auto-layout\"&gt;\n    {%- auth0:widget -%}\n  &lt;/body&gt;\n&lt;/html&gt;\n</pre>\n"
+      tags:
+      - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUniversalLoginTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateUniversalLoginTemplateRequestContent'
+      responses:
+        '201':
+          description: Template successfully created.
+        '204':
+          description: Template successfully updated.
+        '400':
+          description: 'Payload content length greater than maximum allowed: 102400.'
+          x-description-1: Payload content missing required Liquid tags (auth0:head and auth0:widget).
+          x-description-2: 'Liquid template syntax error: <error details>.'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required for this feature.
+        '403':
+          description: 'Insufficient scope; expected: update:branding.'
+        '409':
+          description: Template update conflict.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_universal-login
+      x-release-lifecycle: GA
+      x-operation-name: updateUniversalLogin
+      x-operation-group:
+      - branding
+      - templates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:branding
+  /branding/themes:
+    post:
+      summary: Create Branding Theme
+      description: Create branding theme.
+      tags:
+      - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBrandingThemeRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateBrandingThemeRequestContent'
+      responses:
+        '200':
+          description: Branding settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBrandingThemeResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:branding.'
+        '409':
+          description: 'There was an error updating branding settings: The theme already exists'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_branding_theme
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - branding
+      - themes
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:branding
+  /branding/themes/default:
+    get:
+      summary: Get Default Branding Theme
+      description: Retrieve default branding theme.
+      tags:
+      - branding
+      responses:
+        '200':
+          description: Branding theme successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBrandingDefaultThemeResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: The specified client cannot perform the requested operation.
+          x-description-1: 'Insufficient scope; expected any of: read:branding.'
+        '404':
+          description: 'There was an error retrieving branding settings: invalid theme ID'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_default_branding_theme
+      x-release-lifecycle: GA
+      x-operation-name: getDefault
+      x-operation-group:
+      - branding
+      - themes
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:branding
+  /branding/themes/{themeId}:
+    get:
+      summary: Get Branding Theme
+      description: Retrieve branding theme.
+      tags:
+      - branding
+      parameters:
+      - name: themeId
+        in: path
+        description: The ID of the theme
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Branding theme successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBrandingThemeResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: The specified client cannot perform the requested operation.
+          x-description-1: 'Insufficient scope; expected any of: read:branding.'
+        '404':
+          description: 'There was an error retrieving branding settings: invalid theme ID'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_branding_theme
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - branding
+      - themes
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:branding
+    delete:
+      summary: Delete Branding Theme
+      description: Delete branding theme.
+      tags:
+      - branding
+      parameters:
+      - name: themeId
+        in: path
+        description: The ID of the theme
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Branding theme successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: The specified client cannot perform the requested operation.
+          x-description-1: 'Insufficient scope; expected any of: delete:branding.'
+        '404':
+          description: 'There was an error deleting branding settings: invalid theme ID'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_branding_theme
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - branding
+      - themes
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:branding
+    patch:
+      summary: Update Branding Theme
+      description: Update branding theme.
+      tags:
+      - branding
+      parameters:
+      - name: themeId
+        in: path
+        description: The ID of the theme
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandingThemeRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandingThemeRequestContent'
+      responses:
+        '200':
+          description: Branding settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBrandingThemeResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:branding.'
+        '404':
+          description: 'There was an error updating branding settings: invalid theme ID'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_branding_theme
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - branding
+      - themes
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:branding
+components:
+  schemas:
+    UpdateBrandingPhoneProviderRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        credentials:
+          $ref: '#/components/schemas/PhoneProviderCredentials'
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+    UpdateBrandingPhoneMaskingEnum:
+      type: string
+      description: Controls how phone numbers are masked when displayed back to users.
+      default: mask_digits
+      enum:
+      - show_all
+      - hide_country_code
+      - mask_digits
+    BrandingFont:
+      type: object
+      description: Custom font settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        url:
+          type: string
+          description: URL for the custom font. The URL must point to a font file and not a stylesheet. Must use HTTPS.
+          format: strict-https-uri
+    CreatePhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    CustomProviderDeliveryMethodEnum:
+      type: string
+      enum:
+      - text
+      - voice
+    PhoneProviderCredentials:
+      description: Provider credentials required to use authenticate to the provider.
+      anyOf:
+      - $ref: '#/components/schemas/TwilioProviderCredentials'
+      - $ref: '#/components/schemas/CustomProviderCredentials'
+    BrandingThemeFontLinksStyleEnum:
+      type: string
+      description: Links style
+      enum:
+      - normal
+      - underlined
+    BrandingThemeFontTitle:
+      type: object
+      description: Title
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Title bold
+        size:
+          type: number
+          description: Title size
+          minimum: 75
+          maximum: 150
+    UpdateBrandingLoginDisplayEnum:
+      type: string
+      description: Controls identifier input presentation on the login flow. Defaults to "unified" for legacy tenants, "separate" for tenants created post-GA of this feature.
+      default: unified
+      enum:
+      - unified
+      - separate
+    BrandingThemeWidgetSocialButtonsLayoutEnum:
+      type: string
+      description: Social buttons layout
+      enum:
+      - bottom
+      - top
+    BrandingThemeColorsCaptchaWidgetThemeEnum:
+      type: string
+      description: Captcha Widget Theme
+      enum:
+      - auto
+      - dark
+      - light
+    BrandingPhoneMaskingEnum:
+      type: string
+      description: Controls how phone numbers are masked when displayed back to users.
+      default: mask_digits
+      enum:
+      - show_all
+      - hide_country_code
+      - mask_digits
+    CreatePhoneProviderSendTestResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: number
+          description: The status code of the operation.
+        message:
+          type: string
+          description: The description of the operation status.
+    PhoneProviderSchemaMasked:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        tenant:
+          type: string
+          description: The name of the tenant
+          minLength: 1
+          maxLength: 255
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        channel:
+          $ref: '#/components/schemas/PhoneProviderChannelEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        created_at:
+          type: string
+          description: The provider's creation date and time in ISO 8601 format
+          maxLength: 27
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time of the last update to the provider in ISO 8601 format
+          maxLength: 27
+          format: date-time
+    PhoneTemplateContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        syntax:
+          type: string
+        from:
+          type: string
+          description: Default phone number to be used as 'from' when sending a phone notification
+          minLength: 1
+          maxLength: 16
+        body:
+          $ref: '#/components/schemas/PhoneTemplateBody'
+    PartialPhoneTemplateContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        from:
+          type: string
+          description: Default phone number to be used as 'from' when sending a phone notification
+          minLength: 1
+          maxLength: 16
+        body:
+          $ref: '#/components/schemas/PhoneTemplateBody'
+    BrandingThemeFontInputLabels:
+      type: object
+      description: Input Labels
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Input Labels bold
+        size:
+          type: number
+          description: Input Labels size
+          minimum: 0
+          maximum: 150
+    TwilioProviderConfiguration:
+      type: object
+      additionalProperties: false
+      required:
+      - sid
+      - delivery_methods
+      properties:
+        default_from:
+          type: string
+        mssid:
+          type: string
+        sid:
+          type: string
+        delivery_methods:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/TwilioProviderDeliveryMethodEnum'
+    BrandingThemeFontBodyText:
+      type: object
+      description: Body text
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Body text bold
+        size:
+          type: number
+          description: Body text size
+          minimum: 0
+          maximum: 150
+    CreatePhoneTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+    BrandingThemeWidgetHeaderTextAlignmentEnum:
+      type: string
+      description: Header text alignment
+      enum:
+      - center
+      - left
+      - right
+    CreateBrandingPhoneProviderRequestContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: true
+      required:
+      - name
+      - credentials
+      properties:
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        credentials:
+          $ref: '#/components/schemas/PhoneProviderCredentials'
+    BrandingIdentifiers:
+      type: object
+      description: Identifier input display settings.
+      additionalProperties: false
+      properties:
+        login_display:
+          $ref: '#/components/schemas/BrandingLoginDisplayEnum'
+        otp_autocomplete:
+          type: boolean
+          description: Whether OTP autocomplete (autocomplete="one-time-code") is enabled.
+          default: true
+        phone_display:
+          $ref: '#/components/schemas/BrandingPhoneDisplay'
+    CreatePhoneTemplateTestNotificationResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - message
+      properties:
+        message:
+          type: string
+    UpdateBrandingResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        colors:
+          $ref: '#/components/schemas/BrandingColors'
+        favicon_url:
+          type: string
+          description: URL for the favicon. Must use HTTPS.
+          format: strict-https-uri
+        logo_url:
+          type: string
+          description: URL for the logo. Must use HTTPS.
+          format: strict-https-uri
+        identifiers:
+          $ref: '#/components/schemas/BrandingIdentifiers'
+        font:
+          $ref: '#/components/schemas/BrandingFont'
+    TwilioProviderDeliveryMethodEnum:
+      type: string
+      enum:
+      - text
+      - voice
+    PhoneTemplate:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    BrandingThemePageBackgroundPageLayoutEnum:
+      type: string
+      description: Page Layout
+      enum:
+      - center
+      - left
+      - right
+    PhoneTemplateNotificationTypeEnum:
+      type: string
+      maxLength: 255
+      enum:
+      - otp_verify
+      - otp_enroll
+      - change_password
+      - blocked_account
+      - password_breach
+    UpdateBrandingColors:
+      type:
+      - object
+      - 'null'
+      description: Custom color settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        primary:
+          type:
+          - string
+          - 'null'
+          description: Accent color.
+          format: html-color-or-null
+        page_background:
+          $ref: '#/components/schemas/UpdateBrandingPageBackground'
+    UpdateBrandingRequestContent:
+      type: object
+      description: Branding settings
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        colors:
+          $ref: '#/components/schemas/UpdateBrandingColors'
+        favicon_url:
+          type:
+          - string
+          - 'null'
+          description: URL for the favicon. Must use HTTPS.
+          format: strict-https-uri-or-null
+        logo_url:
+          type:
+          - string
+          - 'null'
+          description: URL for the logo. Must use HTTPS.
+          format: strict-https-uri-or-null
+        identifiers:
+          $ref: '#/components/schemas/UpdateBrandingIdentifiers'
+        font:
+          $ref: '#/components/schemas/UpdateBrandingFont'
+    PhoneProviderNameEnum:
+      type: string
+      description: Name of the phone notification provider
+      minLength: 1
+      maxLength: 100
+      enum:
+      - twilio
+      - custom
+    BrandingThemeFontSubtitle:
+      type: object
+      description: Subtitle
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Subtitle bold
+        size:
+          type: number
+          description: Subtitle size
+          minimum: 0
+          maximum: 150
+    ResetPhoneTemplateRequestContent: {}
+    CreatePhoneProviderSendTestRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - to
+      properties:
+        to:
+          type: string
+          description: The recipient phone number to receive a given notification.
+          minLength: 1
+          maxLength: 16
+        delivery_method:
+          $ref: '#/components/schemas/PhoneProviderDeliveryMethodEnum'
+    BrandingThemeBorders:
+      type: object
+      additionalProperties: false
+      required:
+      - button_border_radius
+      - button_border_weight
+      - buttons_style
+      - input_border_radius
+      - input_border_weight
+      - inputs_style
+      - show_widget_shadow
+      - widget_border_weight
+      - widget_corner_radius
+      properties:
+        button_border_radius:
+          type: number
+          description: Button border radius
+          minimum: 1
+          maximum: 10
+        button_border_weight:
+          type: number
+          description: Button border weight
+          minimum: 0
+          maximum: 10
+        buttons_style:
+          $ref: '#/components/schemas/BrandingThemeBordersButtonsStyleEnum'
+        input_border_radius:
+          type: number
+          description: Input border radius
+          minimum: 0
+          maximum: 10
+        input_border_weight:
+          type: number
+          description: Input border weight
+          minimum: 0
+          maximum: 3
+        inputs_style:
+          $ref: '#/components/schemas/BrandingThemeBordersInputsStyleEnum'
+        show_widget_shadow:
+          type: boolean
+          description: Show widget shadow
+        widget_border_weight:
+          type: number
+          description: Widget border weight
+          minimum: 0
+          maximum: 10
+        widget_corner_radius:
+          type: number
+          description: Widget corner radius
+          minimum: 0
+          maximum: 50
+    UpdateBrandingPageBackground:
+      description: "Page Background Color or Gradient.\nProperty contains either <code>null</code> to unset, a solid color as a string value <code>#FFFFFF</code>, or a gradient as an object.\n\n<pre><code>\n{\n  type: 'linear-gradient',\n  start: '#FFFFFF',\n  end: '#000000',\n  angle_deg: 35\n}\n</code></pre>\n"
+      oneOf:
+      - type:
+        - string
+        - 'null'
+      - type:
+        - object
+        - 'null'
+        additionalProperties: true
+    PhoneProviderDeliveryMethodEnum:
+      type: string
+      description: The delivery method for the notification
+      minLength: 1
+      maxLength: 10
+      enum:
+      - text
+      - voice
+    UpdatePhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    PhoneProviderChannelEnum:
+      type: string
+      description: This depicts the type of notifications this provider can receive.
+      maxLength: 100
+      enum:
+      - phone
+    BrandingPhoneFormattingEnum:
+      type: string
+      description: Controls the format used when displaying phone numbers.
+      default: international
+      enum:
+      - regional
+      - international
+    BrandingThemeFontLinks:
+      type: object
+      description: Links
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Links bold
+        size:
+          type: number
+          description: Links size
+          minimum: 0
+          maximum: 150
+    ResetPhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    BrandingLoginDisplayEnum:
+      type: string
+      description: Controls identifier input presentation on the login flow. Defaults to "unified" for legacy tenants, "separate" for tenants created post-GA of this feature.
+      default: unified
+      enum:
+      - unified
+      - separate
+    ListBrandingPhoneProvidersResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneProviderSchemaMasked'
+    CustomProviderCredentials:
+      type: object
+      additionalProperties: false
+      properties: {}
+    UpdateBrandingThemeResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
+          type: string
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    GetPhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    PhoneTemplateBody:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        text:
+          type: string
+          description: Content of the phone template for text notifications
+          minLength: 1
+          maxLength: 20000
+        voice:
+          type: string
+          description: Content of the phone template for voice notifications
+          minLength: 1
+          maxLength: 20000
+    BrandingColors:
+      type: object
+      description: Custom color settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        primary:
+          type: string
+          description: Accent color.
+          format: html-color
+        page_background:
+          $ref: '#/components/schemas/BrandingPageBackground'
+    ListPhoneTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneTemplate'
+    BrandingThemeFontButtonsText:
+      type: object
+      description: Buttons text
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Buttons text bold
+        size:
+          type: number
+          description: Buttons text size
+          minimum: 0
+          maximum: 150
+    UpdateBrandingFont:
+      type:
+      - object
+      - 'null'
+      description: Custom font settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        url:
+          type:
+          - string
+          - 'null'
+          description: URL for the custom font. The URL must point to a font file and not a stylesheet. Must use HTTPS.
+          format: strict-https-uri-or-null
+    TwilioProviderCredentials:
+      type: object
+      additionalProperties: false
+      required:
+      - auth_token
+      properties:
+        auth_token:
+          type: string
+          minLength: 1
+          maxLength: 255
+    BrandingPageBackground:
+      description: "Page Background Color or Gradient.\nProperty contains either <code>null</code> to unset, a solid color as a string value <code>#FFFFFF</code>, or a gradient as an object.\n\n<pre><code>\n{\n  type: 'linear-gradient',\n  start: '#FFFFFF',\n  end: '#000000',\n  angle_deg: 35\n}\n</code></pre>\n"
+      oneOf:
+      - type:
+        - string
+        - 'null'
+      - type:
+        - object
+        - 'null'
+        additionalProperties: true
+    CreateBrandingThemeRequestContent:
+      type: object
+      description: Branding theme
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - fonts
+      - page_background
+      - widget
+      minProperties: 1
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    BrandingThemeColors:
+      type: object
+      additionalProperties: false
+      required:
+      - body_text
+      - error
+      - header
+      - icons
+      - input_background
+      - input_border
+      - input_filled_text
+      - input_labels_placeholders
+      - links_focused_components
+      - primary_button
+      - primary_button_label
+      - secondary_button_border
+      - secondary_button_label
+      - success
+      - widget_background
+      - widget_border
+      properties:
+        base_focus_color:
+          type: string
+          description: Base Focus Color
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        base_hover_color:
+          type: string
+          description: Base Hover Color
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        body_text:
+          type: string
+          description: Body text
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        captcha_widget_theme:
+          $ref: '#/components/schemas/BrandingThemeColorsCaptchaWidgetThemeEnum'
+        error:
+          type: string
+          description: Error
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        header:
+          type: string
+          description: Header
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        icons:
+          type: string
+          description: Icons
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        input_background:
+          type: string
+          description: Input background
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        input_border:
+          type: string
+          description: Input border
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        input_filled_text:
+          type: string
+          description: Input filled text
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        input_labels_placeholders:
+          type: string
+          description: Input labels & placeholders
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        links_focused_components:
+          type: string
+          description: Links & focused components
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        primary_button:
+          type: string
+          description: Primary button
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        primary_button_label:
+          type: string
+          description: Primary button label
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        read_only_background:
+          type: string
+          description: Read only background
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        secondary_button_border:
+          type: string
+          description: Secondary button border
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        secondary_button_label:
+          type: string
+          description: Secondary button label
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        success:
+          type: string
+          description: Success
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        widget_background:
+          type: string
+          description: Widget background
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        widget_border:
+          type: string
+          description: Widget border
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+    GetBrandingDefaultThemeResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
+          type: string
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    GetBrandingResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        colors:
+          $ref: '#/components/schemas/BrandingColors'
+        favicon_url:
+          type: string
+          description: URL for the favicon. Must use HTTPS.
+          format: strict-https-uri
+        logo_url:
+          type: string
+          description: URL for the logo. Must use HTTPS.
+          format: strict-https-uri
+        identifiers:
+          $ref: '#/components/schemas/BrandingIdentifiers'
+        font:
+          $ref: '#/components/schemas/BrandingFont'
+    BrandingThemePageBackground:
+      type: object
+      additionalProperties: false
+      required:
+      - background_color
+      - background_image_url
+      - page_layout
+      properties:
+        background_color:
+          type: string
+          description: Background color
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        background_image_url:
+          type: string
+          description: Background image url
+          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
+        page_layout:
+          $ref: '#/components/schemas/BrandingThemePageBackgroundPageLayoutEnum'
+    UpdatePhoneTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        content:
+          $ref: '#/components/schemas/PartialPhoneTemplateContent'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    CreateBrandingThemeResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
+          type: string
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    GetBrandingThemeResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
+          type: string
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    GetUniversalLoginTemplateResponseContent:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/GetUniversalLoginTemplate'
+      - type: string
+        description: The custom page template for the New Universal Login Experience
+    BrandingThemeWidgetLogoPositionEnum:
+      type: string
+      description: Logo position
+      enum:
+      - center
+      - left
+      - none
+      - right
+    CustomProviderConfiguration:
+      type: object
+      additionalProperties: false
+      required:
+      - delivery_methods
+      properties:
+        delivery_methods:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CustomProviderDeliveryMethodEnum'
+    UpdateBrandingPhoneFormattingEnum:
+      type: string
+      description: Controls the format used when displaying phone numbers.
+      default: international
+      enum:
+      - regional
+      - international
+    BrandingThemeFonts:
+      type: object
+      additionalProperties: false
+      required:
+      - body_text
+      - buttons_text
+      - font_url
+      - input_labels
+      - links
+      - links_style
+      - reference_text_size
+      - subtitle
+      - title
+      properties:
+        body_text:
+          $ref: '#/components/schemas/BrandingThemeFontBodyText'
+        buttons_text:
+          $ref: '#/components/schemas/BrandingThemeFontButtonsText'
+        font_url:
+          type: string
+          description: Font URL
+          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
+        input_labels:
+          $ref: '#/components/schemas/BrandingThemeFontInputLabels'
+        links:
+          $ref: '#/components/schemas/BrandingThemeFontLinks'
+        links_style:
+          $ref: '#/components/schemas/BrandingThemeFontLinksStyleEnum'
+        reference_text_size:
+          type: number
+          description: Reference text size
+          minimum: 12
+          maximum: 24
+        subtitle:
+          $ref: '#/components/schemas/BrandingThemeFontSubtitle'
+        title:
+          $ref: '#/components/schemas/BrandingThemeFontTitle'
+    CreatePhoneTemplateTestNotificationRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - to
+      properties:
+        to:
+          type: string
+          description: Destination of the testing phone notification
+          minLength: 1
+          maxLength: 16
+        delivery_method:
+          $ref: '#/components/schemas/PhoneProviderDeliveryMethodEnum'
+          description: Medium to use to send the notification
+    BrandingPhoneDisplay:
+      type: object
+      description: Phone number display settings.
+      additionalProperties: false
+      properties:
+        masking:
+          $ref: '#/components/schemas/BrandingPhoneMaskingEnum'
+        formatting:
+          $ref: '#/components/schemas/BrandingPhoneFormattingEnum'
+    BrandingThemeBordersInputsStyleEnum:
+      type: string
+      description: Inputs style
+      enum:
+      - pill
+      - rounded
+      - sharp
+    UpdateBrandingIdentifiers:
+      type:
+      - object
+      - 'null'
+      description: Identifier input display settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        login_display:
+          $ref: '#/components/schemas/UpdateBrandingLoginDisplayEnum'
+        otp_autocomplete:
+          type: boolean
+          description: Whether OTP autocomplete (autocomplete="one-time-code") is enabled.
+          default: true
+        phone_display:
+          $ref: '#/components/schemas/UpdateBrandingPhoneDisplay'
+    CreateBrandingPhoneProviderResponseContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        tenant:
+          type: string
+          description: The name of the tenant
+          minLength: 1
+          maxLength: 255
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        channel:
+          $ref: '#/components/schemas/PhoneProviderChannelEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        created_at:
+          type: string
+          description: The provider's creation date and time in ISO 8601 format
+          maxLength: 27
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time of the last update to the provider in ISO 8601 format
+          maxLength: 27
+          format: date-time
+    UpdateBrandingPhoneProviderResponseContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        tenant:
+          type: string
+          description: The name of the tenant
+          minLength: 1
+          maxLength: 255
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        channel:
+          $ref: '#/components/schemas/PhoneProviderChannelEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        created_at:
+          type: string
+          description: The provider's creation date and time in ISO 8601 format
+          maxLength: 27
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time of the last update to the provider in ISO 8601 format
+          maxLength: 27
+          format: date-time
+    PhoneProviderConfiguration:
+      type: object
+      anyOf:
+      - $ref: '#/components/schemas/TwilioProviderConfiguration'
+      - $ref: '#/components/schemas/CustomProviderConfiguration'
+    GetUniversalLoginTemplate:
+      type: object
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+          description: The custom page template for the New Universal Login Experience
+    UpdateUniversalLoginTemplateRequestContent:
+      oneOf:
+      - type: string
+        maxLength: 102400
+      - type: object
+        additionalProperties: false
+        required:
+        - template
+        properties:
+          template:
+            type: string
+            maxLength: 102400
+    BrandingThemeBordersButtonsStyleEnum:
+      type: string
+      description: Buttons style
+      enum:
+      - pill
+      - rounded
+      - sharp
+    UpdateBrandingThemeRequestContent:
+      type: object
+      description: Branding theme
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - fonts
+      - page_background
+      - widget
+      minProperties: 1
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    UpdateBrandingPhoneDisplay:
+      type:
+      - object
+      - 'null'
+      description: Phone number display settings.
+      additionalProperties: false
+      required:
+      - masking
+      - formatting
+      minProperties: 1
+      properties:
+        masking:
+          $ref: '#/components/schemas/UpdateBrandingPhoneMaskingEnum'
+        formatting:
+          $ref: '#/components/schemas/UpdateBrandingPhoneFormattingEnum'
+    GetBrandingPhoneProviderResponseContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        tenant:
+          type: string
+          description: The name of the tenant
+          minLength: 1
+          maxLength: 255
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        channel:
+          $ref: '#/components/schemas/PhoneProviderChannelEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        created_at:
+          type: string
+          description: The provider's creation date and time in ISO 8601 format
+          maxLength: 27
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time of the last update to the provider in ISO 8601 format
+          maxLength: 27
+          format: date-time
+    BrandingThemeWidget:
+      type: object
+      additionalProperties: false
+      required:
+      - header_text_alignment
+      - logo_height
+      - logo_position
+      - logo_url
+      - social_buttons_layout
+      properties:
+        header_text_alignment:
+          $ref: '#/components/schemas/BrandingThemeWidgetHeaderTextAlignmentEnum'
+        logo_height:
+          type: number
+          description: Logo height
+          minimum: 1
+          maximum: 100
+        logo_position:
+          $ref: '#/components/schemas/BrandingThemeWidgetLogoPositionEnum'
+        logo_url:
+          type: string
+          description: Logo url
+          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
+        social_buttons_layout:
+          $ref: '#/components/schemas/BrandingThemeWidgetSocialButtonsLayoutEnum'

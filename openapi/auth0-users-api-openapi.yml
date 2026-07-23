@@ -1,0 +1,4038 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions users API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: users
+paths:
+  /users:
+    get:
+      summary: List or Search Users
+      description: "Retrieve details of users. It is possible to:\n\n- Specify a search criteria for users\n- Sort the users to be returned\n- Select the fields to be returned\n- Specify the number of users to retrieve per page and the page index\n <!-- only v3 is available -->\nThe <code>q</code> query parameter can be used to get users that match the specified criteria <a href=\"https://auth0.com/docs/users/search/v3/query-syntax\">using query string syntax.</a>\n\n<a href=\"https://auth0.com/docs/users/search/v3\">Learn more about searching for users.</a>\n\nRead about <a href=\"https://auth0.com/docs/users/search/best-practices\">best practices</a> when working with the API endpoints for retrieving users.\n\nAuth0 limits the number of users you can return. If you exceed this threshold, please redefine your search, use the <a href=\"https://auth0.com/docs/api/management/v2#!/Jobs/post_users_exports\">export job</a>, or the <a href=\"https://auth0.com/docs/extensions/user-import-export\">User Import / Export</a> extension.\n"
+      tags:
+      - users
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: sort
+        in: query
+        description: Field to sort by. Use <code>field:order</code> where order is <code>1</code> for ascending and <code>-1</code> for descending. e.g. <code>created_at:1</code>
+        schema:
+          type: string
+          pattern: ^(([a-zA-Z0-9_\\.]+))\:(1|-1)$
+      - name: connection
+        in: query
+        description: Connection filter. Only applies when using <code>search_engine=v1</code>. To filter by connection with <code>search_engine=v2|v3</code>, use <code>q=identities.connection:"connection_name"</code>
+        schema:
+          type: string
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      - name: q
+        in: query
+        description: Query in <a target='_new' href ='https://lucene.apache.org/core/2_9_4/queryparsersyntax.html'>Lucene query string syntax</a>. Some query types cannot be used on metadata fields, for details see <a href='https://auth0.com/docs/users/search/v3/query-syntax#searchable-fields'>Searchable Fields</a>.
+        schema:
+          type: string
+      - name: search_engine
+        in: query
+        description: The version of the search engine
+        schema:
+          $ref: '#/components/schemas/SearchEngineVersionsEnum'
+      - name: primary_order
+        in: query
+        description: If true (default), results are returned in a deterministic order. If false, results may be returned in a non-deterministic order, which can enhance performance for complex queries targeting a small number of users. Set to false only when consistent ordering and pagination is not required.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Users successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: The 'q' parameter is available only if you specify 'search_engine=v2|v3'.
+          x-description-2: You are not allowed to use search_engine=v1.
+          x-description-3: You are not allowed to use search_engine=v2. Use search_engine=v3 instead.
+          x-description-4: You are not allowed to use search_engine=v3.
+          x-description-5: You can only page through the first 1000 records. See https://auth0.com/docs/users/search/v3/view-search-results-by-page#limitation.
+        '401':
+          description: Client is not global.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Invalid token.
+        '403':
+          description: 'Insufficient scope, expected any of: read:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '503':
+          description: The query exceeded the timeout. Please try refining your search criteria. See https://auth0.com/docs/best-practices/search-best-practices.
+      operationId: get_users
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUsersRequestParameters
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+        - read:user_idp_tokens
+    post:
+      summary: Create a User
+      description: 'Create a new user for a given <a href="https://auth0.com/docs/connections/database">database</a> or <a href="https://auth0.com/docs/connections/passwordless">passwordless</a> connection.
+
+
+        Note: <code>connection</code> is required but other parameters such as <code>email</code> and <code>password</code> are dependent upon the type of connection.'
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequestContent'
+      responses:
+        '201':
+          description: User successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Connection does not support user creation through the API. It must either be a database or passwordless connection.
+          x-description-2: Cannot set username for connection without requires_username.
+          x-description-3: Connection does not exist.
+          x-description-4: Connection is disabled.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected any of: create:users.'
+        '409':
+          description: User already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_users
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:users
+  /users/{id}:
+    get:
+      summary: Get a User
+      description: 'Retrieve user details. A list of fields to include or exclude may also be specified. For more information, see <a href="https://auth0.com/docs/manage-users/user-search/retrieve-users-with-get-users-endpoint">Retrieve Users with the Get Users Endpoint</a>.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to retrieve.
+        required: true
+        schema:
+          type: string
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((phone_number)|(email)|(email_verified)|(picture)|(username)|(user_id)|(name)|(nickname)|(created_at)|(identities)|(app_metadata)|(user_metadata)|(last_ip)|(last_login)|(logins_count)|(updated_at)|(blocked)|(family_name)|(given_name))(,((phone_number)|(email)|(email_verified)|(picture)|(username)|(user_id)|(name)|(nickname)|(created_at)|(identities)|(app_metadata)|(user_metadata)|(last_ip)|(last_login)|(logins_count)|(updated_at)|(blocked)|(family_name)|(given_name)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: User successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: read:users, read:user_idp_tokens, read:current_user.'
+        '404':
+          description: User not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_users_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetUserRequestParameters
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+        - read:current_user
+        - read:user_idp_tokens
+    delete:
+      summary: Delete a User
+      description: 'Delete a user by user ID. This action cannot be undone. For Auth0 Dashboard instructions, see <a href="https://auth0.com/docs/manage-users/user-accounts/delete-users">Delete Users</a>.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: User successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: delete:users,delete:current_user.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_users_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:users
+        - delete:current_user
+    patch:
+      summary: Update a User
+      description: "Update a user.\n\nThese are the attributes that can be updated at the root level:\n\n<ul>\n    <li>app_metadata</li>\n    <li>blocked</li>\n    <li>email</li>\n    <li>email_verified</li>\n    <li>family_name</li>\n    <li>given_name</li>\n    <li>name</li>\n    <li>nickname</li>\n    <li>password</li>\n    <li>phone_number</li>\n    <li>phone_verified</li>\n    <li>picture</li>\n    <li>username</li>\n    <li>user_metadata</li>\n    <li>verify_email</li>\n</ul>\n\nSome considerations:\n<ul>\n    <li>The properties of the new object will replace the old ones.</li>\n    <li>The metadata fields are an exception to this rule (<code>user_metadata</code> and <code>app_metadata</code>). These properties are merged instead of being replaced but be careful, the merge only occurs on the first level.</li>\n    <li>If you are updating <code>email</code>, <code>email_verified</code>, <code>phone_number</code>, <code>phone_verified</code>, <code>username</code> or <code>password</code> of a secondary identity, you need to specify the <code>connection</code> property too.</li>\n    <li>If you are updating <code>email</code> or <code>phone_number</code> you can specify, optionally, the <code>client_id</code> property.</li>\n    <li>Updating <code>email_verified</code> is not supported for enterprise and passwordless sms connections.</li>\n    <li>Updating the <code>blocked</code> to <code>false</code> does not affect the user's blocked state from an excessive amount of incorrectly provided credentials. Use the \"Unblock a user\" endpoint from the \"User Blocks\" API to change the user's state.</li>\n    <li>Supported attributes can be unset by supplying <code>null</code> as the value.</li>\n</ul>\n\n<h5>Updating a field (non-metadata property)</h5>\nTo mark the email address of a user as verified, the body to send should be:\n<pre><code>{ \"email_verified\": true }</code></pre>\n\n<h5>Updating a user metadata root property</h5>Let's assume that our test user has the following <code>user_metadata</code>:\n<pre><code>{ \"user_metadata\" : { \"profileCode\": 1479 } }</code></pre>\n\nTo add the field <code>addresses</code> the body to send should be:\n<pre><code>{ \"user_metadata\" : { \"addresses\": {\"work_address\": \"100 Industrial Way\"} }}</code></pre>\n\nThe modified object ends up with the following <code>user_metadata</code> property:<pre><code>{\n  \"user_metadata\": {\n    \"profileCode\": 1479,\n    \"addresses\": { \"work_address\": \"100 Industrial Way\" }\n  }\n}</code></pre>\n\n<h5>Updating an inner user metadata property</h5>If there's existing user metadata to which we want to add  <code>\"home_address\": \"742 Evergreen Terrace\"</code> (using the <code>addresses</code> property) we should send the whole <code>addresses</code> object. Since this is a first-level object, the object will be merged in, but its own properties will not be. The body to send should be:\n<pre><code>{\n  \"user_metadata\": {\n    \"addresses\": {\n      \"work_address\": \"100 Industrial Way\",\n      \"home_address\": \"742 Evergreen Terrace\"\n    }\n  }\n}</code></pre>\n\nThe modified object ends up with the following <code>user_metadata</code> property:\n<pre><code>{\n  \"user_metadata\": {\n    \"profileCode\": 1479,\n    \"addresses\": {\n      \"work_address\": \"100 Industrial Way\",\n      \"home_address\": \"742 Evergreen Terrace\"\n    }\n  }\n}</code></pre>\n"
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequestContent'
+      responses:
+        '200':
+          description: User successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+          x-description-2: Connection does not exist.
+          x-description-3: Connection is not supported for this operation.
+          x-description-4: Cannot update password and email simultaneously.
+          x-description-5: Cannot update password and email_verified simultaneously.
+          x-description-6: Cannot update username and email simultaneously.
+          x-description-7: Cannot update username and email_verified simultaneously.
+          x-description-8: Cannot update username and password simultaneously.
+          x-description-9: Cannot update email for non-database user.
+          x-description-10: Cannot change email or password for users in a disabled connection.
+          x-description-11: Email verification is not supported for enterprise users.
+          x-description-12: 'Your account is not allowed to update the following user attributes: family_name, given_name, name, nickname, picture.'
+          x-description-13: 'The following user attributes cannot be updated: family_name, given_name, name, nickname, picture. The connection must either be a database connection (using the Auth0 store), a passwordless connection (email or sms) or has disabled ''Sync user profile attributes at each login''.'
+          x-description-14: 'The following user attributes cannot be updated: family_name, given_name, name, nickname, picture. The specified connection belongs to a secondary identity.'
+          x-description-15: 'The following user attributes cannot be removed: family_name, given_name, name, nickname, picture. The connection (non-federated-conn) must either be a custom database connection with import mode disabled, a social or enterprise connection.'
+          x-description-16: 'The following user attributes cannot be removed: foo, bar. The connection (some-connection) should have disabled ''Sync user profile attributes at each login'' (see <a href=''https://auth0.com/docs/users/configure-connection-sync-with-auth0''>Configuring Connection Sync with Auth0</a>) or defined these attributes in ''options.non_persistent_attrs'' array (see <a href=''https://auth0.com/docs/security/denylist-user-attributes''>Add User Attributes to DenyList</a>).'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: Some fields cannot be read with the permissions granted by the bearer token scopes. The message will vary depending on the fields and the scopes.
+          x-description-2: 'Insufficient scope; expected any of: update:users,update:users_app_metadata,update:current_user_metadata.'
+        '404':
+          description: User not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_users_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+        - update:users_app_metadata
+        - update:current_user_metadata
+  /users/{id}/authentication-methods:
+    get:
+      summary: Get a List of Authentication Methods
+      description: Retrieve detailed list of authentication methods associated with a specified user.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user in question.
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0. Default is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Default is 50.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The authentication methods for the user were retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserAuthenticationMethodsResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+          x-description-2: The number of user identifiers associated with a user exceeds the maximum allowed.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope, expected any of: read:authentication_methods'
+        '404':
+          description: The user does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_authentication-methods
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserAuthenticationMethodsRequestParameters
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:authentication_methods
+    delete:
+      summary: Delete All Authentication Methods for the Given User
+      description: 'Remove all authentication methods (i.e., enrolled MFA factors) from the specified user account. This action cannot be undone. '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user in question.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Authentication methods successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: delete:authentication_methods'
+          x-description-2: Operation not permitted when the user has registered at least 1 passkey
+          x-description-3: The number of user identifiers associated with a user exceeds the maximum allowed.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_authentication-methods
+      x-release-lifecycle: GA
+      x-operation-name: deleteAll
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:authentication_methods
+    post:
+      summary: Creates an Authentication Method for a Given User
+      description: Create an authentication method. Authentication methods created via this endpoint will be auto confirmed and should already have verification completed.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user to whom the new authentication method will be assigned.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserAuthenticationMethodRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateUserAuthenticationMethodRequestContent'
+      responses:
+        '201':
+          description: Authentication method created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserAuthenticationMethodResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: You reached the limit of entities of this type for this user.
+          x-description-1: User to be acted on does not match subject in bearer token.
+          x-description-2: 'Insufficient scope, expected: create:authentication_methods'
+        '404':
+          description: The user does not exist.
+        '409':
+          description: Authentication method already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_authentication-methods
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:authentication_methods
+    put:
+      summary: Update All Authentication Methods by Replacing Them with the Given Ones
+      description: "Replace the specified user <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/multi-factor-authentication-factors\"> authentication methods</a> with supplied values.\n\n    <b>Note</b>: Authentication methods supplied through this action do not iterate on existing methods. Instead, any methods passed will overwrite the user&#8217s existing settings."
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user in question.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetUserAuthenticationMethodsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetUserAuthenticationMethodsRequestContent'
+      responses:
+        '200':
+          description: All authentication methods successfully updated.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SetUserAuthenticationMethodResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected: update:authentication_methods'
+          x-description-2: Operation not permitted when the user has registered at least 1 passkey
+          x-description-3: The number of user identifiers associated with a user exceeds the maximum allowed.
+        '409':
+          description: Authentication method already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_authentication-methods
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:authentication_methods
+  /users/{id}/authentication-methods/{authentication_method_id}:
+    get:
+      summary: Get an Authentication Method by ID
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user in question.
+        required: true
+        schema:
+          type: string
+      - name: authentication_method_id
+        in: path
+        description: The ID of the authentication methods in question.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Authentication method retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserAuthenticationMethodResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope, expected: read:authentication_methods.'
+          x-description-2: The number of user identifiers associated with a user exceeds the maximum allowed.
+        '404':
+          description: The user does not exist.
+          x-description-1: The authentication method could not be found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_authentication-methods_by_authentication_method_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetUserAuthenticationMethodRequestParameters
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:authentication_methods
+    delete:
+      summary: Delete an Authentication Method by ID
+      description: Remove the authentication method with the given ID from the specified user. For more information, review <a href="https://auth0.com/docs/secure/multi-factor-authentication/manage-mfa-auth0-apis/manage-authentication-methods-with-management-api">Manage Authentication Methods with Management API</a>.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user in question.
+        required: true
+        schema:
+          type: string
+      - name: authentication_method_id
+        in: path
+        description: The ID of the authentication method to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Authentication method successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: delete:authentication_methods'
+          x-description-2: The number of user identifiers associated with a user exceeds the maximum allowed.
+        '404':
+          description: The user does not exist.
+          x-description-1: The authentication method could not be found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_authentication-methods_by_authentication_method_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:authentication_methods
+    patch:
+      summary: Update an Authentication Method
+      description: Modify the authentication method with the given ID from the specified user. For more information, review <a href="https://auth0.com/docs/secure/multi-factor-authentication/manage-mfa-auth0-apis/manage-authentication-methods-with-management-api">Manage Authentication Methods with Management API</a>.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user in question.
+        required: true
+        schema:
+          type: string
+      - name: authentication_method_id
+        in: path
+        description: The ID of the authentication method to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserAuthenticationMethodRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateUserAuthenticationMethodRequestContent'
+      responses:
+        '200':
+          description: Authentication method updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserAuthenticationMethodResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope, expected: update:authentication_methods.'
+        '404':
+          description: The user does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_authentication-methods_by_authentication_method_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - users
+      - authenticationMethods
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:authentication_methods
+  /users/{id}/authenticators:
+    delete:
+      summary: Delete All Authenticators
+      description: Remove all authenticators registered to a given user ID, such as OTP, email, phone, and push-notification. This action cannot be undone. For more information, review <a href="https://auth0.com/docs/secure/multi-factor-authentication/manage-mfa-auth0-apis/manage-authentication-methods-with-management-api">Manage Authentication Methods with Management API</a>.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: All authenticators successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: remove:authenticators'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_authenticators
+      x-release-lifecycle: GA
+      x-operation-name: deleteAll
+      x-operation-group:
+      - users
+      - authenticators
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:guardian_enrollments
+  /users/{id}/connected-accounts:
+    get:
+      summary: Get a User's Connected Accounts
+      description: Retrieve all connected accounts associated with the user.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to list connected accounts for.
+        required: true
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results to return.  Defaults to 10 with a maximum of 20
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Connected accounts successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserConnectedAccountsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_connected-accounts
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: GetUserConnectedAccountsRequestParameters
+      x-operation-group:
+      - users
+      - connectedAccounts
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+  /users/{id}/enrollments:
+    get:
+      summary: Get the First Confirmed Multi-factor Authentication (MFA) Enrollment
+      description: Retrieve the first <a href="https://auth0.com/docs/secure/multi-factor-authentication/multi-factor-authentication-factors">multi-factor authentication</a> enrollment that a specific user has confirmed.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to list enrollments for.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Enrollments successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsersEnrollment'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: read:users,read:current_user.'
+        '404':
+          description: User not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_enrollments
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetUserEnrollmentsRequestParameters
+      x-operation-group:
+      - users
+      - enrollments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+        - read:current_user
+  /users/{id}/federated-connections-tokensets:
+    get:
+      summary: Get Tokensets for a User
+      description: List active federated connections tokensets for a provided user
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: User identifier
+        required: true
+        schema:
+          type: string
+          maxLength: 300
+      responses:
+        '200':
+          description: Flows successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FederatedConnectionTokenSet'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:federated_connections_tokens.'
+        '404':
+          description: The user does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_federated-connections-tokensets
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-group:
+      - users
+      - federatedConnectionsTokensets
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:federated_connections_tokens
+  /users/{id}/federated-connections-tokensets/{tokenset_id}:
+    delete:
+      summary: Deletes a Tokenset for Federated Connections by Id.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: Id of the user that owns the tokenset
+        required: true
+        schema:
+          type: string
+          maxLength: 300
+      - name: tokenset_id
+        in: path
+        description: The tokenset id
+        required: true
+        schema:
+          type: string
+          maxLength: 36
+      responses:
+        '204':
+          description: Tokenset successfully deleted.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:federated_connections_tokens.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_federated-connections-tokensets_by_tokenset_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - federatedConnectionsTokensets
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:federated_connections_tokens
+  /users/{id}/groups:
+    get:
+      summary: Get User's Groups
+      description: 'List all groups to which this user belongs.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to list groups for.
+        required: true
+        schema:
+          type: string
+      - name: fields
+        in: query
+        description: A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields
+        schema:
+          type: string
+          maxLength: 256
+          pattern: ^((id)|(name)|(external_id)|(organization_id)|(connection_id)|(tenant_name)|(description)|(created_at)|(updated_at)|(membership_created_at))(,((id)|(name)|(external_id)|(organization_id)|(connection_id)|(tenant_name)|(description)|(created_at)|(updated_at)|(membership_created_at)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Groups successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserGroupsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:groups.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user_groups
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetUserGroupsRequestParameters
+      x-operation-group:
+      - users
+      - groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:groups
+  /users/{id}/identities:
+    post:
+      summary: Link a User Account
+      description: "Link two user accounts together forming a primary and secondary relationship. On successful linking, the endpoint returns the new array of the primary account identities.\n\nNote: There are two ways of invoking the endpoint:\n\n<ul>\n  <li>With the authenticated primary account's JWT in the Authorization header, which has the <code>update:current_user_identities</code> scope:\n    <pre>\n      POST /api/v2/users/PRIMARY_ACCOUNT_USER_ID/identities\n      Authorization: \"Bearer PRIMARY_ACCOUNT_JWT\"\n      {\n        \"link_with\": \"SECONDARY_ACCOUNT_JWT\"\n      }\n    </pre>\n    In this case, only the <code>link_with</code> param is required in the body, which also contains the JWT obtained upon the secondary account's authentication.\n  </li>\n  <li>With a token generated by the API V2 containing the <code>update:users</code> scope:\n    <pre>\n    POST /api/v2/users/PRIMARY_ACCOUNT_USER_ID/identities\n    Authorization: \"Bearer YOUR_API_V2_TOKEN\"\n    {\n      \"provider\": \"SECONDARY_ACCOUNT_PROVIDER\",\n      \"connection_id\": \"SECONDARY_ACCOUNT_CONNECTION_ID(OPTIONAL)\",\n      \"user_id\": \"SECONDARY_ACCOUNT_USER_ID\"\n    }\n    </pre>\n    In this case you need to send <code>provider</code> and <code>user_id</code> in the body. Optionally you can also send the <code>connection_id</code> param which is suitable for identifying a particular database connection for the 'auth0' provider.\n  </li>\n</ul>"
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the primary user account to link a second user account to.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkUserIdentityRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LinkUserIdentityRequestContent'
+      responses:
+        '201':
+          description: Identity successfully added.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: An array of objects with information about the user's identities.
+                items:
+                  $ref: '#/components/schemas/UserIdentity'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+          x-description-2: The provider/connection is not configured.
+          x-description-3: Main identity and the new one are the same.
+          x-description-4: Invalid token (link_with).
+          x-description-5: JWT (link_with) contains an invalid aud claim.
+          x-description-6: JWT (link_with) must contains sub claim.
+          x-description-7: JWT (link_with) contains an invalid sub claim.
+          x-description-8: JWT (link_with) must have an alg of RS256.
+          x-description-9: JWT (link_with) must have the same issuer as the calling user.
+          x-description-10: JWT (link_with) must have an aud claim that matches that of the calling token's azp.
+          x-description-11: Linking to an inexistent identity requires a connection.
+          x-description-12: Linking to an inexistent identity is not allowed.
+          x-description-13: Unable to link with the secondary account.
+          x-description-14: Provided secondary account not found.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:users, update:current_user_identities.'
+          x-description-1: User to be acted on does not match subject in bearer token.
+        '409':
+          description: Specified identity already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_identities
+      x-release-lifecycle: GA
+      x-operation-name: link
+      x-operation-group:
+      - users
+      - identities
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+        - update:current_user_identities
+  /users/{id}/identities/{provider}/{user_id}:
+    delete:
+      summary: Unlink a User Identity
+      description: "Unlink a specific secondary account from a target user. This action requires the ID of both the target user and the secondary account. \n\nUnlinking the secondary account removes it from the identities array of the target user and creates a new standalone profile for the secondary account. To learn more, review <a href=\"https://auth0.com/docs/manage-users/user-accounts/user-account-linking/unlink-user-accounts\">Unlink User Accounts</a>.\n"
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the primary user account.
+        required: true
+        schema:
+          type: string
+      - name: provider
+        in: path
+        description: Identity provider name of the secondary linked account (e.g. `google-oauth2`).
+        required: true
+        schema:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+      - name: user_id
+        in: path
+        description: ID of the secondary linked account (e.g. `123456789081523216417` part after the `|` in `google-oauth2|123456789081523216417`).
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User identity successfully unlinked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteUserIdentityResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Main identity cannot be removed.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:users, update:current_user_identities.'
+          x-description-1: User to be acted on does not match subject in bearer token.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_user_identity_by_user_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - identities
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+        - update:current_user_identities
+  /users/{id}/logs:
+    get:
+      summary: Get User's Log Events
+      description: 'Retrieve log events for a specific user.
+
+
+        Note: For more information on all possible event types, their respective acronyms and descriptions, see <a href="https://auth0.com/docs/logs/log-event-type-codes">Log Event Type Codes</a>.
+
+
+        For more information on the list of fields that can be used in `sort`, see <a href="https://auth0.com/docs/logs/log-search-query-syntax#searchable-fields">Searchable Fields</a>.
+
+
+        Auth0 <a href="https://auth0.com/docs/logs/retrieve-log-events-using-mgmt-api#limitations">limits the number of logs</a> you can return by search criteria to 100 logs per request. Furthermore, you may only paginate through up to 1,000 search results. If you exceed this threshold, please redefine your search.'
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user of the logs to retrieve
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: Number of results per page. Paging is disabled if parameter not sent.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: sort
+        in: query
+        description: Field to sort by. Use `fieldname:1` for ascending order and `fieldname:-1` for descending.
+        schema:
+          type: string
+          pattern: ^((date)|(connection)|(client_id)|(client_name)|(ip)|(user_id)|(user_name)|(description)|(user_agent)|(type)|(details)|(strategy)|(strategy_type))\:(1|-1)$
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Logs successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListLogResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:logs, read:logs_users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_logs_by_user
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserLogsRequestParameters
+      x-operation-group:
+      - users
+      - logs
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:logs
+        - read:logs_users
+  /users/{id}/multifactor/actions/invalidate-remember-browser:
+    post:
+      summary: Invalidate All Remembered Browsers for Multi-factor Authentication (MFA)
+      description: Invalidate all remembered browsers across all <a href="https://auth0.com/docs/multifactor-authentication">authentication factors</a> for a user.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to invalidate all remembered browsers and authentication factors for.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Remembered browsers for MFA invalidated.
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: 'Insufficient scope; expected: update:users.'
+      operationId: post_invalidate-remember-browser
+      x-release-lifecycle: GA
+      x-operation-name: invalidateRememberBrowser
+      x-operation-group:
+      - users
+      - multifactor
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+  /users/{id}/multifactor/{provider}:
+    delete:
+      summary: Delete a User's Multi-factor Provider
+      description: Remove a <a href="https://auth0.com/docs/multifactor-authentication">multifactor</a> authentication configuration from a user's account. This forces the user to manually reconfigure the multi-factor provider.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to remove a multifactor configuration from.
+        required: true
+        schema:
+          type: string
+      - name: provider
+        in: path
+        description: The multi-factor provider. Supported values 'duo' or 'google-authenticator'
+        required: true
+        schema:
+          $ref: '#/components/schemas/UserMultifactorProviderEnum'
+      responses:
+        '204':
+          description: Multi-factor provider successfully deleted for user.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: User to be acted on does not match subject in bearer token.
+          x-description-1: 'Insufficient scope; expected any of: update:users.'
+        '404':
+          description: User not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_multifactor_by_provider
+      x-release-lifecycle: GA
+      x-operation-name: deleteProvider
+      x-operation-group:
+      - users
+      - multifactor
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+  /users/{id}/organizations:
+    get:
+      summary: List User's Organizations
+      description: 'Retrieve list of the specified user''s current Organization memberships. User must be specified by user ID. For more information, review <a href="https://auth0.com/docs/manage-users/organizations">Auth0 Organizations</a>.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to retrieve the organizations for.
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Organizations successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserOrganizationsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:users, read:organizations.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user_organizations
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserOrganizationsRequestParameters
+      x-operation-group:
+      - users
+      - organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organizations
+  /users/{id}/permissions:
+    get:
+      summary: Get a User's Permissions
+      description: Retrieve all permissions associated with the user.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to retrieve the permissions for.
+        required: true
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        description: Number of results per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Permissions successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserPermissionsResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: read:users.'
+        '404':
+          description: User not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_permissions
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserPermissionsRequestParameters
+      x-operation-group:
+      - users
+      - permissions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+    delete:
+      summary: Remove Permissions from a User
+      description: 'Remove permissions from a user.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to remove permissions from.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserPermissionsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteUserPermissionsRequestContent'
+      responses:
+        '204':
+          description: User permissions removed.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_permissions
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - permissions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+    post:
+      summary: Assign Permissions to a User
+      description: Assign permissions to a user.
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to assign permissions to.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserPermissionsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateUserPermissionsRequestContent'
+      responses:
+        '201':
+          description: Permissions assigned to user.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+          x-description-2: No more permissions can be assigned to this user.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_permissions
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - users
+      - permissions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+  /users/{id}/recovery-code-regeneration:
+    post:
+      summary: Generate New Multi-factor Authentication (MFA) Recovery Code
+      description: 'Remove an existing multi-factor authentication (MFA) <a href="https://auth0.com/docs/secure/multi-factor-authentication/reset-user-mfa">recovery code</a> and generate a new one. If a user cannot access the original device or account used for MFA enrollment, they can use a recovery code to authenticate. '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to regenerate a multi-factor authentication recovery code for.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: New recovery code successfully generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegenerateUsersRecoveryCodeResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: 'Insufficient scope; expected: update:users.'
+        '404':
+          description: Enrollment not found.
+      operationId: post_recovery-code-regeneration
+      x-release-lifecycle: GA
+      x-operation-name: regenerateRecoveryCode
+      x-operation-request-parameters-name: RegenerateRecoveryCodeRequestParameters
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+  /users/{id}/revoke-access:
+    post:
+      summary: Revokes Selected Resources from a User
+      description: Revokes selected resources related to a user (sessions, refresh tokens, ...).
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeUserAccessRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RevokeUserAccessRequestContent'
+      responses:
+        '202':
+          description: Session deletion request accepted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:sessions'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: user_revoke_access
+      x-release-lifecycle: GA
+      x-operation-name: revokeAccess
+      x-operation-group: users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:sessions
+        - delete:refresh_tokens
+  /users/{id}/risk-assessments/clear:
+    post:
+      summary: Clear Risk Assessment Assessors for a Specific User
+      description: Clear risk assessment assessors for a specific user
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to clear assessors for.
+        required: true
+        schema:
+          type: string
+          maxLength: 1024
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClearAssessorsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClearAssessorsRequestContent'
+      responses:
+        '204':
+          description: Risk assessment assessors cleared.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_clear_assessors
+      x-release-lifecycle: GA
+      x-operation-name: clear
+      x-operation-group:
+      - users
+      - riskAssessments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+  /users/{id}/roles:
+    get:
+      summary: Get a User's Roles
+      description: 'Retrieve detailed list of all user roles currently assigned to a user.
+
+
+        <b>Note</b>: This action retrieves all roles assigned to a user in the context of your whole tenant. To retrieve Organization-specific roles, use the following endpoint: <a href="https://auth0.com/docs/api/management/v2/organizations/get-organization-member-roles">Get user roles assigned to an Organization member</a>.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to list roles for.
+        required: true
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        description: Number of results per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Roles successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserRolesResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected all of: read:users, read:roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user_roles
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserRolesRequestParameters
+      x-operation-group:
+      - users
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+        - read:roles
+        - read:role_members
+    delete:
+      summary: Removes Roles from a User
+      description: 'Remove one or more specified user roles assigned to a user.
+
+
+        <b>Note</b>: This action removes a role from a user in the context of your whole tenant. If you want to unassign a role from a user in the context of a specific Organization, use the following endpoint: <a href="https://auth0.com/docs/api/management/v2/organizations/delete-organization-member-roles">Delete user roles from an Organization member</a>.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to remove roles from.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRolesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRolesRequestContent'
+      responses:
+        '204':
+          description: Users roles successfully removed.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_user_roles
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+        - delete:role_members
+    post:
+      summary: Assign Roles to a User
+      description: 'Assign one or more existing user roles to a user. For more information, review <a href="https://auth0.com/docs/manage-users/access-control/rbac">Role-Based Access Control</a>.
+
+
+        <b>Note</b>: New roles cannot be created through this action. Additionally, this action is used to assign roles to a user in the context of your whole tenant. To assign roles in the context of a specific Organization, use the following endpoint: <a href="https://auth0.com/docs/api/management/v2/organizations/post-organization-member-roles">Assign user roles to an Organization member</a>.
+
+        '
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user to associate roles with.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignUserRolesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignUserRolesRequestContent'
+      responses:
+        '204':
+          description: Roles successfully associated with user.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:roles, update:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_user_roles
+      x-release-lifecycle: GA
+      x-operation-name: assign
+      x-operation-group:
+      - users
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+        - create:role_members
+  /users/{user_id}/refresh-tokens:
+    get:
+      summary: Get Refresh Tokens for a User
+      description: Retrieve details for a user's refresh tokens.
+      tags:
+      - users
+      parameters:
+      - name: user_id
+        in: path
+        description: ID of the user to get refresh tokens for
+        required: true
+        schema:
+          type: string
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: An optional cursor from which to start the selection (exclusive).
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: The refresh tokens were retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRefreshTokensPaginatedResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected: read:refresh_tokens'
+        '404':
+          description: User not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_refresh_tokens_for_user
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListRefreshTokensRequestParameters
+      x-operation-group:
+      - users
+      - refreshToken
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:refresh_tokens
+    delete:
+      summary: Delete Refresh Tokens for a User
+      description: Delete all refresh tokens for a user.
+      tags:
+      - users
+      parameters:
+      - name: user_id
+        in: path
+        description: ID of the user to get remove refresh tokens for
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Refresh token deletion request accepted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:refresh_tokens'
+        '404':
+          description: User not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_refresh_tokens_for_user
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - refreshToken
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:refresh_tokens
+  /users/{user_id}/sessions:
+    get:
+      summary: Get Sessions for User
+      description: Retrieve details for a user's sessions.
+      tags:
+      - users
+      parameters:
+      - name: user_id
+        in: path
+        description: ID of the user to get sessions for
+        required: true
+        schema:
+          type: string
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: An optional cursor from which to start the selection (exclusive).
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: The sessions were retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserSessionsPaginatedResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:sessions'
+        '404':
+          description: User not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_sessions_for_user
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserSessionsRequestParameters
+      x-operation-group:
+      - users
+      - sessions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:sessions
+    delete:
+      summary: Delete Sessions for User
+      description: Delete all sessions for a user.
+      tags:
+      - users
+      parameters:
+      - name: user_id
+        in: path
+        description: ID of the user to get sessions for
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Session deletion request accepted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:sessions'
+        '404':
+          description: User not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_sessions_for_user
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - users
+      - sessions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:sessions
+components:
+  schemas:
+    UserGroupsResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/Group'
+      - type: object
+        additionalProperties: true
+        properties:
+          membership_created_at:
+            type: string
+            description: Timestamp of when the group membership was added.
+            format: date-time
+    UserEnrollmentAuthMethodEnum:
+      type: string
+      description: Authentication method for this enrollment. Can be `authenticator`, `guardian`, `sms`, `webauthn-roaming`, or `webauthn-platform`.
+      enum:
+      - authenticator
+      - guardian
+      - sms
+      - webauthn-platform
+      - webauthn-roaming
+    DeleteUserRolesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          description: List of roles IDs to remove from the user.
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+    CreatedUserAuthenticationMethodTypeEnum:
+      type: string
+      enum:
+      - phone
+      - email
+      - totp
+      - webauthn-roaming
+      - passkey
+    UserIdentityProviderEnum:
+      type: string
+      description: The type of identity provider
+      enum:
+      - ad
+      - adfs
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - auth0
+      - baidu
+      - bitly
+      - box
+      - custom
+      - daccount
+      - dwolla
+      - email
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-apps
+      - google-oauth2
+      - instagram
+      - ip
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - office365
+      - oidc
+      - okta
+      - paypal
+      - paypal-sandbox
+      - pingfederate
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - samlp
+      - sharepoint
+      - shopify
+      - shop
+      - sms
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untappd
+      - vkontakte
+      - waad
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    ListUserSessionsPaginatedResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionResponseContent'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    AuthenticationTypeEnum:
+      type: string
+      enum:
+      - phone
+      - email
+      - totp
+    LogSecurityContext:
+      type: object
+      description: Information about security-related signals.
+      additionalProperties: true
+      properties:
+        ja3:
+          type: string
+          description: JA3 fingerprint value.
+        ja4:
+          type: string
+          description: JA4 fingerprint value.
+    LogDateObject:
+      type: object
+      description: Date when the event occurred in ISO 8601 format.
+      additionalProperties: true
+    ListRefreshTokensPaginatedResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshTokenResponseContent'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    UserPermissionSchema:
+      type: object
+      additionalProperties: false
+      properties:
+        sources: {}
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+        resource_server_name:
+          type: string
+          description: Resource server (API) name this permission is for.
+        description:
+          type: string
+          description: Description of this permission.
+    CreatedAuthenticationMethodTypeEnum:
+      type: string
+      enum:
+      - phone
+      - email
+      - totp
+      - webauthn-roaming
+    RegenerateUsersRecoveryCodeResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        recovery_code:
+          type: string
+          description: New account recovery code.
+    SessionMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties: true
+      maxProperties: 25
+    UpdateUserRequestContent:
+      type: object
+      additionalProperties: true
+      properties:
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or not (false).
+          default: false
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false). If set to false the user will not receive a verification email unless `verify_email` is set to true.
+          default: false
+        email:
+          type:
+          - string
+          - 'null'
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        phone_number:
+          type:
+          - string
+          - 'null'
+          description: The user's phone number (following the E.164 recommendation).
+          default: '+199999999999999'
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadata'
+          description: User metadata to which this user has read/write access.
+        app_metadata:
+          $ref: '#/components/schemas/AppMetadata'
+          description: User metadata to which this user has read-only access.
+        given_name:
+          type:
+          - string
+          - 'null'
+          description: Given name/first name/forename of this user.
+          default: John
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type:
+          - string
+          - 'null'
+          description: Family name/last name/surname of this user.
+          default: Doe
+          minLength: 1
+          maxLength: 150
+        name:
+          type:
+          - string
+          - 'null'
+          description: Name of this user.
+          default: John Doe
+          minLength: 1
+          maxLength: 300
+        nickname:
+          type:
+          - string
+          - 'null'
+          description: Preferred nickname or alias of this user.
+          default: Johnny
+          minLength: 1
+          maxLength: 300
+        picture:
+          type:
+          - string
+          - 'null'
+          description: URL to picture, photo, or avatar of this user.
+          default: https://secure.gravatar.com/avatar/15626c5e0c749cb912f9d1ad48dba440?s=480&r=pg&d=https%3A%2F%2Fssl.gstatic.com%2Fs2%2Fprofiles%2Fimages%2Fsilhouette80.png
+          format: strict-uri
+        verify_email:
+          type: boolean
+          description: Whether this user will receive a verification email after creation (true) or no email (false). Overrides behavior of `email_verified` parameter.
+          default: false
+        verify_phone_number:
+          type: boolean
+          description: Whether this user will receive a text after changing the phone number (true) or no text (false). Only valid when changing phone number for SMS connections.
+          default: false
+        password:
+          type:
+          - string
+          - 'null'
+          description: New password for this user. Only valid for database connections.
+          default: secret
+          minLength: 1
+        connection:
+          type: string
+          description: Name of the connection to target for this user update.
+          default: Initial-Connection
+          minLength: 1
+        client_id:
+          type: string
+          description: Auth0 client ID. Only valid when updating email address.
+          default: DaM8bokEXBWrTUFCiJjWn50jei6ardyX
+          minLength: 1
+        username:
+          type:
+          - string
+          - 'null'
+          description: The user's username. Only valid if the connection requires a username.
+          default: johndoe
+          minLength: 1
+          maxLength: 128
+    ListUserPermissionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserPermissionSchema'
+    Organization:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    UserMetadata:
+      type: object
+      description: Data related to the user that does not affect the application's core functionality.
+      additionalProperties: true
+    UserResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+          default: false
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        phone_number:
+          type: string
+          description: Phone number for this user. Follows the <a href="https://en.wikipedia.org/wiki/E.164">E.164 recommendation</a>.
+          default: '+199999999999999'
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        created_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        updated_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/UserIdentitySchema'
+        app_metadata:
+          $ref: '#/components/schemas/UserAppMetadataSchema'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadataSchema'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+        name:
+          type: string
+          description: Name of this user.
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          $ref: '#/components/schemas/UserDateSchema'
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    RefreshTokenMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the refresh token, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties: true
+      maxProperties: 25
+    SessionClientMetadata:
+      type: object
+      description: Client details
+      additionalProperties: true
+      properties:
+        client_id:
+          type: string
+          description: ID of client for the session
+    RefreshTokenResourceServer:
+      type: object
+      additionalProperties: true
+      properties:
+        audience:
+          type: string
+          description: Resource server ID
+        scopes:
+          type: string
+          description: List of scopes for the refresh token
+    ListUserConnectedAccountsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connected_accounts
+      properties:
+        connected_accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectedAccount'
+        next:
+          type: string
+          description: The token to retrieve the next page of connected accounts (if there is one)
+    LogDate:
+      oneOf:
+      - type: string
+        description: Date when the event occurred in ISO 8601 format.
+        default: '2016-02-23T19:57:29.532Z'
+      - $ref: '#/components/schemas/LogDateObject'
+    RevokeUserAccessRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        session_id:
+          type: string
+          description: ID of the session to revoke.
+          maxLength: 50
+          format: session-id
+        preserve_refresh_tokens:
+          type: boolean
+          description: Whether to preserve the refresh tokens associated with the session.
+          default: false
+    AssessorsTypeEnum:
+      type: string
+      description: Assessors to clear.
+      enum:
+      - new-device
+    SessionAuthenticationSignal:
+      type: object
+      description: Authentication signal details
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: 'One of: "federated", "passkey", "pwd", "sms", "email", "mfa", "mock" or a custom method denoted by a URL'
+        timestamp:
+          $ref: '#/components/schemas/SessionDate'
+        type:
+          type: string
+          description: A specific MFA factor. Only present when "name" is set to "mfa"
+    UserAppMetadataSchema:
+      type: object
+      description: User metadata to which this user has read-only access.
+      additionalProperties: true
+      properties: {}
+    AuthenticationMethodTypeEnum:
+      type: string
+      enum:
+      - recovery-code
+      - totp
+      - push
+      - phone
+      - email
+      - email-verification
+      - webauthn-roaming
+      - webauthn-platform
+      - guardian
+      - passkey
+      - password
+    ConnectedAccountAccessTypeEnum:
+      type: string
+      description: The access type for the connected account.
+      enum:
+      - offline
+    FederatedConnectionTokenSet:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        connection:
+          type: string
+        scope:
+          type: string
+        expires_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        issued_at:
+          type: string
+          format: date-time
+        last_used_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    UserListLogOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        length:
+          type: number
+        total:
+          type: number
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Log'
+    ListUserOrganizationsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Organization'
+      - $ref: '#/components/schemas/ListUserOrganizationsOffsetPaginatedResponseContent'
+    UsersEnrollment:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: ID of this enrollment.
+        status:
+          $ref: '#/components/schemas/UserEnrollmentStatusEnum'
+        type:
+          type: string
+          description: Type of enrollment.
+        name:
+          type: string
+          description: Name of enrollment (usually phone number).
+          maxLength: 20
+        identifier:
+          type: string
+          description: Device identifier (usually phone identifier) of this enrollment.
+        phone_number:
+          type: string
+          description: Phone number for this enrollment.
+        auth_method:
+          $ref: '#/components/schemas/UserEnrollmentAuthMethodEnum'
+        enrolled_at:
+          type: string
+          description: Start date and time of this enrollment.
+          format: date-time
+        last_auth:
+          type: string
+          description: Last authentication date and time of this enrollment.
+          format: date-time
+    Group:
+      type: object
+      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the group (service-generated).
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+        name:
+          type: string
+          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+        external_id:
+          type: string
+          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
+          maxLength: 256
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        tenant_name:
+          type: string
+          description: Identifier for the tenant this group belongs to.
+          minLength: 3
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+        created_at:
+          type: string
+          description: Timestamp of when the group was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp of when the group was last updated.
+          format: date-time
+    UserEnrollmentStatusEnum:
+      type: string
+      description: Status of this enrollment. Can be `pending` or `confirmed`.
+      enum:
+      - pending
+      - confirmed
+    UserProfileData:
+      type: object
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        phone_number:
+          type: string
+          description: Phone number for this user.
+        phone_verified:
+          type: boolean
+          description: Whether this phone number is verified (true) or unverified (false).
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    TokenQuota:
+      type: object
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    ListUserRolesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListUserRolesOffsetPaginatedResponseContent'
+    DeleteUserPermissionsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - permissions
+      properties:
+        permissions:
+          type: array
+          description: List of permissions to remove from this user.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
+    GetUserGroupsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/UserGroupsResponseSchema'
+      - $ref: '#/components/schemas/GetUserGroupsPaginatedResponseContent'
+    SessionAuthenticationSignals:
+      type: object
+      description: Details about authentication signals obtained during the login flow
+      additionalProperties: true
+      properties:
+        methods:
+          type: array
+          description: Contains the authentication methods a user has completed during their session
+          items:
+            $ref: '#/components/schemas/SessionAuthenticationSignal'
+    UserAuthenticationMethodProperties:
+      type: object
+      additionalProperties: true
+      properties:
+        type:
+          $ref: '#/components/schemas/UserAuthenticationMethodPropertiesEnum'
+        id:
+          type: string
+          format: authenticator-id
+    SessionCookieMetadata:
+      type: object
+      description: '[Private Early Access] Session cookie configuration.'
+      additionalProperties: true
+      properties:
+        mode:
+          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
+    ListUserAuthenticationMethodsResponseContent:
+      oneOf:
+      - type: array
+        description: The paginated authentication methods. Returned in this structure when include_totals is false.
+        items:
+          $ref: '#/components/schemas/UserAuthenticationMethod'
+      - $ref: '#/components/schemas/ListUserAuthenticationMethodsOffsetPaginatedResponseContent'
+    UpdateUserResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+          default: false
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        phone_number:
+          type: string
+          description: Phone number for this user. Follows the <a href="https://en.wikipedia.org/wiki/E.164">E.164 recommendation</a>.
+          default: '+199999999999999'
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        created_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        updated_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/UserIdentitySchema'
+        app_metadata:
+          $ref: '#/components/schemas/UserAppMetadataSchema'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadataSchema'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+        name:
+          type: string
+          description: Name of this user.
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          $ref: '#/components/schemas/UserDateSchema'
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    UserIdentity:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      - user_id
+      - connection
+      properties:
+        connection:
+          type: string
+          description: Connection name of this identity.
+          default: twitter
+        user_id:
+          $ref: '#/components/schemas/UserId'
+          description: user_id of this identity.
+        provider:
+          type: string
+          description: Type of identity provider.
+          default: twitter
+        profileData:
+          $ref: '#/components/schemas/UserProfileData'
+        isSocial:
+          type: boolean
+          description: Whether the identity provider is a social provider (true) or not (false).
+        access_token:
+          type: string
+          description: IDP access token returned if scope `read:user_idp_tokens` is defined.
+        access_token_secret:
+          type: string
+          description: IDP access token secret returned only if `scope read:user_idp_tokens` is defined.
+        refresh_token:
+          type: string
+          description: IDP refresh token returned only if scope `read:user_idp_tokens` is defined.
+    UpdateUserAuthenticationMethodRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method.
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+          description: Preferred phone authentication method
+    ListUsersOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        length:
+          type: number
+        total:
+          type: number
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponseSchema'
+    CreateUserResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+          default: false
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        phone_number:
+          type: string
+          description: Phone number for this user. Follows the <a href="https://en.wikipedia.org/wiki/E.164">E.164 recommendation</a>.
+          default: '+199999999999999'
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        created_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        updated_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/UserIdentitySchema'
+        app_metadata:
+          $ref: '#/components/schemas/UserAppMetadataSchema'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadataSchema'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+        name:
+          type: string
+          description: Name of this user.
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          $ref: '#/components/schemas/UserDateSchema'
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    Role:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    UserIdentitySchema:
+      type: object
+      additionalProperties: false
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+        user_id:
+          type: string
+          description: Unique identifier of the user user for this identity.
+        provider:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+        isSocial:
+          type: boolean
+          description: Whether this identity is from a social provider (true) or not (false).
+        access_token:
+          type: string
+          description: IDP access token returned only if scope read:user_idp_tokens is defined.
+        access_token_secret:
+          type: string
+          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
+        refresh_token:
+          type: string
+          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
+        profileData:
+          $ref: '#/components/schemas/UserProfileData'
+    ListUserRolesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    OrganizationMetadata:
+      type: object
+      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 25
+    SessionDeviceMetadata:
+      type: object
+      description: Metadata related to the device used in the session
+      additionalProperties: true
+      properties:
+        initial_user_agent:
+          type: string
+          description: First user agent of the device from which this user logged in
+        initial_ip:
+          $ref: '#/components/schemas/SessionIp'
+        initial_asn:
+          type: string
+          description: First autonomous system number associated with this session
+        last_user_agent:
+          type: string
+          description: Last user agent of the device from which this user logged in
+        last_ip:
+          $ref: '#/components/schemas/SessionIp'
+        last_asn:
+          type: string
+          description: Last autonomous system number from which this user logged in
+    RefreshTokenSessionId:
+      type:
+      - string
+      - 'null'
+      description: ID of the authenticated session used to obtain this refresh-token
+    UserMetadataSchema:
+      type: object
+      description: User metadata to which this user has read/write access.
+      additionalProperties: true
+    SessionDate:
+      oneOf:
+      - type: string
+        description: The date and time when the session was created
+        format: date-time
+      - type: object
+        description: The date and time when the session was created
+        additionalProperties: true
+      - type: 'null'
+    RefreshTokenResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the refresh token
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        created_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        device:
+          $ref: '#/components/schemas/RefreshTokenDevice'
+        client_id:
+          type: string
+          description: ID of the client application granted with this refresh token
+        session_id:
+          $ref: '#/components/schemas/RefreshTokenSessionId'
+        rotating:
+          type: boolean
+          description: True if the token is a rotating refresh token
+        resource_servers:
+          type: array
+          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
+          items:
+            $ref: '#/components/schemas/RefreshTokenResourceServer'
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+        last_exchanged_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+    ConnectedAccount:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - connection
+      - connection_id
+      - strategy
+      - access_type
+      - created_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the connected account.
+        connection:
+          type: string
+          description: The name of the connection associated with the account.
+        connection_id:
+          type: string
+          description: The unique identifier of the connection associated with the account.
+        strategy:
+          type: string
+          description: The authentication strategy used by the connection.
+        access_type:
+          $ref: '#/components/schemas/ConnectedAccountAccessTypeEnum'
+        scopes:
+          type: array
+          description: The scopes granted for this connected account.
+          items:
+            type: string
+        created_at:
+          type: string
+          description: ISO 8601 timestamp when the connected account was created.
+          format: date-time
+        expires_at:
+          type: string
+          description: ISO 8601 timestamp when the connected account expires.
+          format: date-time
+        organization_id:
+          type: string
+          description: The identifier of the organization associated with the connected account.
+          format: organization-id
+    SetUserAuthenticationMethodsRequestContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/SetUserAuthenticationMethods'
+    UserListLogResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Log'
+      - $ref: '#/components/schemas/UserListLogOffsetPaginatedResponseContent'
+    LogLocationInfo:
+      type: object
+      description: Information about the location that triggered this event based on the `ip`.
+      additionalProperties: true
+      properties:
+        country_code:
+          type: string
+          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
+          minLength: 2
+          maxLength: 2
+        country_code3:
+          type: string
+          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
+          minLength: 3
+          maxLength: 3
+        country_name:
+          type: string
+          description: Full country name in English.
+        city_name:
+          type: string
+          description: Full city name in English.
+        latitude:
+          type: number
+          description: Global latitude (horizontal) position.
+        longitude:
+          type: number
+          description: Global longitude (vertical) position.
+        time_zone:
+          type: string
+          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
+        continent_code:
+          type: string
+          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
+    ListUserOrganizationsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    CreateUserRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection
+      properties:
+        email:
+          type: string
+          description: The user's email.
+          default: john.doe@gmail.com
+          format: email
+        phone_number:
+          type: string
+          description: The user's phone number (following the E.164 recommendation).
+          default: '+199999999999999'
+          pattern: ^\+[0-9]{1,15}$
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadata'
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or not (false).
+          default: false
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false). User will receive a verification email after creation if `email_verified` is false or not specified
+          default: false
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        app_metadata:
+          $ref: '#/components/schemas/AppMetadata'
+        given_name:
+          type: string
+          description: The user's given name(s).
+          default: John
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: The user's family name(s).
+          default: Doe
+          minLength: 1
+          maxLength: 150
+        name:
+          type: string
+          description: The user's full name.
+          default: John Doe
+          minLength: 1
+          maxLength: 300
+        nickname:
+          type: string
+          description: The user's nickname.
+          default: Johnny
+          minLength: 1
+          maxLength: 300
+        picture:
+          type: string
+          description: A URI pointing to the user's picture.
+          default: https://secure.gravatar.com/avatar/15626c5e0c749cb912f9d1ad48dba440?s=480&r=pg&d=https%3A%2F%2Fssl.gstatic.com%2Fs2%2Fprofiles%2Fimages%2Fsilhouette80.png
+          format: strict-uri
+        user_id:
+          type: string
+          description: The external user's id provided by the identity provider.
+          default: abc
+          minLength: 0
+          maxLength: 255
+          pattern: ^\S*$
+        connection:
+          type: string
+          description: Name of the connection this user should be created in.
+          default: Initial-Connection
+          minLength: 1
+        password:
+          type: string
+          description: Initial password for this user. Only valid for auth0 connection strategy.
+          default: secret
+          minLength: 1
+        verify_email:
+          type: boolean
+          description: Whether the user will receive a verification email after creation (true) or no email (false). Overrides behavior of `email_verified` parameter.
+          default: false
+        username:
+          type: string
+          description: The user's username. Only valid if the connection requires a username.
+          default: johndoe
+          minLength: 1
+          maxLength: 128
+    CreateUserPermissionsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - permissions
+      properties:
+        permissions:
+          type: array
+          description: List of permissions to add to this user.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
+    SetUserAuthenticationMethods:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        type:
+          $ref: '#/components/schemas/AuthenticationTypeEnum'
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+        name:
+          type: string
+          description: AA human-readable label to identify the authentication method.
+          minLength: 1
+          maxLength: 20
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          description: Applies to email authentication methods only. The email address used to send verification messages.
+          minLength: 1
+        totp_secret:
+          type: string
+          description: Applies to totp authentication methods only. The base32 encoded secret for TOTP generation.
+          minLength: 1
+    Log:
+      type: object
+      additionalProperties: true
+      properties:
+        date:
+          $ref: '#/components/schemas/LogDate'
+        type:
+          type: string
+          description: Type of event.
+          default: sapi
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description of this event.
+        connection:
+          type: string
+          description: Name of the connection the event relates to.
+        connection_id:
+          type: string
+          description: ID of the connection the event relates to.
+        client_id:
+          type: string
+          description: ID of the client (application).
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+        client_name:
+          type: string
+          description: Name of the client (application).
+          default: My application Name
+        ip:
+          type: string
+          description: IP address of the log event source.
+          default: 190.257.209.19
+        hostname:
+          type: string
+          description: Hostname the event applies to.
+          default: 190.257.209.19
+        user_id:
+          type: string
+          description: ID of the user involved in the event.
+          default: auth0|56c75c4e42b6359e98374bc2
+        user_name:
+          type: string
+          description: Name of the user involved in the event.
+        audience:
+          type: string
+          description: API audience the event applies to.
+        scope:
+          type: string
+          description: Scope permissions applied to the event.
+          default: ''
+        strategy:
+          type: string
+          description: Name of the strategy involved in the event.
+        strategy_type:
+          type: string
+          description: Type of strategy involved in the event.
+        log_id:
+          type: string
+          description: Unique ID of the event.
+        isMobile:
+          type: boolean
+          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
+        details:
+          $ref: '#/components/schemas/LogDetails'
+        user_agent:
+          type: string
+          description: User agent string from the client device that caused the event.
+        security_context:
+          $ref: '#/components/schemas/LogSecurityContext'
+        location_info:
+          $ref: '#/components/schemas/LogLocationInfo'
+    UserAuthenticationMethodPropertiesEnum:
+      type: string
+      enum:
+      - totp
+      - push
+      - sms
+      - voice
+    GetUserResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+          default: false
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        phone_number:
+          type: string
+          description: Phone number for this user. Follows the <a href="https://en.wikipedia.org/wiki/E.164">E.164 recommendation</a>.
+          default: '+199999999999999'
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        created_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        updated_at:
+          $ref: '#/components/schemas/UserDateSchema'
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/UserIdentitySchema'
+        app_metadata:
+          $ref: '#/components/schemas/UserAppMetadataSchema'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadataSchema'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+        name:
+          type: string
+          description: Name of this user.
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          $ref: '#/components/schemas/UserDateSchema'
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    LogDetails:
+      type: object
+      description: Additional useful details about this event (structure is dependent upon event type).
+      additionalProperties: true
+    SetUserAuthenticationMethodResponseContent:
+      type: object
+      description: The successfully created authentication method.
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        id:
+          type: string
+          description: The ID of the newly created authentication method (automatically generated by the application)
+          format: authenticator-id
+        type:
+          $ref: '#/components/schemas/CreatedAuthenticationMethodTypeEnum'
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method.
+        totp_secret:
+          type: string
+          description: Base32 encoded secret for TOTP generation
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          description: Applies to email authentication methods only. The email address used to send verification messages.
+        authentication_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAuthenticationMethodProperties'
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+          description: Preferred phone authentication method
+        key_id:
+          type: string
+          description: Applies to webauthn authenticators only. The id of the credential.
+        public_key:
+          type: string
+          description: Applies to webauthn authenticators only. The public key.
+        aaguid:
+          type: string
+          description: Applies to passkeys only. Authenticator Attestation Globally Unique Identifier.
+        relying_party_identifier:
+          type: string
+          description: Applies to webauthn authenticators only. The relying party identifier.
+        created_at:
+          type: string
+          description: Authentication method creation date
+          format: date-time
+    CreateUserAuthenticationMethodRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        type:
+          $ref: '#/components/schemas/CreatedUserAuthenticationMethodTypeEnum'
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method.
+        totp_secret:
+          type: string
+          description: Base32 encoded secret for TOTP generation.
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          description: Applies to email authentication methods only. The email address used to send verification messages.
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+        key_id:
+          type: string
+          description: Applies to webauthn authentication methods only. The id of the credential.
+        public_key:
+          type: string
+          description: Applies to webauthn authentication methods only. The public key, which is encoded as base64.
+        relying_party_identifier:
+          type: string
+          description: Applies to webauthn authentication methods only. The relying party identifier.
+          format: hostname
+    UserId:
+      description: user_id of the secondary user account being linked.
+      oneOf:
+      - type: string
+        default: abc
+        minLength: 1
+      - type: integer
+        default: 191919191
+    CreateUserAuthenticationMethodResponseContent:
+      type: object
+      description: The successfully created authentication method.
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        id:
+          type: string
+          description: The ID of the newly created authentication method (automatically generated by the application)
+          format: authenticator-id
+        type:
+          $ref: '#/components/schemas/CreatedUserAuthenticationMethodTypeEnum'
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method.
+        totp_secret:
+          type: string
+          description: Base32 encoded secret for TOTP generation
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          description: Applies to email authentication methods only. The email address used to send verification messages.
+        authentication_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAuthenticationMethodProperties'
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+          description: Preferred phone authentication method
+        key_id:
+          type: string
+          description: Applies to webauthn authenticators only. The id of the credential.
+        public_key:
+          type: string
+          description: Applies to webauthn authenticators only. The public key.
+        aaguid:
+          type: string
+          description: Applies to passkeys only. Authenticator Attestation Globally Unique Identifier.
+        relying_party_identifier:
+          type: string
+          description: Applies to webauthn authenticators only. The relying party identifier.
+        created_at:
+          type: string
+          description: Authentication method creation date
+          format: date-time
+    SearchEngineVersionsEnum:
+      type: string
+      enum:
+      - v1
+      - v2
+      - v3
+      description: The version of the search engine
+    AppMetadata:
+      type: object
+      description: Data related to the user that does affect the application's core functionality.
+      additionalProperties: true
+      properties: {}
+    DeleteUserIdentityResponseContent:
+      type: array
+      description: An array of objects with information about the user's identities.
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - provider
+        - user_id
+        - connection
+        properties:
+          connection:
+            type: string
+            description: The name of the connection for the identity.
+            default: Initial-Connection
+          user_id:
+            type: string
+            description: The unique identifier for the user for the identity.
+            default: 5457edea1b8f22891a000004
+          provider:
+            type: string
+            description: The type of identity provider.
+            default: auth0
+          isSocial:
+            type: boolean
+            description: <code>true</code> if the identity provider is a social provider, <code>false</code>s otherwise
+          access_token:
+            type: string
+            description: IDP access token returned only if scope read:user_idp_tokens is defined
+          access_token_secret:
+            type: string
+            description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
+          refresh_token:
+            type: string
+            description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
+          profileData:
+            $ref: '#/components/schemas/UserProfileData'
+    SessionIp:
+      type:
+      - string
+      - 'null'
+      description: First IP address associated with this session
+    OrganizationBranding:
+      type: object
+      description: Theme defines how to style the login pages.
+      additionalProperties: false
+      properties:
+        logo_url:
+          type: string
+          description: URL of logo to display on login page.
+          format: strict-https-uri-or-null
+        colors:
+          $ref: '#/components/schemas/OrganizationBrandingColors'
+    RefreshTokenDateObject:
+      type: object
+      description: The date and time when the refresh token was created
+      additionalProperties: true
+    PreferredAuthenticationMethodEnum:
+      type: string
+      description: Applies to phone authentication methods only. The preferred communication method.
+      enum:
+      - voice
+      - sms
+    UserDateSchema:
+      oneOf:
+      - type: string
+        description: Date and time when this user was created (ISO_8601 format).
+      - type: object
+        description: Date and time when this user was created (ISO_8601 format).
+        additionalProperties: true
+    ListUsersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/UserResponseSchema'
+      - $ref: '#/components/schemas/ListUsersOffsetPaginatedResponseContent'
+    GetUserGroupsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroupsResponseSchema'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+    UpdateUserAuthenticationMethodResponseContent:
+      type: object
+      description: The successfully created authentication method.
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        id:
+          type: string
+          description: The ID of the newly created authentication method (automatically generated by the application)
+          format: authenticator-id
+        type:
+          $ref: '#/components/schemas/CreatedAuthenticationMethodTypeEnum'
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method.
+        totp_secret:
+          type: string
+          description: Base32 encoded secret for TOTP generation
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          description: Applies to email authentication methods only. The email address used to send verification messages.
+        authentication_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAuthenticationMethodProperties'
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+        key_id:
+          type: string
+          description: Applies to webauthn authentication methods only. The id of the credential.
+        public_key:
+          type: string
+          description: Applies to webauthn authentication methods only. The public key.
+        aaguid:
+          type: string
+          description: Applies to passkey authentication methods only. Authenticator Attestation Globally Unique Identifier.
+        relying_party_identifier:
+          type: string
+          description: Applies to webauthn authentication methods only. The relying party identifier.
+        confirmed:
+          type: boolean
+          description: Whether the authentication method has been confirmed.
+        created_at:
+          type: string
+          description: Authentication method creation date
+          format: date-time
+    LinkUserIdentityRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        provider:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+          description: Identity provider of the secondary user account being linked.
+        connection_id:
+          type: string
+          description: connection_id of the secondary user account being linked when more than one `auth0` database provider exists.
+          pattern: ^con_[A-Za-z0-9]{16}$
+        user_id:
+          $ref: '#/components/schemas/UserId'
+        link_with:
+          type: string
+          description: JWT for the secondary account being linked. If sending this parameter, `provider`, `user_id`, and `connection_id` must not be sent.
+          default: '{SECONDARY_ACCOUNT_JWT}'
+    UserAuthenticationMethod:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - created_at
+      properties:
+        id:
+          type: string
+          description: The ID of the authentication method (auto generated)
+        type:
+          $ref: '#/components/schemas/AuthenticationMethodTypeEnum'
+        confirmed:
+          type: boolean
+          description: The authentication method status
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method
+          maxLength: 20
+        authentication_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAuthenticationMethodProperties'
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+        link_id:
+          type: string
+          description: The ID of a linked authentication method. Linked authentication methods will be deleted together.
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+        email:
+          type: string
+          description: Applies to email and email-verification authentication methods only. The email address used to send verification messages.
+        key_id:
+          type: string
+          description: Applies to webauthn authentication methods only. The ID of the generated credential.
+        public_key:
+          type: string
+          description: Applies to webauthn authentication methods only. The public key.
+        created_at:
+          type: string
+          description: Authenticator creation date
+          format: date-time
+        enrolled_at:
+          type: string
+          description: Enrollment date
+          format: date-time
+        last_auth_at:
+          type: string
+          description: Last authentication
+          format: date-time
+        credential_device_type:
+          type: string
+          description: Applies to passkeys only. The kind of device the credential is stored on as defined by backup eligibility. "single_device" credentials cannot be backed up and synced to another device, "multi_device" credentials can be backed up if enabled by the end-user.
+        credential_backed_up:
+          type: boolean
+          description: Applies to passkeys only. Whether the credential was backed up.
+        identity_user_id:
+          type: string
+          description: Applies to passkeys only. The ID of the user identity linked with the authentication method.
+        user_agent:
+          type: string
+          description: Applies to passkeys only. The user-agent of the browser used to create the passkey.
+        aaguid:
+          type: string
+          description: Applies to passkey authentication methods only. Authenticator Attestation Globally Unique Identifier.
+        relying_party_identifier:
+          type: string
+          description: Applies to webauthn/passkey authentication methods only. The credential's relying party identifier.
+    SessionResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the session
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        created_at:
+          $ref: '#/components/schemas/SessionDate'
+        updated_at:
+          $ref: '#/components/schemas/SessionDate'
+        authenticated_at:
+          $ref: '#/components/schemas/SessionDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        last_interacted_at:
+          $ref: '#/components/schemas/SessionDate'
+        device:
+          $ref: '#/components/schemas/SessionDeviceMetadata'
+        clients:
+          type: array
+          description: List of client details for the session
+          items:
+            $ref: '#/components/schemas/SessionClientMetadata'
+        authentication:
+          $ref: '#/components/schemas/SessionAuthenticationSignals'
+        cookie:
+          $ref: '#/components/schemas/SessionCookieMetadata'
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+    SessionCookieMetadataModeEnum:
+      type: string
+      description: '[Private Early Access] The persistence mode of the session cookie. When set to "non-persistent" (ephemeral), the cookie will be deleted when the browser is closed. When set to "persistent", the cookie will be stored until it expires or is deleted by the user.'
+      enum:
+      - non-persistent
+      - persistent
+    OrganizationBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      required:
+      - primary
+      - page_background
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+          format: html-color
+        page_background:
+          type: string
+          description: HEX Color for background.
+          format: html-color
+    GetUserAuthenticationMethodResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - created_at
+      properties:
+        id:
+          type: string
+          description: The ID of the authentication method (auto generated)
+        type:
+          $ref: '#/components/schemas/AuthenticationMethodTypeEnum'
+        confirmed:
+          type: boolean
+          description: The authentication method status
+        name:
+          type: string
+          description: A human-readable label to identify the authentication method
+          maxLength: 20
+        authentication_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAuthenticationMethodProperties'
+        preferred_authentication_method:
+          $ref: '#/components/schemas/PreferredAuthenticationMethodEnum'
+        link_id:
+          type: string
+          description: The ID of a linked authentication method. Linked authentication methods will be deleted together.
+        phone_number:
+          type: string
+          description: Applies to phone authentication methods only. The destination phone number used to send verification codes via text and voice.
+        email:
+          type: string
+          description: Applies to email and email-verification authentication methods only. The email address used to send verification messages.
+        key_id:
+          type: string
+          description: Applies to webauthn authentication methods only. The ID of the generated credential.
+        public_key:
+          type: string
+          description: Applies to webauthn authentication methods only. The public key.
+        created_at:
+          type: string
+          description: Authenticator creation date
+          format: date-time
+        enrolled_at:
+          type: string
+          description: Enrollment date
+          format: date-time
+        last_auth_at:
+          type: string
+          description: Last authentication
+          format: date-time
+        credential_device_type:
+          type: string
+          description: Applies to passkeys only. The kind of device the credential is stored on as defined by backup eligibility. "single_device" credentials cannot be backed up and synced to another device, "multi_device" credentials can be backed up if enabled by the end-user.
+        credential_backed_up:
+          type: boolean
+          description: Applies to passkeys only. Whether the credential was backed up.
+        identity_user_id:
+          type: string
+          description: Applies to passkeys only. The ID of the user identity linked with the authentication method.
+        user_agent:
+          type: string
+          description: Applies to passkeys only. The user-agent of the browser used to create the passkey.
+        aaguid:
+          type: string
+          description: Applies to passkey authentication methods only. Authenticator Attestation Globally Unique Identifier.
+        relying_party_identifier:
+          type: string
+          description: Applies to webauthn/passkey authentication methods only. The credential's relying party identifier.
+    TokenQuotaClientCredentials:
+      type: object
+      description: The token quota configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        enforce:
+          type: boolean
+          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
+        per_day:
+          type: integer
+          description: Maximum number of issued tokens per day
+          minimum: 1
+          maximum: 2147483647
+        per_hour:
+          type: integer
+          description: Maximum number of issued tokens per hour
+          minimum: 1
+          maximum: 2147483647
+    AssignUserRolesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          description: List of roles IDs to associated with the user.
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+    RefreshTokenDate:
+      oneOf:
+      - type: string
+        description: The date and time when the refresh token was created
+        format: date-time
+      - $ref: '#/components/schemas/RefreshTokenDateObject'
+      - type: 'null'
+    RefreshTokenDevice:
+      type: object
+      description: Device used while issuing/exchanging the refresh token
+      additionalProperties: true
+      properties:
+        initial_ip:
+          type: string
+          description: First IP address associated with the refresh token
+        initial_asn:
+          type: string
+          description: First autonomous system number associated with the refresh token
+        initial_user_agent:
+          type: string
+          description: First user agent associated with the refresh token
+        last_ip:
+          type: string
+          description: Last IP address associated with the refresh token
+        last_asn:
+          type: string
+          description: Last autonomous system number associated with the refresh token
+        last_user_agent:
+          type: string
+          description: Last user agent associated with the refresh token
+    PermissionRequestPayload:
+      type: object
+      additionalProperties: false
+      required:
+      - resource_server_identifier
+      - permission_name
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+    UserMultifactorProviderEnum:
+      type: string
+      enum:
+      - duo
+      - google-authenticator
+      description: The multi-factor provider. Supported values 'duo' or 'google-authenticator'
+    ListUserAuthenticationMethodsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+          description: Index of the starting record. Derived from the page and per_page parameters.
+        limit:
+          type: number
+          description: Maximum amount of records to return.
+        total:
+          type: number
+          description: Total number of pageable records.
+        authenticators:
+          type: array
+          description: The paginated authentication methods. Returned in this structure when include_totals is true.
+          items:
+            $ref: '#/components/schemas/UserAuthenticationMethod'
+    ListUserPermissionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/UserPermissionSchema'
+      - $ref: '#/components/schemas/ListUserPermissionsOffsetPaginatedResponseContent'
+    ClearAssessorsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection
+      - assessors
+      properties:
+        connection:
+          type: string
+          description: The name of the connection containing the user whose assessors should be cleared.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        assessors:
+          type: array
+          description: List of assessors to clear.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AssessorsTypeEnum'

@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions supplemental-signals API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: supplemental-signals
+paths:
+  /supplemental-signals:
+    get:
+      summary: Get the Supplemental Signals Configuration for a Tenant
+      description: Get the supplemental signals configuration for a tenant.
+      tags:
+      - supplemental-signals
+      responses:
+        '200':
+          description: Supplemental Signals configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSupplementalSignalsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:attack_protection.'
+        '404':
+          description: Supplemental Signals configuration not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_supplemental-signals
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group: supplementalSignals
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update the Supplemental Signals Configuration for a Tenant
+      description: Update the supplemental signals configuration for a tenant.
+      tags:
+      - supplemental-signals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSupplementalSignalsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSupplementalSignalsRequestContent'
+      responses:
+        '200':
+          description: Supplemental Signals configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchSupplementalSignalsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:attack_protection.'
+        '404':
+          description: Supplemental Signals configuration not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_supplemental-signals
+      x-release-lifecycle: EA
+      x-operation-name: patch
+      x-operation-group: supplementalSignals
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+components:
+  schemas:
+    GetSupplementalSignalsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        akamai_enabled:
+          type: boolean
+          description: Indicates if incoming Akamai Headers should be processed
+    UpdateSupplementalSignalsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - akamai_enabled
+      properties:
+        akamai_enabled:
+          type: boolean
+          description: Indicates if incoming Akamai Headers should be processed
+    PatchSupplementalSignalsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        akamai_enabled:
+          type: boolean
+          description: Indicates if incoming Akamai Headers should be processed

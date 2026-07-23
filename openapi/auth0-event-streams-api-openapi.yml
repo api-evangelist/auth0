@@ -1,0 +1,1206 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions event-streams API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: event-streams
+paths:
+  /event-streams:
+    get:
+      summary: Get Event Streams
+      tags:
+      - event-streams
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Event streams successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEventStreamsResponseContent'
+        '400':
+          description: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:event_streams.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_event-streams
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListEventStreamsRequestParameters
+      x-operation-group: eventStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:event_streams
+    post:
+      summary: Create an Event Stream
+      tags:
+      - event-streams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CreateEventStreamWebHookRequestContent'
+              - $ref: '#/components/schemas/CreateEventStreamEventBridgeRequestContent'
+              - $ref: '#/components/schemas/CreateEventStreamActionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CreateEventStreamWebHookRequestContent'
+              - $ref: '#/components/schemas/CreateEventStreamEventBridgeRequestContent'
+              - $ref: '#/components/schemas/CreateEventStreamActionRequestContent'
+      responses:
+        '201':
+          description: Event Stream stream created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventStreamResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:event_streams.'
+        '409':
+          description: You have reached the maximum number of event streams for your account OR Event stream name already in use.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_event-streams
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: eventStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:event_streams
+  /event-streams/{id}:
+    get:
+      summary: Get an Event Stream by ID
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      responses:
+        '200':
+          description: Event stream successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEventStreamResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:event_streams.'
+        '404':
+          description: The event stream does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_event-streams_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: eventStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:event_streams
+    delete:
+      summary: Delete an Event Stream
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      responses:
+        '204':
+          description: The event stream was deleted.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:event_streams.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_event-streams_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: eventStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:event_streams
+    patch:
+      summary: Update an Event Stream
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventStreamRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateEventStreamRequestContent'
+      responses:
+        '200':
+          description: Event stream successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEventStreamResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:event_streams.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_event-streams_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: eventStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:event_streams
+  /event-streams/{id}/deliveries:
+    get:
+      summary: Get This Event Stream's Delivery History
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      - name: statuses
+        in: query
+        description: Comma-separated list of statuses by which to filter
+        schema:
+          type: string
+      - name: event_types
+        in: query
+        description: Comma-separated list of event types by which to filter
+        schema:
+          type: string
+      - name: date_from
+        in: query
+        description: An RFC-3339 date-time for redelivery start, inclusive. Does not allow sub-second precision.
+        schema:
+          type: string
+          maxLength: 20
+      - name: date_to
+        in: query
+        description: An RFC-3339 date-time for redelivery end, exclusive. Does not allow sub-second precision.
+        schema:
+          type: string
+          maxLength: 20
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Event stream deliveries successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventStreamDelivery'
+        '400':
+          description: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:event_streams, read:event_deliveries.'
+        '404':
+          description: The event stream does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_event_deliveries
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListEventStreamDeliveriesRequestParameters
+      x-operation-group:
+      - eventStreams
+      - deliveries
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:event_streams
+        - read:event_deliveries
+  /event-streams/{id}/deliveries/{event_id}:
+    get:
+      summary: Get a Specific Event's Delivery History
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      - name: event_id
+        in: path
+        description: Unique identifier for the event
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      responses:
+        '200':
+          description: Delivery history for event successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEventStreamDeliveryHistoryResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:event_deliveries.'
+        '404':
+          description: The event stream does not exist.
+          x-description-1: The event does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_deliveries_by_event_id
+      x-release-lifecycle: GA
+      x-operation-name: getHistory
+      x-operation-group:
+      - eventStreams
+      - deliveries
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:event_deliveries
+  /event-streams/{id}/redeliver:
+    post:
+      summary: Redeliver Failed Events
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventStreamRedeliveryRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEventStreamRedeliveryRequestContent'
+      responses:
+        '202':
+          description: Redelivery request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventStreamRedeliveryResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:event_deliveries.'
+        '404':
+          description: The event stream does not exist.
+        '409':
+          description: One or more events is not in a state that allows redelivery.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_redeliver
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - eventStreams
+      - redeliveries
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:event_deliveries
+  /event-streams/{id}/redeliver/{event_id}:
+    post:
+      summary: Redeliver a Single Failed Event by ID
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      - name: event_id
+        in: path
+        description: Unique identifier for the event
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      responses:
+        '202':
+          description: Redelivery request accepted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:event_deliveries.'
+        '404':
+          description: The event stream does not exist.
+          x-description-1: The event does not exist.
+        '409':
+          description: The event is not in a state that allows redelivery.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_redeliver_by_event_id
+      x-release-lifecycle: GA
+      x-operation-name: createById
+      x-operation-group:
+      - eventStreams
+      - redeliveries
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:event_deliveries
+  /event-streams/{id}/test:
+    post:
+      summary: Send a Test Event to an Event Stream
+      tags:
+      - event-streams
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the event stream.
+        required: true
+        schema:
+          type: string
+          minLength: 26
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventStreamTestEventRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEventStreamTestEventRequestContent'
+      responses:
+        '202':
+          description: Test event successfully submitted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventStreamTestEventResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:event_streams.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_test_event
+      x-release-lifecycle: GA
+      x-operation-name: test
+      x-operation-group: eventStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:event_streams
+components:
+  schemas:
+    EventStreamEventBridgeDestinationTypeEnum:
+      type: string
+      enum:
+      - eventbridge
+    TestEventDataContent:
+      type: object
+      description: The raw payload of the test event.
+      additionalProperties: true
+    EventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    EventStreamDeliveryAttempt:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      - timestamp
+      properties:
+        status:
+          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        timestamp:
+          type: string
+          description: Timestamp of delivery attempt
+          format: date-time
+        error_message:
+          type: string
+          description: Delivery error message, if applicable
+    EventStreamActionConfiguration:
+      type: object
+      description: Configuration specific to an action destination.
+      additionalProperties: false
+      required:
+      - action_id
+      properties:
+        action_id:
+          type: string
+          description: Action ID for the action destination.
+    GetEventStreamDeliveryHistoryResponseContent:
+      type: object
+      description: Metadata about a specific attempt to deliver an event
+      additionalProperties: false
+      required:
+      - id
+      - event_stream_id
+      - status
+      - event_type
+      - attempts
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the delivery
+        event_stream_id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        status:
+          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_type:
+          $ref: '#/components/schemas/EventStreamDeliveryEventTypeEnum'
+        attempts:
+          type: array
+          description: Results of delivery attempts
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryAttempt'
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEvent'
+    CreateEventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    UpdateEventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    EventStreamEventBridgeConfiguration:
+      type: object
+      description: Configuration specific to an eventbridge destination.
+      additionalProperties: false
+      required:
+      - aws_account_id
+      - aws_region
+      properties:
+        aws_account_id:
+          type: string
+          description: 'AWS Account ID for EventBridge destination.
+
+            '
+          pattern: ^\d{12}$
+        aws_region:
+          $ref: '#/components/schemas/EventStreamEventBridgeAWSRegionEnum'
+        aws_partner_event_source:
+          type: string
+          description: 'AWS Partner Event Source for EventBridge destination.
+
+            '
+    EventStreamWebhookCustomHeaderAuthMethodEnum:
+      type: string
+      description: Type of authorization.
+      enum:
+      - custom_header
+    EventStreamEventBridgeDestination:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - configuration
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamEventBridgeDestinationTypeEnum'
+        configuration:
+          $ref: '#/components/schemas/EventStreamEventBridgeConfiguration'
+    EventStreamActionDestination:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - configuration
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamActionDestinationTypeEnum'
+        configuration:
+          $ref: '#/components/schemas/EventStreamActionConfiguration'
+    EventStreamEventBridgeResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamEventBridgeDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+        created_at:
+          type: string
+          description: Timestamp when the event stream was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the event stream was last updated.
+          format: date-time
+    EventStreamDelivery:
+      type: object
+      description: Metadata about a specific attempt to deliver an event
+      additionalProperties: false
+      required:
+      - id
+      - event_stream_id
+      - status
+      - event_type
+      - attempts
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the delivery
+        event_stream_id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        status:
+          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_type:
+          $ref: '#/components/schemas/EventStreamDeliveryEventTypeEnum'
+        attempts:
+          type: array
+          description: Results of delivery attempts
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryAttempt'
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEvent'
+    EventStreamCloudEvent:
+      type: object
+      description: Event content. This will only be set if delivery failed.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event
+          minLength: 26
+          maxLength: 26
+          format: event-id
+        source:
+          type: string
+          description: Where the event originated
+        specversion:
+          type: string
+          description: Version of CloudEvents spec
+        type:
+          type: string
+          description: Type of the event (e.g., user.created)
+        time:
+          type: string
+          description: Timestamp at which the event was generated
+          format: date-time
+        data:
+          type: string
+          description: Event contents encoded as a string.
+    EventStreamStatusEnum:
+      type: string
+      description: Indicates whether the event stream is actively forwarding events.
+      maxLength: 8
+      enum:
+      - enabled
+      - disabled
+    EventStreamWebhookBearerAuthMethodEnum:
+      type: string
+      description: Type of authorization.
+      enum:
+      - bearer
+    CreateEventStreamTestEventRequestContent:
+      type: object
+      description: The payload for sending a test event to an event stream.
+      additionalProperties: false
+      required:
+      - event_type
+      properties:
+        event_type:
+          $ref: '#/components/schemas/EventStreamTestEventTypeEnum'
+        data:
+          $ref: '#/components/schemas/TestEventDataContent'
+    CreateEventStreamActionRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - destination
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamActionDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    EventStreamWebhookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamWebhookDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+        created_at:
+          type: string
+          description: Timestamp when the event stream was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the event stream was last updated.
+          format: date-time
+    EventStreamActionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamActionDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+        created_at:
+          type: string
+          description: Timestamp when the event stream was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the event stream was last updated.
+          format: date-time
+    EventStreamWebhookAuthorizationResponse:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookBasicAuth'
+      - $ref: '#/components/schemas/EventStreamWebhookBearerAuth'
+      - $ref: '#/components/schemas/EventStreamWebhookCustomHeaderAuth'
+    EventStreamDestinationPatch:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookDestination'
+      - $ref: '#/components/schemas/EventStreamActionDestination'
+    CreateEventStreamRedeliveryRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        date_from:
+          type: string
+          description: An RFC-3339 date-time for redelivery start, inclusive. Does not allow sub-second precision.
+          maxLength: 20
+          format: date-time
+        date_to:
+          type: string
+          description: An RFC-3339 date-time for redelivery end, exclusive. Does not allow sub-second precision.
+          maxLength: 20
+          format: date-time
+        statuses:
+          type: array
+          description: Filter by status
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_types:
+          type: array
+          description: Filter by event type
+          items:
+            $ref: '#/components/schemas/EventStreamEventTypeEnum'
+    EventStreamEventBridgeAWSRegionEnum:
+      type: string
+      description: AWS Region for EventBridge destination.
+      enum:
+      - af-south-1
+      - ap-east-1
+      - ap-east-2
+      - ap-northeast-1
+      - ap-northeast-2
+      - ap-northeast-3
+      - ap-south-1
+      - ap-south-2
+      - ap-southeast-1
+      - ap-southeast-2
+      - ap-southeast-3
+      - ap-southeast-4
+      - ap-southeast-5
+      - ap-southeast-6
+      - ap-southeast-7
+      - ca-central-1
+      - ca-west-1
+      - eu-central-1
+      - eu-central-2
+      - eu-north-1
+      - eu-south-1
+      - eu-south-2
+      - eu-west-1
+      - eu-west-2
+      - eu-west-3
+      - il-central-1
+      - me-central-1
+      - me-south-1
+      - mx-central-1
+      - sa-east-1
+      - us-gov-east-1
+      - us-gov-west-1
+      - us-east-1
+      - us-east-2
+      - us-west-1
+      - us-west-2
+    EventStreamActionDestinationTypeEnum:
+      type: string
+      enum:
+      - action
+    EventStreamEventTypeEnum:
+      type: string
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    ListEventStreamsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        eventStreams:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventStreamResponseContent'
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.
+    EventStreamWebhookDestination:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - configuration
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamWebhookDestinationTypeEnum'
+        configuration:
+          $ref: '#/components/schemas/EventStreamWebhookConfiguration'
+    EventStreamDeliveryStatusEnum:
+      type: string
+      description: Delivery status
+      maxLength: 6
+      enum:
+      - failed
+    EventStreamDeliveryEventTypeEnum:
+      type: string
+      description: Type of event
+      maxLength: 33
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    EventStreamTestEventTypeEnum:
+      type: string
+      description: The type of event this test event represents.
+      maxLength: 33
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    CreateEventStreamRedeliveryResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        date_from:
+          type: string
+          description: An RFC-3339 date-time for redelivery start, inclusive. Does not allow sub-second precision.
+          maxLength: 20
+          format: date-time
+        date_to:
+          type: string
+          description: An RFC-3339 date-time for redelivery end, exclusive. Does not allow sub-second precision.
+          maxLength: 20
+          format: date-time
+        statuses:
+          type: array
+          description: Filter by status
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_types:
+          type: array
+          description: Filter by event type
+          items:
+            $ref: '#/components/schemas/EventStreamEventTypeEnum'
+    EventStreamWebhookDestinationTypeEnum:
+      type: string
+      enum:
+      - webhook
+    EventStreamWebhookBearerAuth:
+      type: object
+      description: 'Bearer Authorization for HTTP requests (e.g., ''Bearer token'').
+
+        '
+      additionalProperties: false
+      required:
+      - method
+      properties:
+        method:
+          $ref: '#/components/schemas/EventStreamWebhookBearerAuthMethodEnum'
+    EventStreamSubscription:
+      type: object
+      description: Event types
+      additionalProperties: false
+      properties:
+        event_type:
+          type: string
+    CreateEventStreamEventBridgeRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - destination
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamEventBridgeDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    CreateEventStreamWebHookRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - destination
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamWebhookDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    CreateEventStreamTestEventResponseContent:
+      type: object
+      description: Metadata about a specific attempt to deliver an event
+      additionalProperties: false
+      required:
+      - id
+      - event_stream_id
+      - status
+      - event_type
+      - attempts
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the delivery
+        event_stream_id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        status:
+          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_type:
+          $ref: '#/components/schemas/EventStreamDeliveryEventTypeEnum'
+        attempts:
+          type: array
+          description: Results of delivery attempts
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryAttempt'
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEvent'
+    UpdateEventStreamRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamDestinationPatch'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    GetEventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    EventStreamWebhookConfiguration:
+      type: object
+      description: Configuration specific to a webhook destination.
+      additionalProperties: false
+      required:
+      - webhook_endpoint
+      - webhook_authorization
+      properties:
+        webhook_endpoint:
+          type: string
+          description: Target HTTP endpoint URL.
+          pattern: ^https://.*
+        webhook_authorization:
+          $ref: '#/components/schemas/EventStreamWebhookAuthorizationResponse'
+    EventStreamWebhookBasicAuth:
+      type: object
+      description: 'Basic Authorization for HTTP requests (e.g., ''Basic credentials'').
+
+        '
+      additionalProperties: false
+      required:
+      - method
+      - username
+      properties:
+        method:
+          $ref: '#/components/schemas/EventStreamWebhookBasicAuthMethodEnum'
+        username:
+          type: string
+          description: Username
+          maxLength: 128
+          pattern: ^[^:]+$
+    EventStreamWebhookCustomHeaderAuth:
+      type: object
+      description: Custom header authorization for HTTP requests.
+      additionalProperties: false
+      required:
+      - method
+      - header_key
+      properties:
+        method:
+          $ref: '#/components/schemas/EventStreamWebhookCustomHeaderAuthMethodEnum'
+        header_key:
+          type: string
+          description: HTTP header name.
+          minLength: 1
+          pattern: ^[a-zA-Z0-9!#$%&'*+.^_`|~-]+$
+    EventStreamWebhookBasicAuthMethodEnum:
+      type: string
+      description: Type of authorization.
+      enum:
+      - basic

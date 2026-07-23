@@ -1,0 +1,3438 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions connections API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: connections
+paths:
+  /connections:
+    get:
+      summary: Get All Connections
+      description: "Retrieves detailed list of all <a href=\"https://auth0.com/docs/authenticate/identity-providers\">connections</a> that match the specified strategy. If no strategy is provided, all connections within your tenant are retrieved. This action can accept a list of fields to include or exclude from the resulting list of connections. \n\nThis endpoint supports two types of pagination:\n<ul>\n<li>Offset pagination</li>\n<li>Checkpoint pagination</li>\n</ul>\n\nCheckpoint pagination must be used if you need to retrieve more than 1000 connections.\n\n<h2>Checkpoint Pagination</h2>\n\nTo search by checkpoint, use the following parameters:\n<ul>\n<li><code>from</code>: Optional id from which to start selection.</li>\n<li><code>take</code>: The total amount of entries to retrieve when using the from parameter. Defaults to 50.</li>\n</ul>\n\n<b>Note</b>: The first time you call this endpoint using checkpoint pagination, omit the <code>from</code> parameter. If there are more results, a <code>next</code> value is included in the response. You can use this for subsequent API calls. When <code>next</code> is no longer included in the response, no pages are remaining.\n"
+      tags:
+      - connections
+      parameters:
+      - name: per_page
+        in: query
+        description: The amount of entries per page. Defaults to 100 if not provided
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: The page number. Zero based
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: true if a query summary must be included in the result, false otherwise. Not returned when using checkpoint pagination. Default <code>false</code>.
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: strategy
+        in: query
+        description: Provide strategies to only retrieve connections with such strategies
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionStrategyEnum'
+      - name: name
+        in: query
+        description: Provide the name of the connection to retrieve
+        schema:
+          type: string
+      - name: fields
+        in: query
+        description: A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields
+        schema:
+          type: string
+          pattern: ^((name)|(display_name)|(strategy)|(options)|(id)|(provisioning_ticket_url)|(metadata)|(show_as_button)|(clients)|(authentication)|(connected_accounts)|(cross_app_access_requesting_app)|(cross_app_access_resource_app)|(enabled_clients))(,((name)|(display_name)|(strategy)|(options)|(id)|(provisioning_ticket_url)|(metadata)|(show_as_button)|(clients)|(authentication)|(connected_accounts)|(cross_app_access_requesting_app)|(cross_app_access_resource_app)|(enabled_clients)))*$
+      - name: include_fields
+        in: query
+        description: <code>true</code> if the fields specified are to be included in the result, <code>false</code> otherwise (defaults to <code>true</code>)
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The connections were retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConnectionsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:connections'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_connections
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListConnectionsQueryParameters
+      x-operation-group: connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:connections
+    post:
+      summary: Create a Connection
+      description: 'Creates a new connection according to the JSON object received in <code>body</code>.
+
+
+        <b>Note:</b> If a connection with the same name was recently deleted and had a large number of associated users, the deletion may still be processing. Creating a new connection with that name before the deletion completes may fail or produce unexpected results. '
+      tags:
+      - connections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateConnectionRequestContent'
+      responses:
+        '201':
+          description: The connection was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateConnectionResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Your account is not allowed to set options.set_user_root_attributes
+          x-description-2: options.set_user_root_attributes can be set only for enterprise connections, social connections or custom database connections (using external users store)
+          x-description-3: No phone provider configured for the tenant
+          x-description-4: Passwordless connection cannot be made as delivery method (sms/text) is not supported by the configured Tenant phone provider
+          x-description-5: custom_password_hash option cannot be set because the universal password hash feature is not enabled for this tenant
+          x-description-6: The custom_password_hash option is only available for database connections
+          x-description-7: The action_id field value cannot be empty, null or undefined
+          x-description-8: The provided custom password hash action id does not exist
+          x-description-9: The provided action does not support the password hash migration trigger
+          x-description-10: The provided action must be deployed to be used for password hash migration
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: create:connections'
+          x-description-1: You reached the limit of entities of this type for this tenant.
+          x-description-2: You can only create 1 non-Okta enterprise connection(s) for this tenant.
+        '409':
+          description: A connection with the same name already exists
+          x-description-1: A connection with the same name is being deleted, try again later
+          x-description-2: There is already another connection with some realms from "realms" parameter
+          x-description-3: There is already a domain connection enabled for strategy
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_connections
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:connections
+  /connections/{id}:
+    get:
+      summary: Get a Connection
+      description: Retrieve details for a specified <a href="https://auth0.com/docs/authenticate/identity-providers">connection</a> along with options that can be used for identity provider configuration.
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to retrieve
+        required: true
+        schema:
+          type: string
+      - name: fields
+        in: query
+        description: A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields
+        schema:
+          type: string
+          pattern: ^((name)|(display_name)|(strategy)|(options)|(id)|(provisioning_ticket_url)|(metadata)|(show_as_button)|(clients)|(authentication)|(connected_accounts)|(cross_app_access_requesting_app)|(cross_app_access_resource_app)|(enabled_clients))(,((name)|(display_name)|(strategy)|(options)|(id)|(provisioning_ticket_url)|(metadata)|(show_as_button)|(clients)|(authentication)|(connected_accounts)|(cross_app_access_requesting_app)|(cross_app_access_resource_app)|(enabled_clients)))*$
+      - name: include_fields
+        in: query
+        description: <code>true</code> if the fields specified are to be included in the result, <code>false</code> otherwise (defaults to <code>true</code>)
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The connection was retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetConnectionResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:connections'
+        '404':
+          description: The connection does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_connections_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetConnectionRequestParameters
+      x-operation-group: connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:connections
+    delete:
+      summary: Delete a Connection
+      description: 'Removes a specific <a href="https://auth0.com/docs/authenticate/identity-providers">connection</a> from your tenant. This action cannot be undone. Once removed, users can no longer use this connection to authenticate.
+
+
+        <b>Note:</b> If your connection has a large amount of users associated with it, please be aware that this operation can be long running after the response is returned and may impact concurrent <a href="https://auth0.com/docs/api/management/v2/connections/post-connections">create connection</a> requests, if they use an identical connection name. '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: The connection is being deleted.
+        '204':
+          description: The connection no longer exists.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: delete:connections'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_connections_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:connections
+    patch:
+      summary: Update a Connection
+      description: 'Update details for a specific <a href="https://auth0.com/docs/authenticate/identity-providers">connection</a>, including option properties for identity provider configuration.
+
+
+        <b>Note</b>: If you use the <code>options</code> parameter, the entire <code>options</code> object is overriden. To avoid partial data or other issues, ensure all parameters are present when using this option.'
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to update
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectionRequestContent'
+      responses:
+        '200':
+          description: The connection was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateConnectionResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+          x-description-2: This database contains users. You cannot change "options.enabledDatabaseCustomization" setting.
+          x-description-3: Your account is not allowed to set options.set_user_root_attributes
+          x-description-4: The Azure AD common endpoint cannot be enabled for this connection when SCIM is enabled.
+          x-description-5: The Google Workspace Users API (options.api_enable_users) cannot be disabled for this connection when inbound directory provisioning is enabled.
+          x-description-6: The Groups extended attribute (options.ext_groups) cannot be disabled for this connection when inbound directory provisioning for groups is enabled.
+          x-description-7: options.set_user_root_attributes can be set only for enterprise connections, social connections or custom database connections (using external users store)
+          x-description-8: custom_password_hash option cannot be set because the universal password hash feature is not enabled for this tenant
+          x-description-9: The custom_password_hash option is only available for database connections
+          x-description-10: The action_id field value cannot be empty, null or undefined
+          x-description-11: The provided custom password hash action id does not exist
+          x-description-12: The provided action does not support the password hash migration trigger
+          x-description-13: The provided action must be deployed to be used for password hash migration
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: update:connections'
+        '404':
+          description: The connection does not exist
+        '409':
+          description: The name/client_id tuple has already been used for another connection
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_connections_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:connections
+  /connections/{id}/clients:
+    get:
+      summary: Get Enabled Clients for a Connection
+      description: 'Retrieve all clients that have the specified <a href="https://auth0.com/docs/authenticate/identity-providers">connection</a> enabled.
+
+
+        <b>Note</b>: The first time you call this endpoint, omit the <code>from</code> parameter. If there are more results, a <code>next</code> value is included in the response. You can use this for subsequent API calls. When <code>next</code> is no longer included in the response, no further results are remaining.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection for which enabled clients are to be retrieved
+        required: true
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+          maxLength: 1000
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetConnectionEnabledClientsResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:connections'
+        '404':
+          description: The connection does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_connection_clients
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetConnectionEnabledClientsRequestParameters
+      x-operation-group:
+      - connections
+      - clients
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:connections
+    patch:
+      summary: Update Enabled Clients for a Connection
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to modify
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnabledClientConnectionsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateEnabledClientConnectionsRequestContent'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+          x-description-2: Tenant Phone Provider not set. Connection can not be enable on a client.
+          x-description-3: Passwordless cannot be enabled for a client, as delivery method (sms/text) is not supported by the configured Tenant phone provider
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: update:connections'
+        '404':
+          description: The connection does not exist
+          x-description-1: The client does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_clients
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - connections
+      - clients
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:connections
+  /connections/{id}/directory-provisioning:
+    get:
+      summary: Get a Directory Provisioning Configuration
+      description: Retrieve the directory provisioning configuration of a connection.
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to retrieve its directory provisioning configuration
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The connection's directory provisioning configuration. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDirectoryProvisioningResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: The connection strategy does not support inbound directory provisioning
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-1: 'Insufficient scope; expected any of: read:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+          x-description-1: Directory provisioning configuration not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_directory-provisioning
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:directory_provisionings
+    delete:
+      summary: Delete a Directory Provisioning Configuration
+      description: Delete the directory provisioning configuration of a connection.
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to delete its directory provisioning configuration
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The connection's directory provisioning configuration has been deleted.
+        '400':
+          description: Path validation error
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-1: 'Insufficient scope; expected any of: delete:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_directory-provisioning
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:directory_provisionings
+    patch:
+      summary: Patch a Directory Provisioning Configuration
+      description: 'Update the directory provisioning configuration of a connection.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to create its directory provisioning configuration
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDirectoryProvisioningRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateDirectoryProvisioningRequestContent'
+      responses:
+        '200':
+          description: The connection's directory provisioning configuration was updated. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDirectoryProvisioningResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: Payload validation error
+          x-description-2: Invalid mapping provided
+          x-description-3: The connection strategy does not support inbound directory provisioning
+          x-description-4: The connection cannot be synchronized because setup is incomplete. Please complete the Google Workspace connection administrator setup and try again.
+          x-description-5: The Groups extended attribute is not enabled on the connection. Select the Groups extended attribute option and go through the setup again.
+          x-description-6: The Google Workspace Groups API is not enabled on the connection. Select the Enable Groups API option and go through the setup again.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-1: Group synchronization is not enabled for this tenant
+          x-description-2: 'Insufficient scope; expected any of: update:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+          x-description-1: Directory provisioning configuration not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_directory-provisioning
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:directory_provisionings
+    post:
+      summary: Create a Directory Provisioning Configuration
+      description: 'Create a directory provisioning configuration for a connection.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to create its directory provisioning configuration
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDirectoryProvisioningRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateDirectoryProvisioningRequestContent'
+      responses:
+        '201':
+          description: The connection's directory provisioning configuration was created. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDirectoryProvisioningResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: Payload validation error
+          x-description-2: Invalid mapping provided
+          x-description-3: The connection strategy does not support inbound directory provisioning
+          x-description-4: The Google Workspace Users API is not enabled on the connection. Select the Enable Users API option and go through the setup again.
+          x-description-5: The connection cannot be synchronized because setup is incomplete. Please complete the Google Workspace connection administrator setup and try again.
+          x-description-6: The Groups extended attribute is not enabled on the connection. Select the Groups extended attribute option and go through the setup again.
+          x-description-7: The Google Workspace Groups API is not enabled on the connection. Select the Enable Groups API option and go through the setup again.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-1: Group synchronization is not enabled for this tenant
+          x-description-2: 'Insufficient scope; expected any of: create:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+        '409':
+          description: Directory provisioning is already enabled on the specified connection
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_directory-provisioning
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:directory_provisionings
+  /connections/{id}/directory-provisioning/default-mapping:
+    get:
+      summary: Get a Connection's Default Directory Provisioning Attribute Mapping
+      description: 'Retrieve the directory provisioning default attribute mapping of a connection.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to retrieve its directory provisioning configuration
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The connection's directory provisioning default mapping. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDirectoryProvisioningDefaultMappingResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: The connection strategy does not support inbound directory provisioning
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-1: 'Insufficient scope; expected any of: read:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+          x-description-1: Directory provisioning configuration not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_directory_provisioning_default_mapping
+      x-release-lifecycle: GA
+      x-operation-name: getDefaultMapping
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:directory_provisionings
+  /connections/{id}/directory-provisioning/synchronizations:
+    post:
+      summary: Request an On-demand Synchronization of the Directory
+      description: 'Request an on-demand synchronization of the directory.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to trigger synchronization for
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: The directory synchronization was triggered. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDirectorySynchronizationResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: Connection has been synchronized in the last 30 minutes. Please wait before synchronizing it again.
+          x-description-2: The connection cannot be synchronized because setup is incomplete. Please complete the Google Workspace connection administrator setup and try again.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+          x-description-1: Directory provisioning configuration not found
+        '409':
+          description: A synchronization has already been requested or is in progress for the connection
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_synchronizations
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      - synchronizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:directory_provisionings
+  /connections/{id}/directory-provisioning/synchronized-groups:
+    get:
+      summary: Get Synchronized Groups for a Directory Provisioning Configuration
+      description: 'Retrieve the configured synchronized groups for a connection directory provisioning configuration.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to list synchronized groups for.
+        required: true
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: The connection's synchronized groups. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSynchronizedGroupsResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: The Google Workspace Groups API is not enabled on the connection. Select the Enable Groups API option and go through the setup again.
+          x-description-2: The connection cannot be synchronized because setup is incomplete. Please complete the Google Workspace connection administrator setup and try again.
+          x-description-3: The pagination token has expired.
+          x-description-4: Invalid request query string. The message will vary depending on the cause.
+          x-description-5: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Synchronized groups selection is not enabled for this tenant
+          x-description-1: Group synchronization is not enabled for this tenant
+          x-description-2: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-3: 'Insufficient scope; expected any of: read:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+          x-description-1: Connection directory provisioning configuration not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_synchronized-groups
+      x-release-lifecycle: EA
+      x-operation-name: listSynchronizedGroups
+      x-operation-request-parameters-name: ListSynchronizedGroupsRequestParameters
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:directory_provisionings
+    put:
+      summary: Create or Replace Synchronized Group Selections for a Directory Provisioning Configuration
+      description: 'Create or replace the selected groups for a connection directory provisioning configuration.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to create or replace synchronized groups for
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceSynchronizedGroupsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReplaceSynchronizedGroupsRequestContent'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Path validation error
+          x-description-1: Payload validation error
+          x-description-2: The Google Workspace Groups API is not enabled on the connection. Select the Enable Groups API option and go through the setup again.
+          x-description-3: The connection cannot be synchronized because setup is incomplete. Please complete the Google Workspace connection administrator setup and try again.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Synchronized groups selection is not enabled for this tenant
+          x-description-1: Group synchronization is not enabled for this tenant
+          x-description-2: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-3: 'Insufficient scope; expected any of: update:directory_provisionings.'
+        '404':
+          description: The connection does not exist
+          x-description-1: Connection directory provisioning configuration not found
+        '409':
+          description: Conflict
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_synchronized-groups
+      x-release-lifecycle: EA
+      x-operation-name: set
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:directory_provisionings
+  /connections/{id}/keys:
+    get:
+      summary: Get Connection Keys
+      description: 'Gets the connection keys for the Okta or OIDC connection strategy.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: ID of the connection
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Connection keys successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectionKey'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: keys are not available for this connection
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:connections_keys.'
+        '404':
+          description: Connection not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_keys
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - connections
+      - keys
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:connections_keys
+    post:
+      summary: Create Connection Keys
+      description: 'Provision initial connection keys for Okta or OIDC connection strategies. This endpoint allows you to create keys before configuring the connection to use Private Key JWT authentication, enabling zero-downtime transitions.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: ID of the connection
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostConnectionKeysRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostConnectionKeysRequestContent'
+      responses:
+        '201':
+          description: Connection keys successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostConnectionsKeysResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:connections_keys.'
+        '404':
+          description: Connection not found.
+        '409':
+          description: Keys have already been created for this connection.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_keys
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - connections
+      - keys
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:connections_keys
+  /connections/{id}/keys/rotate:
+    post:
+      summary: Rotate Connection Keys
+      description: 'Rotates the connection keys for the Okta or OIDC connection strategies.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: ID of the connection
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RotateConnectionKeysRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RotateConnectionKeysRequestContent'
+      responses:
+        '201':
+          description: Connection keys successfully rotated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RotateConnectionsKeysResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Key rotation is not supported on this connection
+          x-description-2: Connection is not configured to use JWT Client Authentication
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected all of: create:connections_keys, update:connections_keys.'
+        '404':
+          description: Connection not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_rotate
+      x-release-lifecycle: GA
+      x-operation-name: rotate
+      x-operation-group:
+      - connections
+      - keys
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:connections_keys
+        - update:connections_keys
+  /connections/{id}/scim-configuration:
+    get:
+      summary: Get a Connection's SCIM Configuration
+      description: 'Retrieves a scim configuration by its <code>connectionId</code>.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to retrieve its SCIM configuration
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The connection's SCIM configuration was retrieved. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetScimConfigurationResponseContent'
+        '400':
+          description: Path validation error
+        '404':
+          description: The connection does not exist
+          x-description-1: Not Found
+      operationId: get_scim-configuration
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:scim_config
+    delete:
+      summary: Delete a Connection's SCIM Configuration
+      description: 'Deletes a scim configuration by its <code>connectionId</code>.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to delete its SCIM configuration
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The connection's SCIM configuration has been deleted.
+        '400':
+          description: Path validation error
+        '404':
+          description: The connection does not exist
+      operationId: delete_scim-configuration
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:scim_config
+    patch:
+      summary: Patch a Connection's SCIM Configuration
+      description: 'Update a scim configuration by its <code>connectionId</code>.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to update its SCIM configuration
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScimConfigurationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateScimConfigurationRequestContent'
+      responses:
+        '200':
+          description: The connection's SCIM configuration was updated. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateScimConfigurationResponseContent'
+        '400':
+          description: Invalid mapping provided
+          x-description-1: Invalid payload
+          x-description-2: Path validation error
+        '404':
+          description: The connection does not exist
+      operationId: patch_scim-configuration
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:scim_config
+    post:
+      summary: Create a SCIM Configuration
+      description: 'Create a scim configuration for a connection.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to create its SCIM configuration
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScimConfigurationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateScimConfigurationRequestContent'
+      responses:
+        '201':
+          description: The connection's SCIM configuration was created. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateScimConfigurationResponseContent'
+        '400':
+          description: Path validation error
+          x-description-1: SCIM configuration alreay exists for connection
+          x-description-2: Invalid mapping provided
+          x-description-3: Invalid payload
+          x-description-4: SCIM cannot be enabled for this connection when the Azure AD common endpoint is used.
+        '404':
+          description: The connection does not exist
+      operationId: post_scim-configuration
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:scim_config
+  /connections/{id}/scim-configuration/default-mapping:
+    get:
+      summary: Get a Connection's Default SCIM Mapping
+      description: 'Retrieves a scim configuration''s default mapping by its <code>connectionId</code>.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to retrieve its default SCIM mapping
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The connection's default SCIM mapping was retrieved. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetScimConfigurationDefaultMappingResponseContent'
+        '400':
+          description: Path validation error
+        '404':
+          description: Not Found
+          x-description-1: The connection does not exist
+      operationId: get_default-mapping
+      x-release-lifecycle: GA
+      x-operation-name: getDefaultMapping
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:scim_config
+  /connections/{id}/scim-configuration/tokens:
+    get:
+      summary: Get a Connection's SCIM Tokens
+      description: 'Retrieves all scim tokens by its connection <code>id</code>.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to retrieve its SCIM configuration
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The connection's SCIM tokens were retrieved. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetScimTokensResponseContent'
+        '400':
+          description: Path validation error
+        '404':
+          description: The connection does not exist
+      operationId: get_scim_tokens
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      - tokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:scim_token
+    post:
+      summary: Create a SCIM Token
+      description: 'Create a scim token for a scim client.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection to create its SCIM token
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScimTokenRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateScimTokenRequestContent'
+      responses:
+        '201':
+          description: The connection's SCIM token was created. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateScimTokenResponseContent'
+        '400':
+          description: Path validation error
+        '404':
+          description: The connection does not exist
+        '409':
+          description: Maximum of 2 tokens already issued for this connection
+      operationId: post_scim_token
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      - tokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:scim_token
+  /connections/{id}/scim-configuration/tokens/{tokenId}:
+    delete:
+      summary: Delete a Connection's SCIM Token
+      description: 'Deletes a scim token by its connection <code>id</code> and <code>tokenId</code>.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The connection id that owns the SCIM token to delete
+        required: true
+        schema:
+          type: string
+      - name: tokenId
+        in: path
+        description: The id of the scim token to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The SCIM token has been deleted.
+        '400':
+          description: Path validation error
+        '404':
+          description: The connection does not exist
+      operationId: delete_tokens_by_tokenId
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - connections
+      - scimConfiguration
+      - tokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:scim_token
+  /connections/{id}/status:
+    get:
+      summary: Check Connection Status
+      description: Retrieves the status of an ad/ldap connection referenced by its <code>ID</code>. <code>200 OK</code> http status code response is returned  when the connection is online, otherwise a <code>404</code> status code is returned along with an error message
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: ID of the connection to check
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Connection status successfully retrieved.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:connections.'
+        '404':
+          description: Connection not found.
+          x-description-1: not connected to any node
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_status
+      x-release-lifecycle: GA
+      x-operation-name: checkStatus
+      x-operation-group: connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:connections
+  /connections/{id}/users:
+    delete:
+      summary: Delete a Connection User
+      description: 'Deletes a specified connection user by its email (you cannot delete all users from specific connection). Currently, only Database Connections are supported.
+
+        '
+      tags:
+      - connections
+      parameters:
+      - name: id
+        in: path
+        description: The id of the connection (currently only database connections are supported)
+        required: true
+        schema:
+          type: string
+      - name: email
+        in: query
+        description: The email of the user to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The user no longer exists.
+        '400':
+          description: The connection does not exist
+          x-description-1: Connection must be a database connection
+          x-description-2: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: delete:users'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_users_by_email
+      x-release-lifecycle: GA
+      x-operation-name: deleteByEmail
+      x-operation-request-parameters-name: DeleteConnectionUsersByEmailQueryParameters
+      x-operation-group:
+      - connections
+      - users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:users
+components:
+  schemas:
+    DefaultMethodEmailIdentifierEnum:
+      type: string
+      description: Default authentication method for email identifier
+      enum:
+      - password
+      - email_otp
+      x-release-lifecycle: EA
+    ConnectionSetUserRootAttributesEnum:
+      type: string
+      description: When using an external IdP, this flag determines  whether 'name', 'given_name', 'family_name', 'nickname', and 'picture' attributes are updated. In addition, it also determines whether the user is created when user doesnt exist previously. Possible values are 'on_each_login' (default value, it configures the connection to automatically create the user if necessary and update the root attributes from the external IdP with each user login. When this setting is used, root attributes cannot be independently updated), 'on_first_login' (configures the connection to create the user and set the root attributes on first login only, allowing them to be independently updated thereafter), and 'never_on_login' (configures the connection not to create the user and not to set the root attributes from the external IdP, allowing them to be independently updated).
+      default: on_each_login
+      enum:
+      - on_each_login
+      - on_first_login
+      - never_on_login
+    SignupVerification:
+      type: object
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+    ConnectionPasswordOptions:
+      type: object
+      description: Password policy options for flexible password policy configuration
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        complexity:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsComplexity'
+        dictionary:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsDictionary'
+        history:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsHistory'
+        profile_data:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsProfileData'
+    ConnectionTokenEndpointJwtcaAudFormatEnumOIDC:
+      type: string
+      description: 'Specifies the format of the aud (audience) claim included in the JWT used for client authentication at the token endpoint. Accepted values are: ''issuer'' (the aud claim is set to the OIDC issuer URL) or ''token_endpoint'' (the aud claim is set to the token endpoint URL).'
+      enum:
+      - issuer
+      - token_endpoint
+      x-merge-priority: -5
+    ListSynchronizedGroupsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          description: Array of Google Workspace group ids configured for synchronization.
+          items:
+            $ref: '#/components/schemas/SynchronizedGroupPayload'
+        next:
+          type: string
+          description: The cursor to be used as the "from" query parameter for the next page of results.
+    ListConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/ConnectionForList'
+      - $ref: '#/components/schemas/ListConnectionsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListConnectionsCheckpointPaginatedResponseContent'
+    CreateDirectoryProvisioningResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any
+    ConnectionSignupBehaviorEnum:
+      type: string
+      description: Specifies the signup behavior for password authentication
+      enum:
+      - allow
+      - block
+      x-release-lifecycle: EA
+    ConnectionAttributes:
+      type: object
+      description: Attribute configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        email:
+          $ref: '#/components/schemas/EmailAttribute'
+        phone_number:
+          $ref: '#/components/schemas/PhoneAttribute'
+        username:
+          $ref: '#/components/schemas/UsernameAttribute'
+    CreateConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        enabled_clients:
+          type: array
+          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client id
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    ConnectionEnabledClient:
+      type: object
+      additionalProperties: true
+      required:
+      - client_id
+      properties:
+        client_id:
+          type: string
+          description: The client id
+    ConnectionIdentifierPrecedenceEnum:
+      type: string
+      description: Order of precedence for attribute types
+      enum:
+      - email
+      - phone_number
+      - username
+    ConnectionUpstreamAliasEnum:
+      type: string
+      enum:
+      - acr_values
+      - audience
+      - client_id
+      - display
+      - id_token_hint
+      - login_hint
+      - max_age
+      - prompt
+      - resource
+      - response_mode
+      - response_type
+      - ui_locales
+    ConnectionPasswordOptionsProfileData:
+      type: object
+      description: Personal information restriction policy to prevent use of profile data in passwords
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Prevents users from including profile data (like name, email) in their passwords
+        blocked_fields:
+          type: array
+          description: Blocked profile fields. An array of up to 12 entries.
+          items:
+            type: string
+            description: Blocked profile fields entry. 100 characters max.
+            maxLength: 100
+    CreateConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - strategy
+      properties:
+        name:
+          type: string
+          description: The name of the connection. Must start and end with an alphanumeric character and can only contain alphanumeric characters and '-'. Max length 128
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        display_name:
+          type: string
+          description: Connection name used in the new universal login experience
+          maxLength: 128
+        strategy:
+          $ref: '#/components/schemas/ConnectionIdentityProviderEnum'
+        options:
+          $ref: '#/components/schemas/ConnectionPropertiesOptions'
+        enabled_clients:
+          type: array
+          description: Use of this property is NOT RECOMMENDED. Use the PATCH /v2/connections/{id}/clients endpoint to enable the connection for a set of clients.
+          items:
+            type: string
+            description: The id of the client for which the connection is to be enabled.
+            format: client-id
+        is_domain_connection:
+          type: boolean
+          description: <code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    UpdateConnectionOptions:
+      type:
+      - object
+      - 'null'
+      description: The connection's options (depend on the connection strategy). To update these options, the `update:connections_options` scope must be present. To verify your changes, also include the `read:connections_options` scope. If this scope is not specified, you will not be able to review the updated object.
+      additionalProperties: true
+      properties:
+        validation:
+          $ref: '#/components/schemas/ConnectionValidationOptions'
+        non_persistent_attrs:
+          type:
+          - array
+          - 'null'
+          description: An array of user fields that should not be stored in the Auth0 database (https://auth0.com/docs/security/data-security/denylist)
+          items:
+            type: string
+        precedence:
+          type: array
+          description: Order of precedence for attribute types. If the property is not specified, the default precedence of attributes will be used.
+          minItems: 3
+          items:
+            $ref: '#/components/schemas/ConnectionIdentifierPrecedenceEnum'
+        attributes:
+          $ref: '#/components/schemas/ConnectionAttributes'
+        enable_script_context:
+          type: boolean
+          description: 'Set to true to inject context into custom DB scripts (warning: cannot be disabled once enabled)'
+        enabledDatabaseCustomization:
+          type: boolean
+          description: Set to true to use a legacy user store
+        import_mode:
+          type: boolean
+          description: Enable this if you have a legacy user store and you want to gradually migrate those users to the Auth0 user store
+        configuration:
+          type:
+          - object
+          - 'null'
+          description: Stores encrypted string only configurations for connections
+          additionalProperties:
+            type:
+            - string
+            - 'null'
+        customScripts:
+          $ref: '#/components/schemas/ConnectionCustomScripts'
+        authentication_methods:
+          $ref: '#/components/schemas/ConnectionAuthenticationMethods'
+        passkey_options:
+          $ref: '#/components/schemas/ConnectionPasskeyOptions'
+        passwordPolicy:
+          $ref: '#/components/schemas/ConnectionPasswordPolicyEnum'
+        password_complexity_options:
+          $ref: '#/components/schemas/ConnectionPasswordComplexityOptions'
+        password_history:
+          $ref: '#/components/schemas/ConnectionPasswordHistoryOptions'
+        password_no_personal_info:
+          $ref: '#/components/schemas/ConnectionPasswordNoPersonalInfoOptions'
+        password_dictionary:
+          $ref: '#/components/schemas/ConnectionPasswordDictionaryOptions'
+        api_enable_users:
+          type: boolean
+        api_enable_groups:
+          type: boolean
+          x-release-lifecycle: EA
+        basic_profile:
+          type: boolean
+        ext_admin:
+          type: boolean
+        ext_is_suspended:
+          type: boolean
+        ext_agreed_terms:
+          type: boolean
+        ext_groups:
+          type: boolean
+        ext_assigned_plans:
+          type: boolean
+        ext_profile:
+          type: boolean
+        disable_self_service_change_password:
+          type: boolean
+        upstream_params:
+          $ref: '#/components/schemas/ConnectionUpstreamParams'
+        set_user_root_attributes:
+          $ref: '#/components/schemas/ConnectionSetUserRootAttributesEnum'
+        gateway_authentication:
+          $ref: '#/components/schemas/ConnectionGatewayAuthentication'
+        federated_connections_access_tokens:
+          $ref: '#/components/schemas/ConnectionFederatedConnectionsAccessTokens'
+        password_options:
+          $ref: '#/components/schemas/ConnectionPasswordOptions'
+          x-release-lifecycle: EA
+        assertion_decryption_settings:
+          $ref: '#/components/schemas/ConnectionAssertionDecryptionSettings'
+        id_token_signed_response_algs:
+          $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgs'
+        token_endpoint_auth_method:
+          $ref: '#/components/schemas/ConnectionTokenEndpointAuthMethodEnum'
+        token_endpoint_auth_signing_alg:
+          $ref: '#/components/schemas/ConnectionTokenEndpointAuthSigningAlgEnum'
+        token_endpoint_jwtca_aud_format:
+          $ref: '#/components/schemas/ConnectionTokenEndpointJwtcaAudFormatEnumOIDC'
+    GetScimConfigurationDefaultMappingResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+    SignupStatusEnum:
+      type: string
+      enum:
+      - required
+      - optional
+      - inactive
+    ConnectionForList:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    EmailAttribute:
+      type: object
+      description: Configuration for the email attribute for users.
+      additionalProperties: false
+      properties:
+        identifier:
+          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
+        unique:
+          type: boolean
+          description: Determines if the attribute is unique in a given connection
+        profile_required:
+          type: boolean
+          description: Determines if property should be required for users
+        verification_method:
+          $ref: '#/components/schemas/VerificationMethodEnum'
+        signup:
+          $ref: '#/components/schemas/SignupVerified'
+    ConnectionUpstreamAlias:
+      type: object
+      additionalProperties: false
+      properties:
+        alias:
+          $ref: '#/components/schemas/ConnectionUpstreamAliasEnum'
+    SignupSchema:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/SignupStatusEnum'
+    ConnectionUsernameValidationOptions:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - max
+      - min
+      properties:
+        min:
+          type: integer
+          minimum: 1
+        max:
+          type: integer
+          maximum: 128
+    SynchronizedGroupPayload:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Google Workspace Directory group ID.
+          minLength: 1
+          maxLength: 32
+          pattern: ^[A-Za-z0-9]+$
+    UpdateScimConfigurationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - user_id_attribute
+      - mapping
+      properties:
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+    PasswordDefaultDictionariesEnum:
+      type: string
+      description: 'Default dictionary to use for password validation. Options: "en_10k" (10,000 common words) or "en_100k" (100,000 common words)'
+      enum:
+      - en_10k
+      - en_100k
+    ScimTokenItem:
+      type: object
+      additionalProperties: true
+      properties:
+        token_id:
+          type: string
+          description: The token's identifier
+        scopes:
+          type: array
+          description: The scopes of the scim token
+          items:
+            type: string
+            description: The token's scope
+        created_at:
+          type: string
+          description: The token's created at timestamp
+        valid_until:
+          type: string
+          description: The token's valid until timestamp
+        last_used_at:
+          type: string
+          description: The token's last used at timestamp
+    SynchronizeGroupsEnum:
+      type: string
+      description: Group synchronization configuration
+      enum:
+      - all
+      - 'off'
+      - selected
+      x-release-lifecycle: EA
+    UpdateConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        display_name:
+          type: string
+          description: The connection name used in the new universal login experience. If display_name is not included in the request, the field will be overwritten with the name value.
+          maxLength: 128
+        options:
+          $ref: '#/components/schemas/UpdateConnectionOptions'
+        enabled_clients:
+          type:
+          - array
+          - 'null'
+          description: DEPRECATED property. Use the PATCH /v2/connections/{id}/clients endpoint to enable or disable the connection for any clients.
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client_id of the client to for which the connection is to be enabled
+            format: client-id
+        is_domain_connection:
+          type: boolean
+          description: <code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    UsernameValidation:
+      type: object
+      additionalProperties: false
+      properties:
+        min_length:
+          type: number
+          description: Minimum allowed length
+          minimum: 1
+          maximum: 128
+        max_length:
+          type: number
+          description: Maximum allowed length
+          minimum: 1
+          maximum: 128
+        allowed_types:
+          $ref: '#/components/schemas/UsernameAllowedTypes'
+    PostConnectionKeysRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        signing_alg:
+          $ref: '#/components/schemas/PostConnectionKeysAlgEnum'
+    ConnectionUpstreamAdditionalProperties:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/ConnectionUpstreamAlias'
+      - $ref: '#/components/schemas/ConnectionUpstreamValue'
+    ConnectionPasswordComplexityOptions:
+      type:
+      - object
+      - 'null'
+      description: Password complexity options
+      additionalProperties: false
+      properties:
+        min_length:
+          type: integer
+          description: Minimum password length
+          minimum: 1
+          maximum: 128
+    ConnectionAuthenticationMethods:
+      type:
+      - object
+      - 'null'
+      description: Options for enabling authentication methods.
+      additionalProperties: false
+      properties:
+        password:
+          $ref: '#/components/schemas/ConnectionPasswordAuthenticationMethod'
+        passkey:
+          $ref: '#/components/schemas/ConnectionPasskeyAuthenticationMethod'
+        email_otp:
+          $ref: '#/components/schemas/ConnectionEmailOtpAuthenticationMethod'
+          x-release-lifecycle: EA
+        phone_otp:
+          $ref: '#/components/schemas/ConnectionPhoneOtpAuthenticationMethod'
+          x-release-lifecycle: EA
+    ConnectionPasswordOptionsHistory:
+      type: object
+      description: Password history policy configuration to prevent password reuse
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Enables password history checking to prevent users from reusing recent passwords
+        size:
+          type: integer
+          description: Number of previous passwords to remember and prevent reuse (1-24)
+          minimum: 1
+          maximum: 24
+    ConnectionEmailOtpAuthenticationMethod:
+      type: object
+      description: Email OTP authentication enablement
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether email OTP is enabled
+    ConnectionUpstreamValue:
+      type: object
+      additionalProperties: false
+      properties:
+        value:
+          type: string
+    ConnectionOptions:
+      type: object
+      description: In order to return options in the response, the `read:connections_options` scope must be present
+      additionalProperties: true
+    PostConnectionsKeysResponseContent:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+        required:
+        - cert
+        - kid
+        - fingerprint
+        - thumbprint
+        properties:
+          kid:
+            type: string
+            description: The key id of the signing key
+            maxLength: 255
+          cert:
+            type: string
+            description: The public certificate of the signing key
+            default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+            maxLength: 4096
+          pkcs:
+            type: string
+            description: The public certificate of the signing key in pkcs7 format
+            default: "-----BEGIN PKCS7-----\r\nMIIDPA....t8xAA==\r\n-----END PKCS7-----"
+            maxLength: 4096
+          current:
+            type: boolean
+            description: True if the key is the current key
+            default: true
+          next:
+            type: boolean
+            description: True if the key is the next key
+          current_since:
+            type: string
+            description: The date and time when the key became the current key
+          fingerprint:
+            type: string
+            description: The cert fingerprint
+            default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+          thumbprint:
+            type: string
+            description: The cert thumbprint
+            default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+            maxLength: 255
+          algorithm:
+            type: string
+            description: Signing key algorithm
+          key_use:
+            $ref: '#/components/schemas/ConnectionKeyUseEnum'
+          subject_dn:
+            type: string
+            maxLength: 132
+    UsernameAttribute:
+      type: object
+      description: Configuration for the username attribute for users.
+      additionalProperties: false
+      properties:
+        identifier:
+          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
+        profile_required:
+          type: boolean
+          description: Determines if property should be required for users
+        signup:
+          $ref: '#/components/schemas/SignupSchema'
+        validation:
+          $ref: '#/components/schemas/UsernameValidation'
+    ListConnectionsCheckpointPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionForList'
+    ConnectionAuthenticationPurpose:
+      type: object
+      description: Configure the purpose of a connection to be used for authentication during login.
+      additionalProperties: false
+      required:
+      - active
+      x-release-lifecycle: GA
+      properties:
+        active:
+          type: boolean
+    ConnectionTokenEndpointAuthMethodEnum:
+      type:
+      - string
+      - 'null'
+      description: Authentication method used at the identity provider's token endpoint. 'client_secret_post' sends credentials in the request body; 'private_key_jwt' uses a signed JWT assertion for enhanced security.
+      enum:
+      - client_secret_post
+      - private_key_jwt
+      x-merge-priority: -5
+    ConnectionPasskeyOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for the passkey authentication method
+      additionalProperties: false
+      properties:
+        challenge_ui:
+          $ref: '#/components/schemas/ConnectionPasskeyChallengeUIEnum'
+        progressive_enrollment_enabled:
+          type: boolean
+          description: Enables or disables progressive enrollment of passkeys for the connection.
+        local_enrollment_enabled:
+          type: boolean
+          description: Enables or disables enrollment prompt for local passkey when user authenticates using a cross-device passkey for the connection.
+    UpdateEnabledClientConnectionsRequestContent:
+      type: array
+      minItems: 1
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - client_id
+        - status
+        properties:
+          client_id:
+            type: string
+            description: The client_id of the client whose status will be changed. Note that the limit per PATCH request is 50 clients.
+            format: client-id
+          status:
+            type: boolean
+            description: Whether the connection is enabled or not for this client_id
+    ConnectionAssertionDecryptionAlgorithmProfileEnum:
+      type: string
+      description: The algorithm profile to use for decrypting SAML assertions.
+      enum:
+      - v2026-1
+    CreateScimTokenRequestContent:
+      type: object
+      description: SCIM Token
+      additionalProperties: false
+      properties:
+        scopes:
+          type: array
+          description: The scopes of the scim token
+          minItems: 1
+          items:
+            type: string
+            description: The token's scope
+        token_lifetime:
+          type:
+          - integer
+          - 'null'
+          description: Lifetime of the token in seconds. Must be greater than 900
+    ConnectionPasswordNoPersonalInfoOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for personal info in passwords policy
+      additionalProperties: false
+      required:
+      - enable
+      properties:
+        enable:
+          type: boolean
+    ConnectionIdTokenSignedResponseAlgEnum:
+      description: Algorithm allowed to verify the ID tokens.
+      type: string
+      enum:
+      - ES256
+      - ES384
+      - PS256
+      - PS384
+      - RS256
+      - RS384
+      - RS512
+      x-merge-priority: -5
+    PhoneAttribute:
+      type: object
+      description: Configuration for the phone number attribute for users.
+      additionalProperties: false
+      properties:
+        identifier:
+          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
+        profile_required:
+          type: boolean
+          description: Determines if property should be required for users
+        signup:
+          $ref: '#/components/schemas/SignupVerified'
+    ConnectionValidationOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for validation
+      additionalProperties: false
+      properties:
+        username:
+          $ref: '#/components/schemas/ConnectionUsernameValidationOptions'
+    ConnectionAssertionDecryptionSettings:
+      type: object
+      description: Settings for SAML assertion decryption.
+      additionalProperties: false
+      required:
+      - algorithm_profile
+      properties:
+        algorithm_profile:
+          $ref: '#/components/schemas/ConnectionAssertionDecryptionAlgorithmProfileEnum'
+        algorithm_exceptions:
+          type: array
+          description: A list of insecure algorithms to allow for SAML assertion decryption.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+    ListConnectionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionForList'
+    ConnectionGatewayAuthentication:
+      type:
+      - object
+      - 'null'
+      description: Token-based authentication settings to be applied when connection is using an sms strategy.
+      additionalProperties: true
+      required:
+      - method
+      - audience
+      - secret
+      properties:
+        method:
+          type: string
+          description: The Authorization header type.
+        subject:
+          type: string
+          description: The subject to be added to the JWT payload.
+        audience:
+          type: string
+          description: The audience to be added to the JWT payload.
+        secret:
+          type: string
+          description: The secret to be used for signing tokens.
+        secret_base64_encoded:
+          type: boolean
+          description: Set to true if the provided secret is base64 encoded.
+    ConnectionKeyUseEnum:
+      type: string
+      description: Signing key use, whether for encryption or signing
+      enum:
+      - encryption
+      - signing
+    GetScimConfigurationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - tenant_name
+      - connection_id
+      - connection_name
+      - strategy
+      - created_at
+      - updated_on
+      - mapping
+      - user_id_attribute
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        tenant_name:
+          type: string
+          description: The tenant's name
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+        created_at:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was created at
+          format: date-time
+        updated_on:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was last updated on
+          format: date-time
+    CreateScimTokenResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        token_id:
+          type: string
+          description: The token's identifier
+        token:
+          type: string
+          description: The scim client's token
+        scopes:
+          type: array
+          description: The scopes of the scim token
+          items:
+            type: string
+            description: The token's scope
+        created_at:
+          type: string
+          description: The token's created at timestamp
+        valid_until:
+          type: string
+          description: The token's valid until at timestamp
+    ConnectionPhoneOtpAuthenticationMethod:
+      type: object
+      description: Phone OTP authentication enablement
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether phone OTP is enabled
+    ScimMappingItem:
+      type: object
+      additionalProperties: true
+      properties:
+        auth0:
+          type: string
+          description: The field location in the auth0 schema
+        scim:
+          type: string
+          description: The field location in the SCIM schema
+    SignupVerified:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/SignupStatusEnum'
+        verification:
+          $ref: '#/components/schemas/SignupVerification'
+    ConnectionFederatedConnectionsAccessTokens:
+      type:
+      - object
+      - 'null'
+      description: Federated Connections Access Tokens
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Enables refresh tokens and access tokens collection for federated connections
+    ConnectionConnectedAccountsPurpose:
+      type: object
+      description: Configure the purpose of a connection to be used for connected accounts and Token Vault.
+      additionalProperties: false
+      required:
+      - active
+      x-release-lifecycle: GA
+      properties:
+        active:
+          type: boolean
+        cross_app_access:
+          type: boolean
+    GetScimTokensResponseContent:
+      type: array
+      description: The list of scim tokens for scim clients
+      items:
+        $ref: '#/components/schemas/ScimTokenItem'
+    ConnectionApiBehaviorEnum:
+      type: string
+      description: Specifies the API behavior for password authentication
+      enum:
+      - required
+      - optional
+      x-release-lifecycle: EA
+    ConnectionPasswordOptionsComplexity:
+      type: object
+      description: Password complexity requirements configuration
+      additionalProperties: false
+      properties:
+        min_length:
+          type: integer
+          description: Minimum password length required (1-72 characters)
+          minimum: 1
+          maximum: 72
+        character_types:
+          type: array
+          description: 'Required character types that must be present in passwords. Valid options: uppercase, lowercase, number, special'
+          items:
+            $ref: '#/components/schemas/PasswordCharacterTypeEnum'
+        character_type_rule:
+          $ref: '#/components/schemas/PasswordCharacterTypeRulePolicyEnum'
+        identical_characters:
+          $ref: '#/components/schemas/PasswordIdenticalCharactersPolicyEnum'
+        sequential_characters:
+          $ref: '#/components/schemas/PasswordSequentialCharactersPolicyEnum'
+        max_length_exceeded:
+          $ref: '#/components/schemas/PasswordMaxLengthExceededPolicyEnum'
+    ConnectionAttributeIdentifier:
+      type: object
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Determines if the attribute is used for identification
+        default_method:
+          $ref: '#/components/schemas/DefaultMethodEmailIdentifierEnum'
+          x-release-lifecycle: EA
+    VerificationMethodEnum:
+      type: string
+      enum:
+      - link
+      - otp
+    CreateScimConfigurationRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+    RotateConnectionsKeysResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      - fingerprint
+      - thumbprint
+      properties:
+        kid:
+          type: string
+          description: The key id of the signing key
+          maxLength: 255
+        cert:
+          type: string
+          description: The public certificate of the signing key
+          default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+          maxLength: 4096
+        pkcs:
+          type: string
+          description: The public certificate of the signing key in pkcs7 format
+          default: "-----BEGIN PKCS7-----\r\nMIIDPA....t8xAA==\r\n-----END PKCS7-----"
+          maxLength: 4096
+        next:
+          type: boolean
+          description: True if the key is the the next key
+        fingerprint:
+          type: string
+          description: The cert fingerprint
+          default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+        thumbprint:
+          type: string
+          description: The cert thumbprint
+          default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+          maxLength: 255
+        algorithm:
+          type: string
+          description: Signing key algorithm
+        key_use:
+          $ref: '#/components/schemas/ConnectionKeyUseEnum'
+        subject_dn:
+          type: string
+          maxLength: 132
+    UpdateDirectoryProvisioningRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+    ConnectionIdTokenSignedResponseAlgs:
+      description: List of algorithms allowed to verify the ID tokens.
+      type:
+      - array
+      - 'null'
+      items:
+        $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgEnum'
+      x-merge-priority: -5
+    GetConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        enabled_clients:
+          type: array
+          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client id
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    ConnectionCustomScripts:
+      type: object
+      description: A map of scripts used to integrate with a custom database.
+      additionalProperties: true
+      properties:
+        login:
+          type: string
+          minLength: 1
+        get_user:
+          type: string
+          minLength: 1
+        delete:
+          type: string
+          minLength: 1
+        change_password:
+          type: string
+          minLength: 1
+        verify:
+          type: string
+          minLength: 1
+        create:
+          type: string
+          minLength: 1
+        change_username:
+          type: string
+          minLength: 1
+        change_email:
+          type: string
+          minLength: 1
+        change_phone_number:
+          type: string
+          minLength: 1
+    ConnectionKey:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      - fingerprint
+      - thumbprint
+      properties:
+        kid:
+          type: string
+          description: The key id of the signing key
+          maxLength: 255
+        cert:
+          type: string
+          description: The public certificate of the signing key
+          default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+          maxLength: 4096
+        pkcs:
+          type: string
+          description: The public certificate of the signing key in pkcs7 format
+          default: "-----BEGIN PKCS7-----\r\nMIIDPA....t8xAA==\r\n-----END PKCS7-----"
+          maxLength: 4096
+        current:
+          type: boolean
+          description: True if the key is the the current key
+          default: true
+        next:
+          type: boolean
+          description: True if the key is the the next key
+        previous:
+          type: boolean
+          description: True if the key is the the previous key
+        current_since:
+          type: string
+          description: The date and time when the key became the current key
+        fingerprint:
+          type: string
+          description: The cert fingerprint
+          default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+        thumbprint:
+          type: string
+          description: The cert thumbprint
+          default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+          maxLength: 255
+        algorithm:
+          type: string
+          description: Signing key algorithm
+        key_use:
+          $ref: '#/components/schemas/ConnectionKeyUseEnum'
+        subject_dn:
+          type: string
+          maxLength: 132
+    UpdateConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        enabled_clients:
+          type: array
+          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client id
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    ConnectionIdentityProviderEnum:
+      type: string
+      description: The identity provider identifier for the connection
+      enum:
+      - ad
+      - adfs
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - auth0
+      - baidu
+      - bitly
+      - box
+      - custom
+      - daccount
+      - dwolla
+      - email
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-apps
+      - google-oauth2
+      - instagram
+      - ip
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - office365
+      - oidc
+      - okta
+      - paypal
+      - paypal-sandbox
+      - pingfederate
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - samlp
+      - sharepoint
+      - shopify
+      - shop
+      - sms
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untappd
+      - vkontakte
+      - waad
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    CreateScimConfigurationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - tenant_name
+      - connection_id
+      - connection_name
+      - strategy
+      - created_at
+      - updated_on
+      - mapping
+      - user_id_attribute
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        tenant_name:
+          type: string
+          description: The tenant's name
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+        created_at:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was created at
+          format: date-time
+        updated_on:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was last updated on
+          format: date-time
+    RotateConnectionKeysRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        signing_alg:
+          $ref: '#/components/schemas/RotateConnectionKeysSigningAlgEnum'
+    RotateConnectionKeysSigningAlgEnum:
+      type: string
+      description: Selected Signing Algorithm
+      enum:
+      - RS256
+      - RS384
+      - RS512
+      - PS256
+      - PS384
+      - ES256
+      - ES384
+    ConnectionsMetadata:
+      type: object
+      description: Metadata associated with the connection in the form of an object with string values (max 255 chars).  Maximum of 10 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
+    ConnectionPasswordHistoryOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for password history policy
+      additionalProperties: false
+      required:
+      - enable
+      properties:
+        enable:
+          type: boolean
+        size:
+          type: integer
+          minimum: 0
+          maximum: 24
+    ConnectionPasswordPolicyEnum:
+      type:
+      - string
+      - 'null'
+      description: Password strength level
+      enum:
+      - none
+      - low
+      - fair
+      - good
+      - excellent
+      - null
+    GetDirectoryProvisioningDefaultMappingResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+    ConnectionTokenEndpointAuthSigningAlgEnum:
+      type:
+      - string
+      - 'null'
+      description: Algorithm used to sign client_assertions.
+      enum:
+      - ES256
+      - ES384
+      - PS256
+      - PS384
+      - RS256
+      - RS384
+      - RS512
+      x-merge-priority: -5
+    DirectoryProvisioningMappingItem:
+      type: object
+      additionalProperties: false
+      required:
+      - auth0
+      - idp
+      properties:
+        auth0:
+          type: string
+          description: The field location in the Auth0 schema
+        idp:
+          type: string
+          description: The field location in the IDP schema
+    PasswordCharacterTypeRulePolicyEnum:
+      type: string
+      description: When enabled, passwords must contain at least 3 out of 4 character types. Can only be enabled when all 4 character types are specified
+      enum:
+      - all
+      - three_of_four
+    PasswordCharacterTypeEnum:
+      type: string
+      enum:
+      - uppercase
+      - lowercase
+      - number
+      - special
+    PasswordSequentialCharactersPolicyEnum:
+      type: string
+      description: Controls whether sequential characters are allowed in passwords
+      enum:
+      - allow
+      - block
+    ConnectionPasswordDictionaryOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for password dictionary policy
+      additionalProperties: false
+      required:
+      - enable
+      properties:
+        enable:
+          type: boolean
+        dictionary:
+          type: array
+          description: Custom Password Dictionary. An array of up to 200 entries.
+          items:
+            type: string
+            description: Custom Password Dictionary entry. 50 characters max.
+            maxLength: 50
+    PasswordIdenticalCharactersPolicyEnum:
+      type: string
+      description: Controls whether identical consecutive characters are allowed in passwords
+      enum:
+      - allow
+      - block
+    ConnectionPasswordOptionsDictionary:
+      type: object
+      description: Dictionary-based password restriction policy to prevent common passwords
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Enables dictionary checking to prevent use of common passwords and custom blocked words
+        custom:
+          type: array
+          description: Array of custom words to block in passwords. Maximum 200 items, each up to 50 characters
+          items:
+            type: string
+            maxLength: 50
+        default:
+          $ref: '#/components/schemas/PasswordDefaultDictionariesEnum'
+    UpdateScimConfigurationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - tenant_name
+      - connection_id
+      - connection_name
+      - strategy
+      - created_at
+      - updated_on
+      - mapping
+      - user_id_attribute
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        tenant_name:
+          type: string
+          description: The tenant's name
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+        created_at:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was created at
+          format: date-time
+        updated_on:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was last updated on
+          format: date-time
+    ConnectionPasswordAuthenticationMethod:
+      type: object
+      description: Password authentication enablement
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether passwords are enabled
+        api_behavior:
+          $ref: '#/components/schemas/ConnectionApiBehaviorEnum'
+          x-release-lifecycle: EA
+        signup_behavior:
+          $ref: '#/components/schemas/ConnectionSignupBehaviorEnum'
+          x-release-lifecycle: EA
+    ConnectionPasskeyAuthenticationMethod:
+      type: object
+      description: Passkey authentication enablement
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether passkeys are enabled
+    ConnectionPasskeyChallengeUIEnum:
+      type: string
+      description: Controls the UI used to challenge the user for their passkey.
+      enum:
+      - both
+      - autofill
+      - button
+    ConnectionUpstreamParams:
+      type:
+      - object
+      - 'null'
+      description: Options for adding parameters in the request to the upstream IdP
+      additionalProperties:
+        $ref: '#/components/schemas/ConnectionUpstreamAdditionalProperties'
+    GetConnectionEnabledClientsResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - clients
+      properties:
+        clients:
+          type: array
+          description: Clients for which the connection is enabled
+          items:
+            $ref: '#/components/schemas/ConnectionEnabledClient'
+        next:
+          type: string
+          description: Encoded next token
+    ConnectionPropertiesOptions:
+      type: object
+      description: The connection's options (depend on the connection strategy)
+      additionalProperties: true
+      properties:
+        validation:
+          $ref: '#/components/schemas/ConnectionValidationOptions'
+        non_persistent_attrs:
+          type:
+          - array
+          - 'null'
+          description: An array of user fields that should not be stored in the Auth0 database (https://auth0.com/docs/security/data-security/denylist)
+          items:
+            type: string
+        precedence:
+          type: array
+          description: Order of precedence for attribute types. If the property is not specified, the default precedence of attributes will be used.
+          minItems: 3
+          items:
+            $ref: '#/components/schemas/ConnectionIdentifierPrecedenceEnum'
+        attributes:
+          $ref: '#/components/schemas/ConnectionAttributes'
+        enable_script_context:
+          type: boolean
+          description: 'Set to true to inject context into custom DB scripts (warning: cannot be disabled once enabled)'
+        enabledDatabaseCustomization:
+          type: boolean
+          description: Set to true to use a legacy user store
+        import_mode:
+          type: boolean
+          description: Enable this if you have a legacy user store and you want to gradually migrate those users to the Auth0 user store
+        configuration:
+          type:
+          - object
+          - 'null'
+          description: Stores encrypted string only configurations for connections
+          additionalProperties:
+            type:
+            - string
+            - 'null'
+        customScripts:
+          $ref: '#/components/schemas/ConnectionCustomScripts'
+        authentication_methods:
+          $ref: '#/components/schemas/ConnectionAuthenticationMethods'
+        passkey_options:
+          $ref: '#/components/schemas/ConnectionPasskeyOptions'
+        passwordPolicy:
+          $ref: '#/components/schemas/ConnectionPasswordPolicyEnum'
+        password_complexity_options:
+          $ref: '#/components/schemas/ConnectionPasswordComplexityOptions'
+        password_history:
+          $ref: '#/components/schemas/ConnectionPasswordHistoryOptions'
+        password_no_personal_info:
+          $ref: '#/components/schemas/ConnectionPasswordNoPersonalInfoOptions'
+        password_dictionary:
+          $ref: '#/components/schemas/ConnectionPasswordDictionaryOptions'
+        api_enable_users:
+          type: boolean
+        api_enable_groups:
+          type: boolean
+          x-release-lifecycle: EA
+        basic_profile:
+          type: boolean
+        ext_admin:
+          type: boolean
+        ext_is_suspended:
+          type: boolean
+        ext_agreed_terms:
+          type: boolean
+        ext_groups:
+          type: boolean
+        ext_assigned_plans:
+          type: boolean
+        ext_profile:
+          type: boolean
+        disable_self_service_change_password:
+          type: boolean
+        upstream_params:
+          $ref: '#/components/schemas/ConnectionUpstreamParams'
+        set_user_root_attributes:
+          $ref: '#/components/schemas/ConnectionSetUserRootAttributesEnum'
+        gateway_authentication:
+          $ref: '#/components/schemas/ConnectionGatewayAuthentication'
+        federated_connections_access_tokens:
+          $ref: '#/components/schemas/ConnectionFederatedConnectionsAccessTokens'
+        password_options:
+          $ref: '#/components/schemas/ConnectionPasswordOptions'
+          x-release-lifecycle: EA
+        assertion_decryption_settings:
+          $ref: '#/components/schemas/ConnectionAssertionDecryptionSettings'
+        id_token_signed_response_algs:
+          $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgs'
+        token_endpoint_auth_method:
+          $ref: '#/components/schemas/ConnectionTokenEndpointAuthMethodEnum'
+        token_endpoint_auth_signing_alg:
+          $ref: '#/components/schemas/ConnectionTokenEndpointAuthSigningAlgEnum'
+        token_endpoint_jwtca_aud_format:
+          $ref: '#/components/schemas/ConnectionTokenEndpointJwtcaAudFormatEnumOIDC'
+    PasswordMaxLengthExceededPolicyEnum:
+      type: string
+      description: Controls whether passwords that exceed the maximum length are truncated or rejected
+      enum:
+      - truncate
+      - error
+    PostConnectionKeysAlgEnum:
+      type: string
+      description: Selected Signing Algorithm
+      enum:
+      - RS256
+      - RS384
+      - RS512
+      - PS256
+      - PS384
+      - ES256
+      - ES384
+    ConnectionStrategyEnum:
+      type: string
+      enum:
+      - ad
+      - adfs
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - auth0
+      - baidu
+      - bitly
+      - box
+      - custom
+      - daccount
+      - dwolla
+      - email
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-apps
+      - google-oauth2
+      - instagram
+      - ip
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - office365
+      - oidc
+      - okta
+      - paypal
+      - paypal-sandbox
+      - pingfederate
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - samlp
+      - sharepoint
+      - shopify
+      - shop
+      - sms
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untappd
+      - vkontakte
+      - waad
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+      - auth0-adldap
+    GetDirectoryProvisioningResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any
+    CreateDirectoryProvisioningRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+    ReplaceSynchronizedGroupsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          description: Array of Google Workspace Directory group objects to synchronize.
+          items:
+            $ref: '#/components/schemas/SynchronizedGroupPayload'
+    CreateDirectorySynchronizationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - synchronization_id
+      - status
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        synchronization_id:
+          type: string
+          description: The synchronization's identifier
+        status:
+          type: string
+          description: The synchronization status
+    UsernameAllowedTypes:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: boolean
+        phone_number:
+          type: boolean
+    UpdateDirectoryProvisioningResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any

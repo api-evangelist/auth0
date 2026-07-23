@@ -1,0 +1,1075 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions attack-protection API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: attack-protection
+paths:
+  /attack-protection/bot-detection:
+    get:
+      summary: Get Bot Detection Settings
+      description: Get the Bot Detection configuration of your tenant.
+      tags:
+      - attack-protection
+      responses:
+        '200':
+          description: Bot detection configuration retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBotDetectionSettingsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Please upgrade your subscription to use bot detection
+          x-description-1: 'Insufficient scope; expected any of: read:attack_protection.'
+        '404':
+          description: Bot detection configuration not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_bot-detection
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - attackProtection
+      - botDetection
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update Bot Detection Settings
+      description: Update the Bot Detection configuration of your tenant.
+      tags:
+      - attack-protection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBotDetectionSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBotDetectionSettingsRequestContent'
+      responses:
+        '200':
+          description: Bot detection configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBotDetectionSettingsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Please upgrade your subscription to use bot detection
+          x-description-1: 'Insufficient scope; expected any of: update:attack_protection.'
+        '404':
+          description: Bot detection configuration not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_bot-detection
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - attackProtection
+      - botDetection
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+  /attack-protection/breached-password-detection:
+    get:
+      summary: Get Breached Password Detection Settings
+      description: Retrieve details of the Breached Password Detection configuration of your tenant.
+      tags:
+      - attack-protection
+      responses:
+        '200':
+          description: Breached password detection settings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBreachedPasswordDetectionSettingsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:attack_protection.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_breached-password-detection
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - attackProtection
+      - breachedPasswordDetection
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update Breached Password Detection Settings
+      description: Update details of the Breached Password Detection configuration of your tenant.
+      tags:
+      - attack-protection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBreachedPasswordDetectionSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBreachedPasswordDetectionSettingsRequestContent'
+      responses:
+        '200':
+          description: Breached password detection settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBreachedPasswordDetectionSettingsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:attack_protection.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_breached-password-detection
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - attackProtection
+      - breachedPasswordDetection
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+  /attack-protection/brute-force-protection:
+    get:
+      summary: Get Brute-force Settings
+      description: Retrieve details of the Brute-force Protection configuration of your tenant.
+      tags:
+      - attack-protection
+      responses:
+        '200':
+          description: Brute force configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBruteForceSettingsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:attack_protection.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_brute-force-protection
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - attackProtection
+      - bruteForceProtection
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update Brute-force Settings
+      description: Update the Brute-force Protection configuration of your tenant.
+      tags:
+      - attack-protection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBruteForceSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateBruteForceSettingsRequestContent'
+      responses:
+        '200':
+          description: Brute force configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateBruteForceSettingsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:attack_protection.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_brute-force-protection
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - attackProtection
+      - bruteForceProtection
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+  /attack-protection/captcha:
+    get:
+      summary: Get the CAPTCHA Configuration for a Tenant
+      description: Get the CAPTCHA configuration for your client.
+      tags:
+      - attack-protection
+      responses:
+        '200':
+          description: Captcha configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAttackProtectionCaptchaResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Please upgrade your subscription to use bot detection
+          x-description-1: 'Insufficient scope; expected any of: read:attack_protection.'
+        '404':
+          description: Captcha configuration not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_captcha
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - attackProtection
+      - captcha
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Partial Update for CAPTCHA Configuration
+      description: Update existing CAPTCHA configuration for your client.
+      tags:
+      - attack-protection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttackProtectionCaptchaRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateAttackProtectionCaptchaRequestContent'
+      responses:
+        '200':
+          description: Captcha configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAttackProtectionCaptchaResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Please upgrade your subscription to use bot detection
+          x-description-1: 'Insufficient scope; expected any of: update:attack_protection.'
+        '404':
+          description: Captcha configuration not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_captcha
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - attackProtection
+      - captcha
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+  /attack-protection/suspicious-ip-throttling:
+    get:
+      summary: Get Suspicious IP Throttling Settings
+      description: Retrieve details of the Suspicious IP Throttling configuration of your tenant.
+      tags:
+      - attack-protection
+      responses:
+        '200':
+          description: Suspicious IP throttling configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSuspiciousIPThrottlingSettingsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:attack_protection.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_suspicious-ip-throttling
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - attackProtection
+      - suspiciousIpThrottling
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update Suspicious IP Throttling Settings
+      description: Update the details of the Suspicious IP Throttling configuration of your tenant.
+      tags:
+      - attack-protection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSuspiciousIPThrottlingSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSuspiciousIPThrottlingSettingsRequestContent'
+      responses:
+        '200':
+          description: Suspicious IP throttling configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSuspiciousIPThrottlingSettingsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:attack_protection.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_suspicious-ip-throttling
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - attackProtection
+      - suspiciousIpThrottling
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+components:
+  schemas:
+    GetBotDetectionSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - bot_detection_level
+      - challenge_password_policy
+      - challenge_passwordless_policy
+      - challenge_password_reset_policy
+      - allowlist
+      - monitoring_mode_enabled
+      properties:
+        bot_detection_level:
+          $ref: '#/components/schemas/BotDetectionLevelEnum'
+        challenge_password_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
+        challenge_passwordless_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
+        challenge_password_reset_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
+        allowlist:
+          $ref: '#/components/schemas/BotDetectionAllowlist'
+        monitoring_mode_enabled:
+          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
+    BreachedPasswordDetectionMethodEnum:
+      type: string
+      description: "The subscription level for breached password detection methods. Use \"enhanced\" to enable Credential Guard.\n        Possible values: <code>standard</code>, <code>enhanced</code>."
+      default: standard
+      enum:
+      - standard
+      - enhanced
+    BotDetectionChallengePolicyPasswordResetFlowEnum:
+      type: string
+      description: The policy that defines how often to show CAPTCHA
+      enum:
+      - never
+      - when_risky
+      - always
+    BreachedPasswordDetectionAdminNotificationFrequencyEnum:
+      type: string
+      enum:
+      - immediately
+      - daily
+      - weekly
+      - monthly
+    BotDetectionCidrBlock:
+      type: string
+      description: CIDR block
+      format: cidr
+    UpdateBotDetectionSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bot_detection_level:
+          $ref: '#/components/schemas/BotDetectionLevelEnum'
+        challenge_password_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
+        challenge_passwordless_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
+        challenge_password_reset_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
+        allowlist:
+          $ref: '#/components/schemas/BotDetectionAllowlist'
+        monitoring_mode_enabled:
+          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
+    BotDetectionChallengePolicyPasswordlessFlowEnum:
+      type: string
+      description: The policy that defines how often to show CAPTCHA
+      enum:
+      - never
+      - when_risky
+      - always
+    AttackProtectionCaptchaProviderId:
+      type: string
+      description: The id of the active provider for the CAPTCHA.
+      maxLength: 36
+      enum:
+      - arkose
+      - auth_challenge
+      - friendly_captcha
+      - hcaptcha
+      - recaptcha_v2
+      - recaptcha_enterprise
+      - simple_captcha
+    UpdateSuspiciousIPThrottlingSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not suspicious IP throttling attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
+        allowlist:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
+        stage:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
+    SuspiciousIPThrottlingAllowlistItem:
+      type: string
+      anyOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: cidr
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    SuspiciousIPThrottlingPreUserRegistrationStage:
+      type: object
+      description: Configuration options that apply before every user registration attempt.
+      additionalProperties: false
+      properties:
+        max_attempts:
+          type: integer
+          description: Total number of attempts allowed.
+          default: 50
+          minimum: 1
+          maximum: 72000
+        rate:
+          type: integer
+          description: Interval of time, given in milliseconds, at which new attempts are granted.
+          default: 1728000
+          minimum: 1200
+          maximum: 86400000
+    AttackProtectionCaptchaRecaptchaEnterpriseResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the reCAPTCHA Enterprise provider.
+        project_id:
+          type: string
+          description: The project ID for the reCAPTCHA Enterprise provider.
+    AttackProtectionUpdateCaptchaHcaptcha:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - secret
+      properties:
+        site_key:
+          type: string
+          description: The site key for the hCaptcha provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the hCaptcha provider.
+          maxLength: 100
+    BotDetectionAllowlist:
+      type: array
+      description: List of IP addresses or CIDR blocks to allowlist
+      items:
+        $ref: '#/components/schemas/BotDetectionIPAddressOrCidrBlock'
+    UpdateSuspiciousIPThrottlingSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not suspicious IP throttling attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
+        allowlist:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
+        stage:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
+    GetSuspiciousIPThrottlingSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not suspicious IP throttling attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
+        allowlist:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
+        stage:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
+    BotDetectionIPv6:
+      type: string
+      description: IPv6 address
+      format: ipv6
+    AttackProtectionCaptchaRecaptchaV2ResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the reCAPTCHA v2 provider.
+    SuspiciousIPThrottlingShieldsEnum:
+      type: string
+      enum:
+      - block
+      - admin_notification
+    UpdateBreachedPasswordDetectionSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not breached password detection is active.
+          default: true
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a login.\n      Possible values: <code>block</code>, <code>user_notification</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionShieldsEnum'
+        admin_notification_frequency:
+          type: array
+          description: "When \"admin_notification\" is enabled, determines how often email notifications are sent.\n        Possible values: <code>immediately</code>, <code>daily</code>, <code>weekly</code>, <code>monthly</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionAdminNotificationFrequencyEnum'
+        method:
+          $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
+        stage:
+          $ref: '#/components/schemas/BreachedPasswordDetectionStage'
+    BruteForceProtectionShieldsEnum:
+      type: string
+      enum:
+      - block
+      - user_notification
+    GetAttackProtectionCaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        active_provider_id:
+          type: string
+        arkose:
+          $ref: '#/components/schemas/AttackProtectionCaptchaArkoseResponseContent'
+        auth_challenge:
+          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeResponseContent'
+        hcaptcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaHcaptchaResponseContent'
+        friendly_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaFriendlyCaptchaResponseContent'
+        recaptcha_enterprise:
+          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaEnterpriseResponseContent'
+        recaptcha_v2:
+          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaV2ResponseContent'
+        simple_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
+    BotDetectionIPv4:
+      type: string
+      description: IPv4 address
+      format: ipv4
+    GetBruteForceSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not brute force attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a brute force protection threshold is violated.\n        Possible values: <code>block</code>, <code>user_notification</code>."
+          items:
+            $ref: '#/components/schemas/BruteForceProtectionShieldsEnum'
+        allowlist:
+          type: array
+          description: List of trusted IP addresses that will not have attack protection enforced against them.
+          items:
+            type: string
+            anyOf:
+            - type: string
+              format: ipv4
+            - type: string
+              format: cidr
+            - type: string
+              format: ipv6
+            - type: string
+              format: ipv6_cidr
+        mode:
+          $ref: '#/components/schemas/BruteForceProtectionModeEnum'
+        max_attempts:
+          type: integer
+          description: Maximum number of unsuccessful attempts.
+          default: 10
+          minimum: 1
+          maximum: 100
+    UpdateAttackProtectionCaptchaRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        active_provider_id:
+          $ref: '#/components/schemas/AttackProtectionCaptchaProviderId'
+        arkose:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaArkose'
+        auth_challenge:
+          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeRequest'
+        hcaptcha:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaHcaptcha'
+        friendly_captcha:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaFriendlyCaptcha'
+        recaptcha_enterprise:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaRecaptchaEnterprise'
+        recaptcha_v2:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaRecaptchaV2'
+        simple_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
+    AttackProtectionUpdateCaptchaRecaptchaEnterprise:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - api_key
+      - project_id
+      properties:
+        site_key:
+          type: string
+          description: The site key for the reCAPTCHA Enterprise provider.
+          maxLength: 100
+        api_key:
+          type: string
+          description: The API key for the reCAPTCHA Enterprise provider.
+          maxLength: 100
+        project_id:
+          type: string
+          description: The project ID for the reCAPTCHA Enterprise provider.
+          maxLength: 100
+    GetBreachedPasswordDetectionSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not breached password detection is active.
+          default: true
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a login.\n      Possible values: <code>block</code>, <code>user_notification</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionShieldsEnum'
+        admin_notification_frequency:
+          type: array
+          description: "When \"admin_notification\" is enabled, determines how often email notifications are sent.\n        Possible values: <code>immediately</code>, <code>daily</code>, <code>weekly</code>, <code>monthly</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionAdminNotificationFrequencyEnum'
+        method:
+          $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
+        stage:
+          $ref: '#/components/schemas/BreachedPasswordDetectionStage'
+    AttackProtectionCaptchaArkoseResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the Arkose captcha provider.
+        fail_open:
+          type: boolean
+          description: Whether the captcha should fail open.
+        client_subdomain:
+          type: string
+          description: The subdomain used for client requests to the Arkose captcha provider.
+        verify_subdomain:
+          type: string
+          description: The subdomain used for server-side verification requests to the Arkose captcha provider.
+    UpdateBruteForceSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not brute force attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a brute force protection threshold is violated.\n        Possible values: <code>block</code>, <code>user_notification</code>."
+          items:
+            $ref: '#/components/schemas/BruteForceProtectionShieldsEnum'
+        allowlist:
+          type: array
+          description: List of trusted IP addresses that will not have attack protection enforced against them.
+          items:
+            type: string
+            anyOf:
+            - type: string
+              format: ipv4
+            - type: string
+              format: cidr
+            - type: string
+              format: ipv6
+            - type: string
+              format: ipv6_cidr
+        mode:
+          $ref: '#/components/schemas/BruteForceProtectionModeEnum'
+        max_attempts:
+          type: integer
+          description: Maximum number of unsuccessful attempts.
+          default: 10
+          minimum: 1
+          maximum: 100
+    AttackProtectionCaptchaSimpleCaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties: {}
+    AttackProtectionUpdateCaptchaArkose:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - secret
+      properties:
+        site_key:
+          type: string
+          description: The site key for the Arkose captcha provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the Arkose captcha provider.
+          maxLength: 100
+        client_subdomain:
+          type: string
+          description: The subdomain used for client requests to the Arkose captcha provider.
+          maxLength: 100
+        verify_subdomain:
+          type: string
+          description: The subdomain used for server-side verification requests to the Arkose captcha provider.
+          maxLength: 100
+        fail_open:
+          type: boolean
+          description: Whether the captcha should fail open.
+    BreachedPasswordDetectionPreChangePasswordStage:
+      type: object
+      additionalProperties: false
+      properties:
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a password reset.\n              Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionPreChangePasswordShieldsEnum'
+    BotDetectionChallengePolicyPasswordFlowEnum:
+      type: string
+      description: The policy that defines how often to show CAPTCHA
+      enum:
+      - never
+      - when_risky
+      - always
+    SuspiciousIPThrottlingStage:
+      type: object
+      description: Holds per-stage configuration options (max_attempts and rate).
+      additionalProperties: false
+      properties:
+        pre-login:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingPreLoginStage'
+        pre-user-registration:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingPreUserRegistrationStage'
+    AttackProtectionUpdateCaptchaFriendlyCaptcha:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - secret
+      properties:
+        site_key:
+          type: string
+          description: The site key for the Friendly Captcha provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the Friendly Captcha provider.
+          maxLength: 100
+    BreachedPasswordDetectionPreUserRegistrationStage:
+      type: object
+      additionalProperties: false
+      properties:
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a signup.\n              Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionPreUserRegistrationShieldsEnum'
+    UpdateBreachedPasswordDetectionSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not breached password detection is active.
+          default: true
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a login.\n      Possible values: <code>block</code>, <code>user_notification</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionShieldsEnum'
+        admin_notification_frequency:
+          type: array
+          description: "When \"admin_notification\" is enabled, determines how often email notifications are sent.\n        Possible values: <code>immediately</code>, <code>daily</code>, <code>weekly</code>, <code>monthly</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionAdminNotificationFrequencyEnum'
+        method:
+          $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
+        stage:
+          $ref: '#/components/schemas/BreachedPasswordDetectionStage'
+    BruteForceProtectionModeEnum:
+      type: string
+      description: "Account Lockout: Determines whether or not IP address is used when counting failed attempts.\n          Possible values: <code>count_per_identifier_and_ip</code>, <code>count_per_identifier</code>."
+      default: count_per_identifier_and_ip
+      enum:
+      - count_per_identifier_and_ip
+      - count_per_identifier
+    SuspiciousIPThrottlingPreLoginStage:
+      type: object
+      description: Configuration options that apply before every login attempt.
+      additionalProperties: false
+      properties:
+        max_attempts:
+          type: integer
+          description: Total number of attempts allowed per day.
+          default: 100
+          minimum: 1
+          maximum: 2500
+        rate:
+          type: integer
+          description: Interval of time, given in milliseconds, at which new attempts are granted.
+          default: 864000
+          minimum: 34560
+          maximum: 86400000
+    AttackProtectionCaptchaAuthChallengeRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - fail_open
+      properties:
+        fail_open:
+          type: boolean
+          description: Whether the auth challenge should fail open.
+    BreachedPasswordDetectionPreChangePasswordShieldsEnum:
+      type: string
+      enum:
+      - block
+      - admin_notification
+    UpdateBotDetectionSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bot_detection_level:
+          $ref: '#/components/schemas/BotDetectionLevelEnum'
+        challenge_password_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
+        challenge_passwordless_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
+        challenge_password_reset_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
+        allowlist:
+          $ref: '#/components/schemas/BotDetectionAllowlist'
+        monitoring_mode_enabled:
+          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
+    BreachedPasswordDetectionShieldsEnum:
+      type: string
+      enum:
+      - block
+      - user_notification
+      - admin_notification
+    UpdateAttackProtectionCaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        active_provider_id:
+          type: string
+        arkose:
+          $ref: '#/components/schemas/AttackProtectionCaptchaArkoseResponseContent'
+        auth_challenge:
+          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeResponseContent'
+        hcaptcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaHcaptchaResponseContent'
+        friendly_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaFriendlyCaptchaResponseContent'
+        recaptcha_enterprise:
+          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaEnterpriseResponseContent'
+        recaptcha_v2:
+          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaV2ResponseContent'
+        simple_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
+    BotDetectionIPAddressOrCidrBlock:
+      type: string
+      description: IP address (IPv4 or IPv6) or CIDR block
+      oneOf:
+      - $ref: '#/components/schemas/BotDetectionIPv4'
+      - $ref: '#/components/schemas/BotDetectionIPv6'
+      - $ref: '#/components/schemas/BotDetectionCidrBlock'
+      - $ref: '#/components/schemas/BotDetectionIPv6CidrBlock'
+    BotDetectionMonitoringModeEnabled:
+      type: boolean
+      description: Whether monitoring mode is enabled (logs but does not block)
+    UpdateBruteForceSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not brute force attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a brute force protection threshold is violated.\n        Possible values: <code>block</code>, <code>user_notification</code>."
+          items:
+            $ref: '#/components/schemas/BruteForceProtectionShieldsEnum'
+        allowlist:
+          type: array
+          description: List of trusted IP addresses that will not have attack protection enforced against them.
+          items:
+            type: string
+            anyOf:
+            - type: string
+              format: ipv4
+            - type: string
+              format: cidr
+            - type: string
+              format: ipv6
+            - type: string
+              format: ipv6_cidr
+        mode:
+          $ref: '#/components/schemas/BruteForceProtectionModeEnum'
+        max_attempts:
+          type: integer
+          description: Maximum number of unsuccessful attempts.
+          default: 10
+          minimum: 1
+          maximum: 100
+    AttackProtectionCaptchaAuthChallengeResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        fail_open:
+          type: boolean
+          description: Whether the auth challenge should fail open.
+    AttackProtectionUpdateCaptchaRecaptchaV2:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - secret
+      properties:
+        site_key:
+          type: string
+          description: The site key for the reCAPTCHA v2 provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the reCAPTCHA v2 provider.
+          maxLength: 100
+    BreachedPasswordDetectionStage:
+      type: object
+      additionalProperties: false
+      properties:
+        pre-user-registration:
+          $ref: '#/components/schemas/BreachedPasswordDetectionPreUserRegistrationStage'
+        pre-change-password:
+          $ref: '#/components/schemas/BreachedPasswordDetectionPreChangePasswordStage'
+    AttackProtectionCaptchaHcaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the hCaptcha provider.
+    AttackProtectionCaptchaFriendlyCaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the Friendly Captcha provider.
+    BreachedPasswordDetectionPreUserRegistrationShieldsEnum:
+      type: string
+      enum:
+      - block
+      - admin_notification
+    BotDetectionLevelEnum:
+      type: string
+      description: The level of bot detection sensitivity
+      enum:
+      - low
+      - medium
+      - high
+    SuspiciousIPThrottlingAllowlist:
+      type: array
+      description: List of trusted IP addresses that will not have attack protection enforced against them.
+      items:
+        $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlistItem'
+    BotDetectionIPv6CidrBlock:
+      type: string
+      description: IPv6 CIDR block
+      format: ipv6_cidr

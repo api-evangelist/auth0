@@ -1,0 +1,613 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions user-attribute-profiles API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: user-attribute-profiles
+paths:
+  /user-attribute-profiles:
+    get:
+      summary: Get User Attribute Profiles
+      description: 'Retrieve a list of User Attribute Profiles. This endpoint supports Checkpoint pagination.
+
+        '
+      tags:
+      - user-attribute-profiles
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 5.
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: User Attribute Profiles successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserAttributeProfilesPaginatedResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:user_attribute_profiles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user-attribute-profiles
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserAttributeProfileRequestParameters
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:user_attribute_profiles
+    post:
+      summary: Post User Attribute Profile
+      description: Create a User Attribute Profile
+      tags:
+      - user-attribute-profiles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserAttributeProfileRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateUserAttributeProfileRequestContent'
+      responses:
+        '201':
+          description: User attribute successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserAttributeProfileResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:user_attribute_profiles.'
+        '409':
+          description: User attribute profile conflict.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_user-attribute-profiles
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:user_attribute_profiles
+  /user-attribute-profiles/templates:
+    get:
+      summary: Get User Attribute Profile Templates
+      description: 'Retrieve a list of User Attribute Profile Templates.
+
+        '
+      tags:
+      - user-attribute-profiles
+      responses:
+        '200':
+          description: User Attribute Profile Templates successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserAttributeProfileTemplateResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:user_attribute_profiles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user_attribute_profile_templates
+      x-release-lifecycle: EA
+      x-operation-name: listTemplates
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:user_attribute_profiles
+  /user-attribute-profiles/templates/{id}:
+    get:
+      summary: Get User Attribute Profile Template
+      description: 'Retrieve a User Attribute Profile Template.
+
+        '
+      tags:
+      - user-attribute-profiles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user-attribute-profile-template to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User Attribute Profile Template successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserAttributeProfileTemplateResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:user_attribute_profiles.'
+        '404':
+          description: User attribute profile template not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user_attribute_profile_template
+      x-release-lifecycle: EA
+      x-operation-name: getTemplate
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:user_attribute_profiles
+  /user-attribute-profiles/{id}:
+    get:
+      summary: Get User Attribute Profile
+      description: 'Retrieve details about a single User Attribute Profile specified by ID. '
+      tags:
+      - user-attribute-profiles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user-attribute-profile to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Record for existing user attribute profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserAttributeProfileResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:user-attribute-profiles.'
+        '404':
+          description: User attribute profile not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_user-attribute-profiles_by_id
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:user_attribute_profiles
+    delete:
+      summary: Delete User Attribute Profile
+      description: 'Delete a single User Attribute Profile specified by ID.
+
+        '
+      tags:
+      - user-attribute-profiles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user-attribute-profile to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: User attribute profile successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:user-attribute-profiles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_user-attribute-profiles_by_id
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:user_attribute_profiles
+    patch:
+      summary: Modify a User Attribute Profile
+      description: 'Update the details of a specific User attribute profile, such as name, user_id and user_attributes.
+
+        '
+      tags:
+      - user-attribute-profiles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the user attribute profile to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserAttributeProfileRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateUserAttributeProfileRequestContent'
+      responses:
+        '200':
+          description: User attribute profile successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserAttributeProfileResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:user_attribute_profiles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_user-attribute-profiles_by_id
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-group: userAttributeProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:user_attribute_profiles
+components:
+  schemas:
+    UserAttributeProfileStrategyOverridesUserId:
+      type: object
+      description: Strategy-specific overrides for user ID
+      additionalProperties: false
+      properties:
+        pingfederate:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        ad:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        adfs:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        waad:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        google-apps:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        okta:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        oidc:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+        samlp:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+    UpdateUserAttributeProfileRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfilePatchUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileUserIdOidcMappingEnum:
+      type: string
+      description: OIDC mapping for user ID
+      minLength: 1
+      maxLength: 50
+      enum:
+      - sub
+    GetUserAttributeProfileTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the template.
+        display_name:
+          type: string
+          description: The user-friendly name of the template displayed in the UI.
+        template:
+          $ref: '#/components/schemas/UserAttributeProfileTemplate'
+    UserAttributeProfileUserAttributeAdditionalProperties:
+      type: object
+      additionalProperties: false
+      required:
+      - description
+      - label
+      - profile_required
+      - auth0_mapping
+      properties:
+        description:
+          type: string
+          description: Description of this attribute
+          minLength: 1
+          maxLength: 128
+        label:
+          type: string
+          description: Display label for this attribute
+          minLength: 1
+          maxLength: 128
+        profile_required:
+          type: boolean
+          description: Whether this attribute is required in the profile
+        auth0_mapping:
+          type: string
+          description: Auth0 mapping for this attribute
+          minLength: 1
+          maxLength: 50
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileOidcMapping'
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
+          description: SAML mapping for this attribute
+        scim_mapping:
+          type: string
+          description: SCIM mapping for this attribute
+          minLength: 1
+          maxLength: 128
+        strategy_overrides:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverrides'
+    UserAttributeProfileTemplate:
+      type: object
+      description: The structure of the template, which can be used as the payload for creating or updating a User Attribute Profile.
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfilePatchUserId:
+      oneOf:
+      - $ref: '#/components/schemas/UserAttributeProfileUserId'
+      - type: 'null'
+    UserAttributeProfileName:
+      type: string
+      description: The name of the user attribute profile.
+      minLength: 1
+      maxLength: 128
+    UserAttributeProfileId:
+      type: string
+      description: User Attribute Profile identifier.
+      format: user-attribute-profile-id
+    UserAttributeProfileStrategyOverrides:
+      type: object
+      description: Strategy-specific overrides for this attribute
+      additionalProperties: false
+      properties:
+        pingfederate:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        ad:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        adfs:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        waad:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        google-apps:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        okta:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        oidc:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        samlp:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+    UserAttributeProfileSamlMapping:
+      type: array
+      description: SAML mapping override for this strategy
+      minItems: 1
+      items:
+        type: string
+        description: SAML mapping field
+        minLength: 1
+        maxLength: 128
+    ListUserAttributeProfilesPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        user_attribute_profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAttributeProfile'
+    CreateUserAttributeProfileRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - user_attributes
+      properties:
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileOidcMapping:
+      type: object
+      description: OIDC mapping for this attribute
+      additionalProperties: false
+      required:
+      - mapping
+      properties:
+        mapping:
+          type: string
+          description: OIDC mapping field
+          minLength: 1
+          maxLength: 50
+        display_name:
+          type: string
+          description: Display name for the OIDC mapping
+          minLength: 1
+          maxLength: 50
+    UserAttributeProfileStrategyOverridesMapping:
+      type: object
+      additionalProperties: false
+      properties:
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileOidcMapping'
+          description: OIDC mapping override for this strategy
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
+        scim_mapping:
+          type: string
+          description: SCIM mapping override for this strategy
+          minLength: 1
+          maxLength: 128
+    UserAttributeProfileUserIdSamlMapping:
+      type: array
+      description: SAML mapping for user ID
+      minItems: 1
+      items:
+        type: string
+        description: SAML mapping field
+        minLength: 1
+        maxLength: 128
+    UserAttributeProfileStrategyOverridesUserIdMapping:
+      type: object
+      additionalProperties: false
+      properties:
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileUserIdOidcStrategyOverrideMapping'
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
+        scim_mapping:
+          type: string
+          description: SCIM mapping override for this strategy
+          minLength: 1
+          maxLength: 128
+    CreateUserAttributeProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    ListUserAttributeProfileTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        user_attribute_profile_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAttributeProfileTemplateItem'
+    GetUserAttributeProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileUserIdOidcStrategyOverrideMapping:
+      type: string
+      description: OIDC mapping override for this strategy
+      minLength: 1
+      maxLength: 50
+      enum:
+      - sub
+      - oid
+      - email
+    UserAttributeProfileTemplateItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the template.
+        display_name:
+          type: string
+          description: The user-friendly name of the template displayed in the UI.
+        template:
+          $ref: '#/components/schemas/UserAttributeProfileTemplate'
+    UpdateUserAttributeProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileUserId:
+      type: object
+      description: User ID mapping configuration
+      additionalProperties: false
+      properties:
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileUserIdOidcMappingEnum'
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileUserIdSamlMapping'
+        scim_mapping:
+          type: string
+          description: SCIM mapping for user ID
+          minLength: 1
+          maxLength: 128
+        strategy_overrides:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserId'
+    UserAttributeProfileUserAttributes:
+      type: object
+      description: User attributes configuration map. Keys are attribute names, values are the mapping configuration for each attribute.
+      additionalProperties:
+        $ref: '#/components/schemas/UserAttributeProfileUserAttributeAdditionalProperties'
+      minProperties: 1
+      maxProperties: 64

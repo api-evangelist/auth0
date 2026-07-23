@@ -1,0 +1,1025 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions self-service-profiles API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: self-service-profiles
+paths:
+  /self-service-profiles:
+    get:
+      summary: Get Self-service Profiles
+      description: 'Retrieves self-service profiles.
+
+        '
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: List of existing profiles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSelfServiceProfilesResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: read:self_service_profiles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: Internal error.
+      operationId: get_self-service-profiles
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListSelfServiceProfilesRequestParameters
+      x-operation-group: selfServiceProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:self_service_profiles
+    post:
+      summary: Create a Self-service Profile
+      description: 'Creates a self-service profile.
+
+        '
+      tags:
+      - self-service-profiles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSelfServiceProfileRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateSelfServiceProfileRequestContent'
+      responses:
+        '201':
+          description: Self-service profile successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSelfServiceProfileResponseContent'
+        '400':
+          description: Invalid Request Body.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: create:self_service_profiles.'
+        '409':
+          description: No more profiles can be created for this tenant.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: Internal error.
+      operationId: post_self-service-profiles
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: selfServiceProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:self_service_profiles
+  /self-service-profiles/{id}:
+    get:
+      summary: Get a Self-service Profile by Id
+      description: Retrieves a self-service profile by Id.
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: id
+        in: path
+        description: The id of the self-service profile to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Record for existing self-service profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSelfServiceProfileResponseContent'
+        '400':
+          description: Invalid Request.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: read:self_service_profiles.'
+        '404':
+          description: Self-service profile not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: Internal error.
+      operationId: get_self-service-profiles_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: selfServiceProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:self_service_profiles
+    delete:
+      summary: Delete a Self-service Profile by Id
+      description: Deletes a self-service profile by Id.
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: id
+        in: path
+        description: The id of the self-service profile to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Self-service profile successfully deleted.
+        '400':
+          description: Invalid Request.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: delete:self_service_profiles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: Internal error.
+      operationId: delete_self-service-profiles_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: selfServiceProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:self_service_profiles
+    patch:
+      summary: Update a Self-service Profile
+      description: Updates a self-service profile.
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: id
+        in: path
+        description: The id of the self-service profile to update
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSelfServiceProfileRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSelfServiceProfileRequestContent'
+      responses:
+        '200':
+          description: Self-service profile successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSelfServiceProfileResponseContent'
+        '400':
+          description: Invalid Request.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: update:self_service_profiles.'
+        '404':
+          description: Self-service profile not found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: Internal error.
+      operationId: patch_self-service-profiles_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: selfServiceProfiles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:self_service_profiles
+  /self-service-profiles/{id}/custom-text/{language}/{page}:
+    get:
+      summary: Get Custom Text for a Self-service Profile
+      description: 'Retrieves text customizations for a given self-service profile, language and Self-Service Enterprise Configuration flow page.
+
+        '
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: id
+        in: path
+        description: The id of the self-service profile.
+        required: true
+        schema:
+          type: string
+      - name: language
+        in: path
+        description: The language of the custom text.
+        required: true
+        schema:
+          $ref: '#/components/schemas/SelfServiceProfileCustomTextLanguageEnum'
+      - name: page
+        in: path
+        description: The page where the custom text is shown.
+        required: true
+        schema:
+          $ref: '#/components/schemas/SelfServiceProfileCustomTextPageEnum'
+      responses:
+        '200':
+          description: Retrieved custom text.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSelfServiceProfileCustomTextResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:self_service_profile_custom_texts.'
+        '404':
+          description: Self-service profile not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_self_service_profile_custom_text
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-group:
+      - selfServiceProfiles
+      - customText
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:self_service_profile_custom_texts
+    put:
+      summary: Set Custom Text for a Self-service Profile
+      description: 'Updates text customizations for a given self-service profile, language and Self-Service Enterprise Configuration flow page.
+
+        '
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: id
+        in: path
+        description: The id of the self-service profile.
+        required: true
+        schema:
+          type: string
+      - name: language
+        in: path
+        description: The language of the custom text.
+        required: true
+        schema:
+          $ref: '#/components/schemas/SelfServiceProfileCustomTextLanguageEnum'
+      - name: page
+        in: path
+        description: The page where the custom text is shown.
+        required: true
+        schema:
+          $ref: '#/components/schemas/SelfServiceProfileCustomTextPageEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetSelfServiceProfileCustomTextRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetSelfServiceProfileCustomTextRequestContent'
+      responses:
+        '200':
+          description: Updated custom text.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetSelfServiceProfileCustomTextResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:self_service_profile_custom_texts.'
+        '404':
+          description: Self-service profile not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_self_service_profile_custom_text
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - selfServiceProfiles
+      - customText
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:self_service_profile_custom_texts
+  /self-service-profiles/{id}/sso-ticket:
+    post:
+      summary: Create an Access Ticket to Initiate the Self-Service Enterprise Configuration Flow
+      description: 'Creates an access ticket to initiate the Self-Service Enterprise Configuration flow using a self-service profile.
+
+        '
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: id
+        in: path
+        description: The id of the self-service profile to retrieve
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSelfServiceProfileSsoTicketRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateSelfServiceProfileSsoTicketRequestContent'
+      responses:
+        '201':
+          description: Self-Service Enterprise Configuration Access Ticket successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSelfServiceProfileSsoTicketResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:sso_access_tickets.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_sso-ticket
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - selfServiceProfiles
+      - ssoTicket
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:sso_access_tickets
+  /self-service-profiles/{profileId}/sso-ticket/{id}/revoke:
+    post:
+      summary: Revoke a Self-Service Enterprise Configuration Access Ticket
+      description: 'Revokes a Self-Service Enterprise Configuration access ticket and invalidates associated sessions. The ticket will no longer be accepted to initiate a Self-Service Enterprise Configuration session. If any users have already started a session through this ticket, their session will be terminated. Clients should expect a `202 Accepted` response upon successful processing, indicating that the request has been acknowledged and that the revocation is underway but may not be fully completed at the time of response. If the specified ticket does not exist, a `202 Accepted` response is also returned, signaling that no further action is required.
+
+        Clients should treat these `202` responses as an acknowledgment that the request has been accepted and is in progress, even if the ticket was not found.
+
+        '
+      tags:
+      - self-service-profiles
+      parameters:
+      - name: profileId
+        in: path
+        description: The id of the self-service profile
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: The id of the ticket to revoke
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Self-Service Enterprise Configuration Access Ticket revocation request accepted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:sso_access_tickets.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_revoke
+      x-release-lifecycle: GA
+      x-operation-name: revoke
+      x-operation-group:
+      - selfServiceProfiles
+      - ssoTicket
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:sso_access_tickets
+components:
+  schemas:
+    SelfServiceProfileBrandingColors:
+      type: object
+      additionalProperties: true
+      required:
+      - primary
+      properties:
+        primary:
+          type: string
+          pattern: ^#([\dA-Fa-f]{6}|[\dA-Fa-f]{3})$
+    SelfServiceProfileSsoTicketConnectionConfig:
+      type: object
+      description: If provided, this will create a new connection for the Self-Service Enterprise Configuration flow with the given configuration
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The name of the connection that will be created as a part of the Self-Service Enterprise Configuration flow.
+          default: sso-generated-SAML-customer-12
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        display_name:
+          type: string
+          description: Connection name used in the new universal login experience
+          maxLength: 128
+        is_domain_connection:
+          type: boolean
+          description: <code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        options:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketConnectionOptions'
+    SelfServiceProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the self-service Profile.
+          default: ssp_n7SNCL8seoyV1TuSTCnAeo
+        name:
+          type: string
+          description: The name of the self-service Profile.
+        description:
+          type: string
+          description: The description of the self-service Profile.
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        created_at:
+          type: string
+          description: The time when this self-service Profile was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this self-service Profile was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    SelfServiceProfileSsoTicketProvisioningConfig:
+      type: object
+      description: Configuration for the setup of Provisioning in the self-service flow.
+      additionalProperties: false
+      x-release-lifecycle: GA
+      properties:
+        scopes:
+          type: array
+          description: The scopes of the SCIM tokens generated during the self-service flow.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileSsoTicketProvisioningScopeEnum'
+        google_workspace:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketGoogleWorkspaceConfig'
+          x-release-lifecycle: GA
+        token_lifetime:
+          description: Lifetime of the tokens in seconds. Must be greater than 900. If not provided, the tokens don't expire.
+          type:
+          - integer
+          - 'null'
+          minimum: 900
+    SelfServiceProfileCustomTextLanguageEnum:
+      type: string
+      enum:
+      - en
+      description: The language of the custom text.
+    ListSelfServiceProfileCustomTextResponseContent:
+      type: object
+      description: The list of custom text keys and values.
+      additionalProperties:
+        type: string
+    SelfServiceProfileSsoTicketDomainAliasesConfig:
+      type: object
+      description: Configuration for the setup of the connection’s domain_aliases in the Self-Service Enterprise Configuration flow.
+      additionalProperties: false
+      required:
+      - domain_verification
+      properties:
+        domain_verification:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketDomainVerificationEnum'
+        pending_domains:
+          type: array
+          description: List of domains that will be submitted for verification during the Self-Service Enterprise Configuration flow.
+          x-release-lifecycle: GA
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+    CreateSelfServiceProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the self-service Profile.
+          default: ssp_n7SNCL8seoyV1TuSTCnAeo
+        name:
+          type: string
+          description: The name of the self-service Profile.
+        description:
+          type: string
+          description: The description of the self-service Profile.
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        created_at:
+          type: string
+          description: The time when this self-service Profile was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this self-service Profile was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    SelfServiceProfileSsoTicketEnabledFeatures:
+      type: object
+      description: Specifies which features are enabled for an "edit connection" ticket. Only applicable when connection ID is provided.
+      additionalProperties: false
+      x-release-lifecycle: GA
+      properties:
+        sso:
+          type: boolean
+          description: Whether SSO configuration is enabled in this ticket.
+        domain_verification:
+          type: boolean
+          description: Whether domain verification is enabled in this ticket.
+        provisioning:
+          type: boolean
+          description: Whether provisioning configuration is enabled in this ticket.
+    UpdateSelfServiceProfileRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 0
+      properties:
+        name:
+          type: string
+          description: The name of the self-service Profile.
+          minLength: 1
+          maxLength: 100
+        description:
+          $ref: '#/components/schemas/SelfServiceProfileDescription'
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBranding'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attributes:
+          $ref: '#/components/schemas/SelfServiceProfileUserAttributes'
+        user_attribute_profile_id:
+          type:
+          - string
+          - 'null'
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    SelfServiceProfileSsoTicketIdpInitiatedClientProtocolEnum:
+      type: string
+      description: The protocol used to connect to the the default application
+      enum:
+      - samlp
+      - wsfed
+      - oauth2
+    ListSelfServiceProfilesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/SelfServiceProfile'
+      - $ref: '#/components/schemas/ListSelfServiceProfilesPaginatedResponseContent'
+    SelfServiceProfileBranding:
+      oneOf:
+      - $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+      - type: 'null'
+    SelfServiceProfileSsoTicketEnabledOrganization:
+      type: object
+      additionalProperties: false
+      required:
+      - organization_id
+      properties:
+        organization_id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+    GetSelfServiceProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the self-service Profile.
+          default: ssp_n7SNCL8seoyV1TuSTCnAeo
+        name:
+          type: string
+          description: The name of the self-service Profile.
+        description:
+          type: string
+          description: The description of the self-service Profile.
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        created_at:
+          type: string
+          description: The time when this self-service Profile was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this self-service Profile was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    SelfServiceProfileCustomTextPageEnum:
+      type: string
+      enum:
+      - get-started
+      description: The page where the custom text is shown.
+    ListSelfServiceProfilesPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        self_service_profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/SelfServiceProfile'
+    CreateSelfServiceProfileSsoTicketResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ticket:
+          type: string
+          description: The URL for the created ticket.
+    SelfServiceProfileUserAttribute:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - description
+      - is_optional
+      properties:
+        name:
+          type: string
+          description: Identifier of this attribute.
+          maxLength: 250
+        description:
+          type: string
+          description: Description of this attribute.
+        is_optional:
+          type: boolean
+          description: Determines if this attribute is required
+    CreateSelfServiceProfileSsoTicketRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: If provided, this will allow editing of the provided connection during the Self-Service Enterprise Configuration flow
+          format: connection-id
+        connection_config:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketConnectionConfig'
+        enabled_clients:
+          type: array
+          description: List of client_ids that the connection will be enabled for.
+          minItems: 0
+          items:
+            type: string
+        enabled_organizations:
+          type: array
+          description: List of organizations that the connection will be enabled for.
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileSsoTicketEnabledOrganization'
+        ttl_sec:
+          type: integer
+          description: Number of seconds for which the ticket is valid before expiration. If unspecified or set to 0, this value defaults to 432000 seconds (5 days).
+          minimum: 0
+          maximum: 432000
+        domain_aliases_config:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketDomainAliasesConfig'
+        provisioning_config:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketProvisioningConfig'
+          x-release-lifecycle: GA
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether a verified domain should be used for organization discovery during authentication.
+          x-release-lifecycle: GA
+        enabled_features:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketEnabledFeatures'
+          x-release-lifecycle: GA
+    SelfServiceProfileDescription:
+      type:
+      - string
+      - 'null'
+      description: The description of the self-service Profile.
+      minLength: 1
+      maxLength: 140
+    SelfServiceProfileAllowedStrategyEnum:
+      type: string
+      enum:
+      - oidc
+      - samlp
+      - waad
+      - google-apps
+      - adfs
+      - okta
+      - auth0-samlp
+      - okta-samlp
+      - keycloak-samlp
+      - pingfederate
+    SetSelfServiceProfileCustomTextRequestContent:
+      type: object
+      description: The list of text keys and values to customize the Self-Service Enterprise Configuration flow page. Values can be plain text or rich HTML content limited to basic styling tags and hyperlinks.
+      additionalProperties:
+        type: string
+        maxLength: 2000
+    SelfServiceProfileUserAttributes:
+      type:
+      - array
+      - 'null'
+      description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+      items:
+        $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+    SelfServiceProfileSsoTicketDomainVerificationEnum:
+      type: string
+      description: Whether the end user should complete the domain verification step. Possible values are 'none' (the step is not shown to the user), 'optional' (the user may add a domain alias in the domain verification step) or 'required' (the user must add a domain alias in order to enable the connection). Defaults to 'none'.
+      enum:
+      - none
+      - optional
+      - required
+    SelfServiceProfileSsoTicketProvisioningScopeEnum:
+      type: string
+      enum:
+      - get:users
+      - post:users
+      - put:users
+      - patch:users
+      - delete:users
+      - get:groups
+      - post:groups
+      - put:groups
+      - patch:groups
+      - delete:groups
+    SelfServiceProfileSsoTicketGoogleWorkspaceConfig:
+      type: object
+      description: Configuration for Google Workspace Directory Sync during the self-service flow.
+      additionalProperties: false
+      required:
+      - sync_users
+      x-release-lifecycle: GA
+      properties:
+        sync_users:
+          type: boolean
+          description: Whether to enable Google Workspace Directory Sync for users during the self-service flow.
+    CreateSelfServiceProfileRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The name of the self-service Profile.
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          description: The description of the self-service Profile.
+          minLength: 1
+          maxLength: 140
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    UpdateSelfServiceProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the self-service Profile.
+          default: ssp_n7SNCL8seoyV1TuSTCnAeo
+        name:
+          type: string
+          description: The name of the self-service Profile.
+        description:
+          type: string
+          description: The description of the self-service Profile.
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        created_at:
+          type: string
+          description: The time when this self-service Profile was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this self-service Profile was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    SetSelfServiceProfileCustomTextResponseContent:
+      type: object
+      description: The resulting list of custom text keys and values.
+      additionalProperties:
+        type: string
+    SelfServiceProfileSsoTicketIdpInitiatedOptions:
+      type:
+      - object
+      - 'null'
+      description: Allows IdP-initiated login
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Enables IdP-initiated login for this connection
+        client_id:
+          type: string
+          description: Default application <code>client_id</code> user is redirected to after validated SAML response
+          format: client-id
+        client_protocol:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketIdpInitiatedClientProtocolEnum'
+        client_authorizequery:
+          type: string
+          description: 'Query string options to customize the behaviour for OpenID Connect when <code>idpinitiated.client_protocol</code> is <code>oauth2</code>. Allowed parameters: <code>redirect_uri</code>, <code>scope</code>, <code>response_type</code>. For example, <code>redirect_uri=https://jwt.io&scope=openid email&response_type=token</code>'
+          maxLength: 256
+    ConnectionsMetadata:
+      type: object
+      description: Metadata associated with the connection in the form of an object with string values (max 255 chars).  Maximum of 10 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
+    SelfServiceProfileBrandingProperties:
+      type: object
+      additionalProperties: true
+      properties:
+        logo_url:
+          type: string
+          maxLength: 1024
+          format: uri
+          pattern: ^https://
+        colors:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingColors'
+    SelfServiceProfileSsoTicketConnectionOptions:
+      type:
+      - object
+      - 'null'
+      description: The connection's options (depend on the connection strategy)
+      additionalProperties: false
+      properties:
+        icon_url:
+          type:
+          - string
+          - 'null'
+          description: URL for the icon. Must use HTTPS.
+          format: strict-https-uri-or-null
+        domain_aliases:
+          type:
+          - array
+          - 'null'
+          description: List of domain_aliases that can be authenticated in the Identity Provider
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        idpinitiated:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketIdpInitiatedOptions'

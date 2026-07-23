@@ -1,0 +1,455 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions refresh-tokens API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: refresh-tokens
+paths:
+  /refresh-tokens:
+    get:
+      summary: Get Refresh Tokens
+      description: Retrieve a paginated list of refresh tokens for a specific user, with optional filtering by client ID. Results are sorted by credential_id ascending.
+      tags:
+      - refresh-tokens
+      parameters:
+      - name: user_id
+        in: query
+        description: ID of the user whose refresh tokens to retrieve. Required.
+        required: true
+        schema:
+          type: string
+      - name: client_id
+        in: query
+        description: Filter results by client ID. Only valid when user_id is provided.
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: An opaque cursor from which to start the selection (exclusive). Expires after 24 hours. Obtained from the next property of a previous response.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The refresh tokens were retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRefreshTokensPaginatedResponseContent'
+        '400':
+          description: Missing required 'user_id' parameter.
+          x-description-1: The checkpoint ID provided in the 'from' parameter has expired or is invalid, please remove the checkpoint ID and try again
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:refresh_tokens'
+        '404':
+          description: User not found
+          x-description-1: The client does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_refresh_tokens
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: GetRefreshTokensRequestParameters
+      x-operation-group: refreshTokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:refresh_tokens
+  /refresh-tokens/revoke:
+    post:
+      summary: Revoke Refresh Tokens
+      description: Revoke refresh tokens in bulk by ID list, user, user+client, or client.
+      tags:
+      - refresh-tokens
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeRefreshTokensRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RevokeRefreshTokensRequestContent'
+      responses:
+        '202':
+          description: Refresh token revocation request accepted.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid combination of parameters.
+          x-description-2: 'API doesn''t support Online Refresh Tokens. To revoke an Online Refresh Token, use the Sessions API: POST /api/v2/sessions/{session_id}/revoke'
+          x-description-3: User not found.
+          x-description-4: Client not found.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:refresh_tokens'
+          x-description-1: This feature is not enabled for this tenant.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: revoke_refresh_tokens
+      x-release-lifecycle: EA
+      x-operation-name: revoke
+      x-operation-group: refreshTokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:refresh_tokens
+  /refresh-tokens/{id}:
+    get:
+      summary: Get a Refresh Token
+      description: Retrieve refresh token information.
+      tags:
+      - refresh-tokens
+      parameters:
+      - name: id
+        in: path
+        description: ID refresh token to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The refresh token was retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRefreshTokenResponseContent'
+        '400':
+          description: API doesn't support Online Refresh Tokens
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected: read:refresh_tokens'
+        '404':
+          description: The refresh token does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_refresh_token
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: refreshTokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:refresh_tokens
+    delete:
+      summary: Delete a Refresh Token
+      description: Delete a refresh token by its ID.
+      tags:
+      - refresh-tokens
+      parameters:
+      - name: id
+        in: path
+        description: ID of the refresh token to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Refresh token deletion request accepted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: 'API doesn''t support Online Refresh Tokens. To revoke an Online Refresh Token, use the Sessions API: POST /api/v2/sessions/{session_id}/revoke'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:refresh_tokens'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_refresh_token
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: refreshTokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:refresh_tokens
+    patch:
+      summary: Update a Refresh Token
+      description: Update a refresh token by its ID.
+      tags:
+      - refresh-tokens
+      parameters:
+      - name: id
+        in: path
+        description: ID of the refresh token to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRefreshTokenRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateRefreshTokenRequestContent'
+      responses:
+        '200':
+          description: Refresh token successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRefreshTokenResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:refresh_tokens.'
+          x-description-1: The account is not allowed to perform this operation.
+          x-description-2: Subscription missing entitlement.
+          x-description-3: This feature is not enabled for this tenant.
+        '404':
+          description: The refresh token does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_refresh-tokens_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: refreshTokens
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:refresh_tokens
+components:
+  schemas:
+    RefreshTokenMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the refresh token, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties: true
+      maxProperties: 25
+    UpdateRefreshTokenRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+          description: Metadata associated with the refresh token. Pass null or {} to remove all metadata.
+    RefreshTokenSessionId:
+      type:
+      - string
+      - 'null'
+      description: ID of the authenticated session used to obtain this refresh-token
+    RefreshTokenDateObject:
+      type: object
+      description: The date and time when the refresh token was created
+      additionalProperties: true
+    UpdateRefreshTokenResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the refresh token
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        created_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        device:
+          $ref: '#/components/schemas/RefreshTokenDevice'
+        client_id:
+          type: string
+          description: ID of the client application granted with this refresh token
+        session_id:
+          $ref: '#/components/schemas/RefreshTokenSessionId'
+        rotating:
+          type: boolean
+          description: True if the token is a rotating refresh token
+        resource_servers:
+          type: array
+          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
+          items:
+            $ref: '#/components/schemas/RefreshTokenResourceServer'
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+        last_exchanged_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+    RefreshTokenDate:
+      oneOf:
+      - type: string
+        description: The date and time when the refresh token was created
+        format: date-time
+      - $ref: '#/components/schemas/RefreshTokenDateObject'
+      - type: 'null'
+    RefreshTokenDevice:
+      type: object
+      description: Device used while issuing/exchanging the refresh token
+      additionalProperties: true
+      properties:
+        initial_ip:
+          type: string
+          description: First IP address associated with the refresh token
+        initial_asn:
+          type: string
+          description: First autonomous system number associated with the refresh token
+        initial_user_agent:
+          type: string
+          description: First user agent associated with the refresh token
+        last_ip:
+          type: string
+          description: Last IP address associated with the refresh token
+        last_asn:
+          type: string
+          description: Last autonomous system number associated with the refresh token
+        last_user_agent:
+          type: string
+          description: Last user agent associated with the refresh token
+    GetRefreshTokensPaginatedResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        refresh_tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshTokenResponseContent'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    RevokeRefreshTokensRequestContent:
+      type: object
+      description: 'Exactly one of the following combinations must be provided: `ids` (up to 100 token IDs); `user_id`; `user_id` + `client_id`; or `client_id` alone. `ids` cannot be combined with `user_id` or `client_id`.'
+      additionalProperties: false
+      properties:
+        ids:
+          type: array
+          description: Array of refresh token IDs to revoke. Limited to 100 at a time.
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+            maxLength: 30
+        user_id:
+          type: string
+          description: Revoke all refresh tokens for this user.
+          minLength: 1
+          maxLength: 300
+          format: user-id
+        client_id:
+          type: string
+          description: Revoke all refresh tokens for this client.
+          minLength: 1
+          maxLength: 64
+          format: client-id
+    RefreshTokenResourceServer:
+      type: object
+      additionalProperties: true
+      properties:
+        audience:
+          type: string
+          description: Resource server ID
+        scopes:
+          type: string
+          description: List of scopes for the refresh token
+    GetRefreshTokenResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the refresh token
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        created_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        device:
+          $ref: '#/components/schemas/RefreshTokenDevice'
+        client_id:
+          type: string
+          description: ID of the client application granted with this refresh token
+        session_id:
+          $ref: '#/components/schemas/RefreshTokenSessionId'
+        rotating:
+          type: boolean
+          description: True if the token is a rotating refresh token
+        resource_servers:
+          type: array
+          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
+          items:
+            $ref: '#/components/schemas/RefreshTokenResourceServer'
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+        last_exchanged_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+    RefreshTokenResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the refresh token
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        created_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        device:
+          $ref: '#/components/schemas/RefreshTokenDevice'
+        client_id:
+          type: string
+          description: ID of the client application granted with this refresh token
+        session_id:
+          $ref: '#/components/schemas/RefreshTokenSessionId'
+        rotating:
+          type: boolean
+          description: True if the token is a rotating refresh token
+        resource_servers:
+          type: array
+          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
+          items:
+            $ref: '#/components/schemas/RefreshTokenResourceServer'
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+        last_exchanged_at:
+          $ref: '#/components/schemas/RefreshTokenDate'

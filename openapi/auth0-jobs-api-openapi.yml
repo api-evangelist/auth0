@@ -1,0 +1,648 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions jobs API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: jobs
+paths:
+  /jobs/users-exports:
+    post:
+      summary: Create Export Users Job
+      description: Export all users to a file via a long-running job.
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExportUsersRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateExportUsersRequestContent'
+      responses:
+        '200':
+          description: Job created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateExportUsersResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: The connection does not exist.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_users-exports
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - jobs
+      - usersExports
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+  /jobs/users-imports:
+    post:
+      summary: Create Import Users Job
+      description: Import users from a <a href="https://auth0.com/docs/users/references/bulk-import-database-schema-examples">formatted file</a> into a connection via a long-running job. When importing users, with or without upsert, the `email_verified` is set to `false` when the email address is added or updated. Users must verify their email address. To avoid this behavior, set `email_verified` to `true` in the imported data.
+      tags:
+      - jobs
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateImportUsersRequestContent'
+      responses:
+        '202':
+          description: Job successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateImportUsersResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Must provide 'users' file as multipart part.
+          x-description-2: 'Payload validation error: ''Invalid multipart payload format''.'
+          x-description-3: Users file must not be empty.
+          x-description-4: Must provide 'connection_id' as multipart part.
+          x-description-5: Connection must be a database connection.
+          x-description-6: Connection must be enabled.
+          x-description-7: 'Payload validation error: ''String does not match pattern ^con_[A-Za-z0-9]{16}$'' on property connection_id.'
+          x-description-8: The connection does not exist.
+          x-description-9: Custom Database Connections without import mode are not allowed.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:users.'
+        '413':
+          description: 'Payload content length greater than maximum allowed: 512000.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: Internal error.
+      operationId: post_users-imports
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - jobs
+      - usersImports
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:users
+  /jobs/verification-email:
+    post:
+      summary: Send an Email Address Verification Email
+      description: 'Send an email to the specified user that asks them to click a link to <a href="https://auth0.com/docs/email/custom#verification-email">verify their email address</a>.
+
+
+        Note: You must have the `Status` toggle enabled for the verification email template for the email to be sent.'
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVerificationEmailRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateVerificationEmailRequestContent'
+      responses:
+        '201':
+          description: Job successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVerificationEmailResponseContent'
+        '400':
+          description: Invalid request parameters. The message will vary depending on the cause.
+          x-description-1: Connection must be a database connection.
+          x-description-2: User does not have an email address.
+          x-description-3: connection does not exist.
+          x-description-4: Connection must be enabled.
+          x-description-5: Identity connection does not exist.
+          x-description-6: The user exists, but does not contain the given identity.
+          x-description-7: The organization does not exist
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:users.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_verification-email
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - jobs
+      - verificationEmail
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:users
+  /jobs/{id}:
+    get:
+      summary: Get a Job
+      description: Retrieves a job. Useful to check its status.
+      tags:
+      - jobs
+      parameters:
+      - name: id
+        in: path
+        description: ID of the job.
+        required: true
+        schema:
+          type: string
+          pattern: ^job_[A-Za-z0-9]{16}$
+      responses:
+        '200':
+          description: Job retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetJobResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:users.'
+        '404':
+          description: Job not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_jobs_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: jobs
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:users
+        - read:users
+  /jobs/{id}/errors:
+    get:
+      summary: Get Job Error Details
+      description: Retrieve error details of a failed job.
+      tags:
+      - jobs
+      parameters:
+      - name: id
+        in: path
+        description: ID of the job.
+        required: true
+        schema:
+          type: string
+          pattern: ^job_[A-Za-z0-9]{16}$
+      responses:
+        '200':
+          description: Job successfully retrieved.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/GetJobErrorResponseContent'
+                - $ref: '#/components/schemas/GetJobGenericErrorResponseContent'
+        '204':
+          description: The job was retrieved, but no errors were found.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/GetJobErrorResponseContent'
+                - $ref: '#/components/schemas/GetJobGenericErrorResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: create:users'
+        '404':
+          description: The job does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_errors
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - jobs
+      - errors
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:users
+        - read:users
+components:
+  schemas:
+    JobFileFormatEnum:
+      type: string
+      description: Format of the file. Must be `json` or `csv`.
+      enum:
+      - json
+      - csv
+    GetJobImportUserError:
+      type: object
+      additionalProperties: true
+      properties:
+        code:
+          type: string
+          description: Error code.
+        message:
+          type: string
+          description: Error message.
+        path:
+          type: string
+          description: Error field.
+    GetJobSummary:
+      type: object
+      description: Job execution summary.
+      additionalProperties: true
+      properties:
+        failed:
+          type: integer
+          description: Number of failed operations.
+          default: 0
+        updated:
+          type: integer
+          description: Number of updated records.
+          default: 0
+        inserted:
+          type: integer
+          description: Number of inserted records.
+          default: 0
+        total:
+          type: integer
+          description: Total number of operations.
+          default: 0
+    CreateExportUsersFields:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Name of the field in the profile.
+          maxLength: 100
+        export_as:
+          type: string
+          description: Title of the column in the exported CSV.
+          maxLength: 100
+    CreateVerificationEmailResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: completed
+        type:
+          type: string
+          description: Type of job this is.
+          default: verification_email
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+    GetJobErrorResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        user:
+          $ref: '#/components/schemas/GetJobUserError'
+        errors:
+          type: array
+          description: Errors importing the user.
+          items:
+            $ref: '#/components/schemas/GetJobImportUserError'
+    CreateImportUsersResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      - connection
+      - connection_id
+      - created_at
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: pending
+        type:
+          type: string
+          description: Type of job this is.
+          default: users_import
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+        connection_id:
+          type: string
+          description: connection_id of the connection to which users will be imported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        external_id:
+          type: string
+          description: Customer-defined ID.
+    CreateVerificationEmailRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: user_id of the user to send the verification email to.
+          default: google-oauth2|1234
+          format: user-id
+        client_id:
+          type: string
+          description: client_id of the client (application). If no value provided, the global Client ID will be used.
+          format: client-id
+        identity:
+          $ref: '#/components/schemas/Identity'
+        organization_id:
+          type: string
+          description: (Optional) Organization ID – the ID of the Organization. If provided, organization parameters will be made available to the email template and organization branding will be applied to the prompt. In addition, the redirect link in the prompt will include organization_id and organization_name query string parameters.
+          default: org_2eondWoxcMIpaLQc
+          format: organization-id
+    Identity:
+      type: object
+      description: This must be provided to verify primary social, enterprise and passwordless email identities. Also, is needed to verify secondary identities.
+      additionalProperties: false
+      required:
+      - user_id
+      - provider
+      properties:
+        user_id:
+          type: string
+          description: user_id of the identity to be verified.
+          default: 5457edea1b8f22891a000004
+        provider:
+          $ref: '#/components/schemas/IdentityProviderEnum'
+        connection_id:
+          type: string
+          description: connection_id of the identity.
+          pattern: ^con_[A-Za-z0-9]{16}$
+    CreateExportUsersResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      - connection
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: pending
+        type:
+          type: string
+          description: Type of job this is.
+          default: users_export
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+        connection_id:
+          type: string
+          description: connection_id of the connection from which users will be exported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        format:
+          $ref: '#/components/schemas/JobFileFormatEnum'
+        limit:
+          type: integer
+          description: Limit the number of records.
+          default: 5
+          minimum: 1
+        fields:
+          type: array
+          description: List of fields to be included in the CSV. Defaults to a predefined set of fields.
+          items:
+            $ref: '#/components/schemas/CreateExportUsersFields'
+    CreateExportUsersRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: connection_id of the connection from which users will be exported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        format:
+          $ref: '#/components/schemas/JobFileFormatEnum'
+        limit:
+          type: integer
+          description: Limit the number of records.
+          default: 5
+          minimum: 1
+        fields:
+          type: array
+          description: List of fields to be included in the CSV. Defaults to a predefined set of fields.
+          items:
+            $ref: '#/components/schemas/CreateExportUsersFields'
+    IdentityProviderEnum:
+      type: string
+      description: Identity provider name of the identity (e.g. `google-oauth2`).
+      default: google-oauth2
+      enum:
+      - ad
+      - adfs
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - auth0
+      - baidu
+      - bitly
+      - box
+      - custom
+      - daccount
+      - dwolla
+      - email
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-apps
+      - google-oauth2
+      - instagram
+      - ip
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - office365
+      - oidc
+      - okta
+      - paypal
+      - paypal-sandbox
+      - pingfederate
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - samlp
+      - sharepoint
+      - shopify
+      - shop
+      - sms
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untappd
+      - vkontakte
+      - waad
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    GetJobUserError:
+      type: object
+      description: User, as provided in the import file
+      additionalProperties: true
+    GetJobResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: pending
+        type:
+          type: string
+          description: Type of job this is.
+          default: users_import
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+        connection_id:
+          type: string
+          description: connection_id of the connection this job uses.
+          default: con_0000000000000001
+        location:
+          type: string
+          description: URL to download the result of this job.
+        percentage_done:
+          type: integer
+          description: Completion percentage of this job.
+        time_left_seconds:
+          type: integer
+          description: Estimated time remaining before job completes.
+        format:
+          $ref: '#/components/schemas/JobFileFormatEnum'
+        status_details:
+          type: string
+          description: Status details.
+        summary:
+          $ref: '#/components/schemas/GetJobSummary'
+    GetJobGenericErrorResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: pending
+        type:
+          type: string
+          description: Type of job this is.
+          default: users_import
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+        connection_id:
+          type: string
+          description: connection_id of the connection this job uses.
+          default: con_0000000000000001
+        status_details:
+          type: string
+          description: Status details.
+    CreateImportUsersRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - users
+      - connection_id
+      properties:
+        users:
+          type: string
+          contentMediaType: application/octet-stream
+        connection_id:
+          type: string
+          description: connection_id of the connection to which users will be imported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        upsert:
+          type: boolean
+          description: Whether to update users if they already exist (true) or to ignore them (false).
+          default: false
+        external_id:
+          type: string
+          description: Customer-defined ID.
+        send_completion_email:
+          type: boolean
+          description: Whether to send a completion email to all tenant owners when the job is finished (true) or not (false).
+          default: true

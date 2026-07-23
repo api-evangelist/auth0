@@ -1,0 +1,3370 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions organizations API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: organizations
+paths:
+  /organizations:
+    get:
+      summary: Get Organizations
+      description: 'Retrieve detailed list of all Organizations available in your tenant. For more information, see Auth0 Organizations.
+
+
+        This endpoint supports two types of pagination:
+
+        <ul>
+
+        <li>Offset pagination</li>
+
+        <li>Checkpoint pagination</li>
+
+        </ul>
+
+
+        Checkpoint pagination must be used if you need to retrieve more than 1000 organizations.
+
+
+        <h2>Checkpoint Pagination</h2>
+
+
+        To search by checkpoint, use the following parameters:
+
+        <ul>
+
+        <li><code>from</code>: Optional id from which to start selection.</li>
+
+        <li><code>take</code>: The total number of entries to retrieve when using the <code>from</code> parameter. Defaults to 50.</li>
+
+        </ul>
+
+
+        <b>Note</b>: The first time you call this endpoint using checkpoint pagination, omit the <code>from</code> parameter. If there are more results, a <code>next</code> value is included in the response. You can use this for subsequent API calls. When <code>next</code> is no longer included in the response, no pages are remaining.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: sort
+        in: query
+        description: 'Field to sort by. Use <code>field:order</code> where order is <code>1</code> for ascending and <code>-1</code> for descending. e.g. <code>created_at:1</code>. We currently support sorting by the following fields: <code>name</code>, <code>display_name</code> and <code>created_at</code>.'
+        schema:
+          type: string
+          maxLength: 15
+          pattern: ^((display_name)|(created_at)|(name))\:(1|-1)$
+      responses:
+        '200':
+          description: Organizations successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organizations.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organizations
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationsRequestParameters
+      x-operation-group: organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organizations
+        - read:organizations_summary
+    post:
+      summary: Create an Organization
+      description: 'Create a new Organization within your tenant.  To learn more about Organization settings, behavior, and configuration options, review <a href="https://auth0.com/docs/manage-users/organizations/create-first-organization">Create Your First Organization</a>.
+
+        '
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationRequestContent'
+      responses:
+        '201':
+          description: Organization successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrganizationResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organizations.'
+        '409':
+          description: An organization with this name already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_organizations
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organizations
+        - create:organization_connections
+  /organizations/name/{name}:
+    get:
+      summary: Get Organization by Name
+      description: 'Retrieve details about a single Organization specified by name.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: name
+        in: path
+        description: name of the organization to retrieve.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      responses:
+        '200':
+          description: Organization successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationByNameResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organizations.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_name_by_name
+      x-release-lifecycle: GA
+      x-operation-name: getByName
+      x-operation-group: organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organizations
+  /organizations/{id}:
+    get:
+      summary: Get Organization
+      description: "Retrieve details about a single Organization specified by ID. \n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Organization successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organizations.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organizations_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organizations
+        - read:organizations_summary
+    delete:
+      summary: Delete Organization
+      description: "Remove an Organization from your tenant.  This action cannot be undone. \n\n<b>Note</b>: Members are automatically disassociated from an Organization when it is deleted. However, this action does <b>not</b> delete these users from your tenant.\n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      responses:
+        '204':
+          description: The organization was deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organizations.'
+        '404':
+          description: The organization does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_organizations_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organizations
+    patch:
+      summary: Modify an Organization
+      description: 'Update the details of a specific <a href="https://auth0.com/docs/manage-users/organizations/configure-organizations/create-organizations">Organization</a>, such as name and display name, branding options, and metadata.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationRequestContent'
+      responses:
+        '200':
+          description: Organization successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrganizationResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:organizations.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_organizations_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:organizations
+  /organizations/{id}/client-grants:
+    get:
+      summary: Get Client Grants Associated to an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: audience
+        in: query
+        description: Optional filter on audience of the client grant.
+        schema:
+          type: string
+          maxLength: 600
+      - name: client_id
+        in: query
+        description: Optional filter on client_id of the client grant.
+        schema:
+          type: string
+      - name: grant_ids
+        in: query
+        description: Optional filter on the ID of the client grant. Must be URL encoded and may be specified multiple times (max 10).<br /><b>e.g.</b> <i>../client-grants?grant_ids=id1&grant_ids=id2</i>
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: client-grant-id
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Client grants successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationClientGrantsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_client_grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organization-client-grants
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationClientGrantsRequestParameters
+      x-operation-group:
+      - organizations
+      - clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_client_grants
+    post:
+      summary: Associate a Client Grant with an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssociateOrganizationClientGrantRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssociateOrganizationClientGrantRequestContent'
+      responses:
+        '201':
+          description: Client Grant successfully associated with Organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssociateOrganizationClientGrantResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_client_grants.'
+        '404':
+          description: The grant does not exist.
+          x-description-1: No organization found by that id
+        '409':
+          description: The client grant has already been added to this organization.
+          x-description-1: Quota exceeded; cannot add more than 100 client grants to a single organization
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: create_organization-client-grants
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - organizations
+      - clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_client_grants
+  /organizations/{id}/client-grants/{grant_id}:
+    delete:
+      summary: Remove a Client Grant from an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: grant_id
+        in: path
+        description: The Client Grant ID to remove from the organization
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The Client Grant was removed from the Organization.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_client_grants.'
+        '404':
+          description: No organization found by that id.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_client-grants_by_grant_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - organizations
+      - clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_client_grants
+  /organizations/{id}/connections:
+    get:
+      summary: Get Connections Associated with an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: is_enabled
+        in: query
+        description: Filter connections by enabled status.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Connections successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationAllConnectionsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organization_connections
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationAllConnectionsRequestParameters
+      x-operation-group:
+      - organizations
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_connections
+    post:
+      summary: Adds a Connection to an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationAllConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationAllConnectionRequestContent'
+      responses:
+        '201':
+          description: Connection successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrganizationAllConnectionResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_connections.'
+        '409':
+          description: The organization connection already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_organization_connection
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-request-parameters-name: CreateOrganizationAllConnectionRequestParameters
+      x-operation-group:
+      - organizations
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_connections
+  /organizations/{id}/connections/{connection_id}:
+    get:
+      summary: Get a Specific Connection Associated with an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: connection_id
+        in: path
+        description: Connection identifier.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      responses:
+        '200':
+          description: Connection successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationAllConnectionResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_connections.'
+        '404':
+          description: The organization does not exists.
+          x-description-1: The organization connection does not exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organization_connection
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetOrganizationAllConnectionRequestParameters
+      x-operation-group:
+      - organizations
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_connections
+    delete:
+      summary: Delete a Connection from an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: connection_id
+        in: path
+        description: Connection identifier.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      responses:
+        '204':
+          description: Connection successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_organization_connection
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-request-parameters-name: DeleteOrganizationAllConnectionRequestParameters
+      x-operation-group:
+      - organizations
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_connections
+    patch:
+      summary: Update a Connection for an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: connection_id
+        in: path
+        description: Connection identifier.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationAllConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationAllConnectionRequestContent'
+      responses:
+        '200':
+          description: Connection successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrganizationAllConnectionResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_organization_connection
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-request-parameters-name: UpdateOrganizationConnectionRequestParameters
+      x-operation-group:
+      - organizations
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:organization_connections
+  /organizations/{id}/discovery-domains:
+    get:
+      summary: Retrieve All Organization Discovery Domains
+      description: 'Retrieve list of all organization discovery domains associated with the specified organization.
+
+        This endpoint is subject to eventual consistency; newly created, updated, or deleted discovery domains may not immediately appear in the response.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization.
+        required: true
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Organization discovery domains retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationDiscoveryDomainsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_discovery_domains.'
+        '404':
+          description: Organization not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_discovery-domains
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationDiscoveryDomainsRequestParameters
+      x-operation-group:
+      - organizations
+      - discoveryDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_discovery_domains
+    post:
+      summary: Create an Organization Discovery Domain
+      description: Create a new discovery domain for an organization.
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationDiscoveryDomainRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationDiscoveryDomainRequestContent'
+      responses:
+        '201':
+          description: Organization discovery domain successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrganizationDiscoveryDomainResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_discovery_domains.'
+        '404':
+          description: Organization not found.
+        '409':
+          description: An organization discovery domain with this domain is already registered to this organization.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_discovery-domains
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - organizations
+      - discoveryDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_discovery_domains
+  /organizations/{id}/discovery-domains/name/{discovery_domain}:
+    get:
+      summary: Retrieve an Organization Discovery Domain by Domain Name
+      description: 'Retrieve details about a single organization discovery domain specified by domain name.
+
+        This endpoint is subject to eventual consistency; newly created, updated, or deleted discovery domains may not immediately appear in the response.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization.
+        required: true
+        schema:
+          type: string
+      - name: discovery_domain
+        in: path
+        description: Domain name of the discovery domain.
+        required: true
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+      responses:
+        '200':
+          description: Organization discovery domain successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationDiscoveryDomainByNameResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_discovery_domains.'
+        '404':
+          description: Organization not found.
+          x-description-1: Organization discovery domain not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_name_by_discovery_domain
+      x-release-lifecycle: GA
+      x-operation-name: getByName
+      x-operation-group:
+      - organizations
+      - discoveryDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_discovery_domains
+  /organizations/{id}/discovery-domains/{discovery_domain_id}:
+    get:
+      summary: Retrieve an Organization Discovery Domain by ID
+      description: 'Retrieve details about a single organization discovery domain specified by ID.
+
+        This endpoint is subject to eventual consistency; newly created, updated, or deleted discovery domains may not immediately appear in the response.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization.
+        required: true
+        schema:
+          type: string
+      - name: discovery_domain_id
+        in: path
+        description: ID of the discovery domain.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Organization discovery domain successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationDiscoveryDomainResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_discovery_domains.'
+        '404':
+          description: Organization not found.
+          x-description-1: Organization discovery domain not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_discovery-domains_by_discovery_domain_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - organizations
+      - discoveryDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_discovery_domains
+    delete:
+      summary: Delete an Organization Discovery Domain
+      description: 'Remove a discovery domain from an organization. This action cannot be undone. '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization.
+        required: true
+        schema:
+          type: string
+      - name: discovery_domain_id
+        in: path
+        description: ID of the discovery domain.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Organization discovery domain successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_discovery_domains.'
+        '404':
+          description: Organization not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_discovery-domains_by_discovery_domain_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - organizations
+      - discoveryDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_discovery_domains
+    patch:
+      summary: Update an Organization Discovery Domain
+      description: 'Update the verification status and/or use_for_organization_discovery for an organization discovery domain. The <code>status</code> field must be either <code>pending</code> or <code>verified</code>. The <code>use_for_organization_discovery</code> field can be <code>true</code> or <code>false</code> (default: <code>true</code>).
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the organization.
+        required: true
+        schema:
+          type: string
+      - name: discovery_domain_id
+        in: path
+        description: ID of the discovery domain to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationDiscoveryDomainRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationDiscoveryDomainRequestContent'
+      responses:
+        '200':
+          description: Organization discovery domain successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrganizationDiscoveryDomainResponseContent'
+        '400':
+          description: Invalid Request Body.
+        '404':
+          description: Organization not found.
+          x-description-1: Organization discovery domain not found.
+      operationId: patch_discovery-domains_by_discovery_domain_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - organizations
+      - discoveryDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:organization_discovery_domains
+  /organizations/{id}/enabled_connections:
+    get:
+      summary: Get Connections Enabled for an Organization
+      description: 'Retrieve details about a specific connection currently enabled for an Organization. Information returned includes details such as connection ID, name, strategy, and whether the connection automatically grants membership upon login.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Connections successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationConnectionsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_enabled_connections
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationConnectionsRequestParameters
+      x-operation-group:
+      - organizations
+      - enabledConnections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_connections
+    post:
+      summary: Add Connections to an Organization
+      description: 'Enable a specific connection for a given Organization. To enable a connection, it must already exist within your tenant; connections cannot be created through this action.
+
+
+        <a href="https://auth0.com/docs/authenticate/identity-providers">Connections</a> represent the relationship between Auth0 and a source of users. Available types of connections include database, enterprise, and social.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddOrganizationConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddOrganizationConnectionRequestContent'
+      responses:
+        '201':
+          description: Organization connection successfully added.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddOrganizationConnectionResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_enabled_connections
+      x-release-lifecycle: GA
+      x-operation-name: add
+      x-operation-group:
+      - organizations
+      - enabledConnections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_connections
+  /organizations/{id}/enabled_connections/{connectionId}:
+    get:
+      summary: Get an Enabled Connection for an Organization
+      description: 'Retrieve details about a specific connection currently enabled for an Organization. Information returned includes details such as connection ID, name, strategy, and whether the connection automatically grants membership upon login.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: connectionId
+        in: path
+        description: Connection identifier.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      responses:
+        '200':
+          description: Connection successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationConnectionResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_enabled_connections_by_connectionId
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - organizations
+      - enabledConnections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_connections
+    delete:
+      summary: Delete Connections from an Organization
+      description: "Disable a specific connection for an Organization. Once disabled, Organization members can no longer use that connection to authenticate. \n\n<b>Note</b>: This action does not remove the connection from your tenant.\n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: connectionId
+        in: path
+        description: Connection identifier.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      responses:
+        '204':
+          description: Connection successfully removed from organization.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_enabled_connections_by_connectionId
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - organizations
+      - enabledConnections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_connections
+    patch:
+      summary: Update the Connection of an Organization
+      description: 'Modify the details of a specific connection currently enabled for an Organization.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: connectionId
+        in: path
+        description: Connection identifier.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationConnectionRequestContent'
+      responses:
+        '200':
+          description: Organization connection successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrganizationConnectionResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:organization_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_enabled_connections_by_connectionId
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - organizations
+      - enabledConnections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:organization_connections
+  /organizations/{id}/invitations:
+    get:
+      summary: Get Invitations to an Organization
+      description: "Retrieve a detailed list of invitations sent to users for a specific Organization. The list includes details such as inviter and invitee information, invitation URLs, and dates of creation and expiration. To learn more about Organization invitations, review <a href=\"https://auth0.com/docs/manage-users/organizations/configure-organizations/invite-members\">Invite Organization Members</a>. \n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: When true, return results inside an object that also contains the start and limit.  When false (default), a direct array of results is returned.  We do not yet support returning the total invitations count.
+        schema:
+          type: boolean
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((app_metadata)|(user_metadata)|(client_id)|(connection_id)|(created_at)|(expires_at)|(id)|(invitation_url)|(invitee)|(inviter)|(organization_id)|(roles))(,((app_metadata)|(user_metadata)|(client_id)|(connection_id)|(created_at)|(expires_at)|(id)|(invitation_url)|(invitee)|(inviter)|(organization_id)|(roles)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false). Defaults to true.
+        schema:
+          type: boolean
+      - name: sort
+        in: query
+        description: Field to sort by. Use field:order where order is 1 for ascending and -1 for descending Defaults to created_at:-1.
+        schema:
+          type: string
+          pattern: ^((created_at))\:(1|-1)$
+      responses:
+        '200':
+          description: Invitations successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationInvitationsResponseContent'
+        '400':
+          description: Requesting page exceeds the allowed maximum of 1000 records
+          x-description-0: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Client is not global.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_invitations.'
+        '404':
+          description: No organization found by that id.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_invitations
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationInvitationsRequestParameters
+      x-operation-group:
+      - organizations
+      - invitations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_invitations
+    post:
+      summary: Create Invitations to an Organization
+      description: "Create a user invitation for a specific Organization. Upon creation, the listed user receives an email inviting them to join the Organization. To learn more about Organization invitations, review <a href=\"https://auth0.com/docs/manage-users/organizations/configure-organizations/invite-members\">Invite Organization Members</a>. \n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationInvitationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationInvitationRequestContent'
+      responses:
+        '200':
+          description: Invitation successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrganizationInvitationResponseContent'
+        '400':
+          description: A default login route is required to generate the invitation url. For more information, see https://auth0.com/docs/universal-login/configure-default-login-routes
+          x-description-1: 'One or more of the specified roles do not exist: rol_0000000000000001, rol_0000000000000002'
+          x-description-2: Passwordless connections are not supported.
+          x-description-3: The specified client_id does not allow organizations.
+          x-description-4: The specified client_id does not exist.
+          x-description-5: The specified connection (con_0000000000000001) is not enabled for the organization
+          x-description-6: The specified connection does not exist.
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Client is not global.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_invitations.'
+        '404':
+          description: No organization found by that id.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_invitations
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - organizations
+      - invitations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_invitations
+  /organizations/{id}/invitations/{invitation_id}:
+    get:
+      summary: Get a Specific Invitation to an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: invitation_id
+        in: path
+        description: The id of the user invitation.
+        required: true
+        schema:
+          type: string
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((app_metadata)|(user_metadata)|(client_id)|(connection_id)|(created_at)|(expires_at)|(id)|(invitation_url)|(invitee)|(inviter)|(organization_id)|(roles))(,((app_metadata)|(user_metadata)|(client_id)|(connection_id)|(created_at)|(expires_at)|(id)|(invitation_url)|(invitee)|(inviter)|(organization_id)|(roles)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false). Defaults to true.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Invitation successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationInvitationResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Client is not global.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_invitations.'
+        '404':
+          description: No organization found by that id.
+          x-description-1: The invitation does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_invitations_by_invitation_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetOrganizationInvitationRequestParameters
+      x-operation-group:
+      - organizations
+      - invitations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_invitations
+    delete:
+      summary: Delete an Invitation to an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: invitation_id
+        in: path
+        description: The id of the user invitation.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Invitation successfully deleted.
+        '401':
+          description: Client is not global.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_invitations.'
+        '404':
+          description: No organization found by that id.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_invitations_by_invitation_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - organizations
+      - invitations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_invitations
+  /organizations/{id}/members:
+    get:
+      summary: Get Members Who Belong to an Organization
+      description: "List organization members.\nThis endpoint is subject to eventual consistency. New users may not be immediately included in the response and deleted users may not be immediately removed from it.\n\n<ul>\n  <li>\n    Use the <code>fields</code> parameter to optionally define the specific member details retrieved. If <code>fields</code> is left blank, all fields (except roles) are returned.\n  </li>\n  <li>\n    Member roles are not sent by default. Use <code>fields=roles</code> to retrieve the roles assigned to each listed member. To use this parameter, you must include the <code>read:organization_member_roles</code> scope in the token.\n  </li>\n</ul>\n\nThis endpoint supports two types of pagination:\n\n- Offset pagination\n- Checkpoint pagination\n\nCheckpoint pagination must be used if you need to retrieve more than 1000 organization members.\n\n<h2>Checkpoint Pagination</h2>\n\nTo search by checkpoint, use the following parameters: - from: Optional id from which to start selection. - take: The total amount of entries to retrieve when using the from parameter. Defaults to 50. Note: The first time you call this endpoint using Checkpoint Pagination, you should omit the <code>from</code> parameter. If there are more results, a <code>next</code> value will be included in the response. You can use this for subsequent API calls. When <code>next</code> is no longer included in the response, this indicates there are no more pages remaining.\n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((user_id)|(email)|(picture)|(name)|(roles))(,((user_id)|(email)|(picture)|(name)|(roles)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Members successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationMembersResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_members, read:organization_member_roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organization_members
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationMembersRequestParameters
+      x-operation-group:
+      - organizations
+      - members
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_members
+    delete:
+      summary: Delete Members from an Organization
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteOrganizationMembersRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteOrganizationMembersRequestContent'
+      responses:
+        '204':
+          description: Users successfully removed from organization.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_members.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_members
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - organizations
+      - members
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_members
+    post:
+      summary: Add Members to an Organization
+      description: 'Set one or more existing users as members of a specific <a href="https://auth0.com/docs/manage-users/organizations">Organization</a>.
+
+
+        To add a user to an Organization through this action, the user must already exist in your tenant. If a user does not yet exist, you can <a href="https://auth0.com/docs/manage-users/organizations/configure-organizations/invite-members">invite them to create an account</a>, manually create them through the Auth0 Dashboard, or use the Management API.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationMemberRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationMemberRequestContent'
+      responses:
+        '204':
+          description: Members successfully added to organization.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_members.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_members
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - organizations
+      - members
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_members
+  /organizations/{id}/members/{user_id}/roles:
+    get:
+      summary: Get User Roles Assigned to an Organization Member
+      description: "Retrieve detailed list of roles assigned to a given user within the context of a specific Organization. \n\nUsers can be members of multiple Organizations with unique roles assigned for each membership. This action only returns the roles associated with the specified Organization; any roles assigned to the user within other Organizations are not included.\n"
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: user_id
+        in: path
+        description: ID of the user to associate roles with.
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Roles successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationMemberRolesResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_member_roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_organization_member_roles
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListOrganizationMemberRolesRequestParameters
+      x-operation-group:
+      - organizations
+      - members
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_member_roles
+    delete:
+      summary: Delete User Roles from an Organization Member
+      description: 'Remove one or more Organization-specific <a href="https://auth0.com/docs/manage-users/access-control/rbac">roles</a> from a given user.
+
+
+        Users can be members of multiple Organizations with unique roles assigned for each membership. This action removes roles from a user in relation to the specified Organization. Roles assigned to the user within a different Organization cannot be managed in the same call.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: user_id
+        in: path
+        description: User ID of the organization member to remove roles from.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteOrganizationMemberRolesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteOrganizationMemberRolesRequestContent'
+      responses:
+        '204':
+          description: Roles successfully removed from organization member.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:organization_member_roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_organization_member_roles
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - organizations
+      - members
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:organization_member_roles
+    post:
+      summary: Assign User Roles to an Organization Member
+      description: 'Assign one or more <a href="https://auth0.com/docs/manage-users/access-control/rbac">roles</a> to a user to determine their access for a specific Organization.
+
+
+        Users can be members of multiple Organizations with unique roles assigned for each membership. This action assigns roles to a user only for the specified Organization. Roles cannot be assigned to a user across multiple Organizations in the same call.
+
+        '
+      tags:
+      - organizations
+      parameters:
+      - name: id
+        in: path
+        description: Organization identifier.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      - name: user_id
+        in: path
+        description: ID of the user to associate roles with.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignOrganizationMemberRolesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignOrganizationMemberRolesRequestContent'
+      responses:
+        '204':
+          description: Roles successfully associated with user.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:organization_member_roles.'
+        '409':
+          description: No more roles can be assigned to this organization member.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_organization_member_roles
+      x-release-lifecycle: GA
+      x-operation-name: assign
+      x-operation-group:
+      - organizations
+      - members
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:organization_member_roles
+components:
+  schemas:
+    CreateOrganizationAllConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: "^[^\0]*$"
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    GetOrganizationConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    UpdateOrganizationAllConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        organization_connection_name:
+          type:
+          - string
+          - 'null'
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: "^[^\0]*$"
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnumWithNull'
+        is_enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the connection is enabled for the organization.
+    ListOrganizationsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Organization'
+      - $ref: '#/components/schemas/ListOrganizationsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListOrganizationsPaginatedResponseContent'
+    OrganizationMemberRole:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+    AddOrganizationConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    UpdateOrganizationDiscoveryDomainRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+    CreateOrganizationDiscoveryDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_host
+      - verification_txt
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    UpdateOrganizationResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    UpdateOrganizationConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    ListOrganizationConnectionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        enabled_connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationConnection'
+    GetOrganizationInvitationResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the user invitation.
+          default: uinv_0000000000000001
+          format: user-invitation-id
+        organization_id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        inviter:
+          $ref: '#/components/schemas/OrganizationInvitationInviter'
+        invitee:
+          $ref: '#/components/schemas/OrganizationInvitationInvitee'
+        invitation_url:
+          type: string
+          description: The invitation url to be send to the invitee.
+          default: https://mycompany.org/login?invitation=f81dWWYW6gzGGicxT8Ha0txBkGNcAcYr&organization=org_0000000000000001&organization_name=acme
+          format: strict-https-uri
+        created_at:
+          type: string
+          description: The ISO 8601 formatted timestamp representing the creation time of the invitation.
+          default: '2020-08-20T19:10:06.299Z'
+          format: date-time
+        expires_at:
+          type: string
+          description: The ISO 8601 formatted timestamp representing the expiration time of the invitation.
+          default: '2020-08-27T19:10:06.299Z'
+          format: date-time
+        client_id:
+          type: string
+          description: Auth0 client ID. Used to resolve the application's login initiation endpoint.
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+          format: client-id
+        connection_id:
+          type: string
+          description: The id of the connection to force invitee to authenticate with.
+          default: con_0000000000000001
+          format: connection-id
+        app_metadata:
+          $ref: '#/components/schemas/AppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadata'
+        roles:
+          type: array
+          description: List of roles IDs to associated with the user.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+        ticket_id:
+          type: string
+          description: The id of the invitation ticket
+          format: ticket-id
+    UpdateOrganizationRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/UpdateTokenQuota'
+          x-release-lifecycle: EA
+    UpdateOrganizationAllConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: "^[^\0]*$"
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    OrganizationDiscoveryDomain:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_txt
+      - verification_host
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    AssignOrganizationMemberRolesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          description: List of roles IDs to associated with the user.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+    AppMetadata:
+      type: object
+      description: Data related to the user that does affect the application's core functionality.
+      additionalProperties: true
+      properties: {}
+    ListOrganizationMemberRolesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListOrganizationMemberRolesOffsetPaginatedResponseContent'
+    OrganizationAccessLevelEnumWithNull:
+      type:
+      - string
+      - 'null'
+      description: Access level for the organization (e.g., "none", "full").
+      enum:
+      - none
+      - readonly
+      - limited
+      - full
+      - null
+    OrganizationUsageEnum:
+      type: string
+      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+      enum:
+      - deny
+      - allow
+      - require
+    OrganizationClientGrant:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/OrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+    OrganizationDiscoveryDomainStatus:
+      type: string
+      description: The verification status of the discovery domain.
+      enum:
+      - pending
+      - verified
+    OrganizationBranding:
+      type: object
+      description: Theme defines how to style the login pages.
+      additionalProperties: false
+      properties:
+        logo_url:
+          type: string
+          description: URL of logo to display on login page.
+          format: strict-https-uri-or-null
+        colors:
+          $ref: '#/components/schemas/OrganizationBrandingColors'
+    AssociateOrganizationClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/OrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+    OrganizationAccessLevelEnum:
+      type: string
+      description: Access level for the organization (e.g., "none", "full").
+      enum:
+      - none
+      - readonly
+      - limited
+      - full
+    ListOrganizationMembersOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMember'
+    ListOrganizationMembersPaginatedResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        next:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMember'
+    ListOrganizationsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    OrganizationInvitationInvitee:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          description: The invitee's email.
+          default: john.doe@gmail.com
+          format: email
+    OrganizationConnectionInformation:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: The name of the enabled connection.
+        strategy:
+          type: string
+          description: The strategy of the enabled connection.
+    ListOrganizationClientGrantsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        client_grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationClientGrant'
+    UpdateOrganizationDiscoveryDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_host
+      - verification_txt
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    TokenQuota:
+      type: object
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    CreateTokenQuota:
+      type: object
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    ListOrganizationInvitationsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        invitations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationInvitation'
+    ListOrganizationClientGrantsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationClientGrant'
+      - $ref: '#/components/schemas/ListOrganizationClientGrantsOffsetPaginatedResponseContent'
+    OrganizationInvitationInviter:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The inviter's name.
+          default: Jane Doe
+          minLength: 1
+          maxLength: 300
+    CreateOrganizationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        enabled_connections:
+          type: array
+          description: Connections that will be enabled for this organization. See POST enabled_connections endpoint for the object format. (Max of 10 connections allowed)
+          items:
+            $ref: '#/components/schemas/ConnectionForOrganization'
+        token_quota:
+          $ref: '#/components/schemas/CreateTokenQuota'
+          x-release-lifecycle: EA
+    OrganizationMember:
+      type: object
+      additionalProperties: false
+      properties:
+        user_id:
+          type: string
+          description: ID of this user.
+        picture:
+          type: string
+          description: URL to a picture for this user.
+        name:
+          type: string
+          description: Name of this user.
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMemberRole'
+    AssociateOrganizationClientGrantRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - grant_id
+      properties:
+        grant_id:
+          type: string
+          description: A Client Grant ID to add to the organization.
+          format: client-grant-id
+    CreateOrganizationMemberRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - members
+      properties:
+        members:
+          type: array
+          description: List of user IDs to add to the organization as members.
+          minItems: 1
+          items:
+            type: string
+            format: user-id-with-max-length
+    ListOrganizationMemberRolesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    ListOrganizationsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    ListOrganizationConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationConnection'
+      - $ref: '#/components/schemas/ListOrganizationConnectionsOffsetPaginatedResponseContent'
+    UpdateOrganizationConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+    CreateOrganizationDiscoveryDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+    OrganizationAllConnectionPost:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: "^[^\0]*$"
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    ListOrganizationInvitationsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationInvitation'
+      - $ref: '#/components/schemas/ListOrganizationInvitationsOffsetPaginatedResponseContent'
+    OrganizationConnection:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    CreateOrganizationAllConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: "^[^\0]*$"
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+    OrganizationBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      required:
+      - primary
+      - page_background
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+          format: html-color
+        page_background:
+          type: string
+          description: HEX Color for background.
+          format: html-color
+    Organization:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    CreateOrganizationResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+        enabled_connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationEnabledConnection'
+    GetOrganizationResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    AddOrganizationConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          description: Single connection ID to add to the organization.
+          format: connection-id
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+    ListOrganizationAllConnectionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationAllConnectionPost'
+    GetOrganizationDiscoveryDomainByNameResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_txt
+      - verification_host
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    DeleteOrganizationMemberRolesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          description: List of roles IDs associated with the organization member to remove.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+    UserMetadata:
+      type: object
+      description: Data related to the user that does not affect the application's core functionality.
+      additionalProperties: true
+    GetOrganizationByNameResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    TokenQuotaClientCredentials:
+      type: object
+      description: The token quota configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        enforce:
+          type: boolean
+          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
+        per_day:
+          type: integer
+          description: Maximum number of issued tokens per day
+          minimum: 1
+          maximum: 2147483647
+        per_hour:
+          type: integer
+          description: Maximum number of issued tokens per hour
+          minimum: 1
+          maximum: 2147483647
+    ConnectionForOrganization:
+      type: object
+      description: Connection to be added to the organization.
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+    Role:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    UpdateTokenQuota:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    ListOrganizationDiscoveryDomainsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domains
+      properties:
+        next:
+          type: string
+        domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationDiscoveryDomain'
+    OrganizationInvitation:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the user invitation.
+          default: uinv_0000000000000001
+          format: user-invitation-id
+        organization_id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        inviter:
+          $ref: '#/components/schemas/OrganizationInvitationInviter'
+        invitee:
+          $ref: '#/components/schemas/OrganizationInvitationInvitee'
+        invitation_url:
+          type: string
+          description: The invitation url to be send to the invitee.
+          default: https://mycompany.org/login?invitation=f81dWWYW6gzGGicxT8Ha0txBkGNcAcYr&organization=org_0000000000000001&organization_name=acme
+          format: strict-https-uri
+        created_at:
+          type: string
+          description: The ISO 8601 formatted timestamp representing the creation time of the invitation.
+          default: '2020-08-20T19:10:06.299Z'
+          format: date-time
+        expires_at:
+          type: string
+          description: The ISO 8601 formatted timestamp representing the expiration time of the invitation.
+          default: '2020-08-27T19:10:06.299Z'
+          format: date-time
+        client_id:
+          type: string
+          description: Auth0 client ID. Used to resolve the application's login initiation endpoint.
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+          format: client-id
+        connection_id:
+          type: string
+          description: The id of the connection to force invitee to authenticate with.
+          default: con_0000000000000001
+          format: connection-id
+        app_metadata:
+          $ref: '#/components/schemas/AppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadata'
+        roles:
+          type: array
+          description: List of roles IDs to associated with the user.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+        ticket_id:
+          type: string
+          description: The id of the invitation ticket
+          format: ticket-id
+    GetOrganizationDiscoveryDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_txt
+      - verification_host
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    OrganizationMetadata:
+      type: object
+      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 25
+    OrganizationEnabledConnection:
+      type: object
+      additionalProperties: true
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    GetOrganizationAllConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: "^[^\0]*$"
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    CreateOrganizationInvitationResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the user invitation.
+          default: uinv_0000000000000001
+          format: user-invitation-id
+        organization_id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        inviter:
+          $ref: '#/components/schemas/OrganizationInvitationInviter'
+        invitee:
+          $ref: '#/components/schemas/OrganizationInvitationInvitee'
+        invitation_url:
+          type: string
+          description: The invitation url to be send to the invitee.
+          default: https://mycompany.org/login?invitation=f81dWWYW6gzGGicxT8Ha0txBkGNcAcYr&organization=org_0000000000000001&organization_name=acme
+          format: strict-https-uri
+        created_at:
+          type: string
+          description: The ISO 8601 formatted timestamp representing the creation time of the invitation.
+          default: '2020-08-20T19:10:06.299Z'
+          format: date-time
+        expires_at:
+          type: string
+          description: The ISO 8601 formatted timestamp representing the expiration time of the invitation.
+          default: '2020-08-27T19:10:06.299Z'
+          format: date-time
+        client_id:
+          type: string
+          description: Auth0 client ID. Used to resolve the application's login initiation endpoint.
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+          format: client-id
+        connection_id:
+          type: string
+          description: The id of the connection to force invitee to authenticate with.
+          default: con_0000000000000001
+          format: connection-id
+        app_metadata:
+          $ref: '#/components/schemas/AppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadata'
+        roles:
+          type: array
+          description: List of roles IDs to associated with the user.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+        ticket_id:
+          type: string
+          description: The id of the invitation ticket
+          format: ticket-id
+    CreateOrganizationInvitationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - inviter
+      - invitee
+      - client_id
+      properties:
+        inviter:
+          $ref: '#/components/schemas/OrganizationInvitationInviter'
+        invitee:
+          $ref: '#/components/schemas/OrganizationInvitationInvitee'
+        client_id:
+          type: string
+          description: Auth0 client ID. Used to resolve the application's login initiation endpoint.
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+          format: client-id
+        connection_id:
+          type: string
+          description: The id of the connection to force invitee to authenticate with.
+          default: con_0000000000000001
+          format: connection-id
+        app_metadata:
+          $ref: '#/components/schemas/AppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadata'
+        ttl_sec:
+          type: integer
+          description: 'Number of seconds for which the invitation is valid before expiration. If unspecified or set to 0, this value defaults to 604800 seconds (7 days). Max value: 2592000 seconds (30 days).'
+          minimum: 0
+          maximum: 2592000
+        roles:
+          type: array
+          description: List of roles IDs to associated with the user.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+        send_invitation_email:
+          type: boolean
+          description: Whether the user will receive an invitation email (true) or no email (false), true by default
+          default: true
+    ListOrganizationMembersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationMember'
+      - $ref: '#/components/schemas/ListOrganizationMembersOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListOrganizationMembersPaginatedResponseContent'
+    ListOrganizationAllConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationAllConnectionPost'
+      - $ref: '#/components/schemas/ListOrganizationAllConnectionsOffsetPaginatedResponseContent'
+    DeleteOrganizationMembersRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - members
+      properties:
+        members:
+          type: array
+          description: List of user IDs to remove from the organization.
+          minItems: 1
+          items:
+            type: string
+            format: user-id-with-max-length

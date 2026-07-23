@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions rules-configs API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: rules-configs
+paths:
+  /rules-configs:
+    get:
+      summary: Retrieve Config Variable Keys for Rules (get_rules-configs)
+      description: "Retrieve rules config variable keys.\n\n    Note: For security, config variable values cannot be retrieved outside rule execution."
+      tags:
+      - rules-configs
+      responses:
+        '200':
+          description: Rules config keys successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RulesConfig'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:rules_configs.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_rules-configs
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-group: rulesConfigs
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:rules_configs
+  /rules-configs/{key}:
+    delete:
+      summary: Delete Rules Config for a Given Key
+      description: Delete a rules config variable identified by its key.
+      tags:
+      - rules-configs
+      parameters:
+      - name: key
+        in: path
+        description: Key of the rules config variable to delete.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 127
+          pattern: ^[A-Za-z0-9_\-@*+:]*$
+      responses:
+        '204':
+          description: Rules config variable successfully removed.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:rules_configs.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_rules-configs_by_key
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: rulesConfigs
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:rules_configs
+    put:
+      summary: Set Rules Config for a Given Key
+      description: Sets a rules config variable.
+      tags:
+      - rules-configs
+      parameters:
+      - name: key
+        in: path
+        description: 'Key of the rules config variable to set (max length: 127 characters).'
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 127
+          pattern: ^[A-Za-z0-9_\-@*+:]*$
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRulesConfigRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetRulesConfigRequestContent'
+      responses:
+        '200':
+          description: Rules config variable successfully set.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRulesConfigResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:rules_configs.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_rules-configs_by_key
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group: rulesConfigs
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:rules_configs
+components:
+  schemas:
+    SetRulesConfigResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - key
+      - value
+      properties:
+        key:
+          type: string
+          description: Key for a rules config variable.
+          default: MY_RULES_CONFIG_KEY
+          minLength: 1
+          maxLength: 127
+          pattern: ^[A-Za-z0-9_\-@*+:]*$
+        value:
+          type: string
+          description: Value for a rules config variable.
+          default: MY_RULES_CONFIG_VALUE
+    RulesConfig:
+      type: object
+      additionalProperties: true
+      properties:
+        key:
+          type: string
+          description: Key for a rules config variable.
+          default: MY_RULES_CONFIG_KEY
+          minLength: 1
+          maxLength: 127
+          pattern: ^[A-Za-z0-9_\-@*+:]*$
+    SetRulesConfigRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: Value for a rules config variable.
+          default: MY_RULES_CONFIG_VALUE

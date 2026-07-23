@@ -1,0 +1,349 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions MFA API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: MFA
+paths:
+  /mfa/challenge:
+    post:
+      operationId: mfa_challenge
+      tags:
+      - MFA
+      summary: Auth0 Request a Challenge for Multi-factor Authentication
+      description: Request a challenge for multi-factor authentication (MFA) based on the challenge types supported by the application and user. The challenge_type is how the user will get the challenge and prove possession. Supported challenge types include otp for one-time password (OTP), oob for SMS/Voice messages or out-of-band (OOB). If OTP is supported by the user and you don't want to request a different factor, you can skip the challenge request and verify the multi-factor authentication with a one-time password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mfa_token:
+                  type: string
+                  description: The token received from mfa_required error.
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                client_assertion:
+                  type: string
+                  description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
+                client_assertion_type:
+                  type: string
+                  description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
+                client_secret:
+                  type: string
+                  description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
+                challenge_type:
+                  type: string
+                  description: A whitespace-separated list of the challenges types accepted by your application. Accepted challenge types are oob or otp. Excluding this parameter means that your client application accepts all supported challenge types.
+                authenticator_id:
+                  type: string
+                  description: The ID of the authenticator to challenge. You can get the ID by querying the list of available authenticators for the user as explained on List authenticators below.
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/associate:
+    post:
+      operationId: mfa_associate
+      tags:
+      - MFA
+      summary: Auth0 Associates or Adds a New Authenticator for Multi-factor Authentication (MFA).
+      description: 'If the user has active authenticators, an Access Token with the enroll scope and the audience set to https://{yourDomain}/mfa/ is required to use this endpoint.
+
+        If the user has no active authenticators, you can use the mfa_token from the mfa_required error in place of an Access Token for this request.
+
+        After an authenticator is added, it must be verified. To verify the authenticator, use the response values from the /mfa/associate request in place of the values returned from the /mfa/challenge endpoint and continue with the verification flow.
+
+        A recovery_codes field is included in the response the first time an authenticator is added. You can use recovery_codes to pass multi-factor authentication as shown on Verify with recovery code above.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: Your application's Client ID.
+                client_assertion:
+                  type: string
+                  description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
+                client_assertion_type:
+                  type: string
+                  description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
+                client_secret:
+                  type: string
+                  description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field in your Application Settings is Post or Basic.
+                authenticator_types:
+                  type: array
+                  items:
+                    type: string
+                  description: The type of authenticators supported by the client. Value is an array with values "otp" or "oob".
+                oob_channels:
+                  type: array
+                  items:
+                    type: string
+                  description: The type of OOB channels supported by the client. An array with values "auth0", "sms", "voice". Required if authenticator_types include oob.
+                phone_number:
+                  type: string
+                  description: The phone number to use for SMS or Voice. Required if oob_channels includes sms or voice.
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recovery_codes:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/authenticators:
+    get:
+      operationId: mfa_authenticators
+      tags:
+      - MFA
+      summary: Auth0 Returns a List of Authenticators Associated with Your Application.
+      description: 'To access this endpoint you must set an Access Token at the Authorization header, with the following claims:
+
+        scope: read:authenticators
+
+        audience: https://{yourDomain}/mfa/
+
+        '
+      parameters:
+      - name: ACCESS_TOKEN
+        in: header
+        required: true
+        schema:
+          type: string
+        description: The Access Token obtained during login.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    authenticator_type:
+                      type: string
+                    oob_channels:
+                      type: string
+                      nullable: true
+                    name:
+                      type: string
+                      nullable: true
+                    active:
+                      type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /mfa/authenticators/{AUTHENTICATOR_ID}:
+    delete:
+      operationId: mfa_authenticators_delete
+      tags:
+      - MFA
+      summary: Auth0 Deletes an Associated Authenticator Using Its ID.
+      description: 'You can get authenticator IDs by listing the authenticators.
+
+        To access this endpoint, you must set an Access Token at the Authorization header, with the following claims:
+
+        scope: remove:authenticators
+
+        audience: https://{yourDomain}/mfa/
+
+        '
+      parameters:
+      - name: ACCESS_TOKEN
+        in: header
+        required: true
+        schema:
+          type: string
+        description: The Access Token obtained during login.
+      - name: AUTHENTICATOR_ID
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The ID of the authenticator to delete.
+      responses:
+        '204':
+          description: Successful response. No content.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  responses:
+    NotImplemented:
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    InternalServerError:
+      description: Internal Server Error
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    MethodNotAllowed:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string

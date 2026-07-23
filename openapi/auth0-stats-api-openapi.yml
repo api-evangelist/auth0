@@ -1,0 +1,126 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions stats API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: stats
+paths:
+  /stats/active-users:
+    get:
+      summary: Get Active Users Count
+      description: Retrieve the number of active users that logged in during the last 30 days.
+      tags:
+      - stats
+      responses:
+        '200':
+          description: Number of active users successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetActiveUsersCountStatsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:stats.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_active-users
+      x-release-lifecycle: GA
+      x-operation-name: getActiveUsersCount
+      x-operation-group: stats
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:stats
+  /stats/daily:
+    get:
+      summary: Get Daily Stats
+      description: Retrieve the number of logins, signups and breached-password detections (subscription required) that occurred each day within a specified date range.
+      tags:
+      - stats
+      parameters:
+      - name: from
+        in: query
+        description: Optional first day of the date range (inclusive) in YYYYMMDD format.
+        schema:
+          type: string
+          pattern: ^2[0-9]{3}((0[1-9])|(1[0-2]))((0[1-9])|([12][0-9])|(3[01]))$
+      - name: to
+        in: query
+        description: Optional last day of the date range (inclusive) in YYYYMMDD format.
+        schema:
+          type: string
+          pattern: ^2[0-9]{3}((0[1-9])|(1[0-2]))((0[1-9])|([12][0-9])|(3[01]))$
+      responses:
+        '200':
+          description: Daily stats successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyStats'
+        '400':
+          description: Invalid request query. The message will vary depending on the cause.
+          x-description-1: '''from'' date cannot be greater than ''to'' date.'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:stats.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_daily
+      x-release-lifecycle: GA
+      x-operation-name: getDaily
+      x-operation-request-parameters-name: GetDailyStatsRequestParameters
+      x-operation-group: stats
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:stats
+components:
+  schemas:
+    GetActiveUsersCountStatsResponseContent:
+      type: number
+      description: Number of active users in the last 30 days.
+      default: 100
+    DailyStats:
+      type: object
+      additionalProperties: true
+      properties:
+        date:
+          type: string
+          description: Date these events occurred in ISO 8601 format.
+          default: '2014-01-01T00:00:00.000Z'
+        logins:
+          type: integer
+          description: Number of logins on this date.
+          default: 100
+        signups:
+          type: integer
+          description: Number of signups on this date.
+          default: 100
+        leaked_passwords:
+          type: integer
+          description: Number of breached-password detections on this date (subscription required).
+          default: 100
+        updated_at:
+          type: string
+          description: Date and time this stats entry was last updated in ISO 8601 format.
+          default: '2014-01-01T02:00:00.000Z'
+        created_at:
+          type: string
+          description: Approximate date and time the first event occurred in ISO 8601 format.
+          default: '2014-01-01T20:00:00.000Z'

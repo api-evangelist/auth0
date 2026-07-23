@@ -1,0 +1,229 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions risk-assessments API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: risk-assessments
+paths:
+  /risk-assessments/settings:
+    get:
+      summary: Get Risk Assessment Settings
+      description: Gets the tenant settings for risk assessments
+      tags:
+      - risk-assessments
+      responses:
+        '200':
+          description: Returning risk assessment settings for the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRiskAssessmentsSettingsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:attack_protection.'
+        '404':
+          description: The tenant does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_risk_assessments_settings
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - riskAssessments
+      - settings
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update Risk Assessment Settings
+      description: Updates the tenant settings for risk assessments
+      tags:
+      - risk-assessments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskAssessmentsSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskAssessmentsSettingsRequestContent'
+      responses:
+        '200':
+          description: Returning risk assessment settings for the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRiskAssessmentsSettingsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:attack_protection.'
+        '404':
+          description: The tenant does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_risk_assessments_settings
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - riskAssessments
+      - settings
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+  /risk-assessments/settings/new-device:
+    get:
+      summary: Get New Device Assessor
+      description: Gets the risk assessment settings for the new device assessor
+      tags:
+      - risk-assessments
+      responses:
+        '200':
+          description: Returning risk assessment settings for new devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRiskAssessmentsSettingsNewDeviceResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:attack_protection.'
+        '404':
+          description: The tenant does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_new-device
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - riskAssessments
+      - settings
+      - newDevice
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:attack_protection
+    patch:
+      summary: Update New Device Assessor
+      description: Updates the risk assessment settings for the new device assessor
+      tags:
+      - risk-assessments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskAssessmentsSettingsNewDeviceRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskAssessmentsSettingsNewDeviceRequestContent'
+      responses:
+        '200':
+          description: Returning risk assessment settings for new devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRiskAssessmentsSettingsNewDeviceResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:attack_protection.'
+        '404':
+          description: The tenant does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_new-device
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - riskAssessments
+      - settings
+      - newDevice
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:attack_protection
+components:
+  schemas:
+    UpdateRiskAssessmentsSettingsNewDeviceResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - remember_for
+      properties:
+        remember_for:
+          type: integer
+          description: Length of time to remember devices for, in days.
+          minimum: 1
+          maximum: 365
+    UpdateRiskAssessmentsSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not risk assessment is enabled.
+    UpdateRiskAssessmentsSettingsNewDeviceRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - remember_for
+      properties:
+        remember_for:
+          type: integer
+          description: Length of time to remember devices for, in days.
+          minimum: 1
+          maximum: 365
+    GetRiskAssessmentsSettingsNewDeviceResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - remember_for
+      properties:
+        remember_for:
+          type: integer
+          description: Length of time to remember devices for, in days.
+          minimum: 1
+          maximum: 365
+    GetRiskAssessmentsSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not risk assessment is enabled.
+    UpdateRiskAssessmentsSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not risk assessment is enabled.

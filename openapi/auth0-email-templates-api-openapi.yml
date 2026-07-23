@@ -1,0 +1,562 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions email-templates API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: email-templates
+paths:
+  /email-templates:
+    post:
+      summary: Create an Email Template
+      description: Create an email template.
+      tags:
+      - email-templates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmailTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEmailTemplateRequestContent'
+      responses:
+        '200':
+          description: Template successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEmailTemplateResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: create:email_templates.'
+        '409':
+          description: Template (templateName) already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_email-templates
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: emailTemplates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:email_templates
+  /email-templates/{templateName}:
+    get:
+      summary: Get an Email Template
+      description: Retrieve an email template by pre-defined name. These names are `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, and `async_approval`. The names `change_password`, and `password_reset` are also supported for legacy scenarios.
+      tags:
+      - email-templates
+      parameters:
+      - name: templateName
+        in: path
+        description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+        required: true
+        schema:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+      responses:
+        '200':
+          description: Template successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmailTemplateResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: read:email_templates.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_email-templates_by_templateName
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: emailTemplates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:email_templates
+    patch:
+      summary: Patch an Email Template
+      description: Modify an email template.
+      tags:
+      - email-templates
+      parameters:
+      - name: templateName
+        in: path
+        description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+        required: true
+        schema:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailTemplateRequestContent'
+      responses:
+        '200':
+          description: Template successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEmailTemplateResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:email_templates.'
+        '404':
+          description: Template not found and cannot be updated.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_email-templates_by_templateName
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: emailTemplates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:email_templates
+    put:
+      summary: Update an Email Template
+      description: Update an email template.
+      tags:
+      - email-templates
+      parameters:
+      - name: templateName
+        in: path
+        description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+        required: true
+        schema:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetEmailTemplateRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetEmailTemplateRequestContent'
+      responses:
+        '200':
+          description: Template successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetEmailTemplateResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:email_templates.'
+        '404':
+          description: Template not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_email-templates_by_templateName
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group: emailTemplates
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:email_templates
+components:
+  schemas:
+    EmailTemplateNameEnum:
+      type: string
+      description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+      default: verify_email
+      enum:
+      - verify_email
+      - verify_email_by_code
+      - reset_email
+      - reset_email_by_code
+      - welcome_email
+      - blocked_account
+      - stolen_credentials
+      - enrollment_email
+      - mfa_oob_code
+      - user_invitation
+      - change_password
+      - password_reset
+      - async_approval
+    SetEmailTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - template
+      - body
+      - from
+      - subject
+      - syntax
+      - enabled
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    CreateEmailTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - template
+      - body
+      - from
+      - subject
+      - syntax
+      - enabled
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    GetEmailTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    UpdateEmailTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    CreateEmailTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - template
+      - body
+      - from
+      - subject
+      - syntax
+      - enabled
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    UpdateEmailTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    SetEmailTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - template
+      - body
+      - from
+      - subject
+      - syntax
+      - enabled
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).

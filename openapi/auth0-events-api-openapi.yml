@@ -1,0 +1,5333 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions events API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: events
+paths:
+  /events:
+    get:
+      summary: Subscribe to Events Via Server-Sent Events (SSE)
+      description: Subscribe to events via Server-Sent Events (SSE)
+      tags:
+      - events
+      parameters:
+      - name: from
+        in: query
+        description: Opaque token representing position in the stream. If not provided, stream will start from the latest events.
+        schema:
+          type: string
+          maxLength: 1024
+      - name: from_timestamp
+        in: query
+        description: RFC-3339 timestamp indicating where to start streaming events from. This should only be used on the initial query when a cursor may not be available. Subsequent requests should use the cursor (from) as it will be more accurate.
+        schema:
+          type: string
+          maxLength: 20
+      - name: event_type
+        in: query
+        description: Event type(s) to listen for. Specify multiple times for multiple types (e.g., ?event_type=user.created&event_type=user.updated). If not provided, all event types will be streamed.
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/EventStreamSubscribeEventsEventTypeParam'
+      responses:
+        '200':
+          description: Event stream successfully established.
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/EventStreamSubscribeEventsResponseContent'
+        '400':
+          description: Invalid cursor format.
+          x-description-1: Unsupported event type.
+          x-description-2: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Maximum concurrent event stream connections reached. Please close existing connections.
+          x-description-1: 'Insufficient scope; expected any of: read:events.'
+        '404':
+          description: Not found
+        '410':
+          description: Cursor points to data no longer available in the stream.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: subscribe_events
+      x-release-lifecycle: GA
+      x-operation-name: subscribe
+      x-operation-request-parameters-name: SubscribeEventsRequestParameters
+      x-operation-group: events
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:events
+components:
+  schemas:
+    EventStreamCloudEventOrgConnectionAddedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.connection.added
+    EventStreamCloudEventOrgConnectionAddedObjectConnection:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The ID of the connection.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - user.deleted
+    EventStreamCloudEventOrgCreatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when an organization is created.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventUserCreatedObject:
+      type: object
+      description: The event content.
+      additionalProperties: true
+      required:
+      - user_id
+      - created_at
+      - updated_at
+      - identities
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItem'
+        app_metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectAppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectUserMetadata'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+          format: uri
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+          minLength: 1
+          maxLength: 300
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          type: string
+          description: Last date and time this user logged in (ISO_8601 format).
+          format: date-time
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+    EventStreamCloudEventGroupMemberAddedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventGroupUpdatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a group is updated.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgCreatedObjectMetadata:
+      type: object
+      description: The metadata associated with the organization.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventOrgCreated:
+      type: object
+      description: SSE message for organization.created.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedCloudEvent'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessProviderEnum:
+      type: string
+      description: List of passwordless identity providers.
+      enum:
+      - email
+      - sms
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomProviderEnum:
+      type: string
+      description: List of custom identity providers.
+      enum:
+      - custom
+    EventStreamCloudEventGroupDeleted:
+      type: object
+      description: SSE message for group.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedCloudEvent'
+    EventStreamCloudEventOrgUpdatedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+        display_name:
+          type: string
+          description: If set, the name that will be displayed to end-users for this organization in any interaction with them.
+        metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedObjectMetadata'
+        branding:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedObjectBranding'
+    EventStreamCloudEventGroupMemberAddedObjectMember1:
+      type: object
+      description: A group member of member_type group
+      additionalProperties: false
+      required:
+      - member_type
+      - id
+      - type
+      - connection_id
+      properties:
+        member_type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectMember1MemberTypeEnum'
+        id:
+          type: string
+          description: The connection member's unique identifier
+        type:
+          type: string
+          description: The type of the connection
+        connection_id:
+          type: string
+          description: Connection ID associated with the member
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventA0PurposeEnum:
+      type: string
+      description: 'The purpose of this event. This field will typically appear only in special cases
+
+        such as sending a test event. For normal events, this field will be omitted.'
+      enum:
+      - test
+    EventStreamCloudEventUserCreated:
+      type: object
+      description: SSE message for user.created.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedCloudEvent'
+    EventStreamCloudEventUserUpdatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - user.updated
+    EventStreamCloudEventGroupDeletedObject0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventGroupMemberAddedObjectMember0MemberTypeEnum:
+      type: string
+      description: Type discriminator for user members
+      enum:
+      - user
+    EventStreamCloudEventUserUpdatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a user is updated.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgMemberRoleDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgUpdatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup1:
+      type: object
+      description: Reference to an organization group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup2:
+      type: object
+      description: Reference to a tenant group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup2TypeEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventOrgMemberRoleAssignedObjectUser:
+      type: object
+      description: The user that is a member of the organization.
+      additionalProperties: true
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+    EventStreamCloudEventOrgDeleted:
+      type: object
+      description: SSE message for organization.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgDeletedCloudEvent'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventContextConnection:
+      type: object
+      description: The Auth0 Connection used for the authentication transaction that generated the event.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - strategy
+      properties:
+        id:
+          type: string
+          description: The ID of the connection.
+          pattern: con_[a-zA-Z0-9]{16}
+        name:
+          type: string
+          description: The name of the connection.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        strategy:
+          type: string
+          description: The auth strategy implemented by the connection.
+    EventStreamCloudEventGroupRoleDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - group
+      - role
+      - deleted_at
+      properties:
+        group:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup'
+        role:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectRole'
+        deleted_at:
+          type: string
+          description: The time at which the role was removed from the group.
+          format: date-time
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventGroupDeletedObject2:
+      type: object
+      description: Tenant group with updated_at timestamp
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject2TypeEnum'
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+    EventStreamCloudEventOrgMemberRoleAssignedObjectOrganization:
+      type: object
+      description: The organization the member belongs to.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.deleted
+    EventStreamCloudEventOrgUpdatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when an organization is updated.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgGroupRoleDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.group.role.deleted
+    EventStreamCloudEventGroupMemberDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.member.deleted
+    EventStreamCloudEventGroupRoleAssignedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.role.assigned
+    EventStreamCloudEventOrgUpdatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.updated
+    EventStreamCloudEventOrgDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when an organization is deleted.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgMemberRoleDeleted:
+      type: object
+      description: SSE message for organization.member.role.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedCloudEvent'
+    EventStreamCloudEventOrgConnectionUpdated:
+      type: object
+      description: SSE message for organization.connection.updated.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedCloudEvent'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessProviderEnum:
+      type: string
+      description: List of passwordless identity providers.
+      enum:
+      - email
+      - sms
+    EventStreamCloudEventUserDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabase:
+      type: object
+      description: The identity object for database identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseIsSocialEnum'
+    EventStreamCloudEventOrgMemberRoleAssignedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.member.role.assigned
+    EventStreamCloudEventGroupRoleDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a role is removed from a group.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupDeletedObject:
+      description: The event content.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject2'
+    EventStreamCloudEventGroupRoleAssigned:
+      type: object
+      description: SSE message for group.role.assigned.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedCloudEvent'
+    EventStreamCloudEventOrgMemberRoleDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - user
+      - role
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedObjectOrganization'
+        user:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedObjectUser'
+        role:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedObjectRole'
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventErrorMessageTypeEnum:
+      type: string
+      description: Identifies this as an error message (injected from the SSE event field).
+      enum:
+      - error
+    EventStreamCloudEventOrgConnectionAddedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventGroupRoleAssignedObjectGroup1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordless:
+      type: object
+      description: The identity object for passwordless identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessIsSocialEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustom:
+      type: object
+      description: The identity object for custom identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomIsSocialEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialIsSocialEnum:
+      type: boolean
+      enum:
+      - true
+    EventStreamCloudEventGroupRoleDeletedObjectGroup1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: true
+      required:
+      - user_id
+      - created_at
+      - updated_at
+      - identities
+      - deleted_at
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItem'
+        app_metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectAppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectUserMetadata'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+          format: uri
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+          minLength: 1
+          maxLength: 300
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          type: string
+          description: Last date and time this user logged in (ISO_8601 format).
+          format: date-time
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        deleted_at:
+          type: string
+          description: Date and time when this entity was deleted (ISO_8601 format).
+          format: date-time
+    EventStreamCloudEventOrgGroupRoleAssignedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.group.role.assigned
+    EventStreamCloudEventOrgDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.deleted
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabase:
+      type: object
+      description: The identity object for database identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseIsSocialEnum'
+    EventStreamCloudEventUserCreatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - user.created
+    EventStreamCloudEventGroupDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.deleted
+    EventStreamCloudEventUserCreatedObjectAppMetadata:
+      type: object
+      description: User metadata to which this user has read-only access.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemCustom:
+      type: object
+      description: The identity object for custom identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomIsSocialEnum'
+    EventStreamCloudEventGroupMemberAddedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.member.added
+    EventStreamCloudEventGroupMemberDeletedObjectMember0:
+      type: object
+      description: A group member of member_type user
+      additionalProperties: false
+      required:
+      - member_type
+      - id
+      properties:
+        member_type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectMember0MemberTypeEnum'
+        id:
+          type: string
+          description: The user's unique identifier
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventGroupMemberDeletedObjectMember1:
+      type: object
+      description: A group member of member_type group
+      additionalProperties: false
+      required:
+      - member_type
+      - id
+      - type
+      - connection_id
+      properties:
+        member_type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectMember1MemberTypeEnum'
+        id:
+          type: string
+          description: The connection member's unique identifier
+        type:
+          type: string
+          description: The type of the connection
+        connection_id:
+          type: string
+          description: Connection ID associated with the member
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgMemberRoleAssignedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - user
+      - role
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedObjectOrganization'
+        user:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedObjectUser'
+        role:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedObjectRole'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomProviderEnum:
+      type: string
+      description: List of custom identity providers.
+      enum:
+      - custom
+    EventStreamCloudEventUserUpdatedObjectUserMetadata:
+      type: object
+      description: User metadata to which this user has read/write access.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventOffsetOnlyMessage:
+      type: object
+      description: An offset-only heartbeat message. Advances the cursor without delivering an event.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOffsetOnlyMessageTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing the latest position in the stream. Pass as the `from` query parameter to resume.
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialProviderEnum:
+      type: string
+      description: List of social identity providers.
+      enum:
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - baidu
+      - bitly
+      - box
+      - daccount
+      - dwolla
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-oauth2
+      - instagram
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - paypal
+      - paypal-sandbox
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - shopify
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untapped
+      - vkontakte
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    EventStreamCloudEventOrgCreatedObjectBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+        page_background:
+          type: string
+          description: HEX Color for background.
+    EventStreamCloudEventGroupRoleDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.role.deleted
+    EventStreamCloudEventOrgCreatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.created
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventUserDeletedObjectUserMetadata:
+      type: object
+      description: User metadata to which this user has read/write access.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventOrgGroupRoleAssigned:
+      type: object
+      description: SSE message for organization.group.role.assigned.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedCloudEvent'
+    EventStreamCloudEventOrgCreatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgMemberRoleAssignedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseProviderEnum:
+      type: string
+      description: List of database identity providers.
+      enum:
+      - auth0
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup0:
+      type: object
+      description: Reference to a connection group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupRoleDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialIsSocialEnum:
+      type: boolean
+      enum:
+      - true
+    EventStreamCloudEventOrgMemberDeleted:
+      type: object
+      description: SSE message for organization.member.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedCloudEvent'
+    EventStreamCloudEventGroupUpdatedObject1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventOrgUpdatedObjectMetadata:
+      type: object
+      description: The metadata associated with the organization.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventUserCreatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a user is created.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupRoleAssignedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgMemberDeletedObjectUser:
+      type: object
+      description: The user that is a member of the organization.
+      additionalProperties: true
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+    EventStreamCloudEventGroupMemberDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - group
+      - member
+      properties:
+        group:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup'
+        member:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectMember'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupUpdatedObject1:
+      type: object
+      description: Organization group with updated_at timestamp
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - organization_id
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+    EventStreamCloudEventOrgMemberRoleDeletedObjectRole:
+      type: object
+      description: The role assigned to the user in the organization.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          description: The ID of the role.
+          pattern: rol_[a-zA-Z0-9]{16}
+        name:
+          type: string
+          description: The name of the role.
+    EventStreamCloudEventOrgGroupRoleDeletedObjectOrganization:
+      type: object
+      description: The organization the group role is removed from.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgConnectionRemovedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgConnectionAddedObjectOrganization:
+      type: object
+      description: Information about an Auth0 Organization.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventContextTenant:
+      type: object
+      description: Reference to a tenant in event context
+      additionalProperties: false
+      required:
+      - tenant_id
+      properties:
+        tenant_id:
+          type: string
+          description: Machine-generated unique tenant identifier.
+          pattern: ten_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup0:
+      type: object
+      description: Reference to a connection group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupMemberDeletedObjectMember:
+      description: The member that is a part of the group.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectMember0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectMember1'
+    EventStreamCloudEventGroupMemberDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventGroupMemberAddedObjectGroup0:
+      type: object
+      description: Reference to a connection group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgUpdatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.updated
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventGroupRoleDeletedObjectGroup0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventUserUpdatedObject:
+      type: object
+      description: The event content.
+      additionalProperties: true
+      required:
+      - user_id
+      - created_at
+      - updated_at
+      - identities
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItem'
+        app_metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectAppMetadata'
+        user_metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectUserMetadata'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+          format: uri
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+          minLength: 1
+          maxLength: 300
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          type: string
+          description: Last date and time this user logged in (ISO_8601 format).
+          format: date-time
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventOrgConnectionRemovedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a connection is removed from an organization.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgConnectionRemovedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.connection.removed
+    EventStreamCloudEventGroupCreatedObject2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventGroupMemberDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a member is removed from a group.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupCreated:
+      type: object
+      description: SSE message for group.created.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedCloudEvent'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItem:
+      description: Identity object when accounts are linked.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustom'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabase'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterprise'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordless'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocial'
+    EventStreamCloudEventGroupMemberDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.member.deleted
+    EventStreamCloudEventOrgMemberDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.member.deleted
+    EventStreamCloudEventOrgMemberRoleDeletedObjectOrganization:
+      type: object
+      description: The organization the member belongs to.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+        display_name:
+          type: string
+          description: If set, the name that will be displayed to end-users for this organization in any interaction with them.
+        metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgDeletedObjectMetadata'
+    EventStreamCloudEventGroupMemberDeleted:
+      type: object
+      description: SSE message for group.member.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedCloudEvent'
+    EventStreamCloudEventContextClient:
+      type: object
+      description: The OAuth Client requesting or presenting an access token.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - metadata
+      properties:
+        id:
+          type: string
+          description: The client identifier.
+        name:
+          type: string
+          description: The client name.
+        metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventContextClientMetadata'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseProviderEnum:
+      type: string
+      description: List of enterprise identity providers.
+      enum:
+      - ad
+      - adfs
+      - google-apps
+      - ip
+      - office365
+      - oidc
+      - okta
+      - pingfederate
+      - samlp
+      - sharepoint
+      - waad
+    EventStreamCloudEventGroupMemberAddedObjectGroup2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventGroupCreatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a group is created.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupUpdatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgGroupRoleAssignedObjectRole:
+      type: object
+      description: The role assigned to the group in the organization.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          description: The ID of the role.
+          pattern: rol_[a-zA-Z0-9]{16}
+        name:
+          type: string
+          description: The name of the role.
+    EventStreamCloudEventUserUpdatedObjectAppMetadata:
+      type: object
+      description: User metadata to which this user has read-only access.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventUserDeletedObjectIdentitiesItem:
+      description: Identity object when accounts are linked.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemCustom'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabase'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterprise'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordless'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemSocial'
+    EventStreamCloudEventContextRequestGeo:
+      type: object
+      description: Geographic information about the request origin.
+      additionalProperties: false
+      properties:
+        continent_code:
+          type: string
+          description: Continent code.
+        country_code:
+          type: string
+          description: Country code.
+        country_name:
+          type: string
+          description: Country name.
+        latitude:
+          type: number
+          description: Latitude coordinate.
+        longitude:
+          type: number
+          description: Longitude coordinate.
+        subdivision_code:
+          type: string
+          description: Subdivision (state/province) code.
+        subdivision_name:
+          type: string
+          description: Subdivision (state/province) name.
+        city_name:
+          type: string
+          description: City name.
+        time_zone:
+          type: string
+          description: Time zone.
+    EventStreamCloudEventGroupMemberDeletedObjectGroup2:
+      type: object
+      description: Reference to a tenant group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup2TypeEnum'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomProviderEnum:
+      type: string
+      description: List of custom identity providers.
+      enum:
+      - custom
+    EventStreamCloudEventGroupUpdatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.updated
+    EventStreamCloudEventOrgUpdated:
+      type: object
+      description: SSE message for organization.updated.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedCloudEvent'
+    EventStreamCloudEventGroupRoleAssignedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - group
+      - role
+      - created_at
+      properties:
+        group:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup'
+        role:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectRole'
+        created_at:
+          type: string
+          description: The time at which the role was assigned to the group.
+          format: date-time
+    EventStreamCloudEventOrgMemberDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.member.deleted
+    EventStreamCloudEventGroupMemberAddedObjectGroup1:
+      type: object
+      description: Reference to an organization group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseProviderEnum:
+      type: string
+      description: List of database identity providers.
+      enum:
+      - auth0
+    EventStreamCloudEventOrgConnectionRemovedObjectOrganization:
+      type: object
+      description: Information about an Auth0 Organization.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupCreatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgConnectionAddedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a connection is added to an organization.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventOrgMemberRoleDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.member.role.deleted
+    EventStreamCloudEventContext:
+      type: object
+      description: 'Information about the context in which the event was produced. This may include things like
+
+        HTTP request details, client information, connection information, etc.
+
+
+        Note: This field may not be present on all events, depending on the event type and the
+
+        context in which it was generated.'
+      additionalProperties: false
+      required:
+      - tenant
+      properties:
+        client:
+          $ref: '#/components/schemas/EventStreamCloudEventContextClient'
+        connection:
+          $ref: '#/components/schemas/EventStreamCloudEventContextConnection'
+        request:
+          $ref: '#/components/schemas/EventStreamCloudEventContextRequest'
+        tenant:
+          $ref: '#/components/schemas/EventStreamCloudEventContextTenant'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventGroupDeletedObject1:
+      type: object
+      description: Organization group with updated_at timestamp
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - organization_id
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+    EventStreamSubscribeEventsResponseContent:
+      description: 'The JSON payload delivered in each SSE data line. The type field is injected from the SSE event field by the SDK. Discriminated by type: an event type name for events, "error" for errors, and "offset-only" for cursor-only heartbeats.'
+      discriminator:
+        propertyName: type
+        x-discriminator-context: protocol
+        mapping:
+          group.created: '#/components/schemas/EventStreamCloudEventGroupCreated'
+          group.deleted: '#/components/schemas/EventStreamCloudEventGroupDeleted'
+          group.member.added: '#/components/schemas/EventStreamCloudEventGroupMemberAdded'
+          group.member.deleted: '#/components/schemas/EventStreamCloudEventGroupMemberDeleted'
+          group.role.assigned: '#/components/schemas/EventStreamCloudEventGroupRoleAssigned'
+          group.role.deleted: '#/components/schemas/EventStreamCloudEventGroupRoleDeleted'
+          group.updated: '#/components/schemas/EventStreamCloudEventGroupUpdated'
+          organization.connection.added: '#/components/schemas/EventStreamCloudEventOrgConnectionAdded'
+          organization.connection.removed: '#/components/schemas/EventStreamCloudEventOrgConnectionRemoved'
+          organization.connection.updated: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdated'
+          organization.created: '#/components/schemas/EventStreamCloudEventOrgCreated'
+          organization.deleted: '#/components/schemas/EventStreamCloudEventOrgDeleted'
+          organization.group.role.assigned: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssigned'
+          organization.group.role.deleted: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeleted'
+          organization.member.added: '#/components/schemas/EventStreamCloudEventOrgMemberAdded'
+          organization.member.deleted: '#/components/schemas/EventStreamCloudEventOrgMemberDeleted'
+          organization.member.role.assigned: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssigned'
+          organization.member.role.deleted: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeleted'
+          organization.updated: '#/components/schemas/EventStreamCloudEventOrgUpdated'
+          user.created: '#/components/schemas/EventStreamCloudEventUserCreated'
+          user.deleted: '#/components/schemas/EventStreamCloudEventUserDeleted'
+          user.updated: '#/components/schemas/EventStreamCloudEventUserUpdated'
+          error: '#/components/schemas/EventStreamCloudEventErrorMessage'
+          offset-only: '#/components/schemas/EventStreamCloudEventOffsetOnlyMessage'
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupCreated'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAdded'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssigned'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupUpdated'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAdded'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemoved'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdated'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgCreated'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssigned'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAdded'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssigned'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgUpdated'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserCreated'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserDeleted'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserUpdated'
+      - $ref: '#/components/schemas/EventStreamCloudEventErrorMessage'
+      - $ref: '#/components/schemas/EventStreamCloudEventOffsetOnlyMessage'
+    EventStreamCloudEventGroupUpdatedObject0:
+      type: object
+      description: Connection group with updated_at timestamp
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - connection_id
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+    EventStreamCloudEventGroupMemberDeletedObjectMember1MemberTypeEnum:
+      type: string
+      description: Type discriminator for connection members
+      enum:
+      - connection
+    EventStreamCloudEventGroupUpdated:
+      type: object
+      description: SSE message for group.updated.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedCloudEvent'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemDatabaseUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupRoleAssignedObjectGroup2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventGroupRoleDeletedObjectGroup1:
+      type: object
+      description: Reference to an organization group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupRoleAssignedObjectGroup2:
+      type: object
+      description: Reference to a tenant group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup2TypeEnum'
+    EventStreamCloudEventOrgGroupRoleDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a role is removed from an organization group.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOffsetOnlyMessageTypeEnum:
+      type: string
+      description: Identifies this as an offset-only heartbeat message (injected from the SSE event field).
+      enum:
+      - offset-only
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventOrgMemberAddedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupMemberDeletedObjectGroup0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventGroupRoleDeletedObjectGroup0:
+      type: object
+      description: Reference to a connection group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialProviderEnum:
+      type: string
+      description: List of social identity providers.
+      enum:
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - baidu
+      - bitly
+      - box
+      - daccount
+      - dwolla
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-oauth2
+      - instagram
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - paypal
+      - paypal-sandbox
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - shopify
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untapped
+      - vkontakte
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    EventStreamCloudEventGroupMemberDeletedObjectMember0MemberTypeEnum:
+      type: string
+      description: Type discriminator for user members
+      enum:
+      - user
+    EventStreamCloudEventOrgUpdatedObjectBranding:
+      type: object
+      description: The branding associated with the organization.
+      additionalProperties: false
+      properties:
+        logo_url:
+          type: string
+          description: URL of logo to display on login page.
+          format: uri
+        colors:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgUpdatedObjectBrandingColors'
+    EventStreamCloudEventGroupCreatedObject:
+      description: The event content.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject2'
+    EventStreamCloudEventErrorCodeEnum:
+      type: string
+      description: Machine-readable error code.
+      enum:
+      - invalid_cursor
+      - cursor_expired
+      - timeout
+      - payload_too_large
+      - processing_error
+      - connection_timeout
+    EventStreamCloudEventGroupRoleDeletedObjectGroup:
+      description: The group the role is removed from.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup2'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupUpdatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.updated
+    EventStreamCloudEventOrgConnectionUpdatedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - connection
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedObjectOrganization'
+        connection:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedObjectConnection'
+        assign_membership_on_login:
+          type: boolean
+          description: 'When true, all users that log in with this connection will be automatically granted membership
+
+            in the organization. When false, users must be granted membership in the organization before
+
+            logging in with this connection.'
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt.
+
+            Only applicable for enterprise connections.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection.
+
+            Only applicable for database connections.'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialIsSocialEnum:
+      type: boolean
+      enum:
+      - true
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup1:
+      type: object
+      description: Reference to an organization group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupCreatedObject2:
+      type: object
+      description: Represents a tenant group entity.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject2TypeEnum'
+    EventStreamCloudEventOrgMemberRoleDeletedObjectUser:
+      type: object
+      description: The user that is a member of the organization.
+      additionalProperties: true
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+    EventStreamCloudEventOrgConnectionUpdatedObjectConnection:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The ID of the connection.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventErrorDetail:
+      type: object
+      description: Error details.
+      additionalProperties: false
+      required:
+      - code
+      - message
+      properties:
+        code:
+          $ref: '#/components/schemas/EventStreamCloudEventErrorCodeEnum'
+        message:
+          type: string
+          description: Human-readable error message.
+        offset:
+          type: string
+          description: The cursor at the time of the error (when available). Can be used to resume from this position.
+    EventStreamCloudEventGroupMemberAddedObjectMember1MemberTypeEnum:
+      type: string
+      description: Type discriminator for connection members
+      enum:
+      - connection
+    EventStreamCloudEventOrgCreatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.created
+    EventStreamCloudEventOrgConnectionUpdatedObjectOrganization:
+      type: object
+      description: Information about an Auth0 Organization.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.deleted
+    EventStreamCloudEventGroupRoleAssignedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a role is assigned to a group.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgUpdatedObjectBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+        page_background:
+          type: string
+          description: HEX Color for background.
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventGroupUpdatedObject0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventOrgMemberDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - user
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedObjectOrganization'
+        user:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedObjectUser'
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabase:
+      type: object
+      description: The identity object for database identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseIsSocialEnum'
+    EventStreamCloudEventGroupUpdatedObject2:
+      type: object
+      description: Tenant group with updated_at timestamp
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject2TypeEnum'
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventOrgMemberAdded:
+      type: object
+      description: SSE message for organization.member.added.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedCloudEvent'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemSocial:
+      type: object
+      description: The identity object for social identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialIsSocialEnum'
+    EventStreamCloudEventGroupDeletedObject0:
+      type: object
+      description: Connection group with updated_at timestamp
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - connection_id
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedObject0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+        updated_at:
+          type: string
+          description: Date and time when this entity was last updated/modified (ISO_8601 format).
+          format: date-time
+    EventStreamCloudEventOrgMemberRoleAssigned:
+      type: object
+      description: SSE message for organization.member.role.assigned.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedCloudEvent'
+    EventStreamCloudEventGroupRoleDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.role.deleted
+    EventStreamCloudEventGroupMemberAddedObjectGroup2:
+      type: object
+      description: Reference to a tenant group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup2TypeEnum'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterprise:
+      type: object
+      description: The identity object for enterprise identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemEnterpriseIsSocialEnum'
+    EventStreamCloudEventGroupMemberAddedObjectGroup0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventOrgConnectionRemovedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.connection.removed
+    EventStreamCloudEventOrgDeletedObjectMetadata:
+      type: object
+      description: The metadata associated with the organization.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventGroupMemberAddedObjectMember:
+      description: The member that is a part of the group.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectMember0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectMember1'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseProviderEnum:
+      type: string
+      description: List of database identity providers.
+      enum:
+      - auth0
+    EventStreamCloudEventGroupRoleDeletedObjectGroup2:
+      type: object
+      description: Reference to a tenant group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedObjectGroup2TypeEnum'
+    EventStreamCloudEventOrgMemberRoleAssignedObjectRole:
+      type: object
+      description: The role assigned to the user in the organization.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          description: The ID of the role.
+          pattern: rol_[a-zA-Z0-9]{16}
+        name:
+          type: string
+          description: The name of the role.
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamSubscribeEventsEventTypeParam:
+      type: array
+      items:
+        $ref: '#/components/schemas/EventStreamSubscribeEventsEventTypeEnum'
+      description: Event type(s) to listen for. Specify multiple times for multiple types (e.g., ?event_type=user.created&event_type=user.updated). If not provided, all event types will be streamed.
+    EventStreamCloudEventOrgMemberDeletedObjectOrganization:
+      type: object
+      description: The organization the member belongs to.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventGroupUpdatedObject:
+      description: The event content.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupUpdatedObject2'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseProviderEnum:
+      type: string
+      description: List of enterprise identity providers.
+      enum:
+      - ad
+      - adfs
+      - google-apps
+      - ip
+      - office365
+      - oidc
+      - okta
+      - pingfederate
+      - samlp
+      - sharepoint
+      - waad
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventOrgMemberRoleDeletedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.member.role.deleted
+    EventStreamCloudEventGroupMemberAddedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a member is added to a group.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventGroupUpdatedObject2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialProviderEnum:
+      type: string
+      description: List of social identity providers.
+      enum:
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - baidu
+      - bitly
+      - box
+      - daccount
+      - dwolla
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-oauth2
+      - instagram
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - paypal
+      - paypal-sandbox
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - shopify
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untapped
+      - vkontakte
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    EventStreamCloudEventGroupMemberDeletedObjectGroup1:
+      type: object
+      description: Reference to an organization group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a group is deleted.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupRoleDeleted:
+      type: object
+      description: SSE message for group.role.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleDeletedCloudEvent'
+    EventStreamCloudEventGroupRoleAssignedObjectGroup0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventOrgMemberRoleDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a member is removed from an organization.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemCustom:
+      type: object
+      description: The identity object for custom identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomIsSocialEnum'
+    EventStreamCloudEventOrgGroupRoleDeletedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - role
+      - group
+      - deleted_at
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectOrganization'
+        role:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectRole'
+        group:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup'
+        deleted_at:
+          type: string
+          description: The time at which the role was removed from the group in the organization.
+          format: date-time
+    EventStreamCloudEventGroupCreatedObject1:
+      type: object
+      description: Represents an organization group entity.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserCreatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup:
+      description: The group the role is removed from.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup0'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup1'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup2'
+    EventStreamCloudEventOrgConnectionAddedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - connection
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedObjectOrganization'
+        connection:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedObjectConnection'
+        assign_membership_on_login:
+          type: boolean
+          description: 'When true, all users that log in with this connection will be automatically granted membership
+
+            in the organization. When false, users must be granted membership in the organization before
+
+            logging in with this connection.'
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt.
+
+            Only applicable for enterprise connections.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection.
+
+            Only applicable for database connections.'
+    EventStreamCloudEventOrgGroupRoleAssignedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgGroupRoleAssignedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.group.role.assigned
+    EventStreamCloudEventOrgGroupRoleDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.group.role.deleted
+    EventStreamCloudEventGroupRoleDeletedObjectGroup2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventUserDeletedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - user.deleted
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordless:
+      type: object
+      description: The identity object for passwordless identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessIsSocialEnum'
+    EventStreamCloudEventUserDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a user is deleted.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgGroupRoleAssignedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a role is assigned to an organization group.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupMemberAddedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - group
+      - member
+      properties:
+        group:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup'
+        member:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectMember'
+    EventStreamCloudEventContextRequest:
+      type: object
+      description: An HTTP request.
+      additionalProperties: false
+      required:
+      - geo
+      - hostname
+      - ip
+      - method
+      - user_agent
+      properties:
+        geo:
+          $ref: '#/components/schemas/EventStreamCloudEventContextRequestGeo'
+        hostname:
+          type: string
+          description: The hostname the request is for.
+        custom_domain:
+          type: string
+          description: The custom domain used in the request (if any).
+        ip:
+          type: string
+          description: The originating IP address of the request.
+        method:
+          type: string
+          description: The HTTP method used for the request.
+        user_agent:
+          type: string
+          description: The value of the `User-Agent` header.
+    EventStreamCloudEventOrgConnectionRemoved:
+      type: object
+      description: SSE message for organization.connection.removed.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedCloudEvent'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseProviderEnum:
+      type: string
+      description: List of enterprise identity providers.
+      enum:
+      - ad
+      - adfs
+      - google-apps
+      - ip
+      - office365
+      - oidc
+      - okta
+      - pingfederate
+      - samlp
+      - sharepoint
+      - waad
+    EventStreamCloudEventGroupRoleAssignedObjectGroup0:
+      type: object
+      description: Reference to a connection group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserUpdatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemPasswordlessIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemDatabaseProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventOrgCreatedObjectBranding:
+      type: object
+      description: The branding associated with the organization.
+      additionalProperties: false
+      properties:
+        logo_url:
+          type: string
+          description: URL of logo to display on login page.
+          format: uri
+        colors:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedObjectBrandingColors'
+    EventStreamCloudEventGroupRoleDeletedObjectRole:
+      type: object
+      description: The role removed from the group.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The ID of the role.
+          pattern: rol_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupCreatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.created
+    EventStreamCloudEventOrgMemberAddedObjectUser:
+      type: object
+      description: The user that is a member of the organization.
+      additionalProperties: true
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterprise:
+      type: object
+      description: The identity object for enterprise identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedObjectIdentitiesItemEnterpriseIsSocialEnum'
+    EventStreamCloudEventOrgMemberDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventGroupMemberAddedObjectGroup:
+      description: The group the member belongs to.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectGroup2'
+    EventStreamCloudEventGroupCreatedObject0:
+      type: object
+      description: Represents a connection group entity.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        name:
+          type: string
+          description: The name of the group.
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        created_at:
+          type: string
+          description: Date and time when this entity was created (ISO_8601 format).
+          format: date-time
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupCreatedObject0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventContextClientMetadata:
+      type: object
+      description: Client metadata.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventErrorMessage:
+      type: object
+      description: An error message delivered via the SSE stream. The stream closes after this message.
+      additionalProperties: false
+      required:
+      - type
+      - error
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventErrorMessageTypeEnum'
+        error:
+          $ref: '#/components/schemas/EventStreamCloudEventErrorDetail'
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup2:
+      type: object
+      description: Reference to a tenant group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObjectGroup2TypeEnum'
+    EventStreamCloudEventGroupRoleAssignedObjectGroup:
+      description: The group the role is assigned to.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup2'
+    EventStreamCloudEventOrgGroupRoleAssignedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - role
+      - group
+      - created_at
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectOrganization'
+        role:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectRole'
+        group:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup'
+        created_at:
+          type: string
+          description: The time at which the role was assigned to the group in the organization.
+          format: date-time
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabaseUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventUserDeleted:
+      type: object
+      description: SSE message for user.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventUserDeletedCloudEvent'
+    EventStreamCloudEventGroupDeletedObject1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventGroupMemberAddedObjectMember0:
+      type: object
+      description: A group member of member_type user
+      additionalProperties: false
+      required:
+      - member_type
+      - id
+      properties:
+        member_type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedObjectMember0MemberTypeEnum'
+        id:
+          type: string
+          description: The user's unique identifier
+    EventStreamCloudEventOrgGroupRoleDeleted:
+      type: object
+      description: SSE message for organization.group.role.deleted.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedCloudEvent'
+    EventStreamCloudEventOrgGroupRoleAssignedObjectOrganization:
+      type: object
+      description: The organization the group role is assigned in.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventOrgConnectionUpdatedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a organization connection is updated.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventGroupCreatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.created
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemSocial:
+      type: object
+      description: The identity object for social identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialIsSocialEnum'
+    EventStreamCloudEventOrgConnectionAddedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.connection.added
+    EventStreamSubscribeEventsEventTypeEnum:
+      type: string
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    EventStreamCloudEventOrgConnectionRemovedObjectConnection:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The ID of the connection.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupMemberDeletedObjectGroup1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordlessProfileData:
+      type: object
+      description: Profile data for the user.
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+          minLength: 1
+          maxLength: 300
+        username:
+          type: string
+          description: Username of this user.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9_+\-.!#\$\^`~@']*$
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+          minLength: 1
+          maxLength: 150
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+          minLength: 1
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Phone number of this user.
+          pattern: ^\+[0-9]{1,15}$
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+    EventStreamCloudEventOrgGroupRoleDeletedObjectGroup1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserCreatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - user.created
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordless:
+      type: object
+      description: The identity object for passwordless identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessIsSocialEnum'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocial:
+      type: object
+      description: The identity object for social identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedObjectIdentitiesItemSocialIsSocialEnum'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemSocialUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventOrgMemberAddedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a member is added to an organization.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemCustomIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventGroupDeletedObject2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventOrgConnectionUpdatedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.connection.updated
+    EventStreamCloudEventUserUpdatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - user.updated
+    EventStreamCloudEventGroupRoleAssignedObjectGroup1:
+      type: object
+      description: Reference to an organization group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - organization_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupRoleAssignedObjectGroup1TypeEnum'
+        organization_id:
+          type: string
+          description: The organization ID associated with the group.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemPasswordlessProviderEnum:
+      type: string
+      description: List of passwordless identity providers.
+      enum:
+      - email
+      - sms
+    EventStreamCloudEventOrgGroupRoleAssignedObjectGroup:
+      description: The group the role is assigned to.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup0'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup1'
+      - $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleAssignedObjectGroup2'
+    EventStreamCloudEventUserUpdatedObjectIdentitiesItemCustomUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventGroupMemberDeletedObjectGroup:
+      description: The group the member belongs to.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup0'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup1'
+      - $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup2'
+    EventStreamCloudEventGroupMemberDeletedObjectGroup2TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - tenant
+    EventStreamCloudEventGroupRoleAssignedObjectRole:
+      type: object
+      description: The role assigned to the group.
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          description: The ID of the role.
+          pattern: rol_[a-zA-Z0-9]{16}
+        name:
+          type: string
+          description: The name of the role.
+    EventStreamCloudEventOrgConnectionUpdatedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.connection.updated
+    EventStreamCloudEventOrgGroupRoleDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgGroupRoleDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgConnectionRemovedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - connection
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedObjectOrganization'
+        connection:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionRemovedObjectConnection'
+    EventStreamCloudEventOrgDeletedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgDeletedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventOrgMemberAddedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - organization
+      - user
+      properties:
+        organization:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedObjectOrganization'
+        user:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberAddedObjectUser'
+    EventStreamCloudEventOrgMemberRoleAssignedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.member.role.assigned
+    EventStreamCloudEventGroupMemberDeletedObjectGroup0:
+      type: object
+      description: Reference to a connection group
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - connection_id
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the group.
+          pattern: grp_[1-9a-km-zA-HJ-NP-Z]{14,22}
+        external_id:
+          type: string
+          description: The external identifier for the group.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberDeletedObjectGroup0TypeEnum'
+        connection_id:
+          type: string
+          description: The connection ID associated with the group.
+          pattern: con_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupCreatedObject0TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - connection
+    EventStreamCloudEventOrgCreatedObject:
+      type: object
+      description: The event content.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+        display_name:
+          type: string
+          description: If set, the name that will be displayed to end-users for this organization in any interaction with them.
+        metadata:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedObjectMetadata'
+        branding:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgCreatedObjectBranding'
+    EventStreamCloudEventUserCreatedObjectUserMetadata:
+      type: object
+      description: User metadata to which this user has read/write access.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventGroupMemberAddedObjectGroup1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterprise:
+      type: object
+      description: The identity object for enterprise identity providers.
+      additionalProperties: false
+      required:
+      - connection
+      - user_id
+      - provider
+      - isSocial
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        user_id:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseUserId'
+        profileData:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseProfileData'
+        provider:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseProviderEnum'
+        isSocial:
+          $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterpriseIsSocialEnum'
+    EventStreamCloudEventGroupRoleAssignedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - group.role.assigned
+    EventStreamCloudEventOrgMemberDeletedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a member is removed from an organization.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberDeletedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgMemberAddedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - organization.member.added
+    EventStreamCloudEventUserCreatedObjectIdentitiesItemCustomIsSocialEnum:
+      type: boolean
+      enum:
+      - false
+    EventStreamCloudEventGroupMemberAdded:
+      type: object
+      description: SSE message for group.member.added.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventGroupMemberAddedCloudEvent'
+    EventStreamCloudEventOrgConnectionAdded:
+      type: object
+      description: SSE message for organization.connection.added.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionAddedCloudEvent'
+    EventStreamCloudEventUserDeletedObjectIdentitiesItemSocialUserId:
+      description: The IDP-specific identifer for the user.
+      anyOf:
+      - type: string
+      - type: integer
+    EventStreamCloudEventOrgMemberRoleAssignedCloudEvent:
+      type: object
+      description: Represents an event that occurs when a member is added to an organization.
+      additionalProperties: false
+      required:
+      - specversion
+      - type
+      - source
+      - id
+      - time
+      - data
+      - a0tenant
+      - a0stream
+      properties:
+        specversion:
+          type: string
+          description: The version of the CloudEvents specification which the event uses.
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedCloudEventTypeEnum'
+        source:
+          type: string
+          description: The source of the event. This will take the form 'urn:auth0:<tenant>.<domain>'.
+        id:
+          type: string
+          description: A unique identifier for the event.
+          pattern: evt_[a-zA-Z0-9]{16}
+        time:
+          type: string
+          description: An ISO-8601 timestamp indicating when the event physically occurred.
+          format: date-time
+        data:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgMemberRoleAssignedData'
+        a0tenant:
+          type: string
+          description: The auth0 tenant ID to which the event is associated.
+          minLength: 3
+          maxLength: 63
+          pattern: '[a-z0-9][-a-z0-9]{1,62}[a-z0-9]'
+        a0stream:
+          type: string
+          description: The auth0 event stream ID of the stream the event was delivered on.
+          pattern: est_[a-zA-Z0-9]{16}
+        a0purpose:
+          $ref: '#/components/schemas/EventStreamCloudEventA0PurposeEnum'
+    EventStreamCloudEventOrgConnectionUpdatedData:
+      type: object
+      description: The event payload.
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/EventStreamCloudEventOrgConnectionUpdatedObject'
+        context:
+          $ref: '#/components/schemas/EventStreamCloudEventContext'
+    EventStreamCloudEventUserCreatedObjectIdentitiesItem:
+      description: Identity object when accounts are linked.
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemCustom'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemDatabase'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemEnterprise'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemPasswordless'
+      - $ref: '#/components/schemas/EventStreamCloudEventUserCreatedObjectIdentitiesItemSocial'
+    EventStreamCloudEventOrgMemberAddedObjectOrganization:
+      type: object
+      description: The organization the member belongs to.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        name:
+          type: string
+          description: The human-readable identifier for the organization that will be used by end-users to direct them to their organization in your application..
+          pattern: ^(?:(?!org_))[a-z0-9]([a-z0-9-_]*[a-z0-9])?$
+        id:
+          type: string
+          description: ID of the organization.
+          pattern: org_[a-zA-Z0-9]{16}
+    EventStreamCloudEventGroupCreatedObject1TypeEnum:
+      type: string
+      description: The type of the group.
+      enum:
+      - organization
+    EventStreamCloudEventUserDeletedObjectAppMetadata:
+      type: object
+      description: User metadata to which this user has read-only access.
+      additionalProperties: true
+      properties: {}
+    EventStreamCloudEventUserUpdated:
+      type: object
+      description: SSE message for user.updated.
+      additionalProperties: false
+      required:
+      - type
+      - offset
+      - event
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedTypeEnum'
+        offset:
+          type: string
+          description: Opaque cursor representing position in the stream. Pass as the `from` query parameter to resume.
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEventUserUpdatedCloudEvent'
+    EventStreamCloudEventOrgMemberAddedCloudEventTypeEnum:
+      type: string
+      description: The type of the event which has happened.
+      enum:
+      - organization.member.added
+    EventStreamCloudEventGroupMemberAddedTypeEnum:
+      type: string
+      description: The event type (injected from the SSE event field).
+      enum:
+      - group.member.added
+    EventStreamCloudEventOrgGroupRoleDeletedObjectRole:
+      type: object
+      description: The role removed from the group.
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: The ID of the role.
+          pattern: rol_[a-zA-Z0-9]{16}

@@ -1,0 +1,1092 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions custom-domains API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: custom-domains
+paths:
+  /custom-domains:
+    get:
+      summary: Get Custom Domains Configurations
+      description: Retrieve details on <a href="https://auth0.com/docs/custom-domains">custom domains</a>.
+      tags:
+      - custom-domains
+      parameters:
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+          maxLength: 1000
+      - name: q
+        in: query
+        description: Query in <a href ="https://lucene.apache.org/core/2_9_4/queryparsersyntax.html">Lucene query string syntax</a>.
+        schema:
+          type: string
+          maxLength: 1000
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          maxLength: 100
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      - name: sort
+        in: query
+        description: Field to sort by. Only <code>domain:1</code> (ascending order by domain) is supported at this time.
+        schema:
+          type: string
+          maxLength: 15
+          pattern: ^domain:1$
+      responses:
+        '200':
+          description: Custom domains successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomDomainsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:custom_domains.'
+          x-description-1: Some fields cannot be read with the permissions granted by the bearer token scopes. The message will vary depending on the fields and the scopes.
+          x-description-2: The account is not allowed to perform this operation.
+          x-description-3: There must be a verified credit card on file to perform this operation
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_custom-domains
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListCustomDomainsRequestParameters
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:custom_domains
+    post:
+      summary: Configure a New Custom Domain
+      description: 'Create a new custom domain.
+
+
+        Note: The custom domain will need to be verified before it will accept
+
+        requests.
+
+
+        Optional attributes that can be updated:
+
+
+        - custom_client_ip_header
+
+        - tls_policy
+
+
+
+        TLS Policies:
+
+
+        - recommended - for modern usage this includes TLS 1.2 only
+
+        '
+      tags:
+      - custom-domains
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomDomainRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateCustomDomainRequestContent'
+      responses:
+        '201':
+          description: Custom domain successfully created (verification is pending).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomDomainResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: The 'tls_policy' cannot be set on self_managed domains
+          x-description-2: The 'custom_client_ip_header' cannot be set on auth0_managed domains
+          x-description-3: The 'relying_party_identifier' must be equal to or a registrable domain suffix of the domain.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:custom_domains.'
+          x-description-1: The account is not allowed to perform this operation.
+          x-description-2: There must be a verified credit card on file to perform this operation
+        '409':
+          description: Custom domain already exists.
+          x-description-1: You reached the maximum number of custom domains for your account.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_custom-domains
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:custom_domains
+  /custom-domains/default:
+    get:
+      summary: Get the Default Domain
+      description: 'Retrieve the tenant''s default domain.
+
+        '
+      tags:
+      - custom-domains
+      responses:
+        '200':
+          description: Default domain successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDefaultDomainResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:custom_domains.'
+          x-description-1: The account is not allowed to perform this operation.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_default
+      x-release-lifecycle: GA
+      x-operation-name: getDefault
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:custom_domains
+    patch:
+      summary: Update the Default Custom Domain for the Tenant
+      description: 'Set the default custom domain for the tenant.
+
+        '
+      tags:
+      - custom-domains
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDefaultCustomDomainRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetDefaultCustomDomainRequestContent'
+      responses:
+        '200':
+          description: Default custom domain set successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDefaultDomainResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '403':
+          description: Insufficient scope; expected update:custom_domains.
+          x-description-1: The account is not allowed to perform this operation.
+      operationId: patch_default
+      x-release-lifecycle: GA
+      x-operation-name: setDefault
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:custom_domains
+  /custom-domains/{id}:
+    get:
+      summary: Get Custom Domain Configuration
+      description: Retrieve a custom domain configuration and status.
+      tags:
+      - custom-domains
+      parameters:
+      - name: id
+        in: path
+        description: ID of the custom domain to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Custom domain successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomDomainResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:custom_domains.'
+          x-description-1: Some fields cannot be read with the permissions granted by the bearer token scopes. The message will vary depending on the fields and the scopes.
+          x-description-2: The account is not allowed to perform this operation.
+          x-description-3: There must be a verified credit card on file to perform this operation
+        '404':
+          description: Custom domain not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_custom-domains_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:custom_domains
+    delete:
+      summary: Delete Custom Domain Configuration
+      description: Delete a custom domain and stop serving requests for it.
+      tags:
+      - custom-domains
+      parameters:
+      - name: id
+        in: path
+        description: ID of the custom domain to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom domain successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:custom_domains.'
+          x-description-1: The account is not allowed to perform this operation.
+          x-description-2: There must be a verified credit card on file to perform this operation.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_custom-domains_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:custom_domains
+    patch:
+      summary: Update Custom Domain Configuration
+      description: 'Update a custom domain.
+
+
+        These are the attributes that can be updated:
+
+
+        - custom_client_ip_header
+
+        - tls_policy
+
+
+        <h5>Updating CUSTOM_CLIENT_IP_HEADER for a custom domain</h5>To update the <code>custom_client_ip_header</code> for a domain, the body to
+
+        send should be:
+
+        <pre><code>{ "custom_client_ip_header": "cf-connecting-ip" }</code></pre>
+
+
+        <h5>Updating TLS_POLICY for a custom domain</h5>To update the <code>tls_policy</code> for a domain, the body to send should be:
+
+        <pre><code>{ "tls_policy": "recommended" }</code></pre>
+
+
+
+        TLS Policies:
+
+
+        - recommended - for modern usage this includes TLS 1.2 only
+
+
+
+        Some considerations:
+
+
+        - The TLS ciphers and protocols available in each TLS policy follow industry recommendations, and may be updated occasionally.
+
+        - The <code>compatible</code> TLS policy is no longer supported.
+
+        '
+      tags:
+      - custom-domains
+      parameters:
+      - name: id
+        in: path
+        description: The id of the custom domain to update
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomDomainRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomDomainRequestContent'
+      responses:
+        '200':
+          description: Custom domain updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCustomDomainResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: The 'tls_policy' cannot be set on self_managed domains
+          x-description-2: The 'custom_client_ip_header' cannot be set on auth0_managed domains
+          x-description-3: The 'relying_party_identifier' must be equal to or a registrable domain suffix of the domain.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:custom_domains.'
+          x-description-1: Your account is not allowed to perform this operation.
+          x-description-2: There must be a verified credit card on file to perform this operation
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_custom-domains_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:custom_domains
+  /custom-domains/{id}/test:
+    post:
+      summary: Test a Custom Domain
+      description: Run the test process on a custom domain.
+      tags:
+      - custom-domains
+      parameters:
+      - name: id
+        in: path
+        description: ID of the custom domain to test.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Custom domain test successfully completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCustomDomainResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:custom_domains.'
+          x-description-1: The account is not allowed to perform this operation.
+          x-description-2: There must be a verified credit card on file to perform this operation
+        '404':
+          description: Custom domain not found.
+        '409':
+          description: The custom domain is not ready.
+      operationId: post_test_domain
+      x-release-lifecycle: GA
+      x-operation-name: test
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:custom_domains
+  /custom-domains/{id}/verify:
+    post:
+      summary: Verify a Custom Domain
+      description: 'Run the verification process on a custom domain.
+
+
+        Note: Check the <code>status</code> field to see its verification status. Once verification is complete, it may take up to 10 minutes before the custom domain can start accepting requests.
+
+
+        For <code>self_managed_certs</code>, when the custom domain is verified for the first time, the response will also include the <code>cname_api_key</code> which you will need to configure your proxy. This key must be kept secret, and is used to validate the proxy requests.
+
+
+        <a href="https://auth0.com/docs/custom-domains#step-2-verify-ownership">Learn more</a> about verifying custom domains that use Auth0 Managed certificates.
+
+        <a href="https://auth0.com/docs/custom-domains/self-managed-certificates#step-2-verify-ownership">Learn more</a> about verifying custom domains that use Self Managed certificates.
+
+        '
+      tags:
+      - custom-domains
+      parameters:
+      - name: id
+        in: path
+        description: ID of the custom domain to verify.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Custom domain successfully verified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyCustomDomainResponseContent'
+          x-description-1: Custom domain failed verification.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Custom domain already verified.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:custom_domains.'
+          x-description-1: The account is not allowed to perform this operation.
+          x-description-2: There must be a verified credit card on file to perform this operation
+        '404':
+          description: Custom domain not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_verify
+      x-release-lifecycle: GA
+      x-operation-name: verify
+      x-operation-group: customDomains
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:custom_domains
+components:
+  schemas:
+    DomainMetadata:
+      type: object
+      description: Domain metadata associated with the custom domain, in the form of an object with string values (max 255 chars). Maximum of 10 domain metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
+    TestCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - success
+      properties:
+        success:
+          type: boolean
+          description: Result of the operation.
+        message:
+          type: string
+          description: Message describing the operation status.
+    CustomDomainStatusFilterEnum:
+      type: string
+      description: Custom domain configuration status. Can be `failed`, `pending_verification`, or `ready`.
+      default: ready
+      enum:
+      - pending_verification
+      - ready
+      - failed
+    UpdateDefaultCanonicalDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+    ListCustomDomainsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/CustomDomain'
+      - $ref: '#/components/schemas/ListCustomDomainsPaginatedResponseContent'
+    ListCustomDomainsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domains
+      properties:
+        custom_domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomDomain'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    GetDefaultDomainResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/GetDefaultCustomDomainResponseContent'
+      - $ref: '#/components/schemas/GetDefaultCanonicalDomainResponseContent'
+    CustomDomainCustomClientIpHeaderEnum:
+      type: string
+      description: The HTTP header to fetch the client's IP address
+      default: true-client-ip
+      enum:
+      - true-client-ip
+      - cf-connecting-ip
+      - x-forwarded-for
+      - x-azure-clientip
+      - ''
+    CreateCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      - verification
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    CustomDomainTlsPolicyEnum:
+      type: string
+      description: Custom domain TLS policy. Must be `recommended`, includes TLS 1.2.
+      default: recommended
+      enum:
+      - recommended
+    DomainCertificate:
+      type: object
+      description: Certificate information. This object is relevant only for Custom Domains with Auth0-Managed Certificates.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/DomainCertificateStatusEnum'
+        error_msg:
+          type: string
+          description: A user-friendly error message will be presented if the certificate status is provisioning_failed or renewing_failed.
+        certificate_authority:
+          $ref: '#/components/schemas/DomainCertificateAuthorityEnum'
+        renews_before:
+          type: string
+          description: The certificate will be renewed prior to this date.
+    CustomDomainVerificationMethodEnum:
+      type: string
+      description: Custom domain verification method. Must be `txt`.
+      default: txt
+      enum:
+      - txt
+    CreateCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      - type
+      properties:
+        domain:
+          type: string
+          description: Domain name.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])$
+        type:
+          $ref: '#/components/schemas/CustomDomainProvisioningTypeEnum'
+        verification_method:
+          $ref: '#/components/schemas/CustomDomainVerificationMethodEnum'
+        tls_policy:
+          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+        custom_client_ip_header:
+          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not provided, the full domain will be used.
+          maxLength: 255
+          format: hostname
+    GetCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    CustomDomainProvisioningTypeEnum:
+      type: string
+      description: Custom domain provisioning type. Must be `auth0_managed_certs` or `self_managed_certs`.
+      enum:
+      - auth0_managed_certs
+      - self_managed_certs
+    DomainVerification:
+      type: object
+      description: Domain verification settings.
+      additionalProperties: false
+      properties:
+        methods:
+          type: array
+          description: Domain verification methods.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DomainVerificationMethod'
+        status:
+          $ref: '#/components/schemas/DomainVerificationStatusEnum'
+        error_msg:
+          type: string
+          description: The user0-friendly error message in case of failed verification. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
+        last_verified_at:
+          type: string
+          description: The date and time when the custom domain was last verified. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
+    VerifyCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        cname_api_key:
+          type: string
+          description: CNAME API key header.
+          default: d4feca...
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+    DomainVerificationMethod:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - record
+      properties:
+        name:
+          $ref: '#/components/schemas/DomainVerificationMethodNameEnum'
+        record:
+          type: string
+          description: Value used to verify the domain.
+          default: auth0-domain-verification=...
+        domain:
+          type: string
+          description: The name of the txt record for verification
+          default: _cf-custom-hostname.login.mycompany.com
+    UpdateCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      - verification
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    DomainVerificationStatusEnum:
+      type: string
+      description: The DNS record verification status. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
+      enum:
+      - verified
+      - pending
+      - failed
+    CustomDomainTypeEnum:
+      type: string
+      description: Custom domain provisioning type. Can be `auth0_managed_certs` or `self_managed_certs`.
+      default: self_managed_certs
+      enum:
+      - auth0_managed_certs
+      - self_managed_certs
+    DomainCertificateStatusEnum:
+      type: string
+      description: The provisioning status of the certificate.
+      enum:
+      - provisioning
+      - provisioning_failed
+      - provisioned
+      - renewing_failed
+    GetDefaultCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    UpdateCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        tls_policy:
+          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+          description: recommended includes TLS 1.2
+        custom_client_ip_header:
+          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        relying_party_identifier:
+          type:
+          - string
+          - 'null'
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. Set to null to remove the rpId and fall back to using the full domain.
+          maxLength: 255
+          format: hostname
+    SetDefaultCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: The domain to set as the default custom domain. Must be a verified custom domain or the canonical domain.
+          minLength: 3
+          maxLength: 255
+    CustomDomainCustomClientIpHeader:
+      oneOf:
+      - $ref: '#/components/schemas/CustomDomainCustomClientIpHeaderEnum'
+      - type: 'null'
+    UpdateDefaultDomainResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/UpdateDefaultCustomDomainResponseContent'
+      - $ref: '#/components/schemas/UpdateDefaultCanonicalDomainResponseContent'
+    UpdateDefaultCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    GetDefaultCanonicalDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+    DomainVerificationMethodNameEnum:
+      type: string
+      description: Domain verification method.
+      default: txt
+      enum:
+      - cname
+      - txt
+    DomainCertificateAuthorityEnum:
+      type: string
+      description: The Certificate Authority issued the certificate.
+      enum:
+      - letsencrypt
+      - googletrust
+    CustomDomain:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname

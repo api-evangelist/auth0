@@ -1,0 +1,337 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions sessions API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: sessions
+paths:
+  /sessions/{id}:
+    get:
+      summary: Get Session
+      description: Retrieve session information.
+      tags:
+      - sessions
+      parameters:
+      - name: id
+        in: path
+        description: ID of session to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The session was retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSessionResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:sessions'
+        '404':
+          description: The session does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_session
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: sessions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:sessions
+    delete:
+      summary: Delete Session
+      description: Delete a session by ID.
+      tags:
+      - sessions
+      parameters:
+      - name: id
+        in: path
+        description: ID of the session to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Session deletion request accepted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:sessions'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_session
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: sessions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:sessions
+    patch:
+      summary: Update Session
+      description: Update session information.
+      tags:
+      - sessions
+      parameters:
+      - name: id
+        in: path
+        description: ID of the session to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionRequestContent'
+      responses:
+        '200':
+          description: Session successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSessionResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:sessions.'
+          x-description-1: The account is not allowed to perform this operation.
+          x-description-2: Subscription missing entitlement.
+          x-description-3: This feature is not enabled for this tenant.
+        '404':
+          description: The session does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_sessions_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: sessions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:sessions
+  /sessions/{id}/revoke:
+    post:
+      summary: Revokes a Session
+      description: Revokes a session by ID and all associated refresh tokens.
+      tags:
+      - sessions
+      parameters:
+      - name: id
+        in: path
+        description: ID of the session to revoke.
+        required: true
+        schema:
+          type: string
+          maxLength: 50
+      responses:
+        '202':
+          description: Session deletion request accepted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:sessions'
+        '404':
+          description: The session does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: revoke_session
+      x-release-lifecycle: GA
+      x-operation-name: revoke
+      x-operation-group: sessions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:sessions
+        - delete:refresh_tokens
+components:
+  schemas:
+    SessionMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties: true
+      maxProperties: 25
+    SessionAuthenticationSignal:
+      type: object
+      description: Authentication signal details
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: 'One of: "federated", "passkey", "pwd", "sms", "email", "mfa", "mock" or a custom method denoted by a URL'
+        timestamp:
+          $ref: '#/components/schemas/SessionDate'
+        type:
+          type: string
+          description: A specific MFA factor. Only present when "name" is set to "mfa"
+    SessionAuthenticationSignals:
+      type: object
+      description: Details about authentication signals obtained during the login flow
+      additionalProperties: true
+      properties:
+        methods:
+          type: array
+          description: Contains the authentication methods a user has completed during their session
+          items:
+            $ref: '#/components/schemas/SessionAuthenticationSignal'
+    UpdateSessionResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the session
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        created_at:
+          $ref: '#/components/schemas/SessionDate'
+        updated_at:
+          $ref: '#/components/schemas/SessionDate'
+        authenticated_at:
+          $ref: '#/components/schemas/SessionDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        last_interacted_at:
+          $ref: '#/components/schemas/SessionDate'
+        device:
+          $ref: '#/components/schemas/SessionDeviceMetadata'
+        clients:
+          type: array
+          description: List of client details for the session
+          items:
+            $ref: '#/components/schemas/SessionClientMetadata'
+        authentication:
+          $ref: '#/components/schemas/SessionAuthenticationSignals'
+        cookie:
+          $ref: '#/components/schemas/SessionCookieMetadata'
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+    SessionCookieMetadataModeEnum:
+      type: string
+      description: '[Private Early Access] The persistence mode of the session cookie. When set to "non-persistent" (ephemeral), the cookie will be deleted when the browser is closed. When set to "persistent", the cookie will be stored until it expires or is deleted by the user.'
+      enum:
+      - non-persistent
+      - persistent
+    SessionClientMetadata:
+      type: object
+      description: Client details
+      additionalProperties: true
+      properties:
+        client_id:
+          type: string
+          description: ID of client for the session
+    UpdateSessionRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
+    SessionDeviceMetadata:
+      type: object
+      description: Metadata related to the device used in the session
+      additionalProperties: true
+      properties:
+        initial_user_agent:
+          type: string
+          description: First user agent of the device from which this user logged in
+        initial_ip:
+          $ref: '#/components/schemas/SessionIp'
+        initial_asn:
+          type: string
+          description: First autonomous system number associated with this session
+        last_user_agent:
+          type: string
+          description: Last user agent of the device from which this user logged in
+        last_ip:
+          $ref: '#/components/schemas/SessionIp'
+        last_asn:
+          type: string
+          description: Last autonomous system number from which this user logged in
+    SessionCookieMetadata:
+      type: object
+      description: '[Private Early Access] Session cookie configuration.'
+      additionalProperties: true
+      properties:
+        mode:
+          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
+    GetSessionResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the session
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        created_at:
+          $ref: '#/components/schemas/SessionDate'
+        updated_at:
+          $ref: '#/components/schemas/SessionDate'
+        authenticated_at:
+          $ref: '#/components/schemas/SessionDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        last_interacted_at:
+          $ref: '#/components/schemas/SessionDate'
+        device:
+          $ref: '#/components/schemas/SessionDeviceMetadata'
+        clients:
+          type: array
+          description: List of client details for the session
+          items:
+            $ref: '#/components/schemas/SessionClientMetadata'
+        authentication:
+          $ref: '#/components/schemas/SessionAuthenticationSignals'
+        cookie:
+          $ref: '#/components/schemas/SessionCookieMetadata'
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+    SessionDate:
+      oneOf:
+      - type: string
+        description: The date and time when the session was created
+        format: date-time
+      - type: object
+        description: The date and time when the session was created
+        additionalProperties: true
+      - type: 'null'
+    SessionIp:
+      type:
+      - string
+      - 'null'
+      description: First IP address associated with this session

@@ -1,0 +1,187 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions grants API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: grants
+paths:
+  /grants:
+    get:
+      summary: Get Grants
+      description: 'Retrieve the <a href="https://auth0.com/docs/api-auth/which-oauth-flow-to-use">grants</a> associated with your account. '
+      tags:
+      - grants
+      parameters:
+      - name: per_page
+        in: query
+        description: Number of results per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: user_id
+        in: query
+        description: user_id of the grants to retrieve.
+        schema:
+          type: string
+      - name: client_id
+        in: query
+        description: client_id of the grants to retrieve.
+        schema:
+          type: string
+      - name: audience
+        in: query
+        description: audience of the grants to retrieve.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Grants successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserGrantsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_grants
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListUserGrantsRequestParameters
+      x-operation-group: userGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:grants
+    delete:
+      summary: Delete a Grant by User_id
+      description: 'Delete a grant associated with your account. '
+      tags:
+      - grants
+      parameters:
+      - name: user_id
+        in: query
+        description: user_id of the grant to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: User grant successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_grants_by_user_id
+      x-release-lifecycle: GA
+      x-operation-name: deleteByUserId
+      x-operation-request-parameters-name: DeleteUserGrantByUserIdRequestParameters
+      x-operation-group: userGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:grants
+  /grants/{id}:
+    delete:
+      summary: Delete a Grant by Id
+      description: 'Delete a grant associated with your account. '
+      tags:
+      - grants
+      parameters:
+      - name: id
+        in: path
+        description: ID of the grant to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: User grant successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_grants_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: userGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:grants
+components:
+  schemas:
+    UserGrant:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the grant.
+        clientID:
+          type: string
+          description: ID of the client.
+        user_id:
+          type: string
+          description: ID of the user.
+        audience:
+          type: string
+          description: Audience of the grant.
+        scope:
+          type: array
+          description: Scopes included in this grant.
+          items:
+            type: string
+            minLength: 1
+    ListUserGrantsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/UserGrant'
+      - $ref: '#/components/schemas/ListUserGrantsOffsetPaginatedResponseContent'
+    ListUserGrantsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGrant'

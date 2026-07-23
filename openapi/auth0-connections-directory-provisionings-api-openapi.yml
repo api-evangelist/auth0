@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions connections-directory-provisionings API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: connections-directory-provisionings
+paths:
+  /connections-directory-provisionings:
+    get:
+      summary: Get a List of Directory Provisioning Configurations
+      description: 'Retrieve a list of directory provisioning configurations of a tenant.
+
+        '
+      tags:
+      - connections-directory-provisionings
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: The tenant's directory provisioning configuration. See <strong>Response Schemas</strong> for schema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDirectoryProvisioningsResponseContent'
+        '400':
+          description: Invalid pagination cursor
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+          x-description-2: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: The inbound directory provisioning feature is not enabled for this tenant
+          x-description-1: 'Insufficient scope; expected any of: read:directory_provisionings.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_connections-directory-provisionings
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListDirectoryProvisioningsRequestParameters
+      x-operation-group:
+      - connections
+      - directoryProvisioning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:directory_provisionings
+components:
+  schemas:
+    SynchronizeGroupsEnum:
+      type: string
+      description: Group synchronization configuration
+      enum:
+      - all
+      - 'off'
+      - selected
+      x-release-lifecycle: EA
+    ListDirectoryProvisioningsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - directory_provisionings
+      properties:
+        directory_provisionings:
+          type: array
+          description: List of directory provisioning configurations
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioning'
+        next:
+          type: string
+          description: The cursor to be used as the "from" query parameter for the next page of results.
+    DirectoryProvisioning:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any
+    DirectoryProvisioningMappingItem:
+      type: object
+      additionalProperties: false
+      required:
+      - auth0
+      - idp
+      properties:
+        auth0:
+          type: string
+          description: The field location in the Auth0 schema
+        idp:
+          type: string
+          description: The field location in the IDP schema

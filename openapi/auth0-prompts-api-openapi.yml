@@ -1,0 +1,1211 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions prompts API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: prompts
+paths:
+  /prompts:
+    get:
+      summary: Get Prompt Settings
+      description: Retrieve details of the Universal Login configuration of your tenant. This includes the <a href="https://auth0.com/docs/authenticate/login/auth0-universal-login/identifier-first">Identifier First Authentication</a> and <a href="https://auth0.com/docs/secure/multi-factor-authentication/fido-authentication-with-webauthn/configure-webauthn-device-biometrics-for-mfa">WebAuthn with Device Biometrics for MFA</a> features.
+      tags:
+      - prompts
+      responses:
+        '200':
+          description: Prompt settings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSettingsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: The specified client cannot perform the requested operation.
+          x-description-1: 'Insufficient scope; expected any of: read:prompts.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_prompts
+      x-release-lifecycle: GA
+      x-operation-name: getSettings
+      x-operation-group: prompts
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:prompts
+    patch:
+      summary: Update Prompt Settings
+      description: Update the Universal Login configuration of your tenant. This includes the <a href="https://auth0.com/docs/authenticate/login/auth0-universal-login/identifier-first">Identifier First Authentication</a> and <a href="https://auth0.com/docs/secure/multi-factor-authentication/fido-authentication-with-webauthn/configure-webauthn-device-biometrics-for-mfa">WebAuthn with Device Biometrics for MFA</a> features.
+      tags:
+      - prompts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequestContent'
+      responses:
+        '200':
+          description: Prompts settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSettingsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:prompts.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_prompts
+      x-release-lifecycle: GA
+      x-operation-name: updateSettings
+      x-operation-group: prompts
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:prompts
+  /prompts/rendering:
+    get:
+      summary: Get Render Setting Configurations for All Screens
+      description: Get render setting configurations for all screens.
+      tags:
+      - prompts
+      parameters:
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((rendering_mode)|(prompt)|(screen)|(context_configuration)|(default_head_tags_disabled)|(head_tags))(,((rendering_mode)|(prompt)|(screen)|(context_configuration)|(default_head_tags_disabled)|(head_tags)))*$
+      - name: include_fields
+        in: query
+        description: 'Whether specified fields are to be included (default: true) or excluded (false).'
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Maximum value is 100, default value is 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total configuration count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: prompt
+        in: query
+        description: Name of the prompt to filter by
+        schema:
+          type: string
+          pattern: ^((login)|(login-id)|(login-password)|(login-passwordless)|(login-email-verification)|(signup)|(signup-id)|(signup-password)|(phone-identifier-enrollment)|(phone-identifier-challenge)|(email-identifier-challenge)|(reset-password)|(custom-form)|(consent)|(customized-consent)|(logout)|(mfa-push)|(mfa-otp)|(mfa-voice)|(mfa-phone)|(mfa-webauthn)|(mfa-sms)|(mfa-email)|(mfa-recovery-code)|(mfa)|(status)|(device-flow)|(email-verification)|(email-otp-challenge)|(organizations)|(invitation)|(common)|(passkeys)|(captcha)|(brute-force-protection)|(async-approval-flow))(,((login)|(login-id)|(login-password)|(login-passwordless)|(login-email-verification)|(signup)|(signup-id)|(signup-password)|(phone-identifier-enrollment)|(phone-identifier-challenge)|(email-identifier-challenge)|(reset-password)|(custom-form)|(consent)|(customized-consent)|(logout)|(mfa-push)|(mfa-otp)|(mfa-voice)|(mfa-phone)|(mfa-webauthn)|(mfa-sms)|(mfa-email)|(mfa-recovery-code)|(mfa)|(status)|(device-flow)|(email-verification)|(email-otp-challenge)|(organizations)|(invitation)|(common)|(passkeys)|(captcha)|(brute-force-protection)|(async-approval-flow)))*$
+      - name: screen
+        in: query
+        description: Name of the screen to filter by
+        schema:
+          type: string
+          pattern: ^((login)|(login-id)|(login-password)|(login-passwordless-email-code)|(login-passwordless-email-link)|(login-passwordless-sms-otp)|(login-email-verification)|(signup)|(signup-id)|(signup-password)|(phone-identifier-enrollment)|(phone-identifier-challenge)|(email-identifier-challenge)|(reset-password-request)|(reset-password-email)|(reset-password)|(reset-password-success)|(reset-password-error)|(reset-password-mfa-email-challenge)|(reset-password-mfa-otp-challenge)|(reset-password-mfa-phone-challenge)|(reset-password-mfa-push-challenge-push)|(reset-password-mfa-recovery-code-challenge)|(reset-password-mfa-sms-challenge)|(reset-password-mfa-voice-challenge)|(reset-password-mfa-webauthn-platform-challenge)|(reset-password-mfa-webauthn-roaming-challenge)|(custom-form)|(consent)|(customized-consent)|(logout)|(logout-complete)|(logout-aborted)|(mfa-push-welcome)|(mfa-push-enrollment-qr)|(mfa-push-enrollment-code)|(mfa-push-success)|(mfa-push-challenge-push)|(mfa-push-list)|(mfa-otp-enrollment-qr)|(mfa-otp-enrollment-code)|(mfa-otp-challenge)|(mfa-voice-enrollment)|(mfa-voice-challenge)|(mfa-phone-challenge)|(mfa-phone-enrollment)|(mfa-webauthn-platform-enrollment)|(mfa-webauthn-roaming-enrollment)|(mfa-webauthn-platform-challenge)|(mfa-webauthn-roaming-challenge)|(mfa-webauthn-change-key-nickname)|(mfa-webauthn-enrollment-success)|(mfa-webauthn-error)|(mfa-webauthn-not-available-error)|(mfa-country-codes)|(mfa-sms-enrollment)|(mfa-sms-challenge)|(mfa-sms-list)|(mfa-email-challenge)|(mfa-email-list)|(mfa-recovery-code-enrollment)|(mfa-recovery-code-challenge-new-code)|(mfa-recovery-code-challenge)|(mfa-detect-browser-capabilities)|(mfa-enroll-result)|(mfa-login-options)|(mfa-begin-enroll-options)|(status)|(device-code-activation)|(device-code-activation-allowed)|(device-code-activation-denied)|(device-code-confirmation)|(email-verification-result)|(email-otp-challenge)|(organization-selection)|(organization-picker)|(pre-login-organization-picker)|(accept-invitation)|(redeem-ticket)|(passkey-enrollment)|(passkey-enrollment-local)|(interstitial-captcha)|(brute-force-protection-unblock)|(brute-force-protection-unblock-success)|(brute-force-protection-unblock-failure)|(async-approval-error)|(async-approval-accepted)|(async-approval-denied)|(async-approval-wrong-user))(,((login)|(login-id)|(login-password)|(login-passwordless-email-code)|(login-passwordless-email-link)|(login-passwordless-sms-otp)|(login-email-verification)|(signup)|(signup-id)|(signup-password)|(phone-identifier-enrollment)|(phone-identifier-challenge)|(email-identifier-challenge)|(reset-password-request)|(reset-password-email)|(reset-password)|(reset-password-success)|(reset-password-error)|(reset-password-mfa-email-challenge)|(reset-password-mfa-otp-challenge)|(reset-password-mfa-phone-challenge)|(reset-password-mfa-push-challenge-push)|(reset-password-mfa-recovery-code-challenge)|(reset-password-mfa-sms-challenge)|(reset-password-mfa-voice-challenge)|(reset-password-mfa-webauthn-platform-challenge)|(reset-password-mfa-webauthn-roaming-challenge)|(custom-form)|(consent)|(customized-consent)|(logout)|(logout-complete)|(logout-aborted)|(mfa-push-welcome)|(mfa-push-enrollment-qr)|(mfa-push-enrollment-code)|(mfa-push-success)|(mfa-push-challenge-push)|(mfa-push-list)|(mfa-otp-enrollment-qr)|(mfa-otp-enrollment-code)|(mfa-otp-challenge)|(mfa-voice-enrollment)|(mfa-voice-challenge)|(mfa-phone-challenge)|(mfa-phone-enrollment)|(mfa-webauthn-platform-enrollment)|(mfa-webauthn-roaming-enrollment)|(mfa-webauthn-platform-challenge)|(mfa-webauthn-roaming-challenge)|(mfa-webauthn-change-key-nickname)|(mfa-webauthn-enrollment-success)|(mfa-webauthn-error)|(mfa-webauthn-not-available-error)|(mfa-country-codes)|(mfa-sms-enrollment)|(mfa-sms-challenge)|(mfa-sms-list)|(mfa-email-challenge)|(mfa-email-list)|(mfa-recovery-code-enrollment)|(mfa-recovery-code-challenge-new-code)|(mfa-recovery-code-challenge)|(mfa-detect-browser-capabilities)|(mfa-enroll-result)|(mfa-login-options)|(mfa-begin-enroll-options)|(status)|(device-code-activation)|(device-code-activation-allowed)|(device-code-activation-denied)|(device-code-confirmation)|(email-verification-result)|(email-otp-challenge)|(organization-selection)|(organization-picker)|(pre-login-organization-picker)|(accept-invitation)|(redeem-ticket)|(passkey-enrollment)|(passkey-enrollment-local)|(interstitial-captcha)|(brute-force-protection-unblock)|(brute-force-protection-unblock-success)|(brute-force-protection-unblock-failure)|(async-approval-error)|(async-approval-accepted)|(async-approval-denied)|(async-approval-wrong-user)))*$
+      - name: rendering_mode
+        in: query
+        description: Rendering mode to filter by
+        schema:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+      responses:
+        '200':
+          description: ACUL settings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAculsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required to use Advanced Customizations.
+        '403':
+          description: 'Insufficient scope; expected any of: read:prompts.'
+          x-description-1: This tenant does not have Advanced Customizations enabled.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_all_rendering
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListAculsRequestParameters
+      x-operation-group:
+      - prompts
+      - rendering
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:prompts
+    patch:
+      summary: Update Render Settings for Multiple Screens
+      description: 'Learn more about <a href=''https://auth0.com/docs/customize/login-pages/advanced-customizations/getting-started/configure-acul-screens''>configuring render settings</a> for advanced customization.
+
+        '
+      tags:
+      - prompts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdateAculRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BulkUpdateAculRequestContent'
+      responses:
+        '200':
+          description: ACUL settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUpdateAculResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required to use Advanced Customizations.
+        '403':
+          description: 'Insufficient scope; expected any of: update:prompts.'
+          x-description-1: This tenant does not have Advanced Customizations enabled.
+          x-description-2: This screen is not available in Advanced Customizations
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_bulk_rendering
+      x-release-lifecycle: GA
+      x-operation-name: bulkUpdate
+      x-operation-group:
+      - prompts
+      - rendering
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:prompts
+  /prompts/{prompt}/custom-text/{language}:
+    get:
+      summary: Get Custom Text for a Prompt
+      description: Retrieve custom text for a specific prompt and language.
+      tags:
+      - prompts
+      parameters:
+      - name: prompt
+        in: path
+        description: Name of the prompt.
+        required: true
+        schema:
+          $ref: '#/components/schemas/PromptGroupNameEnum'
+      - name: language
+        in: path
+        description: Language to update.
+        required: true
+        schema:
+          $ref: '#/components/schemas/PromptLanguageEnum'
+      responses:
+        '200':
+          description: Prompt dictionaries successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomTextsByLanguageResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:prompts.'
+        '404':
+          description: The prompt does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_custom-text_by_language
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - prompts
+      - customText
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:prompts
+    put:
+      summary: Set Custom Text for a Specific Prompt
+      description: Set custom text for a specific prompt. Existing texts will be overwritten.
+      tags:
+      - prompts
+      parameters:
+      - name: prompt
+        in: path
+        description: Name of the prompt.
+        required: true
+        schema:
+          $ref: '#/components/schemas/PromptGroupNameEnum'
+      - name: language
+        in: path
+        description: Language to update.
+        required: true
+        schema:
+          $ref: '#/components/schemas/PromptLanguageEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetsCustomTextsByLanguageRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetsCustomTextsByLanguageRequestContent'
+      responses:
+        '200':
+          description: Prompt dictionaries successfully updated.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:prompts.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_custom-text_by_language
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - prompts
+      - customText
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:prompts
+  /prompts/{prompt}/partials:
+    get:
+      summary: Get Partials for a Prompt
+      description: Get template partials for a prompt
+      tags:
+      - prompts
+      parameters:
+      - name: prompt
+        in: path
+        description: Name of the prompt.
+        required: true
+        schema:
+          $ref: '#/components/schemas/PartialGroupsEnum'
+      responses:
+        '200':
+          description: Prompt partials successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPartialsResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:prompts.'
+          x-description-1: Permission Denied. This feature is not available on this plan.
+        '404':
+          description: The prompt does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_partials
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - prompts
+      - partials
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:prompts
+    put:
+      summary: Set Partials for a Prompt
+      description: Set template partials for a prompt
+      tags:
+      - prompts
+      parameters:
+      - name: prompt
+        in: path
+        description: Name of the prompt.
+        required: true
+        schema:
+          $ref: '#/components/schemas/PartialGroupsEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPartialsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetPartialsRequestContent'
+      responses:
+        '200':
+          description: Template partials successfully updated.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:prompts.'
+          x-description-1: Permission Denied. This feature is not available on this plan.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_partials
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - prompts
+      - partials
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:prompts
+  /prompts/{prompt}/screen/{screen}/rendering:
+    get:
+      summary: Get Render Settings for a Screen
+      description: Get render settings for a screen.
+      tags:
+      - prompts
+      parameters:
+      - name: prompt
+        in: path
+        description: Name of the prompt
+        required: true
+        schema:
+          $ref: '#/components/schemas/PromptGroupNameEnum'
+      - name: screen
+        in: path
+        description: Name of the screen
+        required: true
+        schema:
+          $ref: '#/components/schemas/ScreenGroupNameEnum'
+      responses:
+        '200':
+          description: ACUL settings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAculResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required to use Advanced Customizations.
+        '403':
+          description: 'Insufficient scope; expected any of: read:prompts.'
+          x-description-1: This tenant does not have Advanced Customizations enabled.
+          x-description-2: This screen is not available in Advanced Customizations
+        '404':
+          description: The prompt does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_rendering
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - prompts
+      - rendering
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:prompts
+    patch:
+      summary: Update Render Settings for a Screen
+      description: 'Learn more about <a href=''https://auth0.com/docs/customize/login-pages/advanced-customizations/getting-started/configure-acul-screens''>configuring render settings</a> for advanced customization.
+
+        '
+      tags:
+      - prompts
+      parameters:
+      - name: prompt
+        in: path
+        description: Name of the prompt
+        required: true
+        schema:
+          $ref: '#/components/schemas/PromptGroupNameEnum'
+      - name: screen
+        in: path
+        description: Name of the screen
+        required: true
+        schema:
+          $ref: '#/components/schemas/ScreenGroupNameEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAculRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateAculRequestContent'
+      responses:
+        '200':
+          description: ACUL settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAculResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '402':
+          description: A paid subscription is required to use Advanced Customizations.
+        '403':
+          description: 'Insufficient scope; expected any of: update:prompts.'
+          x-description-1: This tenant does not have Advanced Customizations enabled.
+          x-description-2: This screen is not available in Advanced Customizations
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_rendering
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - prompts
+      - rendering
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:prompts
+components:
+  schemas:
+    AculOrganizationFilter:
+      type: object
+      description: Organizations array filter items
+      oneOf:
+      - $ref: '#/components/schemas/AculOrganizationFilterById'
+      - $ref: '#/components/schemas/AculOrganizationFilterByMetadata'
+    AculMatchTypeEnum:
+      type: string
+      description: Type of match to apply
+      enum:
+      - includes_any
+      - excludes_any
+    AculFilters:
+      type:
+      - object
+      - 'null'
+      description: Optional filters to apply rendering rules to specific entities
+      additionalProperties: false
+      properties:
+        match_type:
+          $ref: '#/components/schemas/AculMatchTypeEnum'
+        clients:
+          type: array
+          description: Clients filter
+          items:
+            $ref: '#/components/schemas/AculClientFilter'
+        organizations:
+          type: array
+          description: Organizations filter
+          items:
+            $ref: '#/components/schemas/AculOrganizationFilter'
+        domains:
+          type: array
+          description: Domains filter
+          items:
+            $ref: '#/components/schemas/AculDomainFilter'
+    UpdateAculRequestContent:
+      type: object
+      description: Render settings for the given screen
+      additionalProperties: false
+      properties:
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    GetCustomTextsByLanguageResponseContent:
+      type: object
+      description: An object containing custom dictionaries for a group of screens.
+      additionalProperties: true
+    ScreenGroupNameEnum:
+      type: string
+      description: Name of the screen
+      enum:
+      - login
+      - login-id
+      - login-password
+      - login-passwordless-email-code
+      - login-passwordless-email-link
+      - login-passwordless-sms-otp
+      - login-email-verification
+      - signup
+      - signup-id
+      - signup-password
+      - phone-identifier-enrollment
+      - phone-identifier-challenge
+      - email-identifier-challenge
+      - reset-password-request
+      - reset-password-email
+      - reset-password
+      - reset-password-success
+      - reset-password-error
+      - reset-password-mfa-email-challenge
+      - reset-password-mfa-otp-challenge
+      - reset-password-mfa-phone-challenge
+      - reset-password-mfa-push-challenge-push
+      - reset-password-mfa-recovery-code-challenge
+      - reset-password-mfa-sms-challenge
+      - reset-password-mfa-voice-challenge
+      - reset-password-mfa-webauthn-platform-challenge
+      - reset-password-mfa-webauthn-roaming-challenge
+      - custom-form
+      - consent
+      - customized-consent
+      - logout
+      - logout-complete
+      - logout-aborted
+      - mfa-push-welcome
+      - mfa-push-enrollment-qr
+      - mfa-push-enrollment-code
+      - mfa-push-success
+      - mfa-push-challenge-push
+      - mfa-push-list
+      - mfa-otp-enrollment-qr
+      - mfa-otp-enrollment-code
+      - mfa-otp-challenge
+      - mfa-voice-enrollment
+      - mfa-voice-challenge
+      - mfa-phone-challenge
+      - mfa-phone-enrollment
+      - mfa-webauthn-platform-enrollment
+      - mfa-webauthn-roaming-enrollment
+      - mfa-webauthn-platform-challenge
+      - mfa-webauthn-roaming-challenge
+      - mfa-webauthn-change-key-nickname
+      - mfa-webauthn-enrollment-success
+      - mfa-webauthn-error
+      - mfa-webauthn-not-available-error
+      - mfa-country-codes
+      - mfa-sms-enrollment
+      - mfa-sms-challenge
+      - mfa-sms-list
+      - mfa-email-challenge
+      - mfa-email-list
+      - mfa-recovery-code-enrollment
+      - mfa-recovery-code-challenge-new-code
+      - mfa-recovery-code-challenge
+      - mfa-detect-browser-capabilities
+      - mfa-enroll-result
+      - mfa-login-options
+      - mfa-begin-enroll-options
+      - status
+      - device-code-activation
+      - device-code-activation-allowed
+      - device-code-activation-denied
+      - device-code-confirmation
+      - email-verification-result
+      - email-otp-challenge
+      - organization-selection
+      - organization-picker
+      - pre-login-organization-picker
+      - accept-invitation
+      - redeem-ticket
+      - passkey-enrollment
+      - passkey-enrollment-local
+      - interstitial-captcha
+      - brute-force-protection-unblock
+      - brute-force-protection-unblock-success
+      - brute-force-protection-unblock-failure
+      - async-approval-error
+      - async-approval-accepted
+      - async-approval-denied
+      - async-approval-wrong-user
+    AculClientMetadata:
+      type: object
+      description: Client metadata key/value pairs
+      additionalProperties: true
+      maxProperties: 1
+    ListAculsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        configs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListAculsResponseContentItem'
+        start:
+          type: number
+          description: the index of the first configuration in the response (before filtering)
+        limit:
+          type: number
+          description: the maximum number of configurations shown per page (before filtering)
+        total:
+          type: number
+          description: the total number of configurations on this tenant
+    AculHeadTag:
+      type: object
+      additionalProperties: true
+      properties:
+        tag:
+          type: string
+          description: Any HTML element valid for use in the head tag
+        attributes:
+          $ref: '#/components/schemas/AculHeadTagAttributes'
+        content:
+          $ref: '#/components/schemas/AculHeadTagContent'
+    GetPartialsResponseContent:
+      type: object
+      description: An object containing template partials for a group of screens.
+      additionalProperties: true
+    GetSettingsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        universal_login_experience:
+          $ref: '#/components/schemas/UniversalLoginExperienceEnum'
+        identifier_first:
+          type: boolean
+          description: Whether identifier first is enabled or not
+        webauthn_platform_first_factor:
+          type: boolean
+          description: Use WebAuthn with Device Biometrics as the first authentication factor
+    PromptLanguageEnum:
+      type: string
+      enum:
+      - am
+      - ar
+      - ar-EG
+      - ar-SA
+      - az
+      - bg
+      - bn
+      - bs
+      - ca-ES
+      - cnr
+      - cs
+      - cy
+      - da
+      - de
+      - el
+      - en
+      - en-CA
+      - es
+      - es-419
+      - es-AR
+      - es-MX
+      - et
+      - eu-ES
+      - fa
+      - fi
+      - fr
+      - fr-CA
+      - fr-FR
+      - gl-ES
+      - gu
+      - he
+      - hi
+      - hr
+      - hu
+      - hy
+      - id
+      - is
+      - it
+      - ja
+      - ka
+      - kk
+      - kn
+      - ko
+      - lt
+      - lv
+      - mk
+      - ml
+      - mn
+      - mr
+      - ms
+      - my
+      - nb
+      - nl
+      - nn
+      - 'no'
+      - pa
+      - pl
+      - pt
+      - pt-BR
+      - pt-PT
+      - ro
+      - ru
+      - sk
+      - sl
+      - so
+      - sq
+      - sr
+      - sv
+      - sw
+      - ta
+      - te
+      - th
+      - tl
+      - tr
+      - uk
+      - ur
+      - vi
+      - zgh
+      - zh-CN
+      - zh-HK
+      - zh-MO
+      - zh-TW
+      description: Language to update.
+    AculOrganizationFilterByMetadata:
+      type: object
+      additionalProperties: false
+      required:
+      - metadata
+      properties:
+        metadata:
+          $ref: '#/components/schemas/AculOrganizationMetadata'
+    ListAculsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/ListAculsResponseContentItem'
+      - $ref: '#/components/schemas/ListAculsOffsetPaginatedResponseContent'
+    PartialGroupsEnum:
+      type: string
+      enum:
+      - login
+      - login-id
+      - login-password
+      - login-passwordless
+      - signup
+      - signup-id
+      - signup-password
+      - customized-consent
+      - passkeys
+      description: Name of the prompt.
+    AculRenderingModeEnum:
+      type: string
+      enum:
+      - advanced
+      - standard
+      description: Rendering mode to filter by
+    UniversalLoginExperienceEnum:
+      type: string
+      description: Which login experience to use. Can be `new` or `classic`.
+      enum:
+      - new
+      - classic
+    AculClientFilter:
+      type: object
+      description: Client array filter items
+      oneOf:
+      - $ref: '#/components/schemas/AculClientFilterById'
+      - $ref: '#/components/schemas/AculClientFilterByMetadata'
+    BulkUpdateAculRequestContent:
+      type: object
+      description: Bulk update render settings for multiple screens
+      additionalProperties: false
+      required:
+      - configs
+      properties:
+        configs:
+          $ref: '#/components/schemas/AculConfigs'
+    UpdateSettingsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        universal_login_experience:
+          $ref: '#/components/schemas/UniversalLoginExperienceEnum'
+        identifier_first:
+          type: boolean
+          description: Whether identifier first is enabled or not
+        webauthn_platform_first_factor:
+          type: boolean
+          description: Use WebAuthn with Device Biometrics as the first authentication factor
+    AculHeadTagAttributes:
+      type: object
+      description: Attributes of the HTML tag. See <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes"> MDN documentation</a> for valid attributes.
+      additionalProperties: true
+      maxProperties: 10
+    AculContextEnum:
+      type: string
+      description: Static context values
+      enum:
+      - branding.settings
+      - branding.themes.default
+      - client.logo_uri
+      - client.description
+      - organization.display_name
+      - organization.branding
+      - screen.texts
+      - tenant.name
+      - tenant.friendly_name
+      - tenant.logo_url
+      - tenant.enabled_locales
+      - untrusted_data.submitted_form_data
+      - untrusted_data.authorization_params.login_hint
+      - untrusted_data.authorization_params.screen_hint
+      - untrusted_data.authorization_params.ui_locales
+      - user.organizations
+      - transaction.custom_domain.domain
+    AculOrganizationFilterById:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Organization ID
+    SetsCustomTextsByLanguageRequestContent:
+      type: object
+      description: An object containing custom dictionaries for a group of screens.
+      additionalProperties: true
+    BulkUpdateAculResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - configs
+      properties:
+        configs:
+          $ref: '#/components/schemas/AculConfigs'
+    AculDomainFilterByMetadata:
+      type: object
+      additionalProperties: false
+      required:
+      - metadata
+      properties:
+        metadata:
+          $ref: '#/components/schemas/AculDomainMetadata'
+    AculOrganizationMetadata:
+      type: object
+      description: Organization metadata key/value pairs
+      additionalProperties: true
+      maxProperties: 1
+    AculDomainMetadata:
+      type: object
+      description: Domain metadata key/value pairs
+      additionalProperties: true
+      maxProperties: 1
+    SetPartialsRequestContent:
+      type: object
+      description: An object containing template partials for a group of screens.
+      additionalProperties: true
+    UpdateAculResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    AculDomainFilterById:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Domain ID
+    AculHeadTagContent:
+      type: string
+      description: "Text or markup between the element’s opening and closing tags. \nYou can use <a href=\"https://auth0.com/docs/customize/login-pages/advanced-customizations/getting-started/configure-acul-screens\">context variables</a> to display dynamic values."
+    AculClientFilterByMetadata:
+      type: object
+      additionalProperties: false
+      required:
+      - metadata
+      properties:
+        metadata:
+          $ref: '#/components/schemas/AculClientMetadata'
+    GetAculResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        tenant:
+          type: string
+          description: Tenant ID
+        prompt:
+          type: string
+          description: Name of the prompt
+        screen:
+          type: string
+          description: Name of the screen
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    AculContextConfigurationItem:
+      oneOf:
+      - $ref: '#/components/schemas/AculContextEnum'
+      - type: string
+        description: Dynamic client metadata key (e.g., `client.metadata.myKey`)
+        pattern: ^client\.metadata\.[^\.]+$
+      - type: string
+        description: Dynamic organization metadata key (e.g., `organization.metadata.myKey`)
+        pattern: ^organization\.metadata\.[^\.]+$
+      - type: string
+        description: Dynamic transaction custom domain metadata key (e.g., `transaction.custom_domain.domain_metadata.myKey`)
+        pattern: ^transaction\.custom_domain\.domain_metadata\.[^\.]+$
+      - type: string
+        description: Dynamic user metadata key (e.g., `user.user_metadata.myKey`)
+        pattern: ^user\.user_metadata\.[^\.]+$
+      - type: string
+        description: Dynamic app metadata key (e.g., `user.app_metadata.myKey`)
+        pattern: ^user\.app_metadata\.[^\.]+$
+      - type: string
+        description: Dynamic authorization param ext key (e.g., `untrusted_data.authorization_params.ext-myKey`)
+        pattern: ^untrusted_data\.authorization_params\.ext-[^\.]+$
+    UpdateSettingsRequestContent:
+      type: object
+      description: Prompts settings
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        universal_login_experience:
+          $ref: '#/components/schemas/UniversalLoginExperienceEnum'
+        identifier_first:
+          type:
+          - boolean
+          - 'null'
+          description: Whether identifier first is enabled or not
+        webauthn_platform_first_factor:
+          type:
+          - boolean
+          - 'null'
+          description: Use WebAuthn with Device Biometrics as the first authentication factor
+    AculClientFilterById:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Client ID
+    AculDomainFilter:
+      type: object
+      description: Domains array filter items
+      oneOf:
+      - $ref: '#/components/schemas/AculDomainFilterById'
+      - $ref: '#/components/schemas/AculDomainFilterByMetadata'
+    PromptGroupNameEnum:
+      type: string
+      description: Name of the prompt
+      enum:
+      - login
+      - login-id
+      - login-password
+      - login-passwordless
+      - login-email-verification
+      - signup
+      - signup-id
+      - signup-password
+      - phone-identifier-enrollment
+      - phone-identifier-challenge
+      - email-identifier-challenge
+      - reset-password
+      - custom-form
+      - consent
+      - customized-consent
+      - logout
+      - mfa-push
+      - mfa-otp
+      - mfa-voice
+      - mfa-phone
+      - mfa-webauthn
+      - mfa-sms
+      - mfa-email
+      - mfa-recovery-code
+      - mfa
+      - status
+      - device-flow
+      - email-verification
+      - email-otp-challenge
+      - organizations
+      - invitation
+      - common
+      - passkeys
+      - captcha
+      - brute-force-protection
+      - async-approval-flow
+    AculConfigs:
+      type: array
+      description: Array of screen configurations to update
+      minItems: 1
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - prompt
+        - screen
+        properties:
+          prompt:
+            $ref: '#/components/schemas/PromptGroupNameEnum'
+          screen:
+            $ref: '#/components/schemas/ScreenGroupNameEnum'
+          rendering_mode:
+            $ref: '#/components/schemas/AculRenderingModeEnum'
+            description: Rendering mode
+          context_configuration:
+            $ref: '#/components/schemas/AculContextConfiguration'
+          default_head_tags_disabled:
+            type:
+            - boolean
+            - 'null'
+            description: Override Universal Login default head tags
+            default: false
+          use_page_template:
+            type:
+            - boolean
+            - 'null'
+            description: Use page template with ACUL
+            default: false
+          head_tags:
+            type:
+            - array
+            - 'null'
+            description: An array of head tags
+            items:
+              $ref: '#/components/schemas/AculHeadTag'
+          filters:
+            $ref: '#/components/schemas/AculFilters'
+    AculContextConfiguration:
+      type:
+      - array
+      - 'null'
+      description: Context values to make available
+      items:
+        $ref: '#/components/schemas/AculContextConfigurationItem'
+    ListAculsResponseContentItem:
+      type: object
+      additionalProperties: true
+      properties:
+        tenant:
+          type: string
+          description: Tenant ID
+        prompt:
+          type: string
+          description: Name of the prompt
+        screen:
+          type: string
+          description: Name of the screen
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'

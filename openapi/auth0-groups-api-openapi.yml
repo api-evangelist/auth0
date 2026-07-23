@@ -1,0 +1,429 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions groups API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: groups
+paths:
+  /groups:
+    get:
+      summary: Get All Groups
+      description: 'List all groups in your tenant.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - name: connection_id
+        in: query
+        description: Filter groups by connection ID.
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: Filter groups by name.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+      - name: external_id
+        in: query
+        description: Filter groups by external ID.
+        schema:
+          type: string
+          maxLength: 256
+      - name: search
+        in: query
+        description: Search for groups by name or external ID.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 256
+      - name: fields
+        in: query
+        description: A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields
+        schema:
+          type: string
+          maxLength: 256
+          pattern: ^((id)|(name)|(external_id)|(organization_id)|(connection_id)|(tenant_name)|(description)|(created_at)|(updated_at))(,((id)|(name)|(external_id)|(organization_id)|(connection_id)|(tenant_name)|(description)|(created_at)|(updated_at)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Groups successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGroupsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:groups.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_groups
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListGroupsRequestParameters
+      x-operation-group: groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:groups
+  /groups/{id}:
+    get:
+      summary: Get a Group
+      description: 'Retrieve a group by its ID.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the group (service-generated).
+        required: true
+        schema:
+          type: string
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+      responses:
+        '200':
+          description: Group successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGroupResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:groups.'
+        '404':
+          description: The group does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_group
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-request-parameters-name: getGroupRequestParameters
+      x-operation-group: groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:groups
+    delete:
+      summary: Delete a Group
+      description: 'Delete a group by its ID.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the group (service-generated).
+        required: true
+        schema:
+          type: string
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+      responses:
+        '204':
+          description: Group successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:groups.'
+        '404':
+          description: The group does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_group
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-request-parameters-name: deleteGroupRequestParameters
+      x-operation-group: groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:groups
+  /groups/{id}/members:
+    get:
+      summary: Get Group Members
+      description: 'List all users that are a member of this group.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the group (service-generated).
+        required: true
+        schema:
+          type: string
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+      - name: fields
+        in: query
+        description: A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields
+        schema:
+          type: string
+          maxLength: 256
+          pattern: ^((id)|(member_type)|(type)|(connection_id)|(created_at))(,((id)|(member_type)|(type)|(connection_id)|(created_at)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Group members successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGroupMembersResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:group_members.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_group_members
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetGroupMembersRequestParameters
+      x-operation-group:
+      - groups
+      - members
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:group_members
+components:
+  schemas:
+    GroupTypeEnum:
+      type: string
+      description: Type of the group.
+      enum:
+      - connection
+      - organization
+      - tenant
+    Group:
+      type: object
+      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the group (service-generated).
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+        name:
+          type: string
+          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+        external_id:
+          type: string
+          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
+          maxLength: 256
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        tenant_name:
+          type: string
+          description: Identifier for the tenant this group belongs to.
+          minLength: 3
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+        created_at:
+          type: string
+          description: Timestamp of when the group was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp of when the group was last updated.
+          format: date-time
+    ListGroupsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+    GroupMemberTypeEnum:
+      type: string
+      description: Type of the member.
+      enum:
+      - user
+      - group
+    GroupMember:
+      type: object
+      description: Represents the metadata of a group membership.
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the member.
+        member_type:
+          $ref: '#/components/schemas/GroupMemberTypeEnum'
+        type:
+          $ref: '#/components/schemas/GroupTypeEnum'
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        created_at:
+          type: string
+          description: Timestamp of when the membership was created.
+          format: date-time
+    GetGroupMembersResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - members
+      properties:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMember'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    ListGroupsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Group'
+      - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
+    GetGroupResponseContent:
+      type: object
+      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
+      additionalProperties: true
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      - tenant_name
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the group (service-generated).
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+        name:
+          type: string
+          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+        external_id:
+          type: string
+          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
+          maxLength: 256
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        tenant_name:
+          type: string
+          description: Identifier for the tenant this group belongs to.
+          minLength: 3
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+        created_at:
+          type: string
+          description: Timestamp of when the group was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp of when the group was last updated.
+          format: date-time

@@ -1,0 +1,662 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions hooks API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: hooks
+paths:
+  /hooks:
+    get:
+      summary: Get Hooks
+      description: 'Retrieve all <a href="https://auth0.com/docs/hooks">hooks</a>. Accepts a list of fields to include or exclude in the result.
+
+        '
+      tags:
+      - hooks
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: enabled
+        in: query
+        description: Optional filter on whether a hook is enabled (true) or disabled (false).
+        schema:
+          type: boolean
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((id)|(name)|(script)|(dependencies)|(enabled)|(triggerId))(,((id)|(name)|(script)|(dependencies)|(enabled)|(triggerId)))*$
+      - name: triggerId
+        in: query
+        description: Retrieves hooks that match the trigger
+        schema:
+          $ref: '#/components/schemas/HookTriggerIdEnum'
+      responses:
+        '200':
+          description: Hooks successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListHooksResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:hooks.'
+        '404':
+          description: Hook not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_hooks
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListHooksRequestParameters
+      x-operation-group: hooks
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:hooks
+    post:
+      summary: Create a Hook
+      description: 'Create a new hook.
+
+        '
+      tags:
+      - hooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHookRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateHookRequestContent'
+      responses:
+        '201':
+          description: Hook successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateHookResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:hooks.'
+          x-description-1: This endpoint is disabled for your tenant.
+        '409':
+          description: Hook with the same name already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_hooks
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: hooks
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:hooks
+  /hooks/{id}:
+    get:
+      summary: Get a Hook
+      description: 'Retrieve <a href="https://auth0.com/docs/hooks">a hook</a> by its ID. Accepts a list of fields to include in the result.
+
+        '
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: ID of the hook to retrieve.
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include in the result. Leave empty to retrieve all fields.
+        schema:
+          type: string
+          pattern: ^((id)|(name)|(script)|(dependencies)|(enabled)|(triggerId))(,((id)|(name)|(script)|(dependencies)|(enabled)|(triggerId)))*$
+      responses:
+        '200':
+          description: Hook successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetHookResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:hooks.'
+        '404':
+          description: Hook not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_hooks_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetHookRequestParameters
+      x-operation-group: hooks
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:hooks
+    delete:
+      summary: Delete a Hook
+      description: 'Delete a hook.
+
+        '
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: ID of the hook to delete.
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      responses:
+        '204':
+          description: Hook successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:hooks.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_hooks_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: hooks
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:hooks
+    patch:
+      summary: Update a Hook
+      description: 'Update an existing hook.
+
+        '
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: ID of the hook to update.
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHookRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateHookRequestContent'
+      responses:
+        '201':
+          description: Hook successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateHookResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:hooks.'
+          x-description-1: This endpoint is disabled for your tenant.
+        '404':
+          description: The hook does not exist
+        '409':
+          description: A hook with the same name already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_hooks_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: hooks
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:hooks
+  /hooks/{id}/secrets:
+    get:
+      summary: Get Hook Secrets
+      description: "Retrieve a hook's secrets by the ID of the hook. \n"
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: ID of the hook to retrieve secrets from.
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      responses:
+        '200':
+          description: Hook secrets successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetHookSecretResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:hooks.'
+        '404':
+          description: Hook not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_secrets
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - hooks
+      - secrets
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:hooks
+    delete:
+      summary: Delete Hook Secrets
+      description: 'Delete one or more existing secrets for a given hook. Accepts an array of secret names to delete. '
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: ID of the hook whose secrets to delete.
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteHookSecretRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteHookSecretRequestContent'
+      responses:
+        '204':
+          description: Hook secrets successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:hooks.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_secrets
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - hooks
+      - secrets
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:hooks
+    patch:
+      summary: Update Hook Secrets
+      description: "Update one or more existing secrets for an existing hook. Accepts an object of key-value pairs, where the key is the name of the existing secret. \n"
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: ID of the hook whose secrets to update.
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHookSecretRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateHookSecretRequestContent'
+      responses:
+        '201':
+          description: Hook secrets successfully updated.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:hooks.'
+          x-description-1: This endpoint is disabled for your tenant.
+        '404':
+          description: Hook or secret not found.
+        '409':
+          description: Secret with the same name already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_secrets
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - hooks
+      - secrets
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:hooks
+    post:
+      summary: Add Hook Secrets
+      description: "Add one or more secrets to an existing hook. Accepts an object of key-value pairs, where the key is the name of the secret. A hook can have a maximum of 20 secrets. \n"
+      tags:
+      - hooks
+      parameters:
+      - name: id
+        in: path
+        description: The id of the hook to retrieve
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9-]*$
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHookSecretRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateHookSecretRequestContent'
+      responses:
+        '201':
+          description: Hook secrets successfully added.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:hooks.'
+          x-description-1: This endpoint is disabled for your tenant.
+        '409':
+          description: Secret with the same name already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_secrets
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - hooks
+      - secrets
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:hooks
+components:
+  schemas:
+    CreateHookSecretRequestContent:
+      type: object
+      description: Hashmap of key-value pairs where the value must be a string.
+      additionalProperties:
+        type: string
+      minProperties: 1
+      maxProperties: 20
+    DeleteHookSecretRequestContent:
+      type: array
+      description: Array of secret names to delete.
+      minItems: 1
+      items:
+        type: string
+    UpdateHookSecretRequestContent:
+      type: object
+      description: Hashmap of key-value pairs where the value must be a string.
+      additionalProperties:
+        type: string
+      minProperties: 1
+      maxProperties: 20
+    HookDependencies:
+      type: object
+      description: Dependencies of this hook used by webtask server.
+      additionalProperties:
+        type: string
+    UpdateHookRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: Name of this hook.
+          default: my-hook
+          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+          minLength: 1
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: false
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    Hook:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    CreateHookRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - script
+      - triggerId
+      properties:
+        name:
+          type: string
+          description: Name of this hook.
+          default: my-hook
+          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+          minLength: 1
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: false
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+        triggerId:
+          $ref: '#/components/schemas/HookTriggerIdEnum'
+          description: Execution stage of this rule. Can be `credentials-exchange`, `pre-user-registration`, `post-user-registration`, `post-change-password`, or `send-phone-message`.
+    HookTriggerIdEnum:
+      type: string
+      enum:
+      - credentials-exchange
+      - pre-user-registration
+      - post-user-registration
+      - post-change-password
+      - send-phone-message
+      description: Retrieves hooks that match the trigger
+    GetHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    ListHooksResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Hook'
+      - $ref: '#/components/schemas/ListHooksOffsetPaginatedResponseContent'
+    ListHooksOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        hooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hook'
+    UpdateHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    CreateHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    GetHookSecretResponseContent:
+      type: object
+      description: Hashmap of key-value pairs where the value must be a string.
+      additionalProperties:
+        type: string
+      minProperties: 1
+      maxProperties: 20

@@ -1,0 +1,443 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions emails API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: emails
+paths:
+  /emails/provider:
+    get:
+      summary: Get Email Provider
+      description: 'Retrieve details of the <a href="https://auth0.com/docs/customize/email/smtp-email-providers">email provider configuration</a> in your tenant. A list of fields to include or exclude may also be specified.
+
+        '
+      tags:
+      - emails
+      parameters:
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude (dependent upon include_fields) from the result. Leave empty to retrieve `name` and `enabled`. Additional fields available include `credentials`, `default_from_address`, and `settings`.
+        schema:
+          type: string
+          pattern: ^((name)|(enabled)|(credentials)|(settings)|(default_from_address))(,((name)|(enabled)|(credentials)|(settings)|(default_from_address)))*$
+      - name: include_fields
+        in: query
+        description: Whether specified fields are to be included (true) or excluded (false).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Email provider successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmailProviderResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:email_provider.'
+        '404':
+          description: Email provider has not been configured.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_provider
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetEmailProviderRequestParameters
+      x-operation-group:
+      - emails
+      - provider
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:email_provider
+    delete:
+      summary: Delete Email Provider
+      description: 'Delete the email provider.
+
+        '
+      tags:
+      - emails
+      responses:
+        '204':
+          description: The email provider has been deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: delete:email_provider'
+        '404':
+          description: Email provider does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_provider
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - emails
+      - provider
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:email_provider
+    patch:
+      summary: Update Email Provider
+      description: "Update an <a href=\"https://auth0.com/docs/email/providers\">email provider</a>. The <code>credentials</code> object\nrequires different properties depending on the email provider (which is specified using the <code>name</code> property):\n<ul>\n  <li><code>mandrill</code> requires <code>api_key</code></li>\n  <li><code>sendgrid</code> requires <code>api_key</code></li>\n  <li>\n    <code>sparkpost</code> requires <code>api_key</code>. Optionally, set <code>region</code> to <code>eu</code> to use\n    the SparkPost service hosted in Western Europe; set to <code>null</code> to use the SparkPost service hosted in\n    North America. <code>eu</code> or <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li>\n    <code>mailgun</code> requires <code>api_key</code> and <code>domain</code>. Optionally, set <code>region</code> to\n    <code>eu</code> to use the Mailgun service hosted in Europe; set to <code>null</code> otherwise. <code>eu</code> or\n    <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li><code>ses</code> requires <code>accessKeyId</code>, <code>secretAccessKey</code>, and <code>region</code></li>\n  <li>\n    <code>smtp</code> requires <code>smtp_host</code>, <code>smtp_port</code>, <code>smtp_user</code>, and\n    <code>smtp_pass</code>\n  </li>\n</ul>\nDepending on the type of provider it is possible to specify <code>settings</code> object with different configuration\noptions, which will be used when sending an email:\n<ul>\n  <li>\n    <code>smtp</code> provider, <code>settings</code> may contain <code>headers</code> object.\n    <ul>\n      <li>\n        When using AWS SES SMTP host, you may provide a name of configuration set in\n        <code>X-SES-Configuration-Set</code> header. Value must be a string.\n      </li>\n      <li>\n        When using Sparkpost host, you may provide value for\n        <code>X-MSYS_API</code> header. Value must be an object.\n      </li>\n    </ul>\n    for <code>ses</code> provider, <code>settings</code> may contain <code>message</code> object, where you can provide\n    a name of configuration set in <code>configuration_set_name</code> property. Value must be a string.\n  </li>\n</ul>\n"
+      tags:
+      - emails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailProviderRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailProviderRequestContent'
+      responses:
+        '200':
+          description: Email provider successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEmailProviderResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:email_provider.'
+        '404':
+          description: Email provider has not been configured.
+        '409':
+          description: No deployed action was found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_provider
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - emails
+      - provider
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:email_provider
+    post:
+      summary: Configure Email Provider
+      description: "Create an <a href=\"https://auth0.com/docs/email/providers\">email provider</a>. The <code>credentials</code> object\nrequires different properties depending on the email provider (which is specified using the <code>name</code> property):\n<ul>\n  <li><code>mandrill</code> requires <code>api_key</code></li>\n  <li><code>sendgrid</code> requires <code>api_key</code></li>\n  <li>\n    <code>sparkpost</code> requires <code>api_key</code>. Optionally, set <code>region</code> to <code>eu</code> to use\n    the SparkPost service hosted in Western Europe; set to <code>null</code> to use the SparkPost service hosted in\n    North America. <code>eu</code> or <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li>\n    <code>mailgun</code> requires <code>api_key</code> and <code>domain</code>. Optionally, set <code>region</code> to\n    <code>eu</code> to use the Mailgun service hosted in Europe; set to <code>null</code> otherwise. <code>eu</code> or\n    <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li><code>ses</code> requires <code>accessKeyId</code>, <code>secretAccessKey</code>, and <code>region</code></li>\n  <li>\n    <code>smtp</code> requires <code>smtp_host</code>, <code>smtp_port</code>, <code>smtp_user</code>, and\n    <code>smtp_pass</code>\n  </li>\n</ul>\nDepending on the type of provider it is possible to specify <code>settings</code> object with different configuration\noptions, which will be used when sending an email:\n<ul>\n  <li>\n    <code>smtp</code> provider, <code>settings</code> may contain <code>headers</code> object.\n    <ul>\n      <li>\n        When using AWS SES SMTP host, you may provide a name of configuration set in\n        <code>X-SES-Configuration-Set</code> header. Value must be a string.\n      </li>\n      <li>\n        When using Sparkpost host, you may provide value for\n        <code>X-MSYS_API</code> header. Value must be an object.\n      </li>\n    </ul>\n  </li>\n  <li>\n    for <code>ses</code> provider, <code>settings</code> may contain <code>message</code> object, where you can provide\n    a name of configuration set in <code>configuration_set_name</code> property. Value must be a string.\n  </li>\n</ul>\n"
+      tags:
+      - emails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmailProviderRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEmailProviderRequestContent'
+      responses:
+        '201':
+          description: Email provider successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEmailProviderResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:email_provider.'
+        '409':
+          description: Email provider is already configured.
+          x-description-1: No deployed action was found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_provider
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - emails
+      - provider
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:email_provider
+components:
+  schemas:
+    EmailProviderNameEnum:
+      type: string
+      description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+      enum:
+      - mailgun
+      - mandrill
+      - sendgrid
+      - resend
+      - ses
+      - sparkpost
+      - smtp
+      - azure_cs
+      - ms365
+      - custom
+    EmailSMTPHost:
+      type: string
+      description: SMTP host.
+      anyOf:
+      - type: string
+        format: hostname-rfc2181
+      - type: string
+        format: ipv4
+      - type: string
+        format: ipv6
+    EmailSparkPostRegionEnum:
+      description: Set to <code>eu</code> to use SparkPost service hosted in Western Europe. To use SparkPost hosted in North America, set it to <code>null</code>.
+      enum:
+      - eu
+      - null
+    GetEmailProviderResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+          default: sendgrid
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+          default: true
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentials'
+        settings:
+          $ref: '#/components/schemas/EmailProviderSettings'
+    EmailProviderSettings:
+      type: object
+      description: Specific provider setting
+      additionalProperties: true
+    UpdateEmailProviderResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+          default: sendgrid
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+          default: true
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentials'
+        settings:
+          $ref: '#/components/schemas/EmailProviderSettings'
+    UpdateEmailProviderRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          $ref: '#/components/schemas/EmailProviderNameEnum'
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentialsSchema'
+        settings:
+          $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
+    EmailMailgunRegionEnum:
+      description: Set to <code>eu</code> if your domain is provisioned to use Mailgun's EU region. Otherwise, set to <code>null</code>.
+      enum:
+      - eu
+      - null
+    CreateEmailProviderResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+          default: sendgrid
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+          default: true
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentials'
+        settings:
+          $ref: '#/components/schemas/EmailProviderSettings'
+    EmailSpecificProviderSettingsWithAdditionalProperties:
+      type:
+      - object
+      - 'null'
+      description: Specific provider setting
+      additionalProperties: true
+    EmailProviderCredentials:
+      type: object
+      description: Credentials required to use the provider.
+      additionalProperties: false
+      properties:
+        api_user:
+          type: string
+          description: API User.
+        region:
+          type: string
+          description: AWS or SparkPost region.
+        smtp_host:
+          type: string
+          description: SMTP host.
+        smtp_port:
+          type: integer
+          description: SMTP port.
+        smtp_user:
+          type: string
+          description: SMTP username.
+    ExtensibilityEmailProviderCredentials:
+      type: object
+      additionalProperties: false
+      properties: {}
+    CreateEmailProviderRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        name:
+          $ref: '#/components/schemas/EmailProviderNameEnum'
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+          default: true
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentialsSchema'
+        settings:
+          $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
+    EmailProviderCredentialsSchema:
+      type: object
+      description: Credentials required to use the provider.
+      anyOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - api_key
+        properties:
+          api_key:
+            type: string
+            description: API Key
+            minLength: 1
+      - type: object
+        additionalProperties: false
+        minProperties: 1
+        properties:
+          accessKeyId:
+            type: string
+            description: AWS Access Key ID.
+            minLength: 1
+          secretAccessKey:
+            type: string
+            description: AWS Secret Access Key.
+            minLength: 1
+          region:
+            type: string
+            description: AWS region.
+            minLength: 1
+      - type: object
+        additionalProperties: false
+        minProperties: 1
+        properties:
+          smtp_host:
+            $ref: '#/components/schemas/EmailSMTPHost'
+          smtp_port:
+            type: integer
+            description: SMTP port.
+          smtp_user:
+            type: string
+            description: SMTP username.
+            minLength: 1
+          smtp_pass:
+            type: string
+            description: SMTP password.
+            minLength: 1
+      - type: object
+        additionalProperties: false
+        minProperties: 1
+        properties:
+          api_key:
+            type: string
+            description: API Key
+            minLength: 1
+          region:
+            $ref: '#/components/schemas/EmailSparkPostRegionEnum'
+      - type: object
+        additionalProperties: false
+        minProperties: 1
+        properties:
+          api_key:
+            type: string
+            description: API Key
+            minLength: 1
+          domain:
+            type: string
+            description: Domain
+            minLength: 4
+          region:
+            $ref: '#/components/schemas/EmailMailgunRegionEnum'
+      - type: object
+        additionalProperties: false
+        minProperties: 1
+        properties:
+          connectionString:
+            type: string
+            description: Azure Communication Services Connection String.
+            minLength: 1
+      - type: object
+        additionalProperties: false
+        minProperties: 1
+        properties:
+          tenantId:
+            type: string
+            description: Microsoft 365 Tenant ID.
+            minLength: 1
+          clientId:
+            type: string
+            description: Microsoft 365 Client ID.
+            minLength: 1
+          clientSecret:
+            type: string
+            description: Microsoft 365 Client Secret.
+            minLength: 1
+      - $ref: '#/components/schemas/ExtensibilityEmailProviderCredentials'

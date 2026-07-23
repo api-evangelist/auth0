@@ -1,0 +1,5977 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions flows API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: flows
+paths:
+  /flows:
+    get:
+      summary: Get Flows
+      tags:
+      - flows
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: hydrate
+        in: query
+        description: hydration param
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListFlowsRequestParametersHydrateEnum'
+      - name: synchronous
+        in: query
+        description: flag to filter by sync/async flows
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Flows successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFlowsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:flows.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_flows
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListFlowsRequestParameters
+      x-operation-group: flows
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:flows
+    post:
+      summary: Create a Flow
+      tags:
+      - flows
+      requestBody:
+        x-release-lifecycle: GA
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFlowRequestContent'
+              x-release-lifecycle: GA
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateFlowRequestContent'
+              x-release-lifecycle: GA
+      responses:
+        '201':
+          description: Flow successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFlowResponseContent'
+                x-release-lifecycle: GA
+              x-release-lifecycle: GA
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:flows.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_flows
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: flows
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:flows
+  /flows/vault/connections:
+    get:
+      summary: Get Flows Vault Connection List
+      tags:
+      - flows
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Vault connections successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFlowsVaultConnectionsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:flows_vault_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_flows_vault_connections
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListFlowsVaultConnectionsRequestParameters
+      x-operation-group:
+      - flows
+      - vault
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:flows_vault_connections
+    post:
+      summary: Create a Flows Vault Connection
+      tags:
+      - flows
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFlowsVaultConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateFlowsVaultConnectionRequestContent'
+      responses:
+        '201':
+          description: Connection successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFlowsVaultConnectionResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:flows_vault_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_flows_vault_connections
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - flows
+      - vault
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:flows_vault_connections
+  /flows/vault/connections/{id}:
+    get:
+      summary: Get a Flows Vault Connection
+      tags:
+      - flows
+      parameters:
+      - name: id
+        in: path
+        description: Flows Vault connection ID
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      responses:
+        '200':
+          description: Flow vault connection successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFlowsVaultConnectionResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:flows_vault_connections.'
+        '404':
+          description: The Flow vault connection does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_flows_vault_connections_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetFlowsVaultConnectionRequestParameters
+      x-operation-group:
+      - flows
+      - vault
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:flows_vault_connections
+    delete:
+      summary: Delete a Flows Vault Connection
+      tags:
+      - flows
+      parameters:
+      - name: id
+        in: path
+        description: Vault connection id
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      responses:
+        '204':
+          description: Connection successfully deleted.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:flows_vault_connections.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_flows_vault_connections_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - flows
+      - vault
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:flows_vault_connections
+    patch:
+      summary: Update a Flows Vault Connection
+      tags:
+      - flows
+      parameters:
+      - name: id
+        in: path
+        description: Flows Vault connection ID
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFlowsVaultConnectionRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateFlowsVaultConnectionRequestContent'
+      responses:
+        '200':
+          description: Flow vault connection successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFlowsVaultConnectionResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:flows_vault_connections.'
+        '404':
+          description: The Flow vault connection does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_flows_vault_connections_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - flows
+      - vault
+      - connections
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:flows_vault_connections
+  /flows/{flow_id}/executions:
+    get:
+      summary: Get Flow Executions
+      tags:
+      - flows
+      parameters:
+      - name: flow_id
+        in: path
+        description: Flow id
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Flow executions successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFlowsExecutionsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:flows_executions.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_flows_executions
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListFlowExecutionsRequestParameters
+      x-operation-group:
+      - flows
+      - executions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:flows_executions
+  /flows/{flow_id}/executions/{execution_id}:
+    get:
+      summary: Get a Flow Execution
+      tags:
+      - flows
+      parameters:
+      - name: flow_id
+        in: path
+        description: Flow id
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      - name: execution_id
+        in: path
+        description: Flow execution id
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      - name: hydrate
+        in: query
+        description: Hydration param
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetFlowExecutionRequestParametersHydrateEnum'
+      responses:
+        '200':
+          description: Flow execution successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFlowExecutionResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:flows_executions.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_flows_executions_by_execution_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetFlowExecutionRequestParameters
+      x-operation-group:
+      - flows
+      - executions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:flows_executions
+    delete:
+      summary: Delete a Flow Execution
+      tags:
+      - flows
+      parameters:
+      - name: flow_id
+        in: path
+        description: Flows id
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      - name: execution_id
+        in: path
+        description: Flow execution identifier
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      responses:
+        '204':
+          description: Flow execution successfully deleted.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:flows_executions.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_flows_executions_by_execution_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - flows
+      - executions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:flows_executions
+  /flows/{id}:
+    get:
+      summary: Get a Flow
+      tags:
+      - flows
+      parameters:
+      - name: id
+        in: path
+        description: Flow identifier
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      - name: hydrate
+        in: query
+        description: hydration param
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetFlowRequestParametersHydrateEnum'
+      responses:
+        '200':
+          description: Flow successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFlowResponseContent'
+                x-release-lifecycle: GA
+              x-release-lifecycle: GA
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:flows.'
+        '404':
+          description: The flow does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_flows_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetFlowRequestParameters
+      x-operation-group: flows
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:flows
+    delete:
+      summary: Delete a Flow
+      tags:
+      - flows
+      parameters:
+      - name: id
+        in: path
+        description: Flow id
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      responses:
+        '204':
+          description: Flow successfully deleted.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:flows.'
+        '404':
+          description: The flow does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_flows_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: flows
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:flows
+    patch:
+      summary: Update a Flow
+      tags:
+      - flows
+      parameters:
+      - name: id
+        in: path
+        description: Flow identifier
+        required: true
+        schema:
+          type: string
+          maxLength: 30
+      requestBody:
+        x-release-lifecycle: GA
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFlowRequestContent'
+              x-release-lifecycle: GA
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateFlowRequestContent'
+              x-release-lifecycle: GA
+      responses:
+        '200':
+          description: Flow successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFlowResponseContent'
+                x-release-lifecycle: GA
+              x-release-lifecycle: GA
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:flows.'
+        '404':
+          description: The flow does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_flows_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: flows
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:flows
+components:
+  schemas:
+    CreateFlowsVaultConnectionStripeUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdStripeEnum'
+    CreateFlowsVaultConnectionSalesforce:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSalesforceOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSalesforceUninitialized'
+    FlowActionJsonParseJson:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - JSON
+        action:
+          type: string
+          enum:
+          - PARSE_JSON
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionJsonParseJsonParams'
+    FlowActionMailchimpUpsertMemberParamsMember:
+      type: object
+      additionalProperties: false
+      required:
+      - email_address
+      - status_if_new
+      properties:
+        email_address:
+          type: string
+        status_if_new:
+          type: string
+        merge_fields:
+          $ref: '#/components/schemas/FlowActionMailchimpUpsertMemberParamsMemberMergeFields'
+    FlowActionActivecampaignListContacts:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - ACTIVECAMPAIGN
+        action:
+          type: string
+          enum:
+          - LIST_CONTACTS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionActivecampaignListContactsParams'
+    FlowActionAuth0:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionAuth0CreateUser'
+      - $ref: '#/components/schemas/FlowActionAuth0GetUser'
+      - $ref: '#/components/schemas/FlowActionAuth0UpdateUser'
+      - $ref: '#/components/schemas/FlowActionAuth0SendRequest'
+      - $ref: '#/components/schemas/FlowActionAuth0SendEmail'
+      - $ref: '#/components/schemas/FlowActionAuth0SendSms'
+      - $ref: '#/components/schemas/FlowActionAuth0MakeCall'
+    FlowsVaultConnectioSetupTypeBearerEnum:
+      type: string
+      enum:
+      - BEARER
+    CreateFlowsVaultConnectionAirtableUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdAirtableEnum'
+    FlowActionClearbitFindPersonParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - email
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+    FlowActionAuth0SendSms:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - SEND_SMS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0SendSmsParams'
+    CreateFlowsVaultConnectionBigqueryUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdBigqueryEnum'
+    FlowActionAirtableCreateRecordParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - base_id
+      - table_name
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        base_id:
+          type: string
+        table_name:
+          type: string
+        fields:
+          $ref: '#/components/schemas/FlowActionAirtableCreateRecordParamsFields'
+    FlowActionSlackPostMessageParamsAttachment:
+      type: object
+      additionalProperties: false
+      properties:
+        color:
+          type: string
+          enum:
+          - GOOD
+          - WARNING
+          - DANGER
+        pretext:
+          type: string
+        text:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowActionSlackPostMessageParamsAttachmentField'
+    UpdateFlowsVaultConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - app_id
+      - name
+      - ready
+      - created_at
+      - updated_at
+      - fingerprint
+      properties:
+        id:
+          type: string
+          description: Flows Vault Connection identifier.
+          maxLength: 30
+          format: flows-vault-connections-id
+        app_id:
+          type: string
+          description: Flows Vault Connection app identifier.
+          minLength: 1
+          maxLength: 55
+        environment:
+          type: string
+          description: Flows Vault Connection environment.
+          minLength: 1
+          maxLength: 55
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        account_name:
+          type: string
+          description: Flows Vault Connection custom account name.
+          minLength: 1
+          maxLength: 150
+        ready:
+          type: boolean
+          description: Whether the Flows Vault Connection is configured.
+        created_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was updated.
+          format: date-time
+        refreshed_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was refreshed.
+          format: date-time
+        fingerprint:
+          type: string
+          minLength: 1
+    FlowActionTwilioSendSms:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - TWILIO
+        action:
+          type: string
+          enum:
+          - SEND_SMS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionTwilioSendSmsParams'
+    CreateFlowsVaultConnectionDocusignUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdDocusignEnum'
+    CreateFlowsVaultConnectionZapier:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionZapierWebhook'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionZapierUninitialized'
+    FlowActionOtpVerifyCodeParamsCode:
+      oneOf:
+      - type: integer
+        minimum: 0
+        maximum: 9999999999
+      - type: string
+        maxLength: 250
+    CreateFlowsVaultConnectionAuth0OauthApp:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdAuth0Enum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthApp'
+    FlowActionMailchimpUpsertMemberParamsMemberMergeFields:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionJwtDecodeJwtParams:
+      type: object
+      additionalProperties: false
+      required:
+      - token
+      properties:
+        token:
+          type: string
+          maxLength: 10000
+    FlowsVaultConnectioSetupToken:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - token
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeTokenEnum'
+        token:
+          type: string
+    FlowActionPipedriveAddDealParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - title
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        title:
+          type: string
+        value:
+          type: string
+        user_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddDealParamsUserId'
+        person_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddDealParamsPersonId'
+        organization_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddDealParamsOrganizationId'
+        stage_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddDealParamsStageId'
+        fields:
+          $ref: '#/components/schemas/FlowActionPipedriveAddDealParamsFields'
+    FlowActionGoogleSheets:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionGoogleSheetsAddRow'
+    FlowActionJsonSerializeJson:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - JSON
+        action:
+          type: string
+          enum:
+          - SERIALIZE_JSON
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionJsonSerializeJsonParams'
+    CreateFlowsVaultConnectionHubspotApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHubspotEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupApiKey'
+    FlowActionAirtableUpdateRecord:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AIRTABLE
+        action:
+          type: string
+          enum:
+          - UPDATE_RECORD
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAirtableUpdateRecordParams'
+    FlowActionHttp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionHttpSendRequest'
+    FlowsVaultConnectionAppIdStripeEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - STRIPE
+    CreateFlowsVaultConnectionPipedriveOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdPipedriveEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowsVaultConnectionHttpApiKeySetup:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - name
+      - value
+      - in
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectionSetupTypeApiKeyEnum'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        value:
+          type: string
+          minLength: 1
+          maxLength: 255
+        in:
+          $ref: '#/components/schemas/FlowsVaultConnectionHttpApiKeySetupInEnum'
+    FlowActionPipedrive:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionPipedriveAddDeal'
+      - $ref: '#/components/schemas/FlowActionPipedriveAddOrganization'
+      - $ref: '#/components/schemas/FlowActionPipedriveAddPerson'
+    FlowActionSalesforceSearchLeads:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - SALESFORCE
+        action:
+          type: string
+          enum:
+          - SEARCH_LEADS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionSalesforceSearchLeadsParams'
+    CreateFlowsVaultConnectionJwt:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionJwtJwt'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionJwtUninitialized'
+    FlowActionAuth0SendRequestParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - pathname
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        pathname:
+          type: string
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+        headers:
+          $ref: '#/components/schemas/FlowActionAuth0SendRequestParamsHeaders'
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0SendRequestParamsQueryParams'
+        payload:
+          $ref: '#/components/schemas/FlowActionAuth0SendRequestParamsPayload'
+    FlowActionFlowMapValue:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - MAP_VALUE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowMapValueParams'
+    FlowActionJsonSerializeJsonParamsObjectObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionHubspotGetContact:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - HUBSPOT
+        action:
+          type: string
+          enum:
+          - GET_CONTACT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionHubspotGetContactParams'
+    CreateFlowResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      x-release-lifecycle: GA
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          format: flow-id
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        actions:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FlowAction'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        executed_at:
+          type: string
+          format: date
+    FlowActionBigqueryInsertRows:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - BIGQUERY
+        action:
+          type: string
+          enum:
+          - INSERT_ROWS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionBigqueryInsertRowsParams'
+    CreateFlowsVaultConnectionMailjetUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdMailjetEnum'
+    FlowActionFlowReturnJson:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - RETURN_JSON
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowReturnJsonParams'
+    FlowActionPipedriveAddPersonParamsOrganizationId:
+      oneOf:
+      - type: string
+      - type: number
+    FlowActionBigquery:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionBigqueryInsertRows'
+    FlowActionZapierTriggerWebhookParams:
+      type: object
+      additionalProperties: true
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+    FlowActionGoogleSheetsAddRowParamsSheetId:
+      oneOf:
+      - type: integer
+        minimum: 0
+      - type: string
+    FlowActionBigqueryInsertRowsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - dataset_id
+      - table_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        dataset_id:
+          type: string
+        table_id:
+          type: string
+        data:
+          $ref: '#/components/schemas/FlowActionBigqueryInsertRowsParamsData'
+    FlowsVaultConnectionAppIdHubspotEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - HUBSPOT
+    FlowActionSalesforceUpdateLeadParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - lead_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        lead_id:
+          type: string
+          minLength: 1
+        payload:
+          $ref: '#/components/schemas/FlowActionSalesforceUpdateLeadParamsPayload'
+    FlowActionJsonCreateJsonParams:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/FlowActionJsonCreateJsonParamsObject'
+    FlowActionAuth0SendRequestParamsCustomVars:
+      type: object
+      additionalProperties: true
+    FlowActionPipedriveAddDealParamsFields:
+      type: object
+      additionalProperties: true
+      properties: {}
+    CreateFlowsVaultConnectionMailchimp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailchimpApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailchimpOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailchimpUninitialized'
+    FlowActionHttpSendRequestParamsPayload:
+      oneOf:
+      - type: string
+      - type: array
+        items: {}
+      - $ref: '#/components/schemas/FlowActionHttpSendRequestParamsPayloadObject'
+    FlowActionAuth0SendEmailParamsFromEmail:
+      type: string
+      oneOf:
+      - type: string
+        format: email
+      - type: string
+        format: forms-expression
+    FlowActionClearbitFindPerson:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - CLEARBIT
+        action:
+          type: string
+          enum:
+          - FIND_PERSON
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionClearbitFindPersonParams'
+    FlowActionClearbitFindCompany:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - CLEARBIT
+        action:
+          type: string
+          enum:
+          - FIND_COMPANY
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionClearbitFindCompanyParams'
+    FlowActionOtpVerifyCode:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - OTP
+        action:
+          type: string
+          enum:
+          - VERIFY_CODE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionOtpVerifyCodeParams'
+    FlowActionAirtableListRecordsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - base_id
+      - table_name
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        base_id:
+          type: string
+        table_name:
+          type: string
+        query:
+          type: string
+        view:
+          type: string
+    FlowSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          format: flow-id
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        executed_at:
+          type: string
+          format: date
+    FlowActionStripeDeleteTaxIdParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - customer_id
+      - id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        customer_id:
+          type: string
+          maxLength: 250
+        id:
+          type: string
+          maxLength: 250
+    FlowActionFlowReturnJsonParamsPayloadObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    CreateFlowsVaultConnectionTwilioApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdTwilioEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTwilioApiKey'
+    FlowActionFlowDoNothing:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - DO_NOTHING
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowDoNothingParams'
+    FlowActionStripeAddTaxIdParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - customer_id
+      - type
+      - value
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        customer_id:
+          type: string
+          maxLength: 250
+        type:
+          type: string
+          maxLength: 250
+        value:
+          type: string
+          maxLength: 250
+    FlowsVaultConnectionAppIdBigqueryEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - BIGQUERY
+    FlowActionPipedriveAddDealParamsOrganizationId:
+      oneOf:
+      - type: string
+      - type: number
+    FlowActionFlowDoNothingParams:
+      type: object
+      additionalProperties: false
+      properties: {}
+    FlowActionJsonCreateJson:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - JSON
+        action:
+          type: string
+          enum:
+          - CREATE_JSON
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionJsonCreateJsonParams'
+    CreateFlowsVaultConnectionGoogleSheets:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionGoogleSheetsOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionGoogleSheetsUninitialized'
+    FlowActionOtpGenerateCodeParams:
+      type: object
+      additionalProperties: false
+      required:
+      - reference
+      - length
+      properties:
+        reference:
+          type: string
+          maxLength: 250
+        length:
+          type: integer
+          minimum: 1
+          maximum: 10
+    CreateFlowsVaultConnectionStripeKeyPair:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdStripeEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupStripeKeyPair'
+    FlowsVaultConnectionAppIdGoogleSheetsEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - GOOGLE_SHEETS
+    CreateFlowsVaultConnectionSlackOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSlackEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    CreateFlowsVaultConnectionMailjet:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailjetApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailjetUninitialized'
+    FlowActionAuth0GetUserParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - user_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        user_id:
+          type: string
+    FlowsVaultConnectioSetupTwilioApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - account_id
+      - api_key
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeApiKeyEnum'
+        account_id:
+          type: string
+        api_key:
+          type: string
+    FlowActionZapierTriggerWebhook:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - ZAPIER
+        action:
+          type: string
+          enum:
+          - TRIGGER_WEBHOOK
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionZapierTriggerWebhookParams'
+    FlowActionFlowMapValueParamsCases:
+      type: object
+      additionalProperties: true
+      properties: {}
+    CreateFlowsVaultConnectionClearbit:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionClearbitApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionClearbitUninitialized'
+    CreateFlowsVaultConnectionAirtableApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdAirtableEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupApiKey'
+    FlowActionAuth0SendRequestParamsPayloadObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    ListFlowsVaultConnectionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowsVaultConnectionSummary'
+    FlowActionTwilioMakeCall:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - TWILIO
+        action:
+          type: string
+          enum:
+          - MAKE_CALL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionTwilioMakeCallParams'
+    FlowsVaultConnectionSetupTypeApiKeyEnum:
+      type: string
+      enum:
+      - API_KEY
+    FlowActionHttpSendRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - HTTP
+        action:
+          type: string
+          enum:
+          - SEND_REQUEST
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionHttpSendRequestParams'
+    CreateFlowRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      x-release-lifecycle: GA
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        actions:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FlowAction'
+    FlowActionAuth0SendRequestParamsHeaders:
+      type: object
+      additionalProperties: true
+    FlowsVaultConnectionAppIdTwilioEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - TWILIO
+    FlowActionSendgridSendEmailParamsPerson:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+    CreateFlowsVaultConnectionSlackUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSlackEnum'
+    GetFlowExecutionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - trace_id
+      - status
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: Flow execution identifier
+          maxLength: 30
+          format: flow-execution-id
+        trace_id:
+          type: string
+          description: Trace id
+          minLength: 1
+          maxLength: 50
+        journey_id:
+          type: string
+          description: Journey id
+          minLength: 1
+          maxLength: 50
+        status:
+          type: string
+          description: Execution status
+          minLength: 1
+          maxLength: 50
+        debug:
+          $ref: '#/components/schemas/FlowExecutionDebug'
+        created_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution was updated.
+          format: date-time
+        started_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution started.
+          format: date-time
+        ended_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution ended.
+          format: date-time
+    FlowActionFlow:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionFlowBooleanCondition'
+      - $ref: '#/components/schemas/FlowActionFlowDelayFlow'
+      - $ref: '#/components/schemas/FlowActionFlowDoNothing'
+      - $ref: '#/components/schemas/FlowActionFlowErrorMessage'
+      - $ref: '#/components/schemas/FlowActionFlowMapValue'
+      - $ref: '#/components/schemas/FlowActionFlowReturnJson'
+      - $ref: '#/components/schemas/FlowActionFlowStoreVars'
+    FlowActionPipedriveAddOrganization:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - PIPEDRIVE
+        action:
+          type: string
+          enum:
+          - ADD_ORGANIZATION
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionPipedriveAddOrganizationParams'
+    CreateFlowsVaultConnectionStripe:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionStripeKeyPair'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionStripeOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionStripeUninitialized'
+    FlowActionPipedriveAddPersonParamsOwnerId:
+      oneOf:
+      - type: string
+      - type: number
+    FlowActionStripeCreatePortalSessionParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - customer_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        customer_id:
+          type: string
+          maxLength: 250
+        return_url:
+          type: string
+    CreateFlowsVaultConnectionDocusign:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionDocusignOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionDocusignUninitialized'
+    FlowActionHubspotUpsertContactParams:
+      type: object
+      additionalProperties: true
+      required:
+      - connection_id
+      - email
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowActionHubspotUpsertContactParamsProperty'
+    FlowsVaultConnectioSetupApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - api_key
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeApiKeyEnum'
+        api_key:
+          type: string
+    FlowActionAuth0MakeCall:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - MAKE_CALL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0MakeCallParams'
+    CreateFlowsVaultConnectionSalesforceUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSalesforceEnum'
+    FlowActionTwilioMakeCallParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - from
+      - to
+      - payload
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        from:
+          type: string
+        to:
+          type: string
+        payload:
+          type: string
+          maxLength: 4096
+    FlowsVaultConnectioSetupApiKeyWithBaseUrl:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - api_key
+      - base_url
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeApiKeyEnum'
+        api_key:
+          type: string
+        base_url:
+          type: string
+          format: forms-url-https
+    FlowsVaultConnectioSetupTypeTokenEnum:
+      type: string
+      enum:
+      - TOKEN
+    FlowActionPipedriveAddDealParamsPersonId:
+      oneOf:
+      - type: string
+      - type: number
+    GetFlowsExecutionsResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/ListFlowExecutionsResponseContent'
+      - $ref: '#/components/schemas/ListFlowExecutionsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListFlowExecutionsPaginatedResponseContent'
+    FlowActionTelegramSendMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - TELEGRAM
+        action:
+          type: string
+          enum:
+          - SEND_MESSAGE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionTelegramSendMessageParams'
+    FlowsVaultConnectionHttpOauthClientCredentialsSetup:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - client_id
+      - client_secret
+      - token_endpoint
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectionSetupTypeOauthClientCredentialsEnum'
+        client_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        client_secret:
+          type: string
+          minLength: 1
+          maxLength: 255
+        token_endpoint:
+          type: string
+          minLength: 1
+          maxLength: 500
+          format: forms-url-https
+        audience:
+          type: string
+          minLength: 1
+          maxLength: 255
+        resource:
+          type: string
+          minLength: 1
+          maxLength: 255
+        scope:
+          type: string
+          minLength: 1
+          maxLength: 1024
+    FlowActionHubspotGetContactParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - email
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+    CreateFlowsVaultConnectionClearbitApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdClearbitEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupSecretApiKey'
+    FlowActionMailjetSendEmailParams:
+      type: object
+      oneOf:
+      - type: object
+        additionalProperties: true
+        required:
+        - content
+        properties:
+          content:
+            type: string
+      - type: object
+        additionalProperties: true
+        required:
+        - template_id
+        properties:
+          template_id:
+            type: integer
+          variables:
+            type: object
+            additionalProperties: true
+            properties: {}
+    FlowActionSalesforceGetLeadParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - lead_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        lead_id:
+          type: string
+    CreateFlowsVaultConnectionMailchimpUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdMailchimpEnum'
+    FlowExecutionDebug:
+      type: object
+      description: Flow execution debug.
+      additionalProperties: true
+    FlowActionAirtableUpdateRecordParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - base_id
+      - table_name
+      - record_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        base_id:
+          type: string
+        table_name:
+          type: string
+        record_id:
+          type: string
+        fields:
+          $ref: '#/components/schemas/FlowActionAirtableUpdateRecordParamsFields'
+    FlowsVaultConnectionSetupTypeOauthClientCredentialsEnum:
+      type: string
+      enum:
+      - OAUTH_CLIENT_CREDENTIALS
+    UpdateFlowsVaultConnectionSetup:
+      type: object
+      description: Flows Vault Connection configuration.
+      oneOf:
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupApiKeyWithBaseUrl'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupApiKey'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthApp'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupBigqueryOauthJwt'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupSecretApiKey'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupHttpBearer'
+      - $ref: '#/components/schemas/FlowsVaultConnectionHttpBasicAuthSetup'
+      - $ref: '#/components/schemas/FlowsVaultConnectionHttpApiKeySetup'
+      - $ref: '#/components/schemas/FlowsVaultConnectionHttpOauthClientCredentialsSetup'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupJwt'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupMailjetApiKey'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupToken'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupWebhook'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupStripeKeyPair'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+      - $ref: '#/components/schemas/FlowsVaultConnectioSetupTwilioApiKey'
+    FlowActionStripeCreateCustomerParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        tax_id:
+          $ref: '#/components/schemas/FlowActionStripeTaxId'
+        name:
+          type: string
+          maxLength: 250
+        description:
+          type: string
+          maxLength: 250
+        email:
+          type: string
+          maxLength: 512
+        phone:
+          type: string
+          maxLength: 250
+        tax_exempt:
+          type: string
+        address:
+          $ref: '#/components/schemas/FlowActionStripeAddress'
+        metadata:
+          $ref: '#/components/schemas/FlowActionStripeMetadata'
+    FlowsVaultConnectionAppIdClearbitEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - CLEARBIT
+    CreateFlowsVaultConnectionGoogleSheetsUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdGoogleSheetsEnum'
+    FlowActionSlackPostMessageParamsAttachmentField:
+      type: object
+      additionalProperties: false
+      required:
+      - title
+      properties:
+        title:
+          type: string
+        value:
+          type: string
+          minLength: 0
+        short:
+          type: boolean
+    CreateFlowsVaultConnectionBigqueryJwt:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdBigqueryEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupBigqueryOauthJwt'
+    FlowActionStripeAddTaxId:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - ADD_TAX_ID
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeAddTaxIdParams'
+    CreateFlowsVaultConnectionSlackWebhook:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSlackEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupWebhook'
+    FlowActionJsonParseJsonParams:
+      type: object
+      additionalProperties: false
+      required:
+      - json
+      properties:
+        json:
+          type: string
+    FlowActionMailjetSendEmail:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - MAILJET
+        action:
+          type: string
+          enum:
+          - SEND_EMAIL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionMailjetSendEmailParams'
+    FlowActionJwtVerifyJwtParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - token
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        token:
+          type: string
+          maxLength: 100
+        audience:
+          type: string
+          maxLength: 500
+        issuer:
+          type: string
+          maxLength: 500
+    FlowsVaultConnectionHttpBasicAuthSetup:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - username
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectionSetupTypeBasicAuthEnum'
+        username:
+          type: string
+          minLength: 1
+          maxLength: 155
+        password:
+          type: string
+          minLength: 1
+          maxLength: 155
+    GetFlowExecutionRequestParametersHydrateEnum:
+      type: string
+      maxLength: 5
+      enum:
+      - debug
+    FlowActionHubspotEnrollContact:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - HUBSPOT
+        action:
+          type: string
+          enum:
+          - ENROLL_CONTACT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionHubspotEnrollContactParams'
+    CreateFlowsVaultConnectionSendgrid:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSendgridApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSendgridUninitialized'
+    FlowActionAuth0UpdateUser:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - UPDATE_USER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0UpdateUserParams'
+    FlowsVaultConnectioSetupTypeOauthCodeEnum:
+      type: string
+      enum:
+      - OAUTH_CODE
+    FlowsVaultConnectionSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - app_id
+      - name
+      - ready
+      - created_at
+      - updated_at
+      - fingerprint
+      properties:
+        id:
+          type: string
+          description: Flows Vault Connection identifier.
+          maxLength: 30
+          format: flows-vault-connections-id
+        app_id:
+          type: string
+          description: Flows Vault Connection app identifier.
+          minLength: 1
+          maxLength: 55
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        account_name:
+          type: string
+          description: Flows Vault Connection custom account name.
+          minLength: 1
+          maxLength: 150
+        ready:
+          type: boolean
+          description: Whether the Flows Vault Connection is configured.
+        created_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was updated.
+          format: date-time
+        refreshed_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was refreshed.
+          format: date-time
+        fingerprint:
+          type: string
+          minLength: 1
+    FlowActionOtp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionOtpGenerateCode'
+      - $ref: '#/components/schemas/FlowActionOtpVerifyCode'
+    FlowActionPipedriveAddOrganizationParamsFields:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionStripeDeleteTaxId:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - DELETE_TAX_ID
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeDeleteTaxIdParams'
+    FlowsVaultConnectioSetupJwtAlgorithmEnum:
+      type: string
+      enum:
+      - HS256
+      - HS384
+      - HS512
+      - RS256
+      - RS384
+      - RS512
+      - ES256
+      - ES384
+      - ES512
+      - PS256
+      - PS384
+      - PS512
+    FlowActionSlackPostMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - SLACK
+        action:
+          type: string
+          enum:
+          - POST_MESSAGE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionSlackPostMessageParams'
+    FlowsVaultConnectionSetupTypeBasicAuthEnum:
+      type: string
+      enum:
+      - BASIC_AUTH
+    FlowActionAuth0UpdateUserParamsChanges:
+      type: object
+      additionalProperties: true
+      properties: {}
+    CreateFlowsVaultConnectionActivecampaign:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionActivecampaignApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionActivecampaignUninitialized'
+    FlowActionSalesforceCreateLeadParamsPayload:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowsVaultConnectionAppIdMailjetEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - MAILJET
+    FlowActionSlack:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionSlackPostMessage'
+    CreateFlowsVaultConnectionHttpApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHttpEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectionHttpApiKeySetup'
+    FlowActionFlowMapValueParamsFallback:
+      oneOf:
+      - type: string
+      - type: number
+      - $ref: '#/components/schemas/FlowActionFlowMapValueParamsFallbackObject'
+      - type: array
+        items: {}
+      - type: 'null'
+    FlowActionWhatsappSendMessageParamsPayload:
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionWhatsappSendMessageParamsPayloadObject'
+      - type: string
+    FlowActionXmlSerializeXmlParamsObject:
+      oneOf:
+      - type: string
+      - $ref: '#/components/schemas/FlowActionXmlSerializeXmlParamsObjectObject'
+    FlowActionJwt:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionJwtDecodeJwt'
+      - $ref: '#/components/schemas/FlowActionJwtSignJwt'
+      - $ref: '#/components/schemas/FlowActionJwtVerifyJwt'
+    FlowActionAuth0SendEmail:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - SEND_EMAIL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0SendEmailParams'
+    ListFlowsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/FlowSummary'
+      - $ref: '#/components/schemas/ListFlowsOffsetPaginatedResponseContent'
+    CreateFlowsVaultConnectionTelegram:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionTelegramToken'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionTelegramUninitialized'
+    FlowsVaultConnectionAppIdZapierEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - ZAPIER
+    FlowActionAuth0MakeCallParams:
+      type: object
+      additionalProperties: false
+      required:
+      - to
+      - message
+      properties:
+        from:
+          type: string
+          minLength: 1
+          maxLength: 255
+        to:
+          type: string
+          minLength: 1
+          maxLength: 255
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        custom_vars:
+          $ref: '#/components/schemas/FlowActionAuth0MakeCallParamsCustomVars'
+    CreateFlowsVaultConnectionAirtable:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionAirtableApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionAirtableUninitialized'
+    FlowActionStripe:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionStripeAddTaxId'
+      - $ref: '#/components/schemas/FlowActionStripeCreateCustomer'
+      - $ref: '#/components/schemas/FlowActionStripeCreatePortalSession'
+      - $ref: '#/components/schemas/FlowActionStripeDeleteTaxId'
+      - $ref: '#/components/schemas/FlowActionStripeFindCustomers'
+      - $ref: '#/components/schemas/FlowActionStripeGetCustomer'
+      - $ref: '#/components/schemas/FlowActionStripeUpdateCustomer'
+    CreateFlowsVaultConnectionSendgridApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSendgridEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupApiKey'
+    FlowActionStripeCreatePortalSession:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - CREATE_PORTAL_SESSION
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeCreatePortalSessionParams'
+    FlowActionHubspotEnrollContactParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - email
+      - workflow_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+        workflow_id:
+          $ref: '#/components/schemas/FlowActionHubspotEnrollContactParamsWorkflowId'
+    FlowsVaultConnectionHttpApiKeySetupInEnum:
+      type: string
+      enum:
+      - HEADER
+      - QUERY
+    FlowsVaultConnectionAppIdActivecampaignEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - ACTIVECAMPAIGN
+    FlowsVaultConnectionAppIdPipedriveEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - PIPEDRIVE
+    CreateFlowsVaultConnectionHttpBearer:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHttpEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupHttpBearer'
+    FlowsVaultConnectionAppIdTelegramEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - TELEGRAM
+    FlowActionZapier:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionZapierTriggerWebhook'
+    CreateFlowsVaultConnectionStripeOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdStripeEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowActionJwtSignJwtParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        payload:
+          $ref: '#/components/schemas/FlowActionJwtSignJwtParamsPayload'
+        subject:
+          type: string
+          maxLength: 100
+        issuer:
+          type: string
+          maxLength: 100
+        audience:
+          type: string
+          maxLength: 100
+        expires_in:
+          type: string
+          maxLength: 25
+    FlowActionHubspotUpsertContact:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - HUBSPOT
+        action:
+          type: string
+          enum:
+          - UPSERT_CONTACT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionHubspotUpsertContactParams'
+    FlowActionXmlParseXmlParams:
+      type: object
+      additionalProperties: false
+      required:
+      - xml
+      properties:
+        xml:
+          type: string
+    FlowsVaultConnectioSetupTypeApiKeyEnum:
+      type: string
+      enum:
+      - API_KEY
+    FlowActionWhatsappSendMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - WHATSAPP
+        action:
+          type: string
+          enum:
+          - SEND_MESSAGE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionWhatsappSendMessageParams'
+    FlowActionFlowBooleanConditionParams:
+      type: object
+      additionalProperties: false
+      required:
+      - if
+      properties:
+        if: {}
+        then:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowAction'
+        else:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowAction'
+    ListFlowExecutionsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        executions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowExecutionSummary'
+    FlowActionSalesforceSearchLeadsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - search_field
+      - search_value
+      - lead_fields
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        search_field:
+          type: string
+          enum:
+          - email
+          - name
+          - phone
+          - all
+        search_value:
+          type: string
+          maxLength: 2000
+        lead_fields:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            maxLength: 2000
+    FlowsVaultConnectionAppIdAuth0Enum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - AUTH0
+    FlowsVaultConnectioSetupTypeKeyPairEnum:
+      type: string
+      enum:
+      - KEY_PAIR
+    FlowActionStripeGetCustomerParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        id:
+          type: string
+          maxLength: 250
+    FlowActionSlackPostMessageParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        text:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowActionSlackPostMessageParamsAttachment'
+    FlowActionSalesforceGetLead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - SALESFORCE
+        action:
+          type: string
+          enum:
+          - GET_LEAD
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionSalesforceGetLeadParams'
+    FlowActionPipedriveAddOrganizationParamsOwnerId:
+      oneOf:
+      - type: string
+      - type: number
+    FlowsVaultConnectionAppIdDocusignEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - DOCUSIGN
+    FlowActionJwtSignJwt:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - JWT
+        action:
+          type: string
+          enum:
+          - SIGN_JWT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionJwtSignJwtParams'
+    FlowActionFlowStoreVars:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - STORE_VARS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowStoreVarsParams'
+    FlowActionFlowReturnJsonParams:
+      type: object
+      additionalProperties: false
+      required:
+      - payload
+      properties:
+        payload:
+          $ref: '#/components/schemas/FlowActionFlowReturnJsonParamsPayload'
+    FlowActionActivecampaignUpsertContact:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - ACTIVECAMPAIGN
+        action:
+          type: string
+          enum:
+          - UPSERT_CONTACT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionActivecampaignUpsertContactParams'
+    FlowsVaultConnectionAppIdSlackEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - SLACK
+    FlowAction:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionActivecampaign'
+      - $ref: '#/components/schemas/FlowActionAirtable'
+      - $ref: '#/components/schemas/FlowActionAuth0'
+      - $ref: '#/components/schemas/FlowActionBigquery'
+      - $ref: '#/components/schemas/FlowActionClearbit'
+      - $ref: '#/components/schemas/FlowActionEmail'
+      - $ref: '#/components/schemas/FlowActionFlow'
+      - $ref: '#/components/schemas/FlowActionGoogleSheets'
+      - $ref: '#/components/schemas/FlowActionHttp'
+      - $ref: '#/components/schemas/FlowActionHubspot'
+      - $ref: '#/components/schemas/FlowActionJson'
+      - $ref: '#/components/schemas/FlowActionJwt'
+      - $ref: '#/components/schemas/FlowActionMailchimp'
+      - $ref: '#/components/schemas/FlowActionMailjet'
+      - $ref: '#/components/schemas/FlowActionOtp'
+      - $ref: '#/components/schemas/FlowActionPipedrive'
+      - $ref: '#/components/schemas/FlowActionSalesforce'
+      - $ref: '#/components/schemas/FlowActionSendgrid'
+      - $ref: '#/components/schemas/FlowActionSlack'
+      - $ref: '#/components/schemas/FlowActionStripe'
+      - $ref: '#/components/schemas/FlowActionTelegram'
+      - $ref: '#/components/schemas/FlowActionTwilio'
+      - $ref: '#/components/schemas/FlowActionWhatsapp'
+      - $ref: '#/components/schemas/FlowActionXml'
+      - $ref: '#/components/schemas/FlowActionZapier'
+    FlowActionFlowDelayFlowParams:
+      type: object
+      additionalProperties: false
+      required:
+      - number
+      properties:
+        number:
+          $ref: '#/components/schemas/FlowActionFlowDelayFlowParamsNumber'
+        units:
+          type: string
+          enum:
+          - SECONDS
+          - MINUTES
+          - HOURS
+          - DAYS
+    GetFlowRequestParametersHydrateEnum:
+      type: string
+      maxLength: 50
+      enum:
+      - form_count
+      - forms
+    FlowActionHubspotUpsertContactParamsProperty:
+      type: object
+      additionalProperties: false
+      required:
+      - property
+      properties:
+        property:
+          type: string
+          maxLength: 100
+        value: {}
+    CreateFlowsVaultConnectionDocusignOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdDocusignEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowActionClearbit:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionClearbitFindPerson'
+      - $ref: '#/components/schemas/FlowActionClearbitFindCompany'
+    CreateFlowsVaultConnectionHubspotOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHubspotEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowActionActivecampaignUpsertContactParamsCustomFields:
+      type: object
+      additionalProperties: true
+    FlowActionFlowMapValueParamsFallbackObject:
+      type: object
+      additionalProperties: true
+    FlowsVaultConnectionAppIdMailchimpEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - MAILCHIMP
+    FlowActionAuth0MakeCallParamsCustomVars:
+      type: object
+      additionalProperties: true
+    CreateFlowsVaultConnectionSlack:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSlackWebhook'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSlackOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSlackUninitialized'
+    CreateFlowsVaultConnectionActivecampaignUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdActivecampaignEnum'
+    FlowActionPipedriveAddPerson:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - PIPEDRIVE
+        action:
+          type: string
+          enum:
+          - ADD_PERSON
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionPipedriveAddPersonParams'
+    FlowActionFlowBooleanCondition:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - BOOLEAN_CONDITION
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowBooleanConditionParams'
+    ListFlowExecutionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        executions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowExecutionSummary'
+    CreateFlowsVaultConnectionMailjetApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdMailjetEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupMailjetApiKey'
+    FlowActionAirtableCreateRecordParamsFields:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionFlowReturnJsonParamsPayload:
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionFlowReturnJsonParamsPayloadObject'
+      - type: string
+    FlowActionXml:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionXmlParseXml'
+      - $ref: '#/components/schemas/FlowActionXmlSerializeXml'
+    FlowActionStripeUpdateCustomerParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        id:
+          type: string
+          maxLength: 250
+        name:
+          type: string
+          maxLength: 250
+        description:
+          type: string
+          maxLength: 250
+        email:
+          type: string
+          maxLength: 512
+        phone:
+          type: string
+          maxLength: 250
+        tax_exempt:
+          type: string
+        address:
+          $ref: '#/components/schemas/FlowActionStripeAddress'
+        metadata:
+          $ref: '#/components/schemas/FlowActionStripeMetadata'
+    FlowActionStripeAddress:
+      type: object
+      additionalProperties: false
+      properties:
+        line1:
+          type: string
+          maxLength: 250
+        line2:
+          type: string
+          maxLength: 250
+        postalCode:
+          type: string
+          maxLength: 250
+        city:
+          type: string
+          maxLength: 250
+        state:
+          type: string
+          maxLength: 250
+        country:
+          type: string
+          maxLength: 250
+    FlowActionFlowStoreVarsParamsVars:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionHttpSendRequestParamsPayloadObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionXmlSerializeXmlParamsObjectObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    CreateFlowsVaultConnectionWhatsapp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionWhatsappToken'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionWhatsappUninitialized'
+    CreateFlowsVaultConnectionAuth0:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionAuth0OauthApp'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionAuth0Uninitialized'
+    FlowActionAuth0UpdateUserParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - user_id
+      - changes
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        user_id:
+          type: string
+        changes:
+          $ref: '#/components/schemas/FlowActionAuth0UpdateUserParamsChanges'
+    FlowActionStripeMetadata:
+      type: object
+      additionalProperties:
+        type: string
+        maxLength: 500
+      maxProperties: 50
+    FlowsVaultConnectioSetupTypeOauthAppEnum:
+      type: string
+      enum:
+      - OAUTH_APP
+    FlowActionJson:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionJsonCreateJson'
+      - $ref: '#/components/schemas/FlowActionJsonParseJson'
+      - $ref: '#/components/schemas/FlowActionJsonSerializeJson'
+    FlowsVaultConnectioSetupWebhook:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - url
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeWebhookEnum'
+        url:
+          type: string
+          format: forms-url-https
+    FlowsVaultConnectioSetupBigqueryOauthJwt:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeOauthJwtEnum'
+        project_id:
+          type: string
+        private_key:
+          type: string
+        client_email:
+          type: string
+          format: email
+    FlowActionSendgrid:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionSendgridSendEmail'
+    UpdateFlowRequestContent:
+      type: object
+      additionalProperties: false
+      x-release-lifecycle: GA
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        actions:
+          type:
+          - array
+          - 'null'
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FlowAction'
+    FlowsVaultConnectionAppIdSendgridEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - SENDGRID
+    FlowsVaultConnectioSetupTypeWebhookEnum:
+      type: string
+      enum:
+      - WEBHOOK
+    FlowActionJsonSerializeJsonParams:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/FlowActionJsonSerializeJsonParamsObject'
+    CreateFlowsVaultConnectionHttp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHttpBearer'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHttpBasicAuth'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHttpApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHttpOauthClientCredentials'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHttpUninitialized'
+    FlowActionPipedriveAddDeal:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - PIPEDRIVE
+        action:
+          type: string
+          enum:
+          - ADD_DEAL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionPipedriveAddDealParams'
+    FlowActionJwtVerifyJwt:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - JWT
+        action:
+          type: string
+          enum:
+          - VERIFY_JWT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionJwtVerifyJwtParams'
+    CreateFlowsVaultConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - app_id
+      - name
+      - ready
+      - created_at
+      - updated_at
+      - fingerprint
+      properties:
+        id:
+          type: string
+          description: Flows Vault Connection identifier.
+          maxLength: 30
+          format: flows-vault-connections-id
+        app_id:
+          type: string
+          description: Flows Vault Connection app identifier.
+          minLength: 1
+          maxLength: 55
+        environment:
+          type: string
+          description: Flows Vault Connection environment.
+          minLength: 1
+          maxLength: 55
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        account_name:
+          type: string
+          description: Flows Vault Connection custom account name.
+          minLength: 1
+          maxLength: 150
+        ready:
+          type: boolean
+          description: Whether the Flows Vault Connection is configured.
+        created_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was updated.
+          format: date-time
+        refreshed_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was refreshed.
+          format: date-time
+        fingerprint:
+          type: string
+          minLength: 1
+    FlowsVaultConnectioSetupJwt:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      - algorithm
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeJwtEnum'
+        algorithm:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupJwtAlgorithmEnum'
+    FlowActionMailchimpUpsertMemberParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - list_id
+      - member
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        list_id:
+          type: string
+        member:
+          $ref: '#/components/schemas/FlowActionMailchimpUpsertMemberParamsMember'
+    FlowActionEmailVerifyEmailParams:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      properties:
+        email:
+          type: string
+        rules:
+          $ref: '#/components/schemas/FlowActionEmailVerifyEmailParamsRules'
+    FlowActionAuth0CreateUserParamsPayload:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionTwilio:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionTwilioMakeCall'
+      - $ref: '#/components/schemas/FlowActionTwilioSendSms'
+    FlowActionXmlParseXml:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - XML
+        action:
+          type: string
+          enum:
+          - PARSE_XML
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionXmlParseXmlParams'
+    CreateFlowsVaultConnectionPipedrive:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionPipedriveToken'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionPipedriveOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionPipedriveUninitialized'
+    CreateFlowsVaultConnectionActivecampaignApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdActivecampaignEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupApiKeyWithBaseUrl'
+    FlowsVaultConnectionAppIdJwtEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - JWT
+    FlowActionFlowStoreVarsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - vars
+      properties:
+        vars:
+          $ref: '#/components/schemas/FlowActionFlowStoreVarsParamsVars'
+    FlowActionAirtableUpdateRecordParamsFields:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowActionEmailVerifyEmailParamsRules:
+      type: object
+      additionalProperties: false
+      properties:
+        require_mx_record:
+          type: boolean
+        block_aliases:
+          type: boolean
+        block_free_emails:
+          type: boolean
+        block_disposable_emails:
+          type: boolean
+        blocklist:
+          type: array
+          items:
+            type: string
+        allowlist:
+          type: array
+          items:
+            type: string
+    FlowActionPipedriveAddPersonParamsFields:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowsVaultConnectioSetupTypeOauthJwtEnum:
+      type: string
+      enum:
+      - OAUTH_JWT
+    CreateFlowsVaultConnectionZapierUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdZapierEnum'
+    FlowActionWhatsapp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionWhatsappSendMessage'
+    CreateFlowsVaultConnectionHubspot:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHubspotApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHubspotOauthCode'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHubspotUninitialized'
+    FlowActionEmail:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionEmailVerifyEmail'
+    FlowActionSendgridSendEmail:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - SENDGRID
+        action:
+          type: string
+          enum:
+          - SEND_EMAIL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionSendgridSendEmailParams'
+    FlowActionTwilioSendSmsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - from
+      - to
+      - message
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        from:
+          type: string
+          maxLength: 50
+        to:
+          type: string
+          maxLength: 50
+        message:
+          type: string
+          maxLength: 1500
+    CreateFlowsVaultConnectionTelegramToken:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdTelegramEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupToken'
+    FlowActionClearbitFindCompanyParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - domain
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        domain:
+          type: string
+    FlowActionAuth0SendSmsParamsCustomVars:
+      type: object
+      additionalProperties: true
+    FlowActionMailchimpUpsertMember:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - MAILCHIMP
+        action:
+          type: string
+          enum:
+          - UPSERT_MEMBER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionMailchimpUpsertMemberParams'
+    FlowActionSalesforceCreateLeadParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - last_name
+      - company
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        first_name:
+          type: string
+        last_name:
+          type: string
+          minLength: 1
+        company:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        phone:
+          type: string
+        payload:
+          $ref: '#/components/schemas/FlowActionSalesforceCreateLeadParamsPayload'
+    FlowActionAuth0SendRequestParamsQueryParams:
+      type: object
+      additionalProperties:
+        oneOf:
+        - type: number
+        - type: string
+        - type: 'null'
+    FlowActionAirtable:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionAirtableCreateRecord'
+      - $ref: '#/components/schemas/FlowActionAirtableListRecords'
+      - $ref: '#/components/schemas/FlowActionAirtableUpdateRecord'
+    FlowActionFlowMapValueParamsInput:
+      oneOf:
+      - type: string
+      - type: number
+    FlowActionOtpGenerateCode:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - OTP
+        action:
+          type: string
+          enum:
+          - GENERATE_CODE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionOtpGenerateCodeParams'
+    FlowActionAuth0CreateUserParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - payload
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        payload:
+          $ref: '#/components/schemas/FlowActionAuth0CreateUserParamsPayload'
+    FlowActionPipedriveAddPersonParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - name
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        owner_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddPersonParamsOwnerId'
+        organization_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddPersonParamsOrganizationId'
+        fields:
+          $ref: '#/components/schemas/FlowActionPipedriveAddPersonParamsFields'
+    FlowActionStripeCreateCustomer:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - CREATE_CUSTOMER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeCreateCustomerParams'
+    FlowActionHttpSendRequestParamsQueryParams:
+      type: object
+      additionalProperties:
+        oneOf:
+        - type: number
+        - type: string
+        - type: 'null'
+    CreateFlowsVaultConnectionBigquery:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionBigqueryJwt'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionBigqueryUninitialized'
+    FlowActionTelegram:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionTelegramSendMessage'
+    CreateFlowsVaultConnectionGoogleSheetsOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdGoogleSheetsEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowActionFlowDelayFlowParamsNumber:
+      oneOf:
+      - type: integer
+        minimum: 0
+      - type: string
+        maxLength: 250
+    FlowActionMailjet:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionMailjetSendEmail'
+    FlowActionPipedriveAddOrganizationParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - name
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        name:
+          type: string
+        owner_id:
+          $ref: '#/components/schemas/FlowActionPipedriveAddOrganizationParamsOwnerId'
+        fields:
+          $ref: '#/components/schemas/FlowActionPipedriveAddOrganizationParamsFields'
+    GetFlowsVaultConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - app_id
+      - name
+      - ready
+      - created_at
+      - updated_at
+      - fingerprint
+      properties:
+        id:
+          type: string
+          description: Flows Vault Connection identifier.
+          maxLength: 30
+          format: flows-vault-connections-id
+        app_id:
+          type: string
+          description: Flows Vault Connection app identifier.
+          minLength: 1
+          maxLength: 55
+        environment:
+          type: string
+          description: Flows Vault Connection environment.
+          minLength: 1
+          maxLength: 55
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        account_name:
+          type: string
+          description: Flows Vault Connection custom account name.
+          minLength: 1
+          maxLength: 150
+        ready:
+          type: boolean
+          description: Whether the Flows Vault Connection is configured.
+        created_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was updated.
+          format: date-time
+        refreshed_at:
+          type: string
+          description: The ISO 8601 formatted date when this Flows Vault Connection was refreshed.
+          format: date-time
+        fingerprint:
+          type: string
+          minLength: 1
+    FlowActionActivecampaignListContactsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - email
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+    CreateFlowsVaultConnectionMailchimpApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdMailchimpEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupSecretApiKey'
+    CreateFlowsVaultConnectionHttpOauthClientCredentials:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHttpEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectionHttpOauthClientCredentialsSetup'
+    FlowsVaultConnectioSetupStripeKeyPair:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - private_key
+      - public_key
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeKeyPairEnum'
+        private_key:
+          type: string
+        public_key:
+          type: string
+    FlowActionSalesforceUpdateLead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - SALESFORCE
+        action:
+          type: string
+          enum:
+          - UPDATE_LEAD
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionSalesforceUpdateLeadParams'
+    FlowActionGoogleSheetsAddRowParamsValues:
+      type: array
+      items:
+        type:
+        - string
+        - 'null'
+    FlowActionActivecampaignUpsertContactParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - email
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        custom_fields:
+          $ref: '#/components/schemas/FlowActionActivecampaignUpsertContactParamsCustomFields'
+    FlowActionHttpSendRequestParams:
+      type: object
+      additionalProperties: false
+      required:
+      - url
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        url:
+          type: string
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+        headers:
+          $ref: '#/components/schemas/FlowActionHttpSendRequestParamsHeaders'
+        basic:
+          $ref: '#/components/schemas/FlowActionHttpSendRequestParamsBasicAuth'
+        params:
+          $ref: '#/components/schemas/FlowActionHttpSendRequestParamsQueryParams'
+        payload:
+          $ref: '#/components/schemas/FlowActionHttpSendRequestParamsPayload'
+        content_type:
+          type: string
+          enum:
+          - JSON
+          - FORM
+          - XML
+    FlowActionXmlSerializeXml:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - XML
+        action:
+          type: string
+          enum:
+          - SERIALIZE_XML
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionXmlSerializeXmlParams'
+    UpdateFlowsVaultConnectionRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        setup:
+          $ref: '#/components/schemas/UpdateFlowsVaultConnectionSetup'
+    GetFlowResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      x-release-lifecycle: GA
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          format: flow-id
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        actions:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FlowAction'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        executed_at:
+          type: string
+          format: date
+    FlowActionWhatsappSendMessageParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - sender_id
+      - recipient_number
+      - type
+      - payload
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        sender_id:
+          type: string
+        recipient_number:
+          type: string
+        type:
+          type: string
+          enum:
+          - AUDIO
+          - CONTACTS
+          - DOCUMENT
+          - IMAGE
+          - INTERACTIVE
+          - LOCATION
+          - STICKER
+          - TEMPLATE
+          - TEXT
+        payload:
+          $ref: '#/components/schemas/FlowActionWhatsappSendMessageParamsPayload'
+    CreateFlowsVaultConnectionClearbitUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdClearbitEnum'
+    FlowActionAuth0SendEmailParamsFrom:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 125
+        email:
+          $ref: '#/components/schemas/FlowActionAuth0SendEmailParamsFromEmail'
+    FlowActionActivecampaign:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionActivecampaignListContacts'
+      - $ref: '#/components/schemas/FlowActionActivecampaignUpsertContact'
+    FlowsVaultConnectioSetupHttpBearer:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - token
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeBearerEnum'
+        token:
+          type: string
+    FlowActionHttpSendRequestParamsHeaders:
+      type: object
+      additionalProperties: true
+    FlowsVaultConnectionAppIdSalesforceEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - SALESFORCE
+    FlowActionAirtableListRecords:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AIRTABLE
+        action:
+          type: string
+          enum:
+          - LIST_RECORDS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAirtableListRecordsParams'
+    ListFlowExecutionsResponseContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/FlowExecutionSummary'
+    CreateFlowsVaultConnectionRequestContent:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionActivecampaign'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionAirtable'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionAuth0'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionBigquery'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionClearbit'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionDocusign'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionGoogleSheets'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHttp'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionHubspot'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionJwt'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailchimp'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionMailjet'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionPipedrive'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSalesforce'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSendgrid'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionSlack'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionStripe'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionTelegram'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionTwilio'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionWhatsapp'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionZapier'
+    ListFlowsVaultConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/FlowsVaultConnectionSummary'
+      - $ref: '#/components/schemas/ListFlowsVaultConnectionsOffsetPaginatedResponseContent'
+    FlowActionHubspotEnrollContactParamsWorkflowId:
+      oneOf:
+      - type: string
+      - type: integer
+    FlowsVaultConnectioSetupOauthApp:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - client_id
+      - client_secret
+      - domain
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeOauthAppEnum'
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        domain:
+          type: string
+          format: hostname-rfc2181
+        audience:
+          type: string
+          minLength: 1
+          format: forms-url-https
+    FlowActionHttpSendRequestParamsBasicAuth:
+      type: object
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+    FlowActionAuth0GetUser:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - GET_USER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0GetUserParams'
+    FlowsVaultConnectionAppIdWhatsappEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - WHATSAPP
+    CreateFlowsVaultConnectionMailchimpOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdMailchimpEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowActionAuth0CreateUser:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - CREATE_USER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0CreateUserParams'
+    FlowActionGoogleSheetsAddRow:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - GOOGLE_SHEETS
+        action:
+          type: string
+          enum:
+          - ADD_ROW
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionGoogleSheetsAddRowParams'
+    FlowsVaultConnectioSetupOauthCode:
+      type: object
+      additionalProperties: true
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeOauthCodeEnum'
+        code:
+          type: string
+    CreateFlowsVaultConnectionSendgridUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSendgridEnum'
+    FlowActionAuth0SendSmsParams:
+      type: object
+      additionalProperties: false
+      required:
+      - to
+      - message
+      properties:
+        from:
+          type: string
+          minLength: 1
+          maxLength: 255
+        to:
+          type: string
+          minLength: 1
+          maxLength: 255
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        custom_vars:
+          $ref: '#/components/schemas/FlowActionAuth0SendSmsParamsCustomVars'
+    CreateFlowsVaultConnectionAuth0Uninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdAuth0Enum'
+    FlowActionJwtSignJwtParamsPayload:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowsVaultConnectioSetupTypeJwtEnum:
+      type: string
+      enum:
+      - JWT
+    FlowActionWhatsappSendMessageParamsPayloadObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    CreateFlowsVaultConnectionHttpBasicAuth:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHttpEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectionHttpBasicAuthSetup'
+    FlowActionGoogleSheetsAddRowParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - spreadsheet_id
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        spreadsheet_id:
+          type: string
+          minLength: 1
+        sheet_id:
+          $ref: '#/components/schemas/FlowActionGoogleSheetsAddRowParamsSheetId'
+        values:
+          $ref: '#/components/schemas/FlowActionGoogleSheetsAddRowParamsValues'
+    FlowActionPipedriveAddDealParamsStageId:
+      oneOf:
+      - type: string
+      - type: number
+    CreateFlowsVaultConnectionPipedriveUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdPipedriveEnum'
+    CreateFlowsVaultConnectionJwtUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdJwtEnum'
+    CreateFlowsVaultConnectionSalesforceOauthCode:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdSalesforceEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupOauthCode'
+    FlowActionAuth0SendEmailParams:
+      type: object
+      additionalProperties: false
+      required:
+      - to
+      - subject
+      - body
+      properties:
+        from:
+          $ref: '#/components/schemas/FlowActionAuth0SendEmailParamsFrom'
+        to:
+          $ref: '#/components/schemas/FlowActionAuth0SendEmailParamsTo'
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 255
+        body:
+          type: string
+          minLength: 1
+          maxLength: 102400
+        custom_vars:
+          $ref: '#/components/schemas/FlowActionAuth0SendRequestParamsCustomVars'
+    FlowActionSalesforceUpdateLeadParamsPayload:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowsVaultConnectioSetupSecretApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - secret_key
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeApiKeyEnum'
+        secret_key:
+          type: string
+    FlowActionJsonCreateJsonParamsObject:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowsVaultConnectioSetupMailjetApiKey:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - api_key
+      - secret_key
+      properties:
+        type:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupTypeApiKeyEnum'
+        api_key:
+          type: string
+        secret_key:
+          type: string
+    CreateFlowsVaultConnectionWhatsappToken:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdWhatsappEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupToken'
+    ListFlowsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        flows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowSummary'
+    ListFlowsRequestParametersHydrateEnum:
+      type: string
+      maxLength: 50
+      enum:
+      - form_count
+    CreateFlowsVaultConnectionPipedriveToken:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdPipedriveEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupToken'
+    FlowActionPipedriveAddDealParamsUserId:
+      oneOf:
+      - type: string
+      - type: number
+    FlowsVaultConnectionAppIdAirtableEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - AIRTABLE
+    FlowActionStripeUpdateCustomer:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - UPDATE_CUSTOMER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeUpdateCustomerParams'
+    FlowActionHubspot:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionHubspotEnrollContact'
+      - $ref: '#/components/schemas/FlowActionHubspotGetContact'
+      - $ref: '#/components/schemas/FlowActionHubspotUpsertContact'
+    FlowActionSalesforce:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionSalesforceCreateLead'
+      - $ref: '#/components/schemas/FlowActionSalesforceGetLead'
+      - $ref: '#/components/schemas/FlowActionSalesforceSearchLeads'
+      - $ref: '#/components/schemas/FlowActionSalesforceUpdateLead'
+    FlowActionSalesforceCreateLead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - SALESFORCE
+        action:
+          type: string
+          enum:
+          - CREATE_LEAD
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionSalesforceCreateLeadParams'
+    FlowActionOtpVerifyCodeParams:
+      type: object
+      additionalProperties: false
+      required:
+      - reference
+      - code
+      properties:
+        reference:
+          type: string
+          maxLength: 250
+        code:
+          $ref: '#/components/schemas/FlowActionOtpVerifyCodeParamsCode'
+    CreateFlowsVaultConnectionWhatsappUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdWhatsappEnum'
+    CreateFlowsVaultConnectionJwtJwt:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdJwtEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupJwt'
+    FlowActionMailchimp:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FlowActionMailchimpUpsertMember'
+    CreateFlowsVaultConnectionZapierWebhook:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      - setup
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdZapierEnum'
+        setup:
+          $ref: '#/components/schemas/FlowsVaultConnectioSetupWebhook'
+    FlowActionFlowErrorMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - ERROR_MESSAGE
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowErrorMessageParams'
+    FlowActionFlowMapValueParams:
+      type: object
+      additionalProperties: false
+      required:
+      - input
+      properties:
+        input:
+          $ref: '#/components/schemas/FlowActionFlowMapValueParamsInput'
+        cases:
+          $ref: '#/components/schemas/FlowActionFlowMapValueParamsCases'
+        fallback:
+          $ref: '#/components/schemas/FlowActionFlowMapValueParamsFallback'
+    FlowActionFlowDelayFlow:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - FLOW
+        action:
+          type: string
+          enum:
+          - DELAY_FLOW
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionFlowDelayFlowParams'
+    FlowActionStripeFindCustomersParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - email
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        email:
+          type: string
+    FlowExecutionSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - trace_id
+      - status
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          description: Flow execution identifier
+          maxLength: 30
+          format: flow-execution-id
+        trace_id:
+          type: string
+          description: Trace id
+          minLength: 1
+          maxLength: 50
+        journey_id:
+          type: string
+          description: Journey id
+          minLength: 1
+          maxLength: 50
+        status:
+          type: string
+          description: Execution status
+          minLength: 1
+          maxLength: 50
+        created_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution was updated.
+          format: date-time
+        started_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution started.
+          format: date-time
+        ended_at:
+          type: string
+          description: The ISO 8601 formatted date when this flow execution ended.
+          format: date-time
+    UpdateFlowResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      x-release-lifecycle: GA
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          format: flow-id
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        actions:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FlowAction'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        executed_at:
+          type: string
+          format: date
+    FlowActionTelegramSendMessageParams:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - chat_id
+      - text
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        chat_id:
+          type: string
+        text:
+          type: string
+    FlowActionJwtDecodeJwt:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - JWT
+        action:
+          type: string
+          enum:
+          - DECODE_JWT
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionJwtDecodeJwtParams'
+    FlowActionAuth0SendRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AUTH0
+        action:
+          type: string
+          enum:
+          - SEND_REQUEST
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAuth0SendRequestParams'
+    FlowActionEmailVerifyEmail:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - EMAIL
+        action:
+          type: string
+          enum:
+          - VERIFY_EMAIL
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionEmailVerifyEmailParams'
+    FlowActionStripeTaxId:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - value
+      properties:
+        type:
+          type: string
+          maxLength: 250
+        value:
+          type: string
+          maxLength: 250
+    CreateFlowsVaultConnectionTwilio:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionTwilioApiKey'
+      - $ref: '#/components/schemas/CreateFlowsVaultConnectionTwilioUninitialized'
+    FlowActionAuth0SendRequestParamsPayload:
+      oneOf:
+      - type: string
+      - type: array
+        items: {}
+      - $ref: '#/components/schemas/FlowActionAuth0SendRequestParamsPayloadObject'
+    FlowActionFlowErrorMessageParams:
+      type: object
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          maxLength: 2048
+    CreateFlowsVaultConnectionTelegramUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdTelegramEnum'
+    FlowActionStripeFindCustomers:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - FIND_CUSTOMERS
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeFindCustomersParams'
+    FlowActionAuth0SendEmailParamsTo:
+      type: string
+      oneOf:
+      - type: string
+        format: email
+      - type: string
+        format: forms-expression
+    FlowActionSendgridSendEmailParams:
+      type: object
+      additionalProperties: true
+      required:
+      - connection_id
+      - personalizations
+      - from
+      properties:
+        connection_id:
+          type: string
+          maxLength: 30
+          format: flows-vault-connections-id
+        from:
+          $ref: '#/components/schemas/FlowActionSendgridSendEmailParamsPerson'
+        personalizations:
+          type: array
+          minItems: 1
+          items: {}
+    FlowActionBigqueryInsertRowsParamsData:
+      type: object
+      additionalProperties: true
+      properties: {}
+    FlowsVaultConnectionAppIdHttpEnum:
+      type: string
+      description: Flows Vault Connection app identifier.
+      minLength: 1
+      maxLength: 55
+      enum:
+      - HTTP
+    CreateFlowsVaultConnectionTwilioUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdTwilioEnum'
+    FlowActionStripeGetCustomer:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - STRIPE
+        action:
+          type: string
+          enum:
+          - GET_CUSTOMER
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionStripeGetCustomerParams'
+    FlowActionJsonSerializeJsonParamsObject:
+      oneOf:
+      - type: string
+      - $ref: '#/components/schemas/FlowActionJsonSerializeJsonParamsObjectObject'
+    CreateFlowsVaultConnectionHubspotUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHubspotEnum'
+    CreateFlowsVaultConnectionHttpUninitialized:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - app_id
+      properties:
+        name:
+          type: string
+          description: Flows Vault Connection name.
+          minLength: 1
+          maxLength: 150
+        app_id:
+          $ref: '#/components/schemas/FlowsVaultConnectionAppIdHttpEnum'
+    FlowActionAirtableCreateRecord:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - action
+      - params
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum:
+          - AIRTABLE
+        action:
+          type: string
+          enum:
+          - CREATE_RECORD
+        allow_failure:
+          type: boolean
+        mask_output:
+          type: boolean
+        params:
+          $ref: '#/components/schemas/FlowActionAirtableCreateRecordParams'
+    FlowActionXmlSerializeXmlParams:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      properties:
+        object:
+          $ref: '#/components/schemas/FlowActionXmlSerializeXmlParamsObject'

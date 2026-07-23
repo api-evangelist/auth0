@@ -1,0 +1,1029 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions keys API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: keys
+paths:
+  /keys/custom-signing:
+    get:
+      summary: Get Custom Signing Keys
+      description: Get entire jwks representation of custom signing keys.
+      tags:
+      - keys
+      responses:
+        '200':
+          description: Custom signing keys were successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomSigningKeysResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:custom_signing_keys.'
+        '404':
+          description: No custom signing keys found for this tenant. Upload custom signing keys first.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_custom_signing_keys
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - keys
+      - customSigning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:custom_signing_keys
+    delete:
+      summary: Delete Custom Signing Keys
+      description: Delete entire jwks representation of custom signing keys.
+      tags:
+      - keys
+      responses:
+        '204':
+          description: Custom signing keys were successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:custom_signing_keys.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_custom_signing_keys
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - keys
+      - customSigning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:custom_signing_keys
+    put:
+      summary: Create or Replace Custom Signing Keys
+      description: Create or replace entire jwks representation of custom signing keys.
+      tags:
+      - keys
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetCustomSigningKeysRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetCustomSigningKeysRequestContent'
+      responses:
+        '200':
+          description: Custom signing keys were successfully created or replaced.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetCustomSigningKeysResponseContent'
+        '400':
+          description: Payload validation error.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected all of: create:custom_signing_keys,update:custom_signing_keys.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_custom_signing_keys
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - keys
+      - customSigning
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:custom_signing_keys
+        - update:custom_signing_keys
+  /keys/encryption:
+    get:
+      summary: Get All Encryption Keys
+      description: Retrieve details of all the encryption keys associated with your tenant.
+      tags:
+      - keys
+      parameters:
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Default value is 50, maximum value is 100.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: The keys were successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEncryptionKeysResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:encryption_keys.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_encryption_keys
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListEncryptionKeysRequestParameters
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:encryption_keys
+    post:
+      summary: Create the New Encryption Key
+      description: Create the new, pre-activated encryption key, without the key material.
+      tags:
+      - keys
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEncryptionKeyRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEncryptionKeyRequestContent'
+      responses:
+        '201':
+          description: The key was successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEncryptionKeyResponseContent'
+        '400':
+          description: Request body is invalid. Unsupported key "type" provided.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:encryption_keys.'
+        '409':
+          description: Encryption key has already been created.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_encryption
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:encryption_keys
+  /keys/encryption/rekey:
+    post:
+      summary: Rekey the Key Hierarchy
+      description: Perform rekeying operation on the key hierarchy.
+      tags:
+      - keys
+      responses:
+        '204':
+          description: The key hierarchy was successfully rekeyed.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected all of: create:encryption_keys update:encryption_keys.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_encryption_rekey
+      x-release-lifecycle: GA
+      x-operation-name: rekey
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:encryption_keys
+        - update:encryption_keys
+  /keys/encryption/{kid}:
+    get:
+      summary: Get the Encryption Key by Its Key Id
+      description: Retrieve details of the encryption key with the given ID.
+      tags:
+      - keys
+      parameters:
+      - name: kid
+        in: path
+        description: Encryption key ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The key was successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEncryptionKeyResponseContent'
+        '400':
+          description: Invalid UUID format in uri.
+          x-description-1: Invalid key id or unsupported key type.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:encryption_keys.'
+        '404':
+          description: The key does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_encryption_key
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:encryption_keys
+    delete:
+      summary: Delete the Encryption Key by Its Key Id
+      description: Delete the custom provided encryption key with the given ID and move back to using native encryption key.
+      tags:
+      - keys
+      parameters:
+      - name: kid
+        in: path
+        description: Encryption key ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The key was successfully deleted.
+        '400':
+          description: Invalid UUID format in uri.
+          x-description-1: Invalid key id or unsupported key type.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:encryption_keys.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_encryption_key
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:encryption_keys
+    post:
+      summary: Import the Encryption Key
+      description: Import wrapped key material and activate encryption key.
+      tags:
+      - keys
+      parameters:
+      - name: kid
+        in: path
+        description: Encryption key ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportEncryptionKeyRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImportEncryptionKeyRequestContent'
+      responses:
+        '201':
+          description: The key was successfully imported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportEncryptionKeyResponseContent'
+        '400':
+          description: The key ID was not found.
+          x-description-1: Invalid UUID format in uri.
+          x-description-2: Invalid input. Wrapped key material is invalid or unsupported key type.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:encryption_keys.'
+        '409':
+          description: Failed precondition. Key import not in progress or unable to find the wrapping key. Make sure you have followed all the steps to import a key.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_encryption_key
+      x-release-lifecycle: GA
+      x-operation-name: import
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:encryption_keys
+  /keys/encryption/{kid}/wrapping-key:
+    post:
+      summary: Create the Public Wrapping Key
+      description: Create the public wrapping key to wrap your own encryption key material.
+      tags:
+      - keys
+      parameters:
+      - name: kid
+        in: path
+        description: Encryption key ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: The public wrapping key was successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEncryptionKeyPublicWrappingResponseContent'
+        '400':
+          description: Invalid UUID format in uri.
+          x-description-1: Invalid key id or unsupported key type.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:encryption_keys.'
+        '409':
+          description: Failed precondition. Create new encryption key without the key material first.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_encryption_wrapping_key
+      x-release-lifecycle: GA
+      x-operation-name: createPublicWrappingKey
+      x-operation-group:
+      - keys
+      - encryption
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:encryption_keys
+  /keys/signing:
+    get:
+      summary: Get All Application Signing Keys
+      description: Retrieve details of all the application signing keys associated with your tenant.
+      tags:
+      - keys
+      responses:
+        '200':
+          description: The signing keys were retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SigningKeys'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:signing_keys'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_signing_keys
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-group:
+      - keys
+      - signing
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:signing_keys
+  /keys/signing/rotate:
+    post:
+      summary: Rotate the Application Signing Key
+      description: Rotate the application signing key of your tenant.
+      tags:
+      - keys
+      responses:
+        '201':
+          description: Signing key rotated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RotateSigningKeysResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: Insufficient scope; expected create:signing_keys and update:signing_keys.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_signing_keys
+      x-release-lifecycle: GA
+      x-operation-name: rotate
+      x-operation-group:
+      - keys
+      - signing
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:signing_keys
+        - update:signing_keys
+  /keys/signing/{kid}:
+    get:
+      summary: Get an Application Signing Key by Its Key Id
+      description: Retrieve details of the application signing key with the given ID.
+      tags:
+      - keys
+      parameters:
+      - name: kid
+        in: path
+        description: Key id of the key to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The signing keys were retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSigningKeysResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation
+        '403':
+          description: 'Insufficient scope, expected any of: read:signing_keys'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_signing_key
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - keys
+      - signing
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:signing_keys
+  /keys/signing/{kid}/revoke:
+    put:
+      summary: Revoke an Application Signing Key by Its Key Id
+      description: Revoke the application signing key with the given ID.
+      tags:
+      - keys
+      parameters:
+      - name: kid
+        in: path
+        description: Key id of the key to revoke
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Signing key revoked successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevokedSigningKeysResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:signing_keys.'
+        '404':
+          description: Signing key not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_signing_keys
+      x-release-lifecycle: GA
+      x-operation-name: revoke
+      x-operation-group:
+      - keys
+      - signing
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:signing_keys
+components:
+  schemas:
+    ImportEncryptionKeyResponseContent:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    CustomSigningKeyJWK:
+      type: object
+      description: JWK representing a custom public signing key.
+      additionalProperties: false
+      required:
+      - kty
+      properties:
+        kty:
+          $ref: '#/components/schemas/CustomSigningKeyTypeEnum'
+        kid:
+          type: string
+          description: Key identifier
+        use:
+          $ref: '#/components/schemas/CustomSigningKeyUseEnum'
+        key_ops:
+          type: array
+          description: Key operations
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CustomSigningKeyOperationEnum'
+        alg:
+          $ref: '#/components/schemas/CustomSigningKeyAlgorithmEnum'
+        n:
+          type: string
+          description: Key modulus
+        e:
+          type: string
+          description: Key exponent
+        crv:
+          $ref: '#/components/schemas/CustomSigningKeyCurveEnum'
+        x:
+          type: string
+          description: X coordinate
+        y:
+          type: string
+          description: Y coordinate
+        x5u:
+          type: string
+          description: X.509 URL
+        x5c:
+          type: array
+          description: X.509 certificate chain
+          minItems: 1
+          items:
+            type: string
+        x5t:
+          type: string
+          description: X.509 certificate SHA-1 thumbprint
+        x5t#S256:
+          type: string
+          description: X.509 certificate SHA-256 thumbprint
+    RotateSigningKeysResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      properties:
+        cert:
+          type: string
+          description: Next key certificate
+          default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+        kid:
+          type: string
+          description: Next key id
+          default: 21hi274Rp02112mgkUGma
+    CustomSigningKeyOperationEnum:
+      type: string
+      enum:
+      - verify
+    EncryptionKeyPublicWrappingAlgorithm:
+      type: string
+      description: Encryption algorithm that shall be used to wrap your key material
+      enum:
+      - CKM_RSA_AES_KEY_WRAP
+    ImportEncryptionKeyRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - wrapped_key
+      properties:
+        wrapped_key:
+          type: string
+          description: Base64 encoded ciphertext of key material wrapped by public wrapping key.
+    EncryptionKeyState:
+      type: string
+      description: Key state
+      enum:
+      - pre-activation
+      - active
+      - deactivated
+      - destroyed
+    GetSigningKeysResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - cert
+      - kid
+      - fingerprint
+      - thumbprint
+      properties:
+        kid:
+          type: string
+          description: The key id of the signing key
+          default: 21hi274Rp02112mgkUGma
+        cert:
+          type: string
+          description: The public certificate of the signing key
+          default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+        pkcs7:
+          type: string
+          description: The public certificate of the signing key in pkcs7 format
+          default: "-----BEGIN PKCS7-----\r\nMIIDPA....t8xAA==\r\n-----END PKCS7-----"
+        current:
+          type: boolean
+          description: True if the key is the the current key
+          default: true
+        next:
+          type: boolean
+          description: True if the key is the the next key
+        previous:
+          type: boolean
+          description: True if the key is the the previous key
+        current_since:
+          $ref: '#/components/schemas/SigningKeysDate'
+        current_until:
+          $ref: '#/components/schemas/SigningKeysDate'
+        fingerprint:
+          type: string
+          description: The cert fingerprint
+          default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+        thumbprint:
+          type: string
+          description: The cert thumbprint
+          default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+        revoked:
+          type: boolean
+          description: True if the key is revoked
+        revoked_at:
+          $ref: '#/components/schemas/SigningKeysDate'
+    CustomSigningKeyAlgorithmEnum:
+      type: string
+      description: Key algorithm
+      enum:
+      - RS256
+      - RS384
+      - RS512
+      - ES256
+      - ES384
+      - ES512
+      - PS256
+      - PS384
+      - PS512
+    CreateEncryptionKeyType:
+      type: string
+      description: Type of the encryption key to be created.
+      enum:
+      - customer-provided-root-key
+      - tenant-encryption-key
+    GetCustomSigningKeysResponseContent:
+      type: object
+      description: JWKS representing an array of custom public signing keys.
+      additionalProperties: false
+      properties:
+        keys:
+          type: array
+          description: An array of custom public signing keys.
+          items:
+            $ref: '#/components/schemas/CustomSigningKeyJWK'
+    SigningKeys:
+      type: object
+      additionalProperties: false
+      required:
+      - cert
+      - kid
+      - fingerprint
+      - thumbprint
+      properties:
+        kid:
+          type: string
+          description: The key id of the signing key
+          default: 21hi274Rp02112mgkUGma
+        cert:
+          type: string
+          description: The public certificate of the signing key
+          default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+        pkcs7:
+          type: string
+          description: The public certificate of the signing key in pkcs7 format
+          default: "-----BEGIN PKCS7-----\r\nMIIDPA....t8xAA==\r\n-----END PKCS7-----"
+        current:
+          type: boolean
+          description: True if the key is the the current key
+          default: true
+        next:
+          type: boolean
+          description: True if the key is the the next key
+        previous:
+          type: boolean
+          description: True if the key is the the previous key
+        current_since:
+          $ref: '#/components/schemas/SigningKeysDate'
+        current_until:
+          $ref: '#/components/schemas/SigningKeysDate'
+        fingerprint:
+          type: string
+          description: The cert fingerprint
+          default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+        thumbprint:
+          type: string
+          description: The cert thumbprint
+          default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+        revoked:
+          type: boolean
+          description: True if the key is revoked
+        revoked_at:
+          $ref: '#/components/schemas/SigningKeysDate'
+    CreateEncryptionKeyPublicWrappingResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - public_key
+      - algorithm
+      properties:
+        public_key:
+          type: string
+          description: Public wrapping key in PEM format
+        algorithm:
+          $ref: '#/components/schemas/EncryptionKeyPublicWrappingAlgorithm'
+    CreateEncryptionKeyResponseContent:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    SetCustomSigningKeysResponseContent:
+      type: object
+      description: JWKS representing an array of custom public signing keys.
+      additionalProperties: false
+      properties:
+        keys:
+          type: array
+          description: An array of custom public signing keys.
+          items:
+            $ref: '#/components/schemas/CustomSigningKeyJWK'
+    EncryptionKeyType:
+      type: string
+      description: Key type
+      enum:
+      - customer-provided-root-key
+      - environment-root-key
+      - tenant-master-key
+      - tenant-encryption-key
+    EncryptionKey:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    RevokedSigningKeysResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      properties:
+        cert:
+          type: string
+          description: Revoked key certificate
+          default: "-----BEGIN CERTIFICATE-----\r\nMIIDDTCCA...YiA0TQhAt8=\r\n-----END CERTIFICATE-----"
+        kid:
+          type: string
+          description: Revoked key id
+          default: 21hi274Rp02112mgkUGma
+    CustomSigningKeyTypeEnum:
+      type: string
+      description: Key type
+      enum:
+      - EC
+      - RSA
+    ListEncryptionKeyOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: integer
+          description: Page index of the results to return. First page is 0.
+        limit:
+          type: integer
+          description: Number of results per page.
+        total:
+          type: integer
+          description: Total amount of encryption keys.
+        keys:
+          type: array
+          description: Encryption keys.
+          items:
+            $ref: '#/components/schemas/EncryptionKey'
+    CustomSigningKeyUseEnum:
+      type: string
+      description: Key use
+      enum:
+      - sig
+    CreateEncryptionKeyRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      properties:
+        type:
+          $ref: '#/components/schemas/CreateEncryptionKeyType'
+    ListEncryptionKeysResponseContent:
+      oneOf:
+      - type: array
+        description: Encryption keys.
+        items:
+          $ref: '#/components/schemas/EncryptionKey'
+      - $ref: '#/components/schemas/ListEncryptionKeyOffsetPaginatedResponseContent'
+    GetEncryptionKeyResponseContent:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    SetCustomSigningKeysRequestContent:
+      type: object
+      description: JWKS representing an array of custom public signing keys.
+      additionalProperties: false
+      required:
+      - keys
+      properties:
+        keys:
+          type: array
+          description: An array of custom public signing keys.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CustomSigningKeyJWK'
+    CustomSigningKeyCurveEnum:
+      type: string
+      description: Curve
+      enum:
+      - P-256
+      - P-384
+      - P-521
+    SigningKeysDate:
+      oneOf:
+      - type: string
+        description: The date and time when the key became the current key
+      - type: object
+        description: The date and time when the key became the current key
+        additionalProperties: true

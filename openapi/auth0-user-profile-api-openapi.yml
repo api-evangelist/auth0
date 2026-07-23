@@ -1,0 +1,193 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions User Profile API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: User Profile
+paths:
+  /userinfo:
+    get:
+      operationId: userinfo
+      tags:
+      - User Profile
+      summary: Auth0 Returns a User's Profile
+      description: Given the Auth0 Access Token obtained during login, this endpoint returns a user's profile. This endpoint will work only if openid was granted as a scope for the Access Token. The user profile information included in the response depends on the scopes requested. For example, a scope of just openid may return less information than a a scope of openid profile email.
+      parameters:
+      - name: access_token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        description: The Auth0 Access Token obtained during login.
+        example: Bearer YOUR_TOKEN_HERE
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sub:
+                    type: string
+                  name:
+                    type: string
+                  given_name:
+                    type: string
+                  family_name:
+                    type: string
+                  middle_name:
+                    type: string
+                  nickname:
+                    type: string
+                  preferred_username:
+                    type: string
+                  profile:
+                    type: string
+                  picture:
+                    type: string
+                  website:
+                    type: string
+                  email:
+                    type: string
+                  email_verified:
+                    type: boolean
+                  gender:
+                    type: string
+                  birthdate:
+                    type: string
+                  zoneinfo:
+                    type: string
+                  locale:
+                    type: string
+                  phone_number:
+                    type: string
+                  phone_number_verified:
+                    type: boolean
+                  address:
+                    type: object
+                    properties:
+                      country:
+                        type: string
+                  updated_at:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  responses:
+    NotImplemented:
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    InternalServerError:
+      description: Internal Server Error
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    MethodNotAllowed:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string

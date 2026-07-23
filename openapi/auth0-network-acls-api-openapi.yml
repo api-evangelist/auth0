@@ -1,0 +1,597 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions network-acls API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: network-acls
+paths:
+  /network-acls:
+    get:
+      summary: Get All Access Control List Entries for a Tenant
+      description: Get all access control list entries for your client.
+      tags:
+      - network-acls
+      parameters:
+      - name: page
+        in: query
+        description: Use this field to request a specific page of the list results.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: The amount of results per page.
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Network access control list successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNetworkAclsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:network_acls.'
+        '404':
+          description: Network access control list not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_network-acls
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListNetworkAclsRequestParameters
+      x-operation-group: networkAcls
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:network_acls
+    post:
+      summary: Create Access Control List
+      description: Create a new access control list for your client.
+      tags:
+      - network-acls
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNetworkAclRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateNetworkAclRequestContent'
+      responses:
+        '201':
+          description: Network ACL successfully created.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Entitlement is not enabled for this tenant. Please upgrade your subscription to enable Tenant ACL Management.
+          x-description-1: Tenant ACL Management is not enabled for this tenant.
+          x-description-0: 'Insufficient scope; expected any of: create:network_acls.'
+        '409':
+          description: A Network ACL with this priority number has already been created.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: There was an error retrieving Networks ACLs subscription settings.
+      operationId: post_network-acls
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: networkAcls
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:network_acls
+  /network-acls/{id}:
+    get:
+      summary: Get a Specific Access Control List Entry for a Tenant
+      description: Get a specific access control list entry for your client.
+      tags:
+      - network-acls
+      parameters:
+      - name: id
+        in: path
+        description: The id of the access control list to retrieve.
+        required: true
+        schema:
+          type: string
+          maxLength: 36
+      responses:
+        '200':
+          description: Network access control list successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNetworkAclsResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:network_acls.'
+        '404':
+          description: Network access control list not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_network-acls_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: networkAcls
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:network_acls
+    delete:
+      summary: Delete Access Control List
+      description: Delete existing access control list for your client.
+      tags:
+      - network-acls
+      parameters:
+      - name: id
+        in: path
+        description: The id of the ACL to delete
+        required: true
+        schema:
+          type: string
+          maxLength: 36
+      responses:
+        '204':
+          description: Network ACL successfully deleted
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant ACL Management is not enabled for this tenant.
+          x-description-1: 'Insufficient scope; expected any of: delete:network_acls.'
+        '404':
+          description: This ACL does not exist
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_network-acls_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: networkAcls
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:network_acls
+    patch:
+      summary: Partial Update for an Access Control List
+      description: Update existing access control list for your client.
+      tags:
+      - network-acls
+      parameters:
+      - name: id
+        in: path
+        description: The id of the ACL to update.
+        required: true
+        schema:
+          type: string
+          maxLength: 36
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNetworkAclRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateNetworkAclRequestContent'
+      responses:
+        '200':
+          description: Network ACL properties successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateNetworkAclResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:network_acls.'
+        '404':
+          description: Network ACL not found and cannot be updated
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_network-acls_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: networkAcls
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:network_acls
+    put:
+      summary: Update Access Control List
+      description: Update existing access control list for your client.
+      tags:
+      - network-acls
+      parameters:
+      - name: id
+        in: path
+        description: The id of the ACL to update.
+        required: true
+        schema:
+          type: string
+          maxLength: 36
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetNetworkAclRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetNetworkAclRequestContent'
+      responses:
+        '200':
+          description: Network ACL properties successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetNetworkAclsResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:network_acls.'
+        '404':
+          description: Network ACL not found and cannot be updated
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: put_network-acls_by_id
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group: networkAcls
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:network_acls
+components:
+  schemas:
+    NetworkAclActionAllowEnum:
+      type: boolean
+      description: Indicates the rule will allow requests that either match or not_match specific criteria
+      enum:
+      - true
+    CreateNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - description
+      - active
+      - rule
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          default: 50
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+    NetworkAclRuleScopeEnum:
+      type: string
+      description: Identifies the origin of the request as the Management API (management), Authentication API (authentication), Dynamic Client Registration API (dynamic_client_registration), or any (tenant)
+      enum:
+      - management
+      - authentication
+      - tenant
+      - dynamic_client_registration
+    NetworkAclActionBlockEnum:
+      type: boolean
+      description: Indicates the rule will block requests that either match or not_match specific criteria
+      enum:
+      - true
+    SetNetworkAclsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    NetworkAclRule:
+      type: object
+      additionalProperties: false
+      required:
+      - action
+      - scope
+      properties:
+        action:
+          $ref: '#/components/schemas/NetworkAclAction'
+        match:
+          $ref: '#/components/schemas/NetworkAclMatch'
+        not_match:
+          $ref: '#/components/schemas/NetworkAclMatch'
+        scope:
+          $ref: '#/components/schemas/NetworkAclRuleScopeEnum'
+    ListNetworkAclsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        network_acls:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkAclsResponseContent'
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+    UpdateNetworkAclResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    UpdateNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+    GetNetworkAclsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    ListNetworkAclsResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/ListNetworkAclsOffsetPaginatedResponseContent'
+      - type: array
+        items:
+          $ref: '#/components/schemas/NetworkAclsResponseContent'
+    NetworkACLMatchConnectingIpv6Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    NetworkACLMatchConnectingIpv4Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: cidr
+    NetworkACLMatchIpv4Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: cidr
+    NetworkAclAction:
+      type: object
+      additionalProperties: false
+      properties:
+        block:
+          $ref: '#/components/schemas/NetworkAclActionBlockEnum'
+        allow:
+          $ref: '#/components/schemas/NetworkAclActionAllowEnum'
+        log:
+          $ref: '#/components/schemas/NetworkAclActionLogEnum'
+        redirect:
+          $ref: '#/components/schemas/NetworkAclActionRedirectEnum'
+        redirect_uri:
+          type: string
+          description: The URI to which the match or not_match requests will be routed
+          minLength: 1
+          maxLength: 2000
+    NetworkAclMatch:
+      type: object
+      additionalProperties: false
+      properties:
+        asns:
+          type: array
+          minItems: 1
+          items:
+            type: integer
+        geo_country_codes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        geo_subdivision_codes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        ipv4_cidrs:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/NetworkACLMatchIpv4Cidr'
+        ipv6_cidrs:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/NetworkACLMatchIpv6Cidr'
+        ja3_fingerprints:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        ja4_fingerprints:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        user_agents:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        hostnames:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            format: hostname
+        connecting_ipv4_cidrs:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/NetworkACLMatchConnectingIpv4Cidr'
+        connecting_ipv6_cidrs:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/NetworkACLMatchConnectingIpv6Cidr'
+    NetworkACLMatchIpv6Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    SetNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - description
+      - active
+      - rule
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          default: 50
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+    NetworkAclActionRedirectEnum:
+      type: boolean
+      description: Indicates the rule will redirect requests that either match or not_match specific criteria
+      enum:
+      - true
+    NetworkAclActionLogEnum:
+      type: boolean
+      description: Indicates the rule will log requests that either match or not_match specific criteria
+      enum:
+      - true
+    NetworkAclsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated

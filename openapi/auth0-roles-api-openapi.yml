@@ -1,0 +1,789 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions roles API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: roles
+paths:
+  /roles:
+    get:
+      summary: Get Roles
+      description: 'Retrieve detailed list of user roles created in your tenant.
+
+
+        <b>Note</b>: The returned list does not include standard roles available for tenant members, such as Admin or Support Access.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: name_filter
+        in: query
+        description: Optional filter on name (case-insensitive).
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Roles successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRolesResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: read:roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_roles
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListRolesRequestParameters
+      x-operation-group: roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:roles
+    post:
+      summary: Create a Role
+      description: 'Create a user role for <a href="https://auth0.com/docs/manage-users/access-control/rbac">Role-Based Access Control</a>.
+
+
+        <b>Note</b>: New roles are not associated with any permissions by default. To assign existing permissions to your role, review Associate Permissions with a Role. To create new permissions, review Add API Permissions.
+
+        '
+      tags:
+      - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequestContent'
+      responses:
+        '200':
+          description: Role successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRoleResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: create:roles.'
+        '409':
+          description: The role already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_roles
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:roles
+  /roles/{id}:
+    get:
+      summary: Get a Role
+      description: 'Retrieve details about a specific <a href="https://auth0.com/docs/manage-users/access-control/rbac">user role</a> specified by ID.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Role successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRoleResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: read:roles.'
+        '404':
+          description: Role not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_roles_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:roles
+    delete:
+      summary: Delete a Role
+      description: 'Delete a specific <a href="https://auth0.com/docs/manage-users/access-control/rbac">user role</a> from your tenant. Once deleted, it is removed from any user who was previously assigned that role. This action cannot be undone.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Role successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: delete:roles.'
+        '404':
+          description: Role not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_roles_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:roles
+    patch:
+      summary: Update a Role
+      description: 'Modify the details of a specific <a href="https://auth0.com/docs/manage-users/access-control/rbac">user role</a> specified by ID.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequestContent'
+      responses:
+        '200':
+          description: Role successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRoleResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_roles_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:roles
+  /roles/{id}/permissions:
+    get:
+      summary: Get Permissions Granted by Role
+      description: 'Retrieve detailed list (name, description, resource server) of permissions granted by a specified user role.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to list granted permissions.
+        required: true
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Role permissions successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRolePermissionsResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: read:roles.'
+        '404':
+          description: Role not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_role_permission
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListRolePermissionsRequestParameters
+      x-operation-group:
+      - roles
+      - permissions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:roles
+    delete:
+      summary: Remove Permissions from a Role
+      description: 'Remove one or more <a href="https://auth0.com/docs/manage-users/access-control/configure-core-rbac/manage-permissions">permissions</a> from a specified user role.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to remove permissions from.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRolePermissionsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteRolePermissionsRequestContent'
+      responses:
+        '200':
+          description: Role permissions successfully updated.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_role_permission_assignment
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - roles
+      - permissions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:roles
+    post:
+      summary: Associate Permissions with a Role
+      description: 'Add one or more <a href="https://auth0.com/docs/manage-users/access-control/configure-core-rbac/manage-permissions">permissions</a> to a specified user role.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to add permissions to.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRolePermissionsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddRolePermissionsRequestContent'
+      responses:
+        '201':
+          description: Role permissions updated.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:roles.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_role_permission_assignment
+      x-release-lifecycle: GA
+      x-operation-name: add
+      x-operation-group:
+      - roles
+      - permissions
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:roles
+  /roles/{id}/users:
+    get:
+      summary: Get a Role's Users
+      description: 'Retrieve list of users associated with a specific role. For Dashboard instructions, review <a href="https://auth0.com/docs/manage-users/access-control/configure-core-rbac/roles/view-users-assigned-to-roles">View Users Assigned to Roles</a>.
+
+
+        This endpoint supports two types of pagination:
+
+        <ul>
+
+        <li>Offset pagination</li>
+
+        <li>Checkpoint pagination</li>
+
+        </ul>
+
+
+        Checkpoint pagination must be used if you need to retrieve more than 1000 organization members.
+
+
+        <h2>Checkpoint Pagination</h2>
+
+
+        To search by checkpoint, use the following parameters:
+
+        <ul>
+
+        <li><code>from</code>: Optional id from which to start selection.</li>
+
+        <li><code>take</code>: The total amount of entries to retrieve when using the from parameter. Defaults to 50.</li>
+
+        </ul>
+
+
+        <b>Note</b>: The first time you call this endpoint using checkpoint pagination, omit the <code>from</code> parameter. If there are more results, a <code>next</code> value is included in the response. You can use this for subsequent API calls. When <code>next</code> is no longer included in the response, no pages are remaining.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to retrieve a list of users associated with.
+        required: true
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Role users successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRoleUsersResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected all of: read:users, read:roles.'
+        '404':
+          description: Role not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_role_user
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListRoleUsersRequestParameters
+      x-operation-group:
+      - roles
+      - users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:users
+        - read:roles
+        - read:role_members
+    post:
+      summary: Assign Users to a Role
+      description: 'Assign one or more users to an existing user role. To learn more, review <a href="https://auth0.com/docs/manage-users/access-control/rbac">Role-Based Access Control</a>.
+
+
+        <b>Note</b>: New roles cannot be created through this action.
+
+        '
+      tags:
+      - roles
+      parameters:
+      - name: id
+        in: path
+        description: ID of the role to assign users to.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignRoleUsersRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignRoleUsersRequestContent'
+      responses:
+        '200':
+          description: Role users successfully updated.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected: update:roles.'
+        '404':
+          description: Role not found.
+          x-description-1: One or more of the users do not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_role_users
+      x-release-lifecycle: GA
+      x-operation-name: assign
+      x-operation-group:
+      - roles
+      - users
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:roles
+        - create:role_members
+components:
+  schemas:
+    CreateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    DeleteRolePermissionsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - permissions
+      properties:
+        permissions:
+          type: array
+          description: array of resource_server_identifier, permission_name pairs.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
+    RoleUser:
+      type: object
+      additionalProperties: false
+      properties:
+        user_id:
+          type: string
+          description: ID of this user.
+        picture:
+          type: string
+          description: URL to a picture for this user.
+        name:
+          type: string
+          description: Name of this user.
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+    UpdateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    ListRolePermissionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/PermissionsResponsePayload'
+      - $ref: '#/components/schemas/ListRolePermissionsOffsetPaginatedResponseContent'
+    UpdateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    ListRolePermissionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsResponsePayload'
+    ListRoleUsersPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleUser'
+    AddRolePermissionsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - permissions
+      properties:
+        permissions:
+          type: array
+          description: array of resource_server_identifier, permission_name pairs.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
+    ListRoleUsersOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleUser'
+    ListRolesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    AssignRoleUsersRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - users
+      properties:
+        users:
+          type: array
+          description: user_id's of the users to assign the role to.
+          items:
+            type: string
+            format: user-id-with-max-length
+    PermissionsResponsePayload:
+      type: object
+      additionalProperties: false
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+        resource_server_name:
+          type: string
+          description: Resource server (API) name this permission is for.
+        description:
+          type: string
+          description: Description of this permission.
+    GetRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    ListRoleUsersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/RoleUser'
+      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
+    Role:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    PermissionRequestPayload:
+      type: object
+      additionalProperties: false
+      required:
+      - resource_server_identifier
+      - permission_name
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+    CreateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Name of the role.
+        description:
+          type: string
+          description: Description of the role.
+    ListRolesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'

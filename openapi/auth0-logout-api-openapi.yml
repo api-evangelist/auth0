@@ -1,0 +1,267 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions Logout API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: Logout
+paths:
+  /v2/logout:
+    get:
+      operationId: logout
+      tags:
+      - Logout
+      summary: Auth0 Logout a User
+      description: Use this endpoint to logout a user. If you want to navigate the user to a specific URL after the logout, set that URL at the returnTo parameter. The URL should be included in any the appropriate Allowed Logout URLs list.
+      parameters:
+      - name: returnTo
+        in: query
+        required: false
+        description: URL to redirect the user after the logout.
+        schema:
+          type: string
+      - name: client_id
+        in: query
+        required: false
+        description: The client_id of your application.
+        schema:
+          type: string
+      - name: federated
+        in: query
+        required: false
+        description: Add this query string parameter to the logout URL, to log the user out of their identity provider, as well.
+        schema:
+          type: string
+      responses:
+        '302':
+          description: Redirect to the returnTo URL or to the first Allowed Logout URLs set in the Dashboard.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /oidc/logout:
+    get:
+      operationId: oidc_logout
+      tags:
+      - Logout
+      summary: Auth0 Logout a User
+      description: Use this endpoint to logout a user. If you want to navigate the user to a specific URL after the logout, set that URL at the post_logout_redirect_uri parameter. The URL should be included in the appropriate Allowed Logout URLs list.
+      parameters:
+      - name: id_token_hint
+        in: query
+        required: false
+        description: Previously issued ID Token for the user. This is used to indicate which user to log out.
+        schema:
+          type: string
+      - name: logout_hint
+        in: query
+        required: false
+        description: Optional sid (session ID) value to indicate which user to log out. Should be provided when id_token_hint is not available.
+        schema:
+          type: string
+      - name: post_logout_redirect_uri
+        in: query
+        required: false
+        description: URL to redirect the user after the logout.
+        schema:
+          type: string
+      - name: client_id
+        in: query
+        required: false
+        description: The client_id of your application.
+        schema:
+          type: string
+      - name: federated
+        in: query
+        required: false
+        description: Add this query string parameter to log the user out of their identity provider.
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        description: An opaque value the applications adds to the initial request that the authorization server includes when redirecting the back to the post_logout_redirect_uri.
+        schema:
+          type: string
+      - name: ui_locales
+        in: query
+        required: false
+        description: Space-delimited list of locales used to constrain the language list for the request. The first locale on the list must match the enabled locale in your tenant.
+        schema:
+          type: string
+      responses:
+        '302':
+          description: Redirect to the post_logout_redirect_uri URL or to the first Allowed Logout URLs set in the Dashboard.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /samlp/{CLIENT_ID}/logout:
+    post:
+      operationId: saml_logout
+      tags:
+      - Logout
+      summary: Auth0 Logout a User
+      description: Use this endpoint to log out a user from an Auth0 tenant configured as a SAML identity provider (IdP). Logout behavior is determined by the configuration of the SAML2 Web App addon for the application on the Auth0 tenant acting as the SAML IdP.
+      parameters:
+      - name: CLIENT_ID
+        in: path
+        required: true
+        description: Client ID of your application configured with the SAML2 Web App addon.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+              description: SAML LogoutRequest message.
+      responses:
+        '200':
+          description: Logout successful.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  responses:
+    NotImplemented:
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    InternalServerError:
+      description: Internal Server Error
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    MethodNotAllowed:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string

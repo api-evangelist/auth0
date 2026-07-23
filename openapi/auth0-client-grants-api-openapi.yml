@@ -1,0 +1,785 @@
+openapi: 3.0.0
+info:
+  title: Auth0 Authentication actions client-grants API
+  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
+  version: 1.0.0
+servers:
+- url: '{auth0_domain}'
+  description: The Authentication API is served over HTTPS.
+  variables:
+    auth0_domain:
+      description: Auth0 domain
+      default: https://demo.us.auth0.com
+tags:
+- name: client-grants
+paths:
+  /client-grants:
+    get:
+      summary: Get Client Grants
+      description: 'Retrieve a list of <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants">client grants</a>, including the scopes associated with the application/API pair.
+
+        '
+      tags:
+      - client-grants
+      parameters:
+      - name: per_page
+        in: query
+        description: Number of results per page.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: audience
+        in: query
+        description: Optional filter on audience.
+        schema:
+          type: string
+      - name: client_id
+        in: query
+        description: Optional filter on client_id.
+        schema:
+          type: string
+      - name: allow_any_organization
+        in: query
+        description: Optional filter on allow_any_organization.
+        schema:
+          $ref: '#/components/schemas/ClientGrantAllowAnyOrganizationEnum'
+      - name: subject_type
+        in: query
+        description: The type of application access the client grant allows.
+        schema:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+      - name: default_for
+        in: query
+        description: Applies this client grant as the default for all clients in the specified group. The only accepted value is <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants#default-permissions-for-third-party-applications">`third_party_clients`</a>, which applies the grant to all third-party clients. Per-client grants for the same audience take precedence. Mutually exclusive with `client_id`.
+        schema:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        x-release-lifecycle: GA
+      responses:
+        '200':
+          description: Client grants successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListClientGrantResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:client_grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_client-grants
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListClientGrantsRequestParameters
+      x-operation-group: clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:client_grants
+    post:
+      summary: Create Client Grant
+      description: Create a client grant for a machine-to-machine login flow. To learn more, read <a href="https://www.auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow">Client Credential Flow</a>.
+      tags:
+      - client-grants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientGrantRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateClientGrantRequestContent'
+      responses:
+        '201':
+          description: Client grant successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClientGrantResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: Client grants for this API cannot be created for third-party clients. The message will vary depending on the API and client type.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:client_grants.'
+        '404':
+          description: Resource server not found
+          x-description-1: Client not found
+        '409':
+          description: A resource server with the same identifier already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_client-grants
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:client_grants
+  /client-grants/{id}:
+    get:
+      summary: Get Client Grant
+      description: 'Retrieve a single <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants">client grant</a>, including the
+
+        scopes associated with the application/API pair.
+
+        '
+      tags:
+      - client-grants
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the client grant to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Client grant successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetClientGrantResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:client_grants.'
+        '404':
+          description: The grant does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_client-grant
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: GetClientGrantRequestParameters
+      x-operation-group: clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:client_grants
+    delete:
+      summary: Delete Client Grant
+      description: 'Delete the <a href="https://www.auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow">Client Credential Flow</a> from your machine-to-machine application.
+
+        '
+      tags:
+      - client-grants
+      parameters:
+      - name: id
+        in: path
+        description: ID of the client grant to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Client grant successfully deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:client_grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_client-grants_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:client_grants
+    patch:
+      summary: Update Client Grant
+      description: Update a client grant.
+      tags:
+      - client-grants
+      parameters:
+      - name: id
+        in: path
+        description: ID of the client grant to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientGrantRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateClientGrantRequestContent'
+      responses:
+        '200':
+          description: Client grant successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateClientGrantResponseContent'
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+          x-description-1: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Client is not global.
+          x-description-2: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:client_grants.'
+        '404':
+          description: The client grant does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_client-grants_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:client_grants
+  /client-grants/{id}/organizations:
+    get:
+      summary: Get the Organizations Associated to a Client Grant
+      tags:
+      - client-grants
+      parameters:
+      - name: id
+        in: path
+        description: ID of the client grant
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Page index of the results to return. First page is 0.
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: include_totals
+        in: query
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        schema:
+          type: boolean
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Organizations successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListClientGrantOrganizationsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:organization_client_grants.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_client-grant-organizations
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListClientGrantOrganizationsRequestParameters
+      x-operation-group:
+      - clientGrants
+      - organizations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:organization_client_grants
+components:
+  schemas:
+    ListClientGrantOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        client_grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientGrantResponseContent'
+    CreateClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    ListClientGrantOrganizationsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Organization'
+      - $ref: '#/components/schemas/ListClientGrantOrganizationsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListClientGrantOrganizationsPaginatedResponseContent'
+    CreateClientGrantRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - audience
+      properties:
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant
+          minLength: 1
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+          default: false
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 280
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    OrganizationBranding:
+      type: object
+      description: Theme defines how to style the login pages.
+      additionalProperties: false
+      properties:
+        logo_url:
+          type: string
+          description: URL of logo to display on login page.
+          format: strict-https-uri-or-null
+        colors:
+          $ref: '#/components/schemas/OrganizationBrandingColors'
+    GetClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    TokenQuota:
+      type: object
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    ListClientGrantOrganizationsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    ClientGrantSubjectTypeEnum:
+      type: string
+      enum:
+      - client
+      - user
+      description: The type of application access the client grant allows.
+    UpdateClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    UpdateClientGrantRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        scope:
+          type:
+          - array
+          - 'null'
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 280
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationNullableUsageEnum'
+        allow_any_organization:
+          type:
+          - boolean
+          - 'null'
+          description: Controls allowing any organization to be used with this grant
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type:
+          - boolean
+          - 'null'
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    ListClientGrantOrganizationsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    OrganizationBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      required:
+      - primary
+      - page_background
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+          format: html-color
+        page_background:
+          type: string
+          description: HEX Color for background.
+          format: html-color
+    Organization:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    ClientGrantAllowAnyOrganizationEnum:
+      type: boolean
+      enum:
+      - true
+      description: Optional filter on allow_any_organization.
+    TokenQuotaClientCredentials:
+      type: object
+      description: The token quota configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        enforce:
+          type: boolean
+          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
+        per_day:
+          type: integer
+          description: Maximum number of issued tokens per day
+          minimum: 1
+          maximum: 2147483647
+        per_hour:
+          type: integer
+          description: Maximum number of issued tokens per hour
+          minimum: 1
+          maximum: 2147483647
+    ClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    ClientGrantOrganizationNullableUsageEnum:
+      type:
+      - string
+      - 'null'
+      description: Controls how organizations may be used with this grant
+      enum:
+      - deny
+      - allow
+      - require
+      - null
+    ListClientGrantPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        client_grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientGrantResponseContent'
+    OrganizationMetadata:
+      type: object
+      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 25
+    ClientGrantOrganizationUsageEnum:
+      type: string
+      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+      enum:
+      - deny
+      - allow
+      - require
+    ListClientGrantResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/ClientGrantResponseContent'
+      - $ref: '#/components/schemas/ListClientGrantOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListClientGrantPaginatedResponseContent'
+    ClientGrantDefaultForEnum:
+      type: string
+      enum:
+      - third_party_clients
+      x-release-lifecycle: GA
+      description: Applies this client grant as the default for all clients in the specified group. The only accepted value is <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants#default-permissions-for-third-party-applications">`third_party_clients`</a>, which applies the grant to all third-party clients. Per-client grants for the same audience take precedence. Mutually exclusive with `client_id`.
