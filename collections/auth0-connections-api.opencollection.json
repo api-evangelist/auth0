@@ -1,0 +1,682 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions connections API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "connections",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get All Connections",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections",
+            "params": [
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "The amount of entries per page. Defaults to 100 if not provided"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "The page number. Zero based"
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "true if a query summary must be included in the result, false otherwise. Not returned when using checkpoint pagination. Default <code>false</code>."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "strategy",
+                "value": "",
+                "type": "query",
+                "description": "Provide strategies to only retrieve connections with such strategies"
+              },
+              {
+                "name": "name",
+                "value": "",
+                "type": "query",
+                "description": "Provide the name of the connection to retrieve"
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields"
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "<code>true</code> if the fields specified are to be included in the result, <code>false</code> otherwise (defaults to <code>true</code>)"
+              }
+            ]
+          },
+          "docs": "Retrieves detailed list of all <a href=\"https://auth0.com/docs/authenticate/identity-providers\">connections</a> that match the specified strategy. If no strategy is provided, all connections within your tenant are retrieved. This action can accept a list of fields to include or exclude from the resulting list of connections. \n\nThis endpoint supports two types of pagination:\n<ul>\n<li>Offset pagination</li>\n<li>Checkpoint pagination</li>\n</ul>\n\nCheckpoint pagination must be used if you need to ret"
+        },
+        {
+          "info": {
+            "name": "Create a Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new connection according to the JSON object received in <code>body</code>.\n\n<b>Note:</b> If a connection with the same name was recently deleted and had a large number of associated users, the deletion may still be processing. Creating a new connection with that name before the deletion completes may fail or produce unexpected results. "
+        },
+        {
+          "info": {
+            "name": "Get a Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to retrieve"
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields"
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "<code>true</code> if the fields specified are to be included in the result, <code>false</code> otherwise (defaults to <code>true</code>)"
+              }
+            ]
+          },
+          "docs": "Retrieve details for a specified <a href=\"https://auth0.com/docs/authenticate/identity-providers\">connection</a> along with options that can be used for identity provider configuration."
+        },
+        {
+          "info": {
+            "name": "Update a Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/connections/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update details for a specific <a href=\"https://auth0.com/docs/authenticate/identity-providers\">connection</a>, including option properties for identity provider configuration.\n\n<b>Note</b>: If you use the <code>options</code> parameter, the entire <code>options</code> object is overriden. To avoid partial data or other issues, ensure all parameters are present when using this option."
+        },
+        {
+          "info": {
+            "name": "Delete a Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/connections/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to delete"
+              }
+            ]
+          },
+          "docs": "Removes a specific <a href=\"https://auth0.com/docs/authenticate/identity-providers\">connection</a> from your tenant. This action cannot be undone. Once removed, users can no longer use this connection to authenticate.\n\n<b>Note:</b> If your connection has a large amount of users associated with it, please be aware that this operation can be long running after the response is returned and may impact concurrent <a href=\"https://auth0.com/docs/api/management/v2/connections/post-connections\">create c"
+        },
+        {
+          "info": {
+            "name": "Get Enabled Clients for a Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/clients",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection for which enabled clients are to be retrieved"
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              }
+            ]
+          },
+          "docs": "Retrieve all clients that have the specified <a href=\"https://auth0.com/docs/authenticate/identity-providers\">connection</a> enabled.\n\n<b>Note</b>: The first time you call this endpoint, omit the <code>from</code> parameter. If there are more results, a <code>next</code> value is included in the response. You can use this for subsequent API calls. When <code>next</code> is no longer included in the response, no further results are remaining.\n"
+        },
+        {
+          "info": {
+            "name": "Update Enabled Clients for a Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/connections/:id/clients",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to modify"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update Enabled Clients for a Connection"
+        },
+        {
+          "info": {
+            "name": "Get a Directory Provisioning Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to retrieve its directory provisioning configuration"
+              }
+            ]
+          },
+          "docs": "Retrieve the directory provisioning configuration of a connection."
+        },
+        {
+          "info": {
+            "name": "Create a Directory Provisioning Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to create its directory provisioning configuration"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a directory provisioning configuration for a connection.\n"
+        },
+        {
+          "info": {
+            "name": "Patch a Directory Provisioning Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to create its directory provisioning configuration"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the directory provisioning configuration of a connection.\n"
+        },
+        {
+          "info": {
+            "name": "Delete a Directory Provisioning Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to delete its directory provisioning configuration"
+              }
+            ]
+          },
+          "docs": "Delete the directory provisioning configuration of a connection."
+        },
+        {
+          "info": {
+            "name": "Get a Connection's Default Directory Provisioning Attribute Mapping",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning/default-mapping",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to retrieve its directory provisioning configuration"
+              }
+            ]
+          },
+          "docs": "Retrieve the directory provisioning default attribute mapping of a connection.\n"
+        },
+        {
+          "info": {
+            "name": "Request an On-demand Synchronization of the Directory",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning/synchronizations",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to trigger synchronization for"
+              }
+            ]
+          },
+          "docs": "Request an on-demand synchronization of the directory.\n"
+        },
+        {
+          "info": {
+            "name": "Get Synchronized Groups for a Directory Provisioning Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning/synchronized-groups",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to list synchronized groups for."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              }
+            ]
+          },
+          "docs": "Retrieve the configured synchronized groups for a connection directory provisioning configuration.\n"
+        },
+        {
+          "info": {
+            "name": "Create or Replace Synchronized Group Selections for a Directory Provisioning Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{auth0_domain}/connections/:id/directory-provisioning/synchronized-groups",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to create or replace synchronized groups for"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create or replace the selected groups for a connection directory provisioning configuration.\n"
+        },
+        {
+          "info": {
+            "name": "Get Connection Keys",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/keys",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the connection"
+              }
+            ]
+          },
+          "docs": "Gets the connection keys for the Okta or OIDC connection strategy.\n"
+        },
+        {
+          "info": {
+            "name": "Create Connection Keys",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections/:id/keys",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the connection"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Provision initial connection keys for Okta or OIDC connection strategies. This endpoint allows you to create keys before configuring the connection to use Private Key JWT authentication, enabling zero-downtime transitions.\n"
+        },
+        {
+          "info": {
+            "name": "Rotate Connection Keys",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections/:id/keys/rotate",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the connection"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Rotates the connection keys for the Okta or OIDC connection strategies.\n"
+        },
+        {
+          "info": {
+            "name": "Get a Connection's SCIM Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/scim-configuration",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to retrieve its SCIM configuration"
+              }
+            ]
+          },
+          "docs": "Retrieves a scim configuration by its <code>connectionId</code>.\n"
+        },
+        {
+          "info": {
+            "name": "Create a SCIM Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections/:id/scim-configuration",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to create its SCIM configuration"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a scim configuration for a connection.\n"
+        },
+        {
+          "info": {
+            "name": "Patch a Connection's SCIM Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/connections/:id/scim-configuration",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to update its SCIM configuration"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a scim configuration by its <code>connectionId</code>.\n"
+        },
+        {
+          "info": {
+            "name": "Delete a Connection's SCIM Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/connections/:id/scim-configuration",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to delete its SCIM configuration"
+              }
+            ]
+          },
+          "docs": "Deletes a scim configuration by its <code>connectionId</code>.\n"
+        },
+        {
+          "info": {
+            "name": "Get a Connection's Default SCIM Mapping",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/scim-configuration/default-mapping",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to retrieve its default SCIM mapping"
+              }
+            ]
+          },
+          "docs": "Retrieves a scim configuration's default mapping by its <code>connectionId</code>.\n"
+        },
+        {
+          "info": {
+            "name": "Get a Connection's SCIM Tokens",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/scim-configuration/tokens",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to retrieve its SCIM configuration"
+              }
+            ]
+          },
+          "docs": "Retrieves all scim tokens by its connection <code>id</code>.\n"
+        },
+        {
+          "info": {
+            "name": "Create a SCIM Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/connections/:id/scim-configuration/tokens",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection to create its SCIM token"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a scim token for a scim client.\n"
+        },
+        {
+          "info": {
+            "name": "Delete a Connection's SCIM Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/connections/:id/scim-configuration/tokens/:tokenId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The connection id that owns the SCIM token to delete"
+              },
+              {
+                "name": "tokenId",
+                "value": "",
+                "type": "path",
+                "description": "The id of the scim token to delete"
+              }
+            ]
+          },
+          "docs": "Deletes a scim token by its connection <code>id</code> and <code>tokenId</code>.\n"
+        },
+        {
+          "info": {
+            "name": "Check Connection Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/connections/:id/status",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the connection to check"
+              }
+            ]
+          },
+          "docs": "Retrieves the status of an ad/ldap connection referenced by its <code>ID</code>. <code>200 OK</code> http status code response is returned  when the connection is online, otherwise a <code>404</code> status code is returned along with an error message"
+        },
+        {
+          "info": {
+            "name": "Delete a Connection User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/connections/:id/users",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the connection (currently only database connections are supported)"
+              },
+              {
+                "name": "email",
+                "value": "",
+                "type": "query",
+                "description": "The email of the user to delete"
+              }
+            ]
+          },
+          "docs": "Deletes a specified connection user by its email (you cannot delete all users from specific connection). Currently, only Database Connections are supported.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

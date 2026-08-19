@@ -1,0 +1,410 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions clients API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "clients",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Clients",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/clients",
+            "params": [
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields."
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "Whether specified fields are to be included (true) or excluded (false)."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Default value is 50, maximum value is 100"
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "is_global",
+                "value": "",
+                "type": "query",
+                "description": "Optional filter on the global client parameter."
+              },
+              {
+                "name": "is_first_party",
+                "value": "",
+                "type": "query",
+                "description": "Optional filter on whether or not a client is a first-party client."
+              },
+              {
+                "name": "app_type",
+                "value": "",
+                "type": "query",
+                "description": "Optional filter by a comma-separated list of application types."
+              },
+              {
+                "name": "external_client_id",
+                "value": "",
+                "type": "query",
+                "description": "Optional filter by the <a href=\"https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-04.html\">Client ID Metadata Document</a> URI for CIMD-registered clients."
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Advanced Query in <a href=\"https://lucene.apache.org/core/2_9_4/queryparsersyntax.html\">Lucene</a> syntax.<br /><b>Permitted Queries</b>:<br /><ul><li><i>client_grant.organization_id:{organization_id}</i></li><li><i>client_grant.allow_any_organization:true</i></li></ul><b>Additional Restrictions</b>:<br /><ul><li>Cannot be used in combination with other filters</li><li>Requires use of the <i>from</i> and <i>take</i> paging parameters (checkpoint paginatinon)</li><li>Reduced rate limits apply. See <a href=\"https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy/rate-limit-configurations/enterprise-public\">Rate Limit Configurations</a></li></ul><i><b>Note</b>: Recent updates may not be immediately reflected in query results</i>"
+              }
+            ]
+          },
+          "docs": "Retrieve clients (applications and SSO integrations) matching provided filters. A list of fields to include or exclude may also be specified.\nFor more information, read <a href=\"https://www.auth0.com/docs/get-started/applications\"> Applications in Auth0</a> and <a href=\"https://www.auth0.com/docs/authenticate/single-sign-on\"> Single Sign-On</a>.\n\n<ul>\n  <li>\n    The following can be retrieved with any scope:\n    <code>client_id</code>, <code>app_type</code>, <code>name</code>, and <code>descript"
+        },
+        {
+          "info": {
+            "name": "Create a Client",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/clients",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new client (application or SSO integration). For more information, read <a href=\"https://www.auth0.com/docs/get-started/auth0-overview/create-applications\">Create Applications</a>\n<a href=\"https://www.auth0.com/docs/authenticate/single-sign-on/api-endpoints-for-single-sign-on>\">API Endpoints for Single Sign-On</a>. \n\nNotes: \n- We recommend leaving the `client_secret` parameter unspecified to allow the generation of a safe secret.\n- The <code>client_authentication_methods</code> and <cod"
+        },
+        {
+          "info": {
+            "name": "Preview and Validate Client ID Metadata Document",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/clients/cimd/preview",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "\n      Fetches and validates a Client ID Metadata Document without creating a client.\n      Returns the raw metadata and how it would be mapped to Auth0 client fields.\n      This endpoint is useful for testing metadata URIs before creating CIMD clients.\n    "
+        },
+        {
+          "info": {
+            "name": "Register or Update a CIMD Client Via Metadata URI",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/clients/cimd/register",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "\n      Idempotent registration for Client ID Metadata Document (CIMD) clients.\n      Uses external_client_id as the unique identifier for upsert operations.\n      **Create:** Returns 201 when a new client is created (requires \\"
+        },
+        {
+          "info": {
+            "name": "Get Client Credentials",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/clients/:client_id/credentials",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client."
+              }
+            ]
+          },
+          "docs": "Get the details of a client credential.\n\n<b>Important</b>: To enable credentials to be used for a client authentication method, set the <code>client_authentication_methods</code> property on the client. To enable credentials to be used for JWT-Secured Authorization requests set the <code>signed_request_object</code> property on the client.\n"
+        },
+        {
+          "info": {
+            "name": "Create a Client Credential",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/clients/:client_id/credentials",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a client credential associated to your application. Credentials can be used to configure Private Key JWT and mTLS authentication methods, as well as for JWT-secured Authorization requests.\n\n<h5>Public Key</h5>Public Key credentials can be used to set up Private Key JWT client authentication and JWT-secured Authorization requests.\n\nSample: <pre><code>{\n  \"credential_type\": \"public_key\",\n  \"name\": \"string\",\n  \"pem\": \"string\",\n  \"alg\": \"RS256\",\n  \"parse_expiry_from_cert\": false,\n  \"expires_a"
+        },
+        {
+          "info": {
+            "name": "Get Client Credential Details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/clients/:client_id/credentials/:credential_id",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client."
+              },
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the credential."
+              }
+            ]
+          },
+          "docs": "Get the details of a client credential.\n\n<b>Important</b>: To enable credentials to be used for a client authentication method, set the <code>client_authentication_methods</code> property on the client. To enable credentials to be used for JWT-Secured Authorization requests set the <code>signed_request_object</code> property on the client.\n"
+        },
+        {
+          "info": {
+            "name": "Update a Client Credential",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/clients/:client_id/credentials/:credential_id",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client."
+              },
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the credential."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Change a client credential you previously created. May be enabled or disabled. For more information, read <a href=\"https://www.auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow\">Client Credential Flow</a>."
+        },
+        {
+          "info": {
+            "name": "Delete a Client Credential",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/clients/:client_id/credentials/:credential_id",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client."
+              },
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the credential to delete."
+              }
+            ]
+          },
+          "docs": "Delete a client credential you previously created. May be enabled or disabled. For more information, read <a href=\"https://www.auth0.com/docs/get-started/authentication-and-authorization-flow/client-credentials-flow\">Client Credential Flow</a>."
+        },
+        {
+          "info": {
+            "name": "Get Client by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/clients/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client to retrieve."
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields."
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "Whether specified fields are to be included (true) or excluded (false)."
+              }
+            ]
+          },
+          "docs": "Retrieve client details by ID. Clients are SSO connections or Applications linked with your Auth0 tenant. A list of fields to include or exclude may also be specified. \nFor more information, read <a href=\"https://www.auth0.com/docs/get-started/applications\"> Applications in Auth0</a> and <a href=\"https://www.auth0.com/docs/authenticate/single-sign-on\"> Single Sign-On</a>.\n<ul>\n  <li>\n    The following properties can be retrieved with any of the scopes:\n    <code>client_id</code>, <code>app_type<"
+        },
+        {
+          "info": {
+            "name": "Update a Client",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/clients/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates a client's settings. For more information, read <a href=\"https://www.auth0.com/docs/get-started/applications\"> Applications in Auth0</a> and <a href=\"https://www.auth0.com/docs/authenticate/single-sign-on\"> Single Sign-On</a>.\n\nNotes:\n- The `client_secret` and `signing_key` attributes can only be updated with the `update:client_keys` scope.\n- The <code>client_authentication_methods</code> and <code>token_endpoint_auth_method</code> properties are mutually exclusive. Use <code>client_auth"
+        },
+        {
+          "info": {
+            "name": "Delete a Client",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/clients/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client to delete."
+              }
+            ]
+          },
+          "docs": "Delete a client and related configuration (rules, connections, etc)."
+        },
+        {
+          "info": {
+            "name": "Get Enabled Connections for a Client",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/clients/:id/connections",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client for which to retrieve enabled connections."
+              },
+              {
+                "name": "strategy",
+                "value": "",
+                "type": "query",
+                "description": "Provide strategies to only retrieve connections with such strategies"
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields"
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "<code>true</code> if the fields specified are to be included in the result, <code>false</code> otherwise (defaults to <code>true</code>)"
+              }
+            ]
+          },
+          "docs": "Retrieve all connections that are enabled for the specified <a href=\"https://www.auth0.com/docs/get-started/applications\"> Application</a>, using checkpoint pagination. A list of fields to include or exclude for each connection may also be specified.\n<ul>\n  <li>\n    This endpoint requires the <code>read:connections</code> scope and any one of <code>read:clients</code> or <code>read:client_summary</code>.\n  </li>\n  <li>\n    <b>Note</b>: The first time you call this endpoint, omit the <code>from</"
+        },
+        {
+          "info": {
+            "name": "Rotate a Client Secret",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/clients/:id/rotate-secret",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the client that will rotate secrets."
+              }
+            ]
+          },
+          "docs": "Rotate a client secret.\n\nThis endpoint cannot be used with clients configured with Private Key JWT authentication method (client_authentication_methods configured with private_key_jwt). The generated secret is NOT base64 encoded.\n\nFor more information, read <a href=\"https://www.auth0.com/docs/get-started/applications/rotate-client-secret\">Rotate Client Secrets</a>."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

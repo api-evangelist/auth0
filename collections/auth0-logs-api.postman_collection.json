@@ -1,0 +1,827 @@
+{
+  "item": [
+    {
+      "id": "f9cbc2ef-a146-4974-843a-8d37e0a5ddc1",
+      "name": "logs",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d141338d-347e-49f6-9d8d-725239cc0801",
+          "name": "Search Log Events",
+          "request": {
+            "name": "Search Log Events",
+            "description": {
+              "content": "Retrieve log entries that match the specified search criteria (or all log entries if no criteria specified).\n\nSet custom search criteria using the <code>q</code> parameter, or search from a specific log ID (<i>\"search from checkpoint\"</i>).\n\nFor more information on all possible event types, their respective acronyms, and descriptions, see <a href=\"https://auth0.com/docs/logs/log-event-type-codes\">Log Event Type Codes</a>.\n\n<h5>To set custom search criteria, use the following parameters:</h5>\n\n<ul>\n    <li><b>q:</b> Search Criteria using <a href=\"https://auth0.com/docs/logs/log-search-query-syntax\">Query String Syntax</a></li>\n    <li><b>page:</b> Page index of the results to return. First page is 0.</li>\n    <li><b>per_page:</b> Number of results per page.</li>\n    <li><b>sort:</b> Field to use for sorting appended with `:1` for ascending and `:-1` for descending. e.g. `date:-1`</li>\n    <li><b>fields:</b> Comma-separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields.</li>\n    <li><b>include_fields:</b> Whether specified fields are to be included (true) or excluded (false).</li>\n    <li><b>include_totals:</b> Return results inside an object that contains the total result count (true) or as a direct array of results (false, default). <b>Deprecated:</b> this field is deprecated and should be removed from use. See <a href=\"https://auth0.com/docs/product-lifecycle/deprecations-and-migrations/migrate-to-tenant-log-search-v3#pagination\">Search Engine V3 Breaking Changes</a></li>\n</ul>\n\nFor more information on the list of fields that can be used in <code>fields</code> and <code>sort</code>, see <a href=\"https://auth0.com/docs/logs/log-search-query-syntax#searchable-fields\">Searchable Fields</a>.\n\nAuth0 <a href=\"https://auth0.com/docs/logs/retrieve-log-events-using-mgmt-api#limitations\">limits the number of logs</a> you can return by search criteria to 100 logs per request. Furthermore, you may paginate only through 1,000 search results. If you exceed this threshold, please redefine your search or use the <a href=\"https://auth0.com/docs/logs/retrieve-log-events-using-mgmt-api#retrieve-logs-by-checkpoint\">get logs by checkpoint method</a>.\n\n<h5>To search from a checkpoint log ID, use the following parameters:</h5>\n<ul>\n    <li><b>from:</b> Log Event ID from which to start retrieving logs. You can limit the number of logs returned using the <code>take</code> parameter. If you use <code>from</code> at the same time as <code>q</code>, <code>from</code> takes precedence and <code>q</code> is ignored.</li>\n    <li><b>take:</b> Number of entries to retrieve when using the <code>from</code> parameter.</li>\n</ul>\n\n<strong>Important:</strong> When fetching logs from a checkpoint log ID, any parameter other than <code>from</code> and <code>take</code> will be ignored, and date ordering is not guaranteed.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "logs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>",
+                  "description": "Page index of the results to return. First page is 0."
+                },
+                {
+                  "disabled": false,
+                  "key": "per_page",
+                  "value": "<integer>",
+                  "description": " Number of results per page. Paging is disabled if parameter not sent. Default: <code>50</code>. Max value: <code>100</code>"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>",
+                  "description": "Field to use for sorting appended with <code>:1</code>  for ascending and <code>:-1</code> for descending. e.g. <code>date:-1</code>"
+                },
+                {
+                  "disabled": false,
+                  "key": "fields",
+                  "value": "<string>",
+                  "description": "Comma-separated list of fields to include or exclude (based on value provided for <code>include_fields</code>) in the result. Leave empty to retrieve all fields."
+                },
+                {
+                  "disabled": false,
+                  "key": "include_fields",
+                  "value": "<boolean>",
+                  "description": "Whether specified fields are to be included (<code>true</code>) or excluded (<code>false</code>)"
+                },
+                {
+                  "disabled": false,
+                  "key": "include_totals",
+                  "value": "<boolean>",
+                  "description": "Return results as an array when false (default). Return results inside an object that also contains a total result count when true."
+                },
+                {
+                  "disabled": false,
+                  "key": "from",
+                  "value": "<string>",
+                  "description": "Log Event Id from which to start selection from."
+                },
+                {
+                  "disabled": false,
+                  "key": "take",
+                  "value": "<integer>",
+                  "description": "Number of entries to retrieve when using the <code>from</code> parameter. Default <code>50</code>, max <code>100</code>"
+                },
+                {
+                  "disabled": false,
+                  "key": "search",
+                  "value": "<string>",
+                  "description": "Retrieves logs that match the specified search criteria. This parameter can be combined with all the others in the /api/logs endpoint but is specified separately for clarity.\nIf no fields are provided a case insensitive 'starts with' search is performed on all of the following fields: client_name, connection, user_name. Otherwise, you can specify multiple fields and specify the search using the %field%:%search%, for example: application:node user:\"John@contoso.com\".\nValues specified without quotes are matched using a case insensitive 'starts with' search. If quotes are used a case insensitve exact search is used. If multiple fields are used, the AND operator is used to join the clauses."
+                }
+              ],
+              "variable": [
+                {
+                  "description": "Auth0 domain",
+                  "type": "any",
+                  "value": "{{auth0_domain}}",
+                  "key": "auth0_domain"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [
+            {
+              "id": "711ee1f4-eec9-41bd-a595-fe607634ba78",
+              "name": "Logs successfully retrieved.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_fields",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "include_totals",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "from",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "take",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"date\": \"2016-02-23T19:57:29.532Z\",\n    \"type\": \"sapi\",\n    \"description\": null,\n    \"connection\": \"string\",\n    \"connection_id\": \"string\",\n    \"client_id\": \"AaiyAPdpYdesoKnqjj8HJqRn4T5titww\",\n    \"client_name\": \"My application Name\",\n    \"ip\": \"190.257.209.19\",\n    \"hostname\": \"190.257.209.19\",\n    \"user_id\": \"auth0|56c75c4e42b6359e98374bc2\",\n    \"user_name\": \"string\",\n    \"audience\": \"string\",\n    \"scope\": \"\",\n    \"strategy\": \"string\",\n    \"strategy_type\": \"string\",\n    \"log_id\": \"string\",\n    \"isMobile\": true,\n    \"details\": {\n      \"key_0\": 5027,\n      \"key_1\": 7251,\n      \"key_2\": \"string\"\n    },\n    \"user_agent\": \"string\",\n    \"security_context\": {\n      \"ja3\": \"string\",\n      \"ja4\": \"string\"\n    },\n    \"location_info\": {\n      \"country_code\": \"st\",\n      \"country_code3\": \"str\",\n      \"country_name\": \"string\",\n      \"city_name\": \"string\",\n      \"latitude\": 8226.418901960053,\n      \"longitude\": 1831.7772300613876,\n      \"time_zone\": \"string\",\n      \"continent_code\": \"string\"\n    }\n  },\n  {\n    \"date\": \"2016-02-23T19:57:29.532Z\",\n    \"type\": \"sapi\",\n    \"description\": null,\n    \"connection\": \"string\",\n    \"connection_id\": \"string\",\n    \"client_id\": \"AaiyAPdpYdesoKnqjj8HJqRn4T5titww\",\n    \"client_name\": \"My application Name\",\n    \"ip\": \"190.257.209.19\",\n    \"hostname\": \"190.257.209.19\",\n    \"user_id\": \"auth0|56c75c4e42b6359e98374bc2\",\n    \"user_name\": \"string\",\n    \"audience\": \"string\",\n    \"scope\": \"\",\n    \"strategy\": \"string\",\n    \"strategy_type\": \"string\",\n    \"log_id\": \"string\",\n    \"isMobile\": false,\n    \"details\": {\n      \"key_0\": 1195.7906805918894,\n      \"key_1\": true\n    },\n    \"user_agent\": \"string\",\n    \"security_context\": {\n      \"ja3\": \"string\",\n      \"ja4\": \"string\"\n    },\n    \"location_info\": {\n      \"country_code\": \"st\",\n      \"country_code3\": \"str\",\n      \"country_name\": \"string\",\n      \"city_name\": \"string\",\n      \"latitude\": 6572.33330707859,\n      \"longitude\": 4447.002914351586,\n      \"time_zone\": \"string\",\n      \"continent_code\": \"string\"\n    }\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "510487e9-f183-4220-9e78-b519722d6c5b",
+              "name": "Invalid request URI. The message will vary depending on the cause.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_fields",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "include_totals",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "from",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "take",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "6e5be6d7-2c4e-448a-a249-57090234b759",
+              "name": "Invalid token.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_fields",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "include_totals",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "from",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "take",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "6f20c049-a0b0-4390-b7a6-c4cb691eafa3",
+              "name": "Insufficient scope; expected any of: read:logs, read:logs_users.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_fields",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "include_totals",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "from",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "take",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "224d7d36-4dbe-4dbd-a1c2-d096ad4a63b1",
+              "name": "Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "fields",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_fields",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "include_totals",
+                      "value": "<boolean>"
+                    },
+                    {
+                      "key": "from",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "take",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0da83551-be65-4198-8ba2-d01399d7d9a1",
+          "name": "Get a Log Event by Id",
+          "request": {
+            "name": "Get a Log Event by Id",
+            "description": {
+              "content": "Retrieve an individual log event.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "logs",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) log_id of the log to retrieve."
+                },
+                {
+                  "description": "Auth0 domain",
+                  "type": "any",
+                  "value": "{{auth0_domain}}",
+                  "key": "auth0_domain"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [
+            {
+              "id": "c73e193b-b8f1-4d7d-aae3-119f9992feac",
+              "name": "Log successfully retrieved.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) log_id of the log to retrieve."
+                    },
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"date\": \"2016-02-23T19:57:29.532Z\",\n  \"type\": \"sapi\",\n  \"description\": \"string\",\n  \"connection\": \"string\",\n  \"connection_id\": \"string\",\n  \"client_id\": \"AaiyAPdpYdesoKnqjj8HJqRn4T5titww\",\n  \"client_name\": \"My application Name\",\n  \"ip\": \"190.257.209.19\",\n  \"hostname\": \"190.257.209.19\",\n  \"user_id\": \"auth0|56c75c4e42b6359e98374bc2\",\n  \"user_name\": \"string\",\n  \"audience\": \"string\",\n  \"scope\": \"\",\n  \"strategy\": \"string\",\n  \"strategy_type\": \"string\",\n  \"log_id\": \"string\",\n  \"isMobile\": false,\n  \"details\": {\n    \"key_0\": \"string\",\n    \"key_1\": 6089,\n    \"key_2\": false\n  },\n  \"user_agent\": \"string\",\n  \"security_context\": {\n    \"ja3\": \"string\",\n    \"ja4\": \"string\",\n    \"key_0\": true\n  },\n  \"location_info\": {\n    \"country_code\": \"st\",\n    \"country_code3\": \"str\",\n    \"country_name\": \"string\",\n    \"city_name\": \"string\",\n    \"latitude\": 956.2639154938646,\n    \"longitude\": 297.9770712636731,\n    \"time_zone\": \"string\",\n    \"continent_code\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "be93df9d-ab20-460b-a718-98ef551203a0",
+              "name": "Invalid request URI. The message will vary depending on the cause.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) log_id of the log to retrieve."
+                    },
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "a1b4543d-1a0b-4638-9448-823444bda5b1",
+              "name": "Invalid token.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) log_id of the log to retrieve."
+                    },
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "1a5c4d65-3114-4fd1-b74e-68a219e9aed6",
+              "name": "Insufficient scope; expected any of: read:logs, read:logs_users.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) log_id of the log to retrieve."
+                    },
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "d4bebd8f-641d-46ae-a2dc-01eea59ec825",
+              "name": "Log not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) log_id of the log to retrieve."
+                    },
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "db5d890f-b8e3-4ee2-b03b-dcd18ce4646a",
+              "name": "Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "logs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) log_id of the log to retrieve."
+                    },
+                    {
+                      "description": "Auth0 domain",
+                      "type": "any",
+                      "value": "{{auth0_domain}}",
+                      "key": "auth0_domain"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "description": {
+        "content": "Auth0 domain",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "https://demo.us.auth0.com",
+      "key": "auth0_domain"
+    },
+    {
+      "type": "string",
+      "value": "{{auth0_domain}}",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "22527c06-d5c7-476c-9eb9-afb84fc10ef5",
+    "name": "Auth0 Authentication actions logs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.",
+      "type": "text/plain"
+    }
+  }
+}

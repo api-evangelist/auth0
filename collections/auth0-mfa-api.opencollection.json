@@ -1,0 +1,90 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions MFA API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "MFA",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Auth0 Request a Challenge for Multi-factor Authentication",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/mfa/challenge",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Request a challenge for multi-factor authentication (MFA) based on the challenge types supported by the application and user. The challenge_type is how the user will get the challenge and prove possession. Supported challenge types include otp for one-time password (OTP), oob for SMS/Voice messages or out-of-band (OOB). If OTP is supported by the user and you don't want to request a different factor, you can skip the challenge request and verify the multi-factor authentication with a one-time pa"
+        },
+        {
+          "info": {
+            "name": "Auth0 Associates or Adds a New Authenticator for Multi-factor Authentication (MFA).",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/mfa/associate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "If the user has active authenticators, an Access Token with the enroll scope and the audience set to https://{yourDomain}/mfa/ is required to use this endpoint.\nIf the user has no active authenticators, you can use the mfa_token from the mfa_required error in place of an Access Token for this request.\nAfter an authenticator is added, it must be verified. To verify the authenticator, use the response values from the /mfa/associate request in place of the values returned from the /mfa/challenge en"
+        },
+        {
+          "info": {
+            "name": "Auth0 Returns a List of Authenticators Associated with Your Application.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/mfa/authenticators",
+            "headers": [
+              {
+                "name": "ACCESS_TOKEN",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "To access this endpoint you must set an Access Token at the Authorization header, with the following claims:\nscope: read:authenticators\naudience: https://{yourDomain}/mfa/\n"
+        },
+        {
+          "info": {
+            "name": "Auth0 Deletes an Associated Authenticator Using Its ID.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/mfa/authenticators/:AUTHENTICATOR_ID",
+            "headers": [
+              {
+                "name": "ACCESS_TOKEN",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "AUTHENTICATOR_ID",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the authenticator to delete."
+              }
+            ]
+          },
+          "docs": "You can get authenticator IDs by listing the authenticators.\nTo access this endpoint, you must set an Access Token at the Authorization header, with the following claims:\nscope: remove:authenticators\naudience: https://{yourDomain}/mfa/\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

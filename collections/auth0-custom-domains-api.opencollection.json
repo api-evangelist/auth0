@@ -1,0 +1,207 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions custom-domains API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "custom-domains",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Custom Domains Configurations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/custom-domains",
+            "params": [
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Query in <a href =\"https://lucene.apache.org/core/2_9_4/queryparsersyntax.html\">Lucene query string syntax</a>."
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields."
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "Whether specified fields are to be included (true) or excluded (false)."
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "Field to sort by. Only <code>domain:1</code> (ascending order by domain) is supported at this time."
+              }
+            ]
+          },
+          "docs": "Retrieve details on <a href=\"https://auth0.com/docs/custom-domains\">custom domains</a>."
+        },
+        {
+          "info": {
+            "name": "Configure a New Custom Domain",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/custom-domains",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new custom domain.\n\nNote: The custom domain will need to be verified before it will accept\nrequests.\n\nOptional attributes that can be updated:\n\n- custom_client_ip_header\n- tls_policy\n\n\nTLS Policies:\n\n- recommended - for modern usage this includes TLS 1.2 only\n"
+        },
+        {
+          "info": {
+            "name": "Get the Default Domain",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/custom-domains/default"
+          },
+          "docs": "Retrieve the tenant's default domain.\n"
+        },
+        {
+          "info": {
+            "name": "Update the Default Custom Domain for the Tenant",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/custom-domains/default",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set the default custom domain for the tenant.\n"
+        },
+        {
+          "info": {
+            "name": "Get Custom Domain Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/custom-domains/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the custom domain to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve a custom domain configuration and status."
+        },
+        {
+          "info": {
+            "name": "Update Custom Domain Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/custom-domains/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the custom domain to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a custom domain.\n\nThese are the attributes that can be updated:\n\n- custom_client_ip_header\n- tls_policy\n\n<h5>Updating CUSTOM_CLIENT_IP_HEADER for a custom domain</h5>To update the <code>custom_client_ip_header</code> for a domain, the body to\nsend should be:\n<pre><code>{ \"custom_client_ip_header\": \"cf-connecting-ip\" }</code></pre>\n\n<h5>Updating TLS_POLICY for a custom domain</h5>To update the <code>tls_policy</code> for a domain, the body to send should be:\n<pre><code>{ \"tls_policy\": \"rec"
+        },
+        {
+          "info": {
+            "name": "Delete Custom Domain Configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/custom-domains/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the custom domain to delete."
+              }
+            ]
+          },
+          "docs": "Delete a custom domain and stop serving requests for it."
+        },
+        {
+          "info": {
+            "name": "Test a Custom Domain",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/custom-domains/:id/test",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the custom domain to test."
+              }
+            ]
+          },
+          "docs": "Run the test process on a custom domain."
+        },
+        {
+          "info": {
+            "name": "Verify a Custom Domain",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/custom-domains/:id/verify",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the custom domain to verify."
+              }
+            ]
+          },
+          "docs": "Run the verification process on a custom domain.\n\nNote: Check the <code>status</code> field to see its verification status. Once verification is complete, it may take up to 10 minutes before the custom domain can start accepting requests.\n\nFor <code>self_managed_certs</code>, when the custom domain is verified for the first time, the response will also include the <code>cname_api_key</code> which you will need to configure your proxy. This key must be kept secret, and is used to validate the pro"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

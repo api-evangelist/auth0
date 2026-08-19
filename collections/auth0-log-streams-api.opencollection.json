@@ -1,0 +1,105 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions log-streams API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "log-streams",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Log Streams",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/log-streams"
+          },
+          "docs": "Retrieve details on [log streams](https://auth0.com/docs/logs/streams).\n\n**Sample Response**\n\n```json\n[{\n  \"id\": \"string\",\n  \"name\": \"string\",\n  \"type\": \"eventbridge\",\n  \"status\": \"active|paused|suspended\",\n  \"sink\": {\n    \"awsAccountId\": \"string\",\n    \"awsRegion\": \"string\",\n    \"awsPartnerEventSource\": \"string\"\n  }\n}, {\n  \"id\": \"string\",\n  \"name\": \"string\",\n  \"type\": \"http\",\n  \"status\": \"active|paused|suspended\",\n  \"sink\": {\n    \"httpContentFormat\": \"JSONLINES|JSONARRAY\",\n    \"httpContentType\":"
+        },
+        {
+          "info": {
+            "name": "Create a Log Stream",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/log-streams",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a log stream.\n\n**Log Stream Types**\n\nThe `type` of log stream being created determines the properties required in the `sink` payload.\n\n**HTTP Stream**\n\nFor an `http` Stream, the `sink` properties are listed in the payload below.\n\n**Request:**\n```json\n{\n  \"name\": \"string\",\n  \"type\": \"http\",\n  \"sink\": {\n    \"httpEndpoint\": \"string\",\n    \"httpContentType\": \"string\",\n    \"httpContentFormat\": \"JSONLINES|JSONARRAY\",\n    \"httpAuthorization\": \"string\"\n  }\n}\n```\n\n**Response:**\n```json\n{\n  \"id\": \"s"
+        },
+        {
+          "info": {
+            "name": "Get Log Stream by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/log-streams/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the log stream to get"
+              }
+            ]
+          },
+          "docs": "Retrieve a log stream configuration and status.\n\n**Sample responses**\n\n**Amazon EventBridge Log Stream**\n\n```json\n{\n  \"id\": \"string\",\n  \"name\": \"string\",\n  \"type\": \"eventbridge\",\n  \"status\": \"active|paused|suspended\",\n  \"sink\": {\n    \"awsAccountId\": \"string\",\n    \"awsRegion\": \"string\",\n    \"awsPartnerEventSource\": \"string\"\n  }\n}\n```\n\n**HTTP Log Stream**\n\n```json\n{\n  \"id\": \"string\",\n  \"name\": \"string\",\n  \"type\": \"http\",\n  \"status\": \"active|paused|suspended\",\n  \"sink\": {\n    \"httpContentFormat\": \""
+        },
+        {
+          "info": {
+            "name": "Update a Log Stream",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/log-streams/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the log stream to get"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a log stream.\n\n**Examples of how to use the PATCH endpoint.**\n\nThe following fields may be updated in a PATCH operation:\n\n- name\n- status\n- sink\n\nNote: For log streams of type `eventbridge` and `eventgrid`, updating the `sink` is not permitted.\n\n**Update the status of a log stream**\n\n```json\n{\n  \"status\": \"active|paused\"\n}\n```\n\n**Update the name of a log stream**\n\n```json\n{\n  \"name\": \"string\"\n}\n```\n\n**Update the sink properties of a stream of type `http`**\n\n```json\n{\n  \"sink\": {\n    \"http"
+        },
+        {
+          "info": {
+            "name": "Delete Log Stream",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/log-streams/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the log stream to delete"
+              }
+            ]
+          },
+          "docs": "Delete a log stream.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

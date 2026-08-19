@@ -1,0 +1,126 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions Relationship Queries API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Relationship Queries",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Send a list of `check` operations in a single request",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/batch-check",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The `BatchCheck` API functions nearly identically to `Check`, but instead of checking a single user-object relationship BatchCheck accepts a list of relationships to check and returns a map containing `BatchCheckItem` response for each check it received.\n\nAn associated `correlation_id` is required for each check in the batch. This ID is used to correlate a check to the appropriate response. It is a string consisting of only alphanumeric characters or hyphens with a maximum length of 36 character"
+        },
+        {
+          "info": {
+            "name": "Check whether a user is authorized to access an object",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/check",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The Check API returns whether a given user has a relationship with a given object in a given store.\nThe `user` field of the request can be a specific target, such as `user:anne`, or a userset (set of users) such as `group:marketing#member` or a type-bound public access `user:*`.\nTo arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such "
+        },
+        {
+          "info": {
+            "name": "Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/expand",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The Expand API will return all users and usersets that have certain relationship with an object in a certain store.\nThis is different from the `/stores/{store_id}/read` API in that both users and computed usersets are returned.\nBody parameters `tuple_key.object` and `tuple_key.relation` are all required.\nA `contextual_tuples` object may also be included in the body of the request. This object contains one field `tuple_keys`, which is an array of tuple keys. Each of these tuples may have an assoc"
+        },
+        {
+          "info": {
+            "name": "List all objects of the given type that the user has a relation with",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/list-objects",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The ListObjects API returns a list of all the objects of the given type that the user has a relation with.\n To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as `document:2021-budget#viewer@document:2021-budget#viewer`; the set of users who are viewers of `document:2021-budget` are the set of users who are the viewers of `docume"
+        },
+        {
+          "info": {
+            "name": "List the users matching the provided filter who have a certain relation to a particular type.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/list-users",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The ListUsers API returns a list of all the users of a specific type that have a relation to a given object.\n To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as `document:2021-budget#viewer@document:2021-budget#viewer`; the set of users who are viewers of `document:2021-budget` are the set of users who are the viewers of `docu"
+        },
+        {
+          "info": {
+            "name": "Stream all objects of the given type that the user has a relation with",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/streamed-list-objects",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The Streamed ListObjects API is very similar to the the ListObjects API, with two differences: \n1. Instead of collecting all objects before returning a response, it streams them to the client as they are collected. \n2. The number of results returned is only limited by the execution timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE. \n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

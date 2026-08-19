@@ -1,0 +1,93 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions Relationship Tuples API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Relationship Tuples",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Return a list of all the tuple changes",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/stores/:store_id/changes",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "start_time",
+                "value": "",
+                "type": "query",
+                "description": "Start date and time of changes to read.\nFormat: ISO 8601 timestamp (e.g., 2022-01-01T00:00:00Z)\nIf a continuation_token is provided along side start_time, the continuation_token will take precedence over start_time."
+              }
+            ]
+          },
+          "docs": "The ReadChanges API will return a paginated list of tuple changes (additions and deletions) that occurred in a given store, sorted by ascending time. The response will include a continuation token that is used to get the next set of changes. If there are no changes after the provided continuation token, the same token will be returned in order for it to be used when new changes are recorded. If the store never had any tuples added or removed, this token will be empty.\nYou can use the `type` para"
+        },
+        {
+          "info": {
+            "name": "Get tuples from the store that matches a query, without following userset rewrite rules",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/read",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The Read API will return the tuples for a certain store that match a query filter specified in the body of the request. \nThe API doesn't guarantee order by any field. \nIt is different from the `/stores/{store_id}/expand` API in that it only returns relationship tuples that are stored in the system and satisfy the query. \nIn the body:\n1. `tuple_key` is optional. If not specified, it will return all tuples in the store.\n2. `tuple_key.object` is mandatory if `tuple_key` is specified. It can be a fu"
+        },
+        {
+          "info": {
+            "name": "Add or delete tuples from the store",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/stores/:store_id/write",
+            "params": [
+              {
+                "name": "store_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The Write API will transactionally update the tuples for a certain store. Tuples and type definitions allow OpenFGA to determine whether a relationship exists between an object and an user.\nIn the body, `writes` adds new tuples and `deletes` removes existing tuples. When deleting a tuple, any `condition` specified with it is ignored.\nThe API is not idempotent by default: if, later on, you try to add the same tuple key (even if the `condition` is different), or if you try to delete a non-existing"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

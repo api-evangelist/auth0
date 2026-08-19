@@ -1,0 +1,590 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "actions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Actions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/actions",
+            "params": [
+              {
+                "name": "triggerId",
+                "value": "",
+                "type": "query",
+                "description": "An actions extensibility point."
+              },
+              {
+                "name": "actionName",
+                "value": "",
+                "type": "query",
+                "description": "The name of the action to retrieve."
+              },
+              {
+                "name": "deployed",
+                "value": "",
+                "type": "query",
+                "description": "Optional filter to only retrieve actions that are deployed."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Use this field to request a specific page of the list results."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of results to be returned by the server in single response. 20 by default"
+              },
+              {
+                "name": "installed",
+                "value": "",
+                "type": "query",
+                "description": "Optional. When true, return only installed actions. When false, return only custom actions. Returns all actions by default."
+              }
+            ]
+          },
+          "docs": "Retrieve all actions.\n"
+        },
+        {
+          "info": {
+            "name": "Create an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/actions",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an action. Once an action is created, it must be deployed, and then bound to a trigger before it will be executed as part of a flow.\n"
+        },
+        {
+          "info": {
+            "name": "Get an Action's Versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/actions/:actionId/versions",
+            "params": [
+              {
+                "name": "actionId",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Use this field to request a specific page of the list results."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "This field specify the maximum number of results to be returned by the server. 20 by default"
+              }
+            ]
+          },
+          "docs": "Retrieve all of an action's versions. An action version is created whenever an action is deployed. An action version is immutable, once created.\n"
+        },
+        {
+          "info": {
+            "name": "Get a Specific Version of an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/actions/:actionId/versions/:id",
+            "params": [
+              {
+                "name": "actionId",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action version."
+              }
+            ]
+          },
+          "docs": "Retrieve a specific version of an action. An action version is created whenever an action is deployed. An action version is immutable, once created.\n"
+        },
+        {
+          "info": {
+            "name": "Roll Back to a Previous Action Version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/actions/:actionId/versions/:id/deploy",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of an action version."
+              },
+              {
+                "name": "actionId",
+                "value": "",
+                "type": "path",
+                "description": "The ID of an action."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Performs the equivalent of a roll-back of an action to an earlier, specified version. Creates a new, deployed action version that is identical to the specified version. If this action is currently bound to a trigger, the system will begin executing the newly-created version immediately.\n"
+        },
+        {
+          "info": {
+            "name": "Get an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/actions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve an action by its ID.\n"
+        },
+        {
+          "info": {
+            "name": "Update an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/actions/actions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the action to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an existing action. If this action is currently bound to a trigger, updating it will <strong>not</strong> affect any user flows until the action is deployed.\n"
+        },
+        {
+          "info": {
+            "name": "Delete an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/actions/actions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action to delete."
+              },
+              {
+                "name": "force",
+                "value": "",
+                "type": "query",
+                "description": "Force action deletion detaching bindings"
+              }
+            ]
+          },
+          "docs": "Deletes an action and all of its associated versions. An action must be unbound from all triggers before it can be deleted.\n"
+        },
+        {
+          "info": {
+            "name": "Deploy an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/actions/:id/deploy",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of an action."
+              }
+            ]
+          },
+          "docs": "Deploy an action. Deploying an action will create a new immutable version of the action. If the action is currently bound to a trigger, then the system will begin executing the newly deployed version of the action immediately. Otherwise, the action will only be executed as a part of a flow once it is bound to that flow.\n"
+        },
+        {
+          "info": {
+            "name": "Test an Action",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/actions/:id/test",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the action to test."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Test an action. After updating an action, it can be tested prior to being deployed to ensure it behaves as expected.\n"
+        },
+        {
+          "info": {
+            "name": "Get an Execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/executions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the execution to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve information about a specific execution of a trigger. Relevant execution IDs will be included in tenant logs generated as part of that authentication flow. Executions will only be stored for 10 days after their creation.\n"
+        },
+        {
+          "info": {
+            "name": "List Actions Modules",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/modules",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Paging is disabled if parameter not sent."
+              }
+            ]
+          },
+          "docs": "Retrieve a paginated list of all Actions Modules with optional filtering and totals."
+        },
+        {
+          "info": {
+            "name": "Create a New Actions Module",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/modules",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new Actions Module for reusable code across actions."
+        },
+        {
+          "info": {
+            "name": "Get a Specific Actions Module by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/modules/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action module to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve details of a specific Actions Module by its unique identifier."
+        },
+        {
+          "info": {
+            "name": "Update a Specific Actions Module",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/actions/modules/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action module to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update properties of an existing Actions Module, such as code, dependencies, or secrets."
+        },
+        {
+          "info": {
+            "name": "Delete a Specific Actions Module by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/actions/modules/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the Actions Module to delete."
+              }
+            ]
+          },
+          "docs": "Permanently delete an Actions Module. This will fail if the module is still in use by any actions."
+        },
+        {
+          "info": {
+            "name": "List All Actions Using an Actions Module",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/modules/:id/actions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique ID of the module."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page."
+              }
+            ]
+          },
+          "docs": "Lists all actions that are using a specific Actions Module, showing which deployed action versions reference this Actions Module."
+        },
+        {
+          "info": {
+            "name": "Rollback an Actions Module to a Previous Version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/modules/:id/rollback",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique ID of the module to roll back."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Rolls back an Actions Module's draft to a previously created version. This action copies the code, dependencies, and secrets from the specified version into the current draft."
+        },
+        {
+          "info": {
+            "name": "List All Versions of an Actions Module",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/modules/:id/versions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique ID of the module."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Use this field to request a specific page of the list results."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of results to be returned by the server in a single response. 20 by default."
+              }
+            ]
+          },
+          "docs": "List all published versions of a specific Actions Module."
+        },
+        {
+          "info": {
+            "name": "Create a New Version of an Actions Module",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/actions/modules/:id/versions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the action module to create a version for."
+              }
+            ]
+          },
+          "docs": "Creates a new immutable version of an Actions Module from the current draft version. This publishes the draft as a new version that can be referenced by actions, while maintaining the existing draft for continued development."
+        },
+        {
+          "info": {
+            "name": "Get a Specific Version of an Actions Module",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/modules/:id/versions/:versionId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique ID of the module."
+              },
+              {
+                "name": "versionId",
+                "value": "",
+                "type": "path",
+                "description": "The unique ID of the module version to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve the details of a specific, immutable version of an Actions Module."
+        },
+        {
+          "info": {
+            "name": "Get Triggers",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/triggers"
+          },
+          "docs": "Retrieve the set of triggers currently available within actions. A trigger is an extensibility point to which actions can be bound.\n"
+        },
+        {
+          "info": {
+            "name": "Get Trigger Bindings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/actions/triggers/:triggerId/bindings",
+            "params": [
+              {
+                "name": "triggerId",
+                "value": "",
+                "type": "path",
+                "description": "An actions extensibility point."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Use this field to request a specific page of the list results."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of results to be returned in a single request. 20 by default"
+              }
+            ]
+          },
+          "docs": "Retrieve the actions that are bound to a trigger. Once an action is created and deployed, it must be attached (i.e. bound) to a trigger so that it will be executed as part of a flow. The list of actions returned reflects the order in which they will be executed during the appropriate flow.\n"
+        },
+        {
+          "info": {
+            "name": "Update Trigger Bindings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/actions/triggers/:triggerId/bindings",
+            "params": [
+              {
+                "name": "triggerId",
+                "value": "",
+                "type": "path",
+                "description": "An actions extensibility point."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the actions that are bound (i.e. attached) to a trigger. Once an action is created and deployed, it must be attached (i.e. bound) to a trigger so that it will be executed as part of a flow. The order in which the actions are provided will determine the order in which they are executed."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

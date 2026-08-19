@@ -1,0 +1,1055 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Auth0 Authentication actions users API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "users",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List or Search Users",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "Field to sort by. Use <code>field:order</code> where order is <code>1</code> for ascending and <code>-1</code> for descending. e.g. <code>created_at:1</code>"
+              },
+              {
+                "name": "connection",
+                "value": "",
+                "type": "query",
+                "description": "Connection filter. Only applies when using <code>search_engine=v1</code>. To filter by connection with <code>search_engine=v2|v3</code>, use <code>q=identities.connection:\"connection_name\"</code>"
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields."
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "Whether specified fields are to be included (true) or excluded (false)."
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Query in <a target='_new' href ='https://lucene.apache.org/core/2_9_4/queryparsersyntax.html'>Lucene query string syntax</a>. Some query types cannot be used on metadata fields, for details see <a href='https://auth0.com/docs/users/search/v3/query-syntax#searchable-fields'>Searchable Fields</a>."
+              },
+              {
+                "name": "search_engine",
+                "value": "",
+                "type": "query",
+                "description": "The version of the search engine"
+              },
+              {
+                "name": "primary_order",
+                "value": "",
+                "type": "query",
+                "description": "If true (default), results are returned in a deterministic order. If false, results may be returned in a non-deterministic order, which can enhance performance for complex queries targeting a small number of users. Set to false only when consistent ordering and pagination is not required."
+              }
+            ]
+          },
+          "docs": "Retrieve details of users. It is possible to:\n\n- Specify a search criteria for users\n- Sort the users to be returned\n- Select the fields to be returned\n- Specify the number of users to retrieve per page and the page index\n <!-- only v3 is available -->\nThe <code>q</code> query parameter can be used to get users that match the specified criteria <a href=\"https://auth0.com/docs/users/search/v3/query-syntax\">using query string syntax.</a>\n\n<a href=\"https://auth0.com/docs/users/search/v3\">Learn more"
+        },
+        {
+          "info": {
+            "name": "Create a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new user for a given <a href=\"https://auth0.com/docs/connections/database\">database</a> or <a href=\"https://auth0.com/docs/connections/passwordless\">passwordless</a> connection.\n\nNote: <code>connection</code> is required but other parameters such as <code>email</code> and <code>password</code> are dependent upon the type of connection."
+        },
+        {
+          "info": {
+            "name": "Get a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to retrieve."
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields."
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "Whether specified fields are to be included (true) or excluded (false)."
+              }
+            ]
+          },
+          "docs": "Retrieve user details. A list of fields to include or exclude may also be specified. For more information, see <a href=\"https://auth0.com/docs/manage-users/user-search/retrieve-users-with-get-users-endpoint\">Retrieve Users with the Get Users Endpoint</a>.\n"
+        },
+        {
+          "info": {
+            "name": "Update a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/users/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a user.\n\nThese are the attributes that can be updated at the root level:\n\n<ul>\n    <li>app_metadata</li>\n    <li>blocked</li>\n    <li>email</li>\n    <li>email_verified</li>\n    <li>family_name</li>\n    <li>given_name</li>\n    <li>name</li>\n    <li>nickname</li>\n    <li>password</li>\n    <li>phone_number</li>\n    <li>phone_verified</li>\n    <li>picture</li>\n    <li>username</li>\n    <li>user_metadata</li>\n    <li>verify_email</li>\n</ul>\n\nSome considerations:\n<ul>\n    <li>The properties of "
+        },
+        {
+          "info": {
+            "name": "Delete a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to delete."
+              }
+            ]
+          },
+          "docs": "Delete a user by user ID. This action cannot be undone. For Auth0 Dashboard instructions, see <a href=\"https://auth0.com/docs/manage-users/user-accounts/delete-users\">Delete Users</a>.\n"
+        },
+        {
+          "info": {
+            "name": "Get a List of Authentication Methods",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/authentication-methods",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user in question."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0. Default is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Default is 50."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              }
+            ]
+          },
+          "docs": "Retrieve detailed list of authentication methods associated with a specified user."
+        },
+        {
+          "info": {
+            "name": "Creates an Authentication Method for a Given User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/authentication-methods",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user to whom the new authentication method will be assigned."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an authentication method. Authentication methods created via this endpoint will be auto confirmed and should already have verification completed."
+        },
+        {
+          "info": {
+            "name": "Update All Authentication Methods by Replacing Them with the Given Ones",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{auth0_domain}/users/:id/authentication-methods",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user in question."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Replace the specified user <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/multi-factor-authentication-factors\"> authentication methods</a> with supplied values.\n\n    <b>Note</b>: Authentication methods supplied through this action do not iterate on existing methods. Instead, any methods passed will overwrite the user&#8217s existing settings."
+        },
+        {
+          "info": {
+            "name": "Delete All Authentication Methods for the Given User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/authentication-methods",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user in question."
+              }
+            ]
+          },
+          "docs": "Remove all authentication methods (i.e., enrolled MFA factors) from the specified user account. This action cannot be undone. "
+        },
+        {
+          "info": {
+            "name": "Get an Authentication Method by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/authentication-methods/:authentication_method_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user in question."
+              },
+              {
+                "name": "authentication_method_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the authentication methods in question."
+              }
+            ]
+          },
+          "docs": "Get an Authentication Method by ID"
+        },
+        {
+          "info": {
+            "name": "Update an Authentication Method",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{auth0_domain}/users/:id/authentication-methods/:authentication_method_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user in question."
+              },
+              {
+                "name": "authentication_method_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the authentication method to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify the authentication method with the given ID from the specified user. For more information, review <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/manage-mfa-auth0-apis/manage-authentication-methods-with-management-api\">Manage Authentication Methods with Management API</a>."
+        },
+        {
+          "info": {
+            "name": "Delete an Authentication Method by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/authentication-methods/:authentication_method_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user in question."
+              },
+              {
+                "name": "authentication_method_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the authentication method to delete."
+              }
+            ]
+          },
+          "docs": "Remove the authentication method with the given ID from the specified user. For more information, review <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/manage-mfa-auth0-apis/manage-authentication-methods-with-management-api\">Manage Authentication Methods with Management API</a>."
+        },
+        {
+          "info": {
+            "name": "Delete All Authenticators",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/authenticators",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to delete."
+              }
+            ]
+          },
+          "docs": "Remove all authenticators registered to a given user ID, such as OTP, email, phone, and push-notification. This action cannot be undone. For more information, review <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/manage-mfa-auth0-apis/manage-authentication-methods-with-management-api\">Manage Authentication Methods with Management API</a>."
+        },
+        {
+          "info": {
+            "name": "Get a User's Connected Accounts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/connected-accounts",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to list connected accounts for."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results to return.  Defaults to 10 with a maximum of 20"
+              }
+            ]
+          },
+          "docs": "Retrieve all connected accounts associated with the user."
+        },
+        {
+          "info": {
+            "name": "Get the First Confirmed Multi-factor Authentication (MFA) Enrollment",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/enrollments",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to list enrollments for."
+              }
+            ]
+          },
+          "docs": "Retrieve the first <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/multi-factor-authentication-factors\">multi-factor authentication</a> enrollment that a specific user has confirmed."
+        },
+        {
+          "info": {
+            "name": "Get Tokensets for a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/federated-connections-tokensets",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "User identifier"
+              }
+            ]
+          },
+          "docs": "List active federated connections tokensets for a provided user"
+        },
+        {
+          "info": {
+            "name": "Deletes a Tokenset for Federated Connections by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/federated-connections-tokensets/:tokenset_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Id of the user that owns the tokenset"
+              },
+              {
+                "name": "tokenset_id",
+                "value": "",
+                "type": "path",
+                "description": "The tokenset id"
+              }
+            ]
+          },
+          "docs": "Deletes a Tokenset for Federated Connections by Id."
+        },
+        {
+          "info": {
+            "name": "Get User's Groups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/groups",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to list groups for."
+              },
+              {
+                "name": "fields",
+                "value": "",
+                "type": "query",
+                "description": "A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields"
+              },
+              {
+                "name": "include_fields",
+                "value": "",
+                "type": "query",
+                "description": "Whether specified fields are to be included (true) or excluded (false)."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Optional Id from which to start selection."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              }
+            ]
+          },
+          "docs": "List all groups to which this user belongs.\n"
+        },
+        {
+          "info": {
+            "name": "Link a User Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/identities",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the primary user account to link a second user account to."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Link two user accounts together forming a primary and secondary relationship. On successful linking, the endpoint returns the new array of the primary account identities.\n\nNote: There are two ways of invoking the endpoint:\n\n<ul>\n  <li>With the authenticated primary account's JWT in the Authorization header, which has the <code>update:current_user_identities</code> scope:\n    <pre>\n      POST /api/v2/users/PRIMARY_ACCOUNT_USER_ID/identities\n      Authorization: \"Bearer PRIMARY_ACCOUNT_JWT\"\n      "
+        },
+        {
+          "info": {
+            "name": "Unlink a User Identity",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/identities/:provider/:user_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the primary user account."
+              },
+              {
+                "name": "provider",
+                "value": "",
+                "type": "path",
+                "description": "Identity provider name of the secondary linked account (e.g. `google-oauth2`)."
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the secondary linked account (e.g. `123456789081523216417` part after the `|` in `google-oauth2|123456789081523216417`)."
+              }
+            ]
+          },
+          "docs": "Unlink a specific secondary account from a target user. This action requires the ID of both the target user and the secondary account. \n\nUnlinking the secondary account removes it from the identities array of the target user and creates a new standalone profile for the secondary account. To learn more, review <a href=\"https://auth0.com/docs/manage-users/user-accounts/user-account-linking/unlink-user-accounts\">Unlink User Accounts</a>.\n"
+        },
+        {
+          "info": {
+            "name": "Get User's Log Events",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/logs",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user of the logs to retrieve"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Paging is disabled if parameter not sent."
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "Field to sort by. Use `fieldname:1` for ascending order and `fieldname:-1` for descending."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              }
+            ]
+          },
+          "docs": "Retrieve log events for a specific user.\n\nNote: For more information on all possible event types, their respective acronyms and descriptions, see <a href=\"https://auth0.com/docs/logs/log-event-type-codes\">Log Event Type Codes</a>.\n\nFor more information on the list of fields that can be used in `sort`, see <a href=\"https://auth0.com/docs/logs/log-search-query-syntax#searchable-fields\">Searchable Fields</a>.\n\nAuth0 <a href=\"https://auth0.com/docs/logs/retrieve-log-events-using-mgmt-api#limitations"
+        },
+        {
+          "info": {
+            "name": "Invalidate All Remembered Browsers for Multi-factor Authentication (MFA)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/multifactor/actions/invalidate-remember-browser",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to invalidate all remembered browsers and authentication factors for."
+              }
+            ]
+          },
+          "docs": "Invalidate all remembered browsers across all <a href=\"https://auth0.com/docs/multifactor-authentication\">authentication factors</a> for a user."
+        },
+        {
+          "info": {
+            "name": "Delete a User's Multi-factor Provider",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/multifactor/:provider",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to remove a multifactor configuration from."
+              },
+              {
+                "name": "provider",
+                "value": "",
+                "type": "path",
+                "description": "The multi-factor provider. Supported values 'duo' or 'google-authenticator'"
+              }
+            ]
+          },
+          "docs": "Remove a <a href=\"https://auth0.com/docs/multifactor-authentication\">multifactor</a> authentication configuration from a user's account. This forces the user to manually reconfigure the multi-factor provider."
+        },
+        {
+          "info": {
+            "name": "List User's Organizations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/organizations",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to retrieve the organizations for."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              }
+            ]
+          },
+          "docs": "Retrieve list of the specified user's current Organization memberships. User must be specified by user ID. For more information, review <a href=\"https://auth0.com/docs/manage-users/organizations\">Auth0 Organizations</a>.\n"
+        },
+        {
+          "info": {
+            "name": "Get a User's Permissions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/permissions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to retrieve the permissions for."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              }
+            ]
+          },
+          "docs": "Retrieve all permissions associated with the user."
+        },
+        {
+          "info": {
+            "name": "Assign Permissions to a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/permissions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to assign permissions to."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Assign permissions to a user."
+        },
+        {
+          "info": {
+            "name": "Remove Permissions from a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/permissions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to remove permissions from."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Remove permissions from a user.\n"
+        },
+        {
+          "info": {
+            "name": "Generate New Multi-factor Authentication (MFA) Recovery Code",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/recovery-code-regeneration",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to regenerate a multi-factor authentication recovery code for."
+              }
+            ]
+          },
+          "docs": "Remove an existing multi-factor authentication (MFA) <a href=\"https://auth0.com/docs/secure/multi-factor-authentication/reset-user-mfa\">recovery code</a> and generate a new one. If a user cannot access the original device or account used for MFA enrollment, they can use a recovery code to authenticate. "
+        },
+        {
+          "info": {
+            "name": "Revokes Selected Resources from a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/revoke-access",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Revokes selected resources related to a user (sessions, refresh tokens, ...)."
+        },
+        {
+          "info": {
+            "name": "Clear Risk Assessment Assessors for a Specific User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/risk-assessments/clear",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to clear assessors for."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Clear risk assessment assessors for a specific user"
+        },
+        {
+          "info": {
+            "name": "Get a User's Roles",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:id/roles",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to list roles for."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page index of the results to return. First page is 0."
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              }
+            ]
+          },
+          "docs": "Retrieve detailed list of all user roles currently assigned to a user.\n\n<b>Note</b>: This action retrieves all roles assigned to a user in the context of your whole tenant. To retrieve Organization-specific roles, use the following endpoint: <a href=\"https://auth0.com/docs/api/management/v2/organizations/get-organization-member-roles\">Get user roles assigned to an Organization member</a>.\n"
+        },
+        {
+          "info": {
+            "name": "Assign Roles to a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{auth0_domain}/users/:id/roles",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to associate roles with."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Assign one or more existing user roles to a user. For more information, review <a href=\"https://auth0.com/docs/manage-users/access-control/rbac\">Role-Based Access Control</a>.\n\n<b>Note</b>: New roles cannot be created through this action. Additionally, this action is used to assign roles to a user in the context of your whole tenant. To assign roles in the context of a specific Organization, use the following endpoint: <a href=\"https://auth0.com/docs/api/management/v2/organizations/post-organiza"
+        },
+        {
+          "info": {
+            "name": "Removes Roles from a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:id/roles",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to remove roles from."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Remove one or more specified user roles assigned to a user.\n\n<b>Note</b>: This action removes a role from a user in the context of your whole tenant. If you want to unassign a role from a user in the context of a specific Organization, use the following endpoint: <a href=\"https://auth0.com/docs/api/management/v2/organizations/delete-organization-member-roles\">Delete user roles from an Organization member</a>.\n"
+        },
+        {
+          "info": {
+            "name": "Get Refresh Tokens for a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:user_id/refresh-tokens",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to get refresh tokens for"
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "An optional cursor from which to start the selection (exclusive)."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              }
+            ]
+          },
+          "docs": "Retrieve details for a user's refresh tokens."
+        },
+        {
+          "info": {
+            "name": "Delete Refresh Tokens for a User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:user_id/refresh-tokens",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to get remove refresh tokens for"
+              }
+            ]
+          },
+          "docs": "Delete all refresh tokens for a user."
+        },
+        {
+          "info": {
+            "name": "Get Sessions for User",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{auth0_domain}/users/:user_id/sessions",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to get sessions for"
+              },
+              {
+                "name": "include_totals",
+                "value": "",
+                "type": "query",
+                "description": "Return results inside an object that contains the total result count (true) or as a direct array of results (false, default)."
+              },
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "An optional cursor from which to start the selection (exclusive)."
+              },
+              {
+                "name": "take",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page. Defaults to 50."
+              }
+            ]
+          },
+          "docs": "Retrieve details for a user's sessions."
+        },
+        {
+          "info": {
+            "name": "Delete Sessions for User",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{auth0_domain}/users/:user_id/sessions",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the user to get sessions for"
+              }
+            ]
+          },
+          "docs": "Delete all sessions for a user."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
