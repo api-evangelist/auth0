@@ -1,15 +1,20 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
-  title: Auth0 Authentication actions API
-  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
-  version: 1.0.0
+  title: Auth0 Management Actions API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
 servers:
-- url: '{auth0_domain}'
-  description: The Authentication API is served over HTTPS.
+- url: https://{tenantDomain}/api/v2
   variables:
-    auth0_domain:
-      description: Auth0 domain
-      default: https://demo.us.auth0.com
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
 tags:
 - name: actions
 paths:
@@ -1131,14 +1136,6 @@ paths:
         - update:actions
 components:
   schemas:
-    ActionBindingRefTypeEnum:
-      type: string
-      description: 'How the action is being referred to: `action_id` or `action_name`.'
-      default: action_name
-      enum:
-      - binding_id
-      - action_id
-      - action_name
     Integration:
       type: object
       description: 'Integration defines a self contained functioning unit which partners
@@ -1207,42 +1204,40 @@ components:
           type: string
           default: '2021-06-21T15:47:29.072Z'
           format: date-time
-    UpdateActionBindingsResponseContent:
+    ActionModuleVersion:
       type: object
-      additionalProperties: false
-      properties:
-        bindings:
-          type: array
-          items:
-            $ref: '#/components/schemas/ActionBinding'
-    ActionModuleSecretRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - value
-      properties:
-        name:
-          type: string
-          description: The name of the secret.
-          maxLength: 255
-          pattern: "^[^\0]*$"
-        value:
-          type: string
-          description: The value of the secret.
-          maxLength: 4096
-          pattern: "^[^\0]*$"
-    ActionError:
-      type: object
-      description: Error is a generic error with a human readable id which should be easily referenced in support tickets.
       additionalProperties: false
       properties:
         id:
           type: string
-        msg:
+          description: The unique ID for this version.
+        module_id:
           type: string
-        url:
+          description: The ID of the parent module.
+        version_number:
+          type: integer
+          description: The sequential version number.
+        code:
           type: string
+          description: The exact source code that was published with this version.
+        secrets:
+          type: array
+          description: Secrets available to this version (name and updated_at only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
+        dependencies:
+          type: array
+          description: Dependencies locked to this version.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependency'
+        created_at:
+          type: string
+          description: The timestamp when this version was created.
+          format: date-time
+    TestActionPayload:
+      type: object
+      description: The payload for the action.
+      additionalProperties: true
     ActionDeployedVersion:
       type: object
       description: The version of the action that is currently deployed.
@@ -1318,59 +1313,15 @@ components:
           description: The list of action modules and their versions used by this action version.
           items:
             $ref: '#/components/schemas/ActionModuleReference'
-    ActionExecutionStatusEnum:
-      type: string
-      description: The overall status of an execution.
-      default: final
-      enum:
-      - unspecified
-      - pending
-      - final
-      - partial
-      - canceled
-      - suspended
-    ActionModuleReference:
+    TestActionRequestContent:
       type: object
-      description: Reference to a module and its version used by an action.
       additionalProperties: false
+      required:
+      - payload
       properties:
-        module_id:
-          type: string
-          description: The unique ID of the module.
-        module_name:
-          type: string
-          description: The name of the module.
-        module_version_id:
-          type: string
-          description: The ID of the specific module version.
-        module_version_number:
-          type: integer
-          description: The version number of the module.
-    ActionVersionDependency:
-      type: object
-      description: Dependency is an npm module. These values are used to produce an immutable artifact, which manifests as a layer_id.
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: name is the name of the npm module, e.g. lodash
-        version:
-          type: string
-          description: description is the version of the npm module, e.g. 4.17.1
-        registry_url:
-          type: string
-          description: registry_url is an optional value used primarily for private npm registries.
-    DeployActionVersionRequestContent:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      properties:
-        update_draft:
-          type: boolean
-          description: True if the draft of the action should be updated with the reverted version.
-          default: false
-    ActionModuleVersion:
+        payload:
+          $ref: '#/components/schemas/TestActionPayload'
+    CreateActionModuleVersionResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -1400,168 +1351,10 @@ components:
           type: string
           description: The timestamp when this version was created.
           format: date-time
-    ActionModuleDependencyRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - version
-      properties:
-        name:
-          type: string
-          description: The name of the npm dependency.
-          maxLength: 255
-          pattern: "^[^\0]*$"
-        version:
-          type: string
-          description: The version of the npm dependency.
-          maxLength: 50
-          pattern: "^[^\0]*$"
-    CreateActionModuleResponseContent:
+    UpdateActionRequestContent:
       type: object
       additionalProperties: false
       properties:
-        id:
-          type: string
-          description: The unique ID of the module.
-        name:
-          type: string
-          description: The name of the module.
-        code:
-          type: string
-          description: The source code from the module's draft version.
-        dependencies:
-          type: array
-          description: The npm dependencies from the module's draft version.
-          items:
-            $ref: '#/components/schemas/ActionModuleDependency'
-        secrets:
-          type: array
-          description: The secrets from the module's draft version (names and timestamps only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
-        actions_using_module_total:
-          type: integer
-          description: The number of deployed actions using this module.
-        all_changes_published:
-          type: boolean
-          description: Whether all draft changes have been published as a version.
-        latest_version_number:
-          type: integer
-          description: The version number of the latest published version. Omitted if no versions have been published.
-        created_at:
-          type: string
-          description: Timestamp when the module was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp when the module was last updated.
-          format: date-time
-        latest_version:
-          $ref: '#/components/schemas/ActionModuleVersionReference'
-    ListActionsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        total:
-          type: number
-          description: The total result count.
-          default: 1
-        page:
-          type: number
-          description: Page index of the results being returned. First page is 0.
-          default: 0
-        per_page:
-          type: number
-          description: Number of results per page.
-          default: 20
-        actions:
-          type: array
-          description: The list of actions.
-          items:
-            $ref: '#/components/schemas/Action'
-    RollbackActionModuleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID of the module.
-        name:
-          type: string
-          description: The name of the module.
-        code:
-          type: string
-          description: The source code from the module's draft version.
-        dependencies:
-          type: array
-          description: The npm dependencies from the module's draft version.
-          items:
-            $ref: '#/components/schemas/ActionModuleDependency'
-        secrets:
-          type: array
-          description: The secrets from the module's draft version (names and timestamps only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
-        actions_using_module_total:
-          type: integer
-          description: The number of deployed actions using this module.
-        all_changes_published:
-          type: boolean
-          description: Whether all draft changes have been published as a version.
-        latest_version_number:
-          type: integer
-          description: The version number of the latest published version. Omitted if no versions have been published.
-        created_at:
-          type: string
-          description: Timestamp when the module was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp when the module was last updated.
-          format: date-time
-        latest_version:
-          $ref: '#/components/schemas/ActionModuleVersionReference'
-    ActionModuleSecret:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: The name of the secret.
-        updated_at:
-          type: string
-          description: The time when the secret was last updated.
-          format: date-time
-    ActionVersionBuildStatusEnum:
-      type: string
-      description: The build status of this specific version.
-      default: built
-      enum:
-      - pending
-      - building
-      - packaged
-      - built
-      - retrying
-      - failed
-    IntegrationRequiredParamOption:
-      type: object
-      additionalProperties: false
-      properties:
-        value:
-          type: string
-          description: The value of an option that will be used within the application.
-        label:
-          type: string
-          description: The display value of an option suitable for displaying in a UI.
-    UpdateActionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID of the action.
-          default: 910b1053-577f-4d81-a8c8-020e7319a38a
         name:
           type: string
           description: The name of an action.
@@ -1573,20 +1366,6 @@ components:
           items:
             $ref: '#/components/schemas/ActionTrigger'
             x-release-lifecycle: GA
-        all_changes_deployed:
-          type: boolean
-          description: True if all of an Action's contents have been deployed.
-          default: false
-        created_at:
-          type: string
-          description: The time when this action was created.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time when this action was updated.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
         code:
           type: string
           description: The source code of the action.
@@ -1604,217 +1383,58 @@ components:
           type: array
           description: The list of secrets that are included in an action or a version of an action.
           items:
-            $ref: '#/components/schemas/ActionSecretResponse'
-        deployed_version:
-          $ref: '#/components/schemas/ActionDeployedVersion'
-        installed_integration_id:
-          type: string
-          description: installed_integration_id is the fk reference to the InstalledIntegration entity.
-          default: 7d2bc0c9-c0c2-433a-9f4e-86ef80270aad
-        integration:
-          $ref: '#/components/schemas/Integration'
-        status:
-          $ref: '#/components/schemas/ActionBuildStatusEnum'
-        built_at:
-          type: string
-          description: The time when this action was built successfully.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        deploy:
-          type: boolean
-          description: True if the action should be deployed after creation.
-          default: false
+            $ref: '#/components/schemas/ActionSecretRequest'
         modules:
           type: array
           description: The list of action modules and their versions used by this action.
           items:
             $ref: '#/components/schemas/ActionModuleReference'
-    UpdateActionModuleRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        code:
-          type: string
-          description: The source code of the action module.
-          maxLength: 65536
-          pattern: "^[^\0]*$"
-        secrets:
-          type: array
-          description: The secrets to associate with the action module.
-          items:
-            $ref: '#/components/schemas/ActionModuleSecretRequest'
-        dependencies:
-          type: array
-          description: The npm dependencies of the action module.
-          items:
-            $ref: '#/components/schemas/ActionModuleDependencyRequest'
-    GetActionModuleActionsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        actions:
-          type: array
-          description: A list of action references.
-          items:
-            $ref: '#/components/schemas/ActionModuleAction'
-        total:
-          type: integer
-          description: The total number of actions using this module.
-        page:
-          type: integer
-          description: The page index of the returned results.
-        per_page:
-          type: integer
-          description: The number of results requested per page.
-    ActionTrigger:
+    ActionBuildStatusEnum:
+      type: string
+      description: The build status of this action.
+      default: built
+      enum:
+      - pending
+      - building
+      - packaged
+      - built
+      - retrying
+      - failed
+    IntegrationRequiredParamTypeEnum:
+      type: string
+      enum:
+      - UNSPECIFIED
+      - STRING
+    ActionModuleDependencyRequest:
       type: object
       additionalProperties: false
       required:
-      - id
-      x-release-lifecycle: GA
-      properties:
-        id:
-          $ref: '#/components/schemas/ActionTriggerTypeEnum'
-        version:
-          type: string
-          description: The version of a trigger. v1, v2, etc.
-        status:
-          type: string
-          description: status points to the trigger status.
-        runtimes:
-          type: array
-          description: runtimes supported by this trigger.
-          items:
-            type: string
-        default_runtime:
-          type: string
-          description: Runtime that will be used when none is specified when creating an action.
-        compatible_triggers:
-          type: array
-          description: compatible_triggers informs which other trigger supports the same event and api.
-          items:
-            $ref: '#/components/schemas/ActionTriggerCompatibleTrigger'
-        binding_policy:
-          $ref: '#/components/schemas/ActionBindingTypeEnum'
-    ActionTriggerTypeEnum:
-      type: string
-      description: An actions extensibility point.
-      enum:
-      - post-login
-      - credentials-exchange
-      - pre-user-registration
-      - post-user-registration
-      - post-change-password
-      - send-phone-message
-      - custom-phone-provider
-      - custom-email-provider
-      - password-reset-post-challenge
-      - custom-token-exchange
-      - event-stream
-      - password-hash-migration
-      - login-post-identifier
-      - signup-post-identifier
-    ActionModuleVersionReference:
-      type: object
-      description: The latest published version as a reference object. Omitted if no versions have been published.
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID of the version.
-        version_number:
-          type: integer
-          description: The version number.
-        code:
-          type: string
-          description: The source code from this version.
-        dependencies:
-          type: array
-          description: The npm dependencies from this version.
-          items:
-            $ref: '#/components/schemas/ActionModuleDependency'
-        secrets:
-          type: array
-          description: The secrets from this version (names and timestamps only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
-        created_at:
-          type: string
-          description: Timestamp when the version was created.
-          format: date-time
-    ActionBindingTypeEnum:
-      type: string
-      description: In order to execute an Action, it must be bound to a trigger using a binding. `trigger-bound` means that bindings are managed by the tenant. `entity-bound` means that the bindings are automatically managed by Auth0 and other internal resouces will control those bindings. Tenants cannot manage `entity-bound` bindings.
-      enum:
-      - trigger-bound
-      - entity-bound
-    GetActionModuleVersionsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        versions:
-          type: array
-          description: A list of ActionsModuleVersion objects.
-          items:
-            $ref: '#/components/schemas/ActionModuleVersion'
-        total:
-          type: integer
-          description: The total number of versions for this module.
-        page:
-          type: integer
-          description: The page index of the returned results.
-        per_page:
-          type: integer
-          description: The number of results requested per page.
-    TestActionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        payload:
-          $ref: '#/components/schemas/TestActionResultPayload'
-    IntegrationRelease:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The id of the associated IntegrationRelease
-        trigger:
-          $ref: '#/components/schemas/ActionTrigger'
-          x-release-lifecycle: GA
-        semver:
-          $ref: '#/components/schemas/IntegrationSemVer'
-        required_secrets:
-          type: array
-          description: 'required_secrets declares all the necessary secrets for an integration to
-
-            work.'
-          items:
-            $ref: '#/components/schemas/IntegrationRequiredParam'
-        required_configuration:
-          type: array
-          description: required_configuration declares all the necessary configuration fields for an integration to work.
-          items:
-            $ref: '#/components/schemas/IntegrationRequiredParam'
-    ActionModuleDependency:
-      type: object
-      additionalProperties: false
+      - name
+      - version
       properties:
         name:
           type: string
           description: The name of the npm dependency.
+          maxLength: 255
+          pattern: ^[^]*$
         version:
           type: string
           description: The version of the npm dependency.
-    UpdateActionBindingsRequestContent:
+          maxLength: 50
+          pattern: ^[^]*$
+    ActionSecretResponse:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
-        bindings:
-          type: array
-          description: The actions that will be bound to this trigger. The order in which they are included will be the order in which they are executed.
-          items:
-            $ref: '#/components/schemas/UpdateActionBindingItem'
+        name:
+          type: string
+          description: The name of the particular secret, e.g. API_KEY.
+          default: mySecret
+        updated_at:
+          type: string
+          description: The time when the secret was last updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
     ActionBinding:
       type: object
       description: Binding is the associative entity joining a trigger, and an action together.
@@ -1842,42 +1462,60 @@ components:
           description: The time when the binding was updated.
           default: '2021-01-01T00:00:00.000Z'
           format: date-time
-    CreateActionModuleRequestContent:
+    ActionModuleAction:
       type: object
       additionalProperties: false
-      required:
-      - name
-      - code
       properties:
-        name:
+        action_id:
           type: string
-          description: The name of the action module.
-          maxLength: 255
-          pattern: "^[^\0]*$"
-        code:
+          description: The unique ID of the action.
+        action_name:
           type: string
-          description: The source code of the action module.
-          maxLength: 65536
-          pattern: "^[^\0]*$"
-        secrets:
+          description: The name of the action.
+        module_version_id:
+          type: string
+          description: The ID of the module version this action is using.
+        module_version_number:
+          type: integer
+          description: The version number of the module this action is using.
+        supported_triggers:
           type: array
-          description: The secrets to associate with the action module.
+          description: The triggers that this action supports.
           items:
-            $ref: '#/components/schemas/ActionModuleSecretRequest'
-        dependencies:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+    ActionExecutionStatusEnum:
+      type: string
+      description: The overall status of an execution.
+      default: final
+      enum:
+      - unspecified
+      - pending
+      - final
+      - partial
+      - canceled
+      - suspended
+    ListActionVersionsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        total:
+          type: number
+          description: The total result count.
+          default: 1
+        page:
+          type: number
+          description: Page index of the results being returned. First page is 0.
+          default: 0
+        per_page:
+          type: number
+          description: Number of results per page.
+          default: 20
+        versions:
           type: array
-          description: The npm dependencies of the action module.
           items:
-            $ref: '#/components/schemas/ActionModuleDependencyRequest'
-        api_version:
-          type: string
-          description: The API version of the module.
-          maxLength: 20
-          pattern: "^[^\0]*$"
-        publish:
-          type: boolean
-          description: Whether to publish the module immediately after creation.
-    GetActionModuleResponseContent:
+            $ref: '#/components/schemas/ActionVersion'
+    ActionModuleListItem:
       type: object
       additionalProperties: false
       properties:
@@ -1917,8 +1555,6 @@ components:
           type: string
           description: Timestamp when the module was last updated.
           format: date-time
-        latest_version:
-          $ref: '#/components/schemas/ActionModuleVersionReference'
     GetActionVersionResponseContent:
       type: object
       additionalProperties: false
@@ -1993,179 +1629,43 @@ components:
           description: The list of action modules and their versions used by this action version.
           items:
             $ref: '#/components/schemas/ActionModuleReference'
-    ActionModuleListItem:
+    GetActionExecutionResponseContent:
       type: object
+      description: The result of a specific execution of a trigger.
       additionalProperties: false
       properties:
         id:
           type: string
-          description: The unique ID of the module.
-        name:
-          type: string
-          description: The name of the module.
-        code:
-          type: string
-          description: The source code from the module's draft version.
-        dependencies:
+          description: ID identifies this specific execution simulation. These IDs would resemble real executions in production.
+          default: c5b35bb1-c67d-40bb-9b0d-700b6fe33dd9
+        trigger_id:
+          $ref: '#/components/schemas/ActionTriggerTypeEnum'
+        status:
+          $ref: '#/components/schemas/ActionExecutionStatusEnum'
+        results:
           type: array
-          description: The npm dependencies from the module's draft version.
           items:
-            $ref: '#/components/schemas/ActionModuleDependency'
-        secrets:
-          type: array
-          description: The secrets from the module's draft version (names and timestamps only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
-        actions_using_module_total:
-          type: integer
-          description: The number of deployed actions using this module.
-        all_changes_published:
-          type: boolean
-          description: Whether all draft changes have been published as a version.
-        latest_version_number:
-          type: integer
-          description: The version number of the latest published version. Omitted if no versions have been published.
+            $ref: '#/components/schemas/ActionExecutionResult'
         created_at:
           type: string
-          description: Timestamp when the module was created.
+          description: The time that the execution was started.
+          default: '2021-01-01T00:00:00.000Z'
           format: date-time
         updated_at:
           type: string
-          description: Timestamp when the module was last updated.
+          description: The time that the exeution finished executing.
+          default: '2021-01-01T00:00:00.000Z'
           format: date-time
-    CreateActionRequestContent:
-      type: object
+    DeployActionVersionRequestContent:
+      type:
+      - object
+      - 'null'
       additionalProperties: false
-      required:
-      - name
-      - supported_triggers
       properties:
-        name:
-          type: string
-          description: The name of an action.
-          default: my-action
-        supported_triggers:
-          type: array
-          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-        code:
-          type: string
-          description: The source code of the action.
-          default: module.exports = () => {}
-        dependencies:
-          type: array
-          description: The list of third party npm modules, and their versions, that this action depends on.
-          items:
-            $ref: '#/components/schemas/ActionVersionDependency'
-        runtime:
-          type: string
-          description: 'The Node runtime. For example: `node22`, defaults to `node22`'
-          default: node22
-        secrets:
-          type: array
-          description: The list of secrets that are included in an action or a version of an action.
-          items:
-            $ref: '#/components/schemas/ActionSecretRequest'
-        modules:
-          type: array
-          description: The list of action modules and their versions used by this action.
-          items:
-            $ref: '#/components/schemas/ActionModuleReference'
-        deploy:
+        update_draft:
           type: boolean
-          description: True if the action should be deployed after creation.
+          description: True if the draft of the action should be updated with the reverted version.
           default: false
-    IntegrationSemVer:
-      type: object
-      description: Semver denotes the major.minor version of an integration release
-      additionalProperties: false
-      properties:
-        major:
-          type: integer
-          description: Major is the major number of a semver
-          default: 1
-        minor:
-          type: integer
-          description: Minior is the minior number of a semver
-          default: 1
-    GetActionModulesResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        modules:
-          type: array
-          description: A list of ActionsModule objects.
-          items:
-            $ref: '#/components/schemas/ActionModuleListItem'
-        total:
-          type: integer
-          description: The total number of modules in the tenant.
-        page:
-          type: integer
-          description: The page index of the returned results.
-        per_page:
-          type: integer
-          description: The number of results requested per page.
-    UpdateActionBindingItem:
-      oneOf:
-      - $ref: '#/components/schemas/ActionBindingWithRef'
-    TestActionPayload:
-      type: object
-      description: The payload for the action.
-      additionalProperties: true
-    GetActionModuleVersionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID for this version.
-        module_id:
-          type: string
-          description: The ID of the parent module.
-        version_number:
-          type: integer
-          description: The sequential version number.
-        code:
-          type: string
-          description: The exact source code that was published with this version.
-        secrets:
-          type: array
-          description: Secrets available to this version (name and updated_at only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
-        dependencies:
-          type: array
-          description: Dependencies locked to this version.
-          items:
-            $ref: '#/components/schemas/ActionModuleDependency'
-        created_at:
-          type: string
-          description: The timestamp when this version was created.
-          format: date-time
-    RollbackActionModuleRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - module_version_id
-      properties:
-        module_version_id:
-          type: string
-          description: The unique ID of the module version to roll back to.
-    ActionBindingRef:
-      type: object
-      description: A reference to an action. An action can be referred to by ID or by Name.
-      additionalProperties: true
-      properties:
-        type:
-          $ref: '#/components/schemas/ActionBindingRefTypeEnum'
-        value:
-          type: string
-          description: The id or name of an action that is being bound to a trigger.
-          default: my-action
     IntegrationFeatureTypeEnum:
       type: string
       description: feature_type is the type of the integration.
@@ -2177,452 +1677,6 @@ components:
       - log_stream
       - sso_integration
       - sms_provider
-    ActionBuildStatusEnum:
-      type: string
-      description: The build status of this action.
-      default: built
-      enum:
-      - pending
-      - building
-      - packaged
-      - built
-      - retrying
-      - failed
-    DeployActionVersionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique id of an action version.
-          default: 12a3b9e6-06e6-4a29-96bf-90c82fe79a0d
-        action_id:
-          type: string
-          description: The id of the action to which this version belongs.
-          default: 910b1053-577f-4d81-a8c8-020e7319a38a
-        code:
-          type: string
-          description: The source code of this specific version of the action.
-          default: module.exports = () => {}
-        dependencies:
-          type: array
-          description: 'The list of third party npm modules, and their versions, that this specific version depends on. '
-          items:
-            $ref: '#/components/schemas/ActionVersionDependency'
-        deployed:
-          type: boolean
-          description: Indicates if this specific version is the currently one deployed.
-          default: true
-        runtime:
-          type: string
-          description: 'The Node runtime. For example: `node22`'
-          default: node22
-        secrets:
-          type: array
-          description: The list of secrets that are included in an action or a version of an action.
-          items:
-            $ref: '#/components/schemas/ActionSecretResponse'
-        status:
-          $ref: '#/components/schemas/ActionVersionBuildStatusEnum'
-        number:
-          type: number
-          description: The index of this version in list of versions for the action.
-          default: 1
-        errors:
-          type: array
-          description: Any errors that occurred while the version was being built.
-          items:
-            $ref: '#/components/schemas/ActionError'
-        action:
-          $ref: '#/components/schemas/ActionBase'
-        built_at:
-          type: string
-          description: The time when this version was built successfully.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        created_at:
-          type: string
-          description: The time when this version was created.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time when a version was updated. Versions are never updated externally. Only Auth0 will update an action version as it is being built.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        supported_triggers:
-          type: array
-          description: The list of triggers that this version supports. At this time, a version can only target a single trigger at a time.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-        modules:
-          type: array
-          description: The list of action modules and their versions used by this action version.
-          items:
-            $ref: '#/components/schemas/ActionModuleReference'
-    ActionSecretRequest:
-      type: object
-      additionalProperties: true
-      properties:
-        name:
-          type: string
-          description: The name of the particular secret, e.g. API_KEY.
-          default: mySecret
-        value:
-          type: string
-          description: The value of the particular secret, e.g. secret123. A secret's value can only be set upon creation. A secret's value will never be returned by the API.
-          default: mySecretValue
-    ActionTriggerCompatibleTrigger:
-      type: object
-      additionalProperties: true
-      required:
-      - id
-      - version
-      properties:
-        id:
-          $ref: '#/components/schemas/ActionTriggerTypeEnum'
-        version:
-          type: string
-          description: The version of a trigger. v1, v2, etc.
-    UpdateActionModuleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID of the module.
-        name:
-          type: string
-          description: The name of the module.
-        code:
-          type: string
-          description: The source code from the module's draft version.
-        dependencies:
-          type: array
-          description: The npm dependencies from the module's draft version.
-          items:
-            $ref: '#/components/schemas/ActionModuleDependency'
-        secrets:
-          type: array
-          description: The secrets from the module's draft version (names and timestamps only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
-        actions_using_module_total:
-          type: integer
-          description: The number of deployed actions using this module.
-        all_changes_published:
-          type: boolean
-          description: Whether all draft changes have been published as a version.
-        latest_version_number:
-          type: integer
-          description: The version number of the latest published version. Omitted if no versions have been published.
-        created_at:
-          type: string
-          description: Timestamp when the module was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp when the module was last updated.
-          format: date-time
-        latest_version:
-          $ref: '#/components/schemas/ActionModuleVersionReference'
-    GetActionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID of the action.
-          default: 910b1053-577f-4d81-a8c8-020e7319a38a
-        name:
-          type: string
-          description: The name of an action.
-          default: my-action
-        supported_triggers:
-          type: array
-          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-        all_changes_deployed:
-          type: boolean
-          description: True if all of an Action's contents have been deployed.
-          default: false
-        created_at:
-          type: string
-          description: The time when this action was created.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time when this action was updated.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        code:
-          type: string
-          description: The source code of the action.
-          default: module.exports = () => {}
-        dependencies:
-          type: array
-          description: The list of third party npm modules, and their versions, that this action depends on.
-          items:
-            $ref: '#/components/schemas/ActionVersionDependency'
-        runtime:
-          type: string
-          description: 'The Node runtime. For example: `node22`, defaults to `node22`'
-          default: node22
-        secrets:
-          type: array
-          description: The list of secrets that are included in an action or a version of an action.
-          items:
-            $ref: '#/components/schemas/ActionSecretResponse'
-        deployed_version:
-          $ref: '#/components/schemas/ActionDeployedVersion'
-        installed_integration_id:
-          type: string
-          description: installed_integration_id is the fk reference to the InstalledIntegration entity.
-          default: 7d2bc0c9-c0c2-433a-9f4e-86ef80270aad
-        integration:
-          $ref: '#/components/schemas/Integration'
-        status:
-          $ref: '#/components/schemas/ActionBuildStatusEnum'
-        built_at:
-          type: string
-          description: The time when this action was built successfully.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        deploy:
-          type: boolean
-          description: True if the action should be deployed after creation.
-          default: false
-        modules:
-          type: array
-          description: The list of action modules and their versions used by this action.
-          items:
-            $ref: '#/components/schemas/ActionModuleReference'
-    TestActionRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - payload
-      properties:
-        payload:
-          $ref: '#/components/schemas/TestActionPayload'
-    ActionVersion:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique id of an action version.
-          default: 12a3b9e6-06e6-4a29-96bf-90c82fe79a0d
-        action_id:
-          type: string
-          description: The id of the action to which this version belongs.
-          default: 910b1053-577f-4d81-a8c8-020e7319a38a
-        code:
-          type: string
-          description: The source code of this specific version of the action.
-          default: module.exports = () => {}
-        dependencies:
-          type: array
-          description: 'The list of third party npm modules, and their versions, that this specific version depends on. '
-          items:
-            $ref: '#/components/schemas/ActionVersionDependency'
-        deployed:
-          type: boolean
-          description: Indicates if this specific version is the currently one deployed.
-          default: true
-        runtime:
-          type: string
-          description: 'The Node runtime. For example: `node22`'
-          default: node22
-        secrets:
-          type: array
-          description: The list of secrets that are included in an action or a version of an action.
-          items:
-            $ref: '#/components/schemas/ActionSecretResponse'
-        status:
-          $ref: '#/components/schemas/ActionVersionBuildStatusEnum'
-        number:
-          type: number
-          description: The index of this version in list of versions for the action.
-          default: 1
-        errors:
-          type: array
-          description: Any errors that occurred while the version was being built.
-          items:
-            $ref: '#/components/schemas/ActionError'
-        action:
-          $ref: '#/components/schemas/ActionBase'
-        built_at:
-          type: string
-          description: The time when this version was built successfully.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        created_at:
-          type: string
-          description: The time when this version was created.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time when a version was updated. Versions are never updated externally. Only Auth0 will update an action version as it is being built.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        supported_triggers:
-          type: array
-          description: The list of triggers that this version supports. At this time, a version can only target a single trigger at a time.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-        modules:
-          type: array
-          description: The list of action modules and their versions used by this action version.
-          items:
-            $ref: '#/components/schemas/ActionModuleReference'
-    ActionExecutionResult:
-      type: object
-      description: Captures the results of a single action being executed.
-      additionalProperties: false
-      properties:
-        action_name:
-          type: string
-          description: The name of the action that was executed.
-          default: my-action
-        error:
-          $ref: '#/components/schemas/ActionError'
-        started_at:
-          type: string
-          description: The time when the action was started.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        ended_at:
-          type: string
-          description: The time when the action finished executing.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-    Action:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The unique ID of the action.
-          default: 910b1053-577f-4d81-a8c8-020e7319a38a
-        name:
-          type: string
-          description: The name of an action.
-          default: my-action
-        supported_triggers:
-          type: array
-          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-        all_changes_deployed:
-          type: boolean
-          description: True if all of an Action's contents have been deployed.
-          default: false
-        created_at:
-          type: string
-          description: The time when this action was created.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time when this action was updated.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        code:
-          type: string
-          description: The source code of the action.
-          default: module.exports = () => {}
-        dependencies:
-          type: array
-          description: The list of third party npm modules, and their versions, that this action depends on.
-          items:
-            $ref: '#/components/schemas/ActionVersionDependency'
-        runtime:
-          type: string
-          description: 'The Node runtime. For example: `node22`, defaults to `node22`'
-          default: node22
-        secrets:
-          type: array
-          description: The list of secrets that are included in an action or a version of an action.
-          items:
-            $ref: '#/components/schemas/ActionSecretResponse'
-        deployed_version:
-          $ref: '#/components/schemas/ActionDeployedVersion'
-        installed_integration_id:
-          type: string
-          description: installed_integration_id is the fk reference to the InstalledIntegration entity.
-          default: 7d2bc0c9-c0c2-433a-9f4e-86ef80270aad
-        integration:
-          $ref: '#/components/schemas/Integration'
-        status:
-          $ref: '#/components/schemas/ActionBuildStatusEnum'
-        built_at:
-          type: string
-          description: The time when this action was built successfully.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        deploy:
-          type: boolean
-          description: True if the action should be deployed after creation.
-          default: false
-        modules:
-          type: array
-          description: The list of action modules and their versions used by this action.
-          items:
-            $ref: '#/components/schemas/ActionModuleReference'
-    IntegrationRequiredParam:
-      type: object
-      description: 'Param are form input values, primarily utilized when specifying secrets and
-
-        configuration values for actions.
-
-
-        These are especially important for partner integrations -- but can be
-
-        exposed to tenant admins as well if they want to parameterize their custom
-
-        actions.'
-      additionalProperties: false
-      properties:
-        type:
-          $ref: '#/components/schemas/IntegrationRequiredParamTypeEnum'
-        name:
-          type: string
-          description: The name of the parameter.
-        required:
-          type: boolean
-          description: The flag for if this parameter is required.
-        optional:
-          type: boolean
-          description: The temp flag for if this parameter is required (experimental; for Labs use only).
-        label:
-          type: string
-          description: The short label for this parameter.
-        description:
-          type: string
-          description: The lengthier description for this parameter.
-        default_value:
-          type: string
-          description: The default value for this parameter.
-        placeholder:
-          type: string
-          description: Placeholder text for this parameter.
-        options:
-          type: array
-          description: The allowable options for this param.
-          items:
-            $ref: '#/components/schemas/IntegrationRequiredParamOption'
     DeployActionResponseContent:
       type: object
       additionalProperties: false
@@ -2697,207 +1751,208 @@ components:
           description: The list of action modules and their versions used by this action version.
           items:
             $ref: '#/components/schemas/ActionModuleReference'
-    ListActionTriggersResponseContent:
+    GetActionModulesResponseContent:
       type: object
       additionalProperties: false
       properties:
-        triggers:
+        modules:
           type: array
+          description: A list of ActionsModule objects.
           items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-    IntegrationRequiredParamTypeEnum:
-      type: string
-      enum:
-      - UNSPECIFIED
-      - STRING
-    ActionSecretResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        name:
-          type: string
-          description: The name of the particular secret, e.g. API_KEY.
-          default: mySecret
-        updated_at:
-          type: string
-          description: The time when the secret was last updated.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-    ListActionBindingsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
+            $ref: '#/components/schemas/ActionModuleListItem'
         total:
-          type: number
-          description: The total result count.
-          default: 1
+          type: integer
+          description: The total number of modules in the tenant.
         page:
-          type: number
-          description: Page index of the results being returned. First page is 0.
-          default: 0
+          type: integer
+          description: The page index of the returned results.
         per_page:
-          type: number
-          description: Number of results per page.
-          default: 20
-        bindings:
-          type: array
-          description: The list of actions that are bound to this trigger in the order in which they will be executed.
-          items:
-            $ref: '#/components/schemas/ActionBinding'
-    GetActionExecutionResponseContent:
+          type: integer
+          description: The number of results requested per page.
+    ActionVersion:
       type: object
-      description: The result of a specific execution of a trigger.
       additionalProperties: false
       properties:
         id:
           type: string
-          description: ID identifies this specific execution simulation. These IDs would resemble real executions in production.
-          default: c5b35bb1-c67d-40bb-9b0d-700b6fe33dd9
-        trigger_id:
-          $ref: '#/components/schemas/ActionTriggerTypeEnum'
-        status:
-          $ref: '#/components/schemas/ActionExecutionStatusEnum'
-        results:
+          description: The unique id of an action version.
+          default: 12a3b9e6-06e6-4a29-96bf-90c82fe79a0d
+        action_id:
+          type: string
+          description: The id of the action to which this version belongs.
+          default: 910b1053-577f-4d81-a8c8-020e7319a38a
+        code:
+          type: string
+          description: The source code of this specific version of the action.
+          default: module.exports = () => {}
+        dependencies:
           type: array
+          description: 'The list of third party npm modules, and their versions, that this specific version depends on. '
           items:
-            $ref: '#/components/schemas/ActionExecutionResult'
-        created_at:
+            $ref: '#/components/schemas/ActionVersionDependency'
+        deployed:
+          type: boolean
+          description: Indicates if this specific version is the currently one deployed.
+          default: true
+        runtime:
           type: string
-          description: The time that the execution was started.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time that the exeution finished executing.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-    ActionBindingWithRef:
-      type: object
-      additionalProperties: false
-      required:
-      - ref
-      properties:
-        ref:
-          $ref: '#/components/schemas/ActionBindingRef'
-        display_name:
-          type: string
-          description: The name of the binding.
-          default: my-action-1
+          description: 'The Node runtime. For example: `node22`'
+          default: node22
         secrets:
           type: array
           description: The list of secrets that are included in an action or a version of an action.
           items:
-            $ref: '#/components/schemas/ActionSecretRequest'
-    ActionModuleAction:
-      type: object
-      additionalProperties: false
-      properties:
-        action_id:
-          type: string
-          description: The unique ID of the action.
-        action_name:
-          type: string
-          description: The name of the action.
-        module_version_id:
-          type: string
-          description: The ID of the module version this action is using.
-        module_version_number:
-          type: integer
-          description: The version number of the module this action is using.
-        supported_triggers:
+            $ref: '#/components/schemas/ActionSecretResponse'
+        status:
+          $ref: '#/components/schemas/ActionVersionBuildStatusEnum'
+        number:
+          type: number
+          description: The index of this version in list of versions for the action.
+          default: 1
+        errors:
           type: array
-          description: The triggers that this action supports.
+          description: Any errors that occurred while the version was being built.
           items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-    ActionBase:
-      type: object
-      description: The action to which this version belongs.
-      additionalProperties: false
-      properties:
-        id:
+            $ref: '#/components/schemas/ActionError'
+        action:
+          $ref: '#/components/schemas/ActionBase'
+        built_at:
           type: string
-          description: The unique ID of the action.
-          default: 910b1053-577f-4d81-a8c8-020e7319a38a
-        name:
-          type: string
-          description: The name of an action.
-          default: my-action
-        supported_triggers:
-          type: array
-          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ActionTrigger'
-            x-release-lifecycle: GA
-        all_changes_deployed:
-          type: boolean
-          description: True if all of an Action's contents have been deployed.
-          default: false
+          description: The time when this version was built successfully.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
         created_at:
           type: string
-          description: The time when this action was created.
+          description: The time when this version was created.
           default: '2021-01-01T00:00:00.000Z'
           format: date-time
         updated_at:
           type: string
-          description: The time when this action was updated.
+          description: The time when a version was updated. Versions are never updated externally. Only Auth0 will update an action version as it is being built.
           default: '2021-01-01T00:00:00.000Z'
           format: date-time
-    ListActionVersionsPaginatedResponseContent:
+        supported_triggers:
+          type: array
+          description: The list of triggers that this version supports. At this time, a version can only target a single trigger at a time.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+        modules:
+          type: array
+          description: The list of action modules and their versions used by this action version.
+          items:
+            $ref: '#/components/schemas/ActionModuleReference'
+    ActionTrigger:
       type: object
       additionalProperties: false
+      required:
+      - id
+      x-release-lifecycle: GA
       properties:
-        total:
-          type: number
-          description: The total result count.
-          default: 1
-        page:
-          type: number
-          description: Page index of the results being returned. First page is 0.
-          default: 0
-        per_page:
-          type: number
-          description: Number of results per page.
-          default: 20
-        versions:
+        id:
+          $ref: '#/components/schemas/ActionTriggerTypeEnum'
+        version:
+          type: string
+          description: The version of a trigger. v1, v2, etc.
+        status:
+          type: string
+          description: status points to the trigger status.
+        runtimes:
           type: array
+          description: runtimes supported by this trigger.
           items:
-            $ref: '#/components/schemas/ActionVersion'
-    CreateActionModuleVersionResponseContent:
+            type: string
+        default_runtime:
+          type: string
+          description: Runtime that will be used when none is specified when creating an action.
+        compatible_triggers:
+          type: array
+          description: compatible_triggers informs which other trigger supports the same event and api.
+          items:
+            $ref: '#/components/schemas/ActionTriggerCompatibleTrigger'
+        binding_policy:
+          $ref: '#/components/schemas/ActionBindingTypeEnum'
+    ActionModuleVersionReference:
       type: object
+      description: The latest published version as a reference object. Omitted if no versions have been published.
       additionalProperties: false
       properties:
         id:
           type: string
-          description: The unique ID for this version.
-        module_id:
-          type: string
-          description: The ID of the parent module.
+          description: The unique ID of the version.
         version_number:
           type: integer
-          description: The sequential version number.
+          description: The version number.
         code:
           type: string
-          description: The exact source code that was published with this version.
-        secrets:
-          type: array
-          description: Secrets available to this version (name and updated_at only, values never returned).
-          items:
-            $ref: '#/components/schemas/ActionModuleSecret'
+          description: The source code from this version.
         dependencies:
           type: array
-          description: Dependencies locked to this version.
+          description: The npm dependencies from this version.
           items:
             $ref: '#/components/schemas/ActionModuleDependency'
+        secrets:
+          type: array
+          description: The secrets from this version (names and timestamps only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
         created_at:
           type: string
-          description: The timestamp when this version was created.
+          description: Timestamp when the version was created.
           format: date-time
-    UpdateActionRequestContent:
+    GetActionModuleActionsResponseContent:
       type: object
       additionalProperties: false
+      properties:
+        actions:
+          type: array
+          description: A list of action references.
+          items:
+            $ref: '#/components/schemas/ActionModuleAction'
+        total:
+          type: integer
+          description: The total number of actions using this module.
+        page:
+          type: integer
+          description: The page index of the returned results.
+        per_page:
+          type: integer
+          description: The number of results requested per page.
+    UpdateActionModuleRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: The source code of the action module.
+          maxLength: 65536
+          pattern: ^[^]*$
+        secrets:
+          type: array
+          description: The secrets to associate with the action module.
+          items:
+            $ref: '#/components/schemas/ActionModuleSecretRequest'
+        dependencies:
+          type: array
+          description: The npm dependencies of the action module.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependencyRequest'
+    RollbackActionModuleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - module_version_id
+      properties:
+        module_version_id:
+          type: string
+          description: The unique ID of the module version to roll back to.
+    CreateActionRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - supported_triggers
       properties:
         name:
           type: string
@@ -2933,10 +1988,162 @@ components:
           description: The list of action modules and their versions used by this action.
           items:
             $ref: '#/components/schemas/ActionModuleReference'
-    TestActionResultPayload:
+        deploy:
+          type: boolean
+          description: True if the action should be deployed after creation.
+          default: false
+    ActionTriggerCompatibleTrigger:
       type: object
-      description: The resulting payload after an action was executed.
       additionalProperties: true
+      required:
+      - id
+      - version
+      properties:
+        id:
+          $ref: '#/components/schemas/ActionTriggerTypeEnum'
+        version:
+          type: string
+          description: The version of a trigger. v1, v2, etc.
+    ActionVersionBuildStatusEnum:
+      type: string
+      description: The build status of this specific version.
+      default: built
+      enum:
+      - pending
+      - building
+      - packaged
+      - built
+      - retrying
+      - failed
+    ActionTriggerTypeEnum:
+      type: string
+      description: An actions extensibility point.
+      enum:
+      - post-login
+      - credentials-exchange
+      - pre-user-registration
+      - post-user-registration
+      - post-change-password
+      - send-phone-message
+      - custom-phone-provider
+      - custom-email-provider
+      - password-reset-post-challenge
+      - custom-token-exchange
+      - event-stream
+      - password-hash-migration
+      - login-post-identifier
+      - signup-post-identifier
+    ActionModuleReference:
+      type: object
+      description: Reference to a module and its version used by an action.
+      additionalProperties: false
+      properties:
+        module_id:
+          type: string
+          description: The unique ID of the module.
+        module_name:
+          type: string
+          description: The name of the module.
+        module_version_id:
+          type: string
+          description: The ID of the specific module version.
+        module_version_number:
+          type: integer
+          description: The version number of the module.
+    IntegrationRequiredParamOption:
+      type: object
+      additionalProperties: false
+      properties:
+        value:
+          type: string
+          description: The value of an option that will be used within the application.
+        label:
+          type: string
+          description: The display value of an option suitable for displaying in a UI.
+    ActionBindingWithRef:
+      type: object
+      additionalProperties: false
+      required:
+      - ref
+      properties:
+        ref:
+          $ref: '#/components/schemas/ActionBindingRef'
+        display_name:
+          type: string
+          description: The name of the binding.
+          default: my-action-1
+        secrets:
+          type: array
+          description: The list of secrets that are included in an action or a version of an action.
+          items:
+            $ref: '#/components/schemas/ActionSecretRequest'
+    ListActionsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        total:
+          type: number
+          description: The total result count.
+          default: 1
+        page:
+          type: number
+          description: Page index of the results being returned. First page is 0.
+          default: 0
+        per_page:
+          type: number
+          description: Number of results per page.
+          default: 20
+        actions:
+          type: array
+          description: The list of actions.
+          items:
+            $ref: '#/components/schemas/Action'
+    UpdateActionBindingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bindings:
+          type: array
+          description: The actions that will be bound to this trigger. The order in which they are included will be the order in which they are executed.
+          items:
+            $ref: '#/components/schemas/UpdateActionBindingItem'
+    IntegrationSemVer:
+      type: object
+      description: Semver denotes the major.minor version of an integration release
+      additionalProperties: false
+      properties:
+        major:
+          type: integer
+          description: Major is the major number of a semver
+          default: 1
+        minor:
+          type: integer
+          description: Minior is the minior number of a semver
+          default: 1
+    ActionModuleDependency:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the npm dependency.
+        version:
+          type: string
+          description: The version of the npm dependency.
+    ActionVersionDependency:
+      type: object
+      description: Dependency is an npm module. These values are used to produce an immutable artifact, which manifests as a layer_id.
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: name is the name of the npm module, e.g. lodash
+        version:
+          type: string
+          description: description is the version of the npm module, e.g. 4.17.1
+        registry_url:
+          type: string
+          description: registry_url is an optional value used primarily for private npm registries.
     CreateActionResponseContent:
       type: object
       additionalProperties: false
@@ -3012,3 +2219,1038 @@ components:
           description: The list of action modules and their versions used by this action.
           items:
             $ref: '#/components/schemas/ActionModuleReference'
+    TestActionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        payload:
+          $ref: '#/components/schemas/TestActionResultPayload'
+    GetActionModuleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the module.
+        name:
+          type: string
+          description: The name of the module.
+        code:
+          type: string
+          description: The source code from the module's draft version.
+        dependencies:
+          type: array
+          description: The npm dependencies from the module's draft version.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependency'
+        secrets:
+          type: array
+          description: The secrets from the module's draft version (names and timestamps only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
+        actions_using_module_total:
+          type: integer
+          description: The number of deployed actions using this module.
+        all_changes_published:
+          type: boolean
+          description: Whether all draft changes have been published as a version.
+        latest_version_number:
+          type: integer
+          description: The version number of the latest published version. Omitted if no versions have been published.
+        created_at:
+          type: string
+          description: Timestamp when the module was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the module was last updated.
+          format: date-time
+        latest_version:
+          $ref: '#/components/schemas/ActionModuleVersionReference'
+    ActionBase:
+      type: object
+      description: The action to which this version belongs.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the action.
+          default: 910b1053-577f-4d81-a8c8-020e7319a38a
+        name:
+          type: string
+          description: The name of an action.
+          default: my-action
+        supported_triggers:
+          type: array
+          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+        all_changes_deployed:
+          type: boolean
+          description: True if all of an Action's contents have been deployed.
+          default: false
+        created_at:
+          type: string
+          description: The time when this action was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this action was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+    ListActionTriggersResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+    UpdateActionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the action.
+          default: 910b1053-577f-4d81-a8c8-020e7319a38a
+        name:
+          type: string
+          description: The name of an action.
+          default: my-action
+        supported_triggers:
+          type: array
+          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+        all_changes_deployed:
+          type: boolean
+          description: True if all of an Action's contents have been deployed.
+          default: false
+        created_at:
+          type: string
+          description: The time when this action was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this action was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        code:
+          type: string
+          description: The source code of the action.
+          default: module.exports = () => {}
+        dependencies:
+          type: array
+          description: The list of third party npm modules, and their versions, that this action depends on.
+          items:
+            $ref: '#/components/schemas/ActionVersionDependency'
+        runtime:
+          type: string
+          description: 'The Node runtime. For example: `node22`, defaults to `node22`'
+          default: node22
+        secrets:
+          type: array
+          description: The list of secrets that are included in an action or a version of an action.
+          items:
+            $ref: '#/components/schemas/ActionSecretResponse'
+        deployed_version:
+          $ref: '#/components/schemas/ActionDeployedVersion'
+        installed_integration_id:
+          type: string
+          description: installed_integration_id is the fk reference to the InstalledIntegration entity.
+          default: 7d2bc0c9-c0c2-433a-9f4e-86ef80270aad
+        integration:
+          $ref: '#/components/schemas/Integration'
+        status:
+          $ref: '#/components/schemas/ActionBuildStatusEnum'
+        built_at:
+          type: string
+          description: The time when this action was built successfully.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        deploy:
+          type: boolean
+          description: True if the action should be deployed after creation.
+          default: false
+        modules:
+          type: array
+          description: The list of action modules and their versions used by this action.
+          items:
+            $ref: '#/components/schemas/ActionModuleReference'
+    CreateActionModuleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - code
+      properties:
+        name:
+          type: string
+          description: The name of the action module.
+          maxLength: 255
+          pattern: ^[^]*$
+        code:
+          type: string
+          description: The source code of the action module.
+          maxLength: 65536
+          pattern: ^[^]*$
+        secrets:
+          type: array
+          description: The secrets to associate with the action module.
+          items:
+            $ref: '#/components/schemas/ActionModuleSecretRequest'
+        dependencies:
+          type: array
+          description: The npm dependencies of the action module.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependencyRequest'
+        api_version:
+          type: string
+          description: The API version of the module.
+          maxLength: 20
+          pattern: ^[^]*$
+        publish:
+          type: boolean
+          description: Whether to publish the module immediately after creation.
+    ActionSecretRequest:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: The name of the particular secret, e.g. API_KEY.
+          default: mySecret
+        value:
+          type: string
+          description: The value of the particular secret, e.g. secret123. A secret's value can only be set upon creation. A secret's value will never be returned by the API.
+          default: mySecretValue
+    CreateActionModuleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the module.
+        name:
+          type: string
+          description: The name of the module.
+        code:
+          type: string
+          description: The source code from the module's draft version.
+        dependencies:
+          type: array
+          description: The npm dependencies from the module's draft version.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependency'
+        secrets:
+          type: array
+          description: The secrets from the module's draft version (names and timestamps only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
+        actions_using_module_total:
+          type: integer
+          description: The number of deployed actions using this module.
+        all_changes_published:
+          type: boolean
+          description: Whether all draft changes have been published as a version.
+        latest_version_number:
+          type: integer
+          description: The version number of the latest published version. Omitted if no versions have been published.
+        created_at:
+          type: string
+          description: Timestamp when the module was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the module was last updated.
+          format: date-time
+        latest_version:
+          $ref: '#/components/schemas/ActionModuleVersionReference'
+    UpdateActionBindingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionBinding'
+    ListActionBindingsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        total:
+          type: number
+          description: The total result count.
+          default: 1
+        page:
+          type: number
+          description: Page index of the results being returned. First page is 0.
+          default: 0
+        per_page:
+          type: number
+          description: Number of results per page.
+          default: 20
+        bindings:
+          type: array
+          description: The list of actions that are bound to this trigger in the order in which they will be executed.
+          items:
+            $ref: '#/components/schemas/ActionBinding'
+    ActionBindingTypeEnum:
+      type: string
+      description: In order to execute an Action, it must be bound to a trigger using a binding. `trigger-bound` means that bindings are managed by the tenant. `entity-bound` means that the bindings are automatically managed by Auth0 and other internal resouces will control those bindings. Tenants cannot manage `entity-bound` bindings.
+      enum:
+      - trigger-bound
+      - entity-bound
+    TestActionResultPayload:
+      type: object
+      description: The resulting payload after an action was executed.
+      additionalProperties: true
+    ActionBindingRef:
+      type: object
+      description: A reference to an action. An action can be referred to by ID or by Name.
+      additionalProperties: true
+      properties:
+        type:
+          $ref: '#/components/schemas/ActionBindingRefTypeEnum'
+        value:
+          type: string
+          description: The id or name of an action that is being bound to a trigger.
+          default: my-action
+    ActionError:
+      type: object
+      description: Error is a generic error with a human readable id which should be easily referenced in support tickets.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        msg:
+          type: string
+        url:
+          type: string
+    UpdateActionModuleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the module.
+        name:
+          type: string
+          description: The name of the module.
+        code:
+          type: string
+          description: The source code from the module's draft version.
+        dependencies:
+          type: array
+          description: The npm dependencies from the module's draft version.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependency'
+        secrets:
+          type: array
+          description: The secrets from the module's draft version (names and timestamps only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
+        actions_using_module_total:
+          type: integer
+          description: The number of deployed actions using this module.
+        all_changes_published:
+          type: boolean
+          description: Whether all draft changes have been published as a version.
+        latest_version_number:
+          type: integer
+          description: The version number of the latest published version. Omitted if no versions have been published.
+        created_at:
+          type: string
+          description: Timestamp when the module was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the module was last updated.
+          format: date-time
+        latest_version:
+          $ref: '#/components/schemas/ActionModuleVersionReference'
+    IntegrationRelease:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the associated IntegrationRelease
+        trigger:
+          $ref: '#/components/schemas/ActionTrigger'
+          x-release-lifecycle: GA
+        semver:
+          $ref: '#/components/schemas/IntegrationSemVer'
+        required_secrets:
+          type: array
+          description: 'required_secrets declares all the necessary secrets for an integration to
+
+            work.'
+          items:
+            $ref: '#/components/schemas/IntegrationRequiredParam'
+        required_configuration:
+          type: array
+          description: required_configuration declares all the necessary configuration fields for an integration to work.
+          items:
+            $ref: '#/components/schemas/IntegrationRequiredParam'
+    DeployActionVersionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique id of an action version.
+          default: 12a3b9e6-06e6-4a29-96bf-90c82fe79a0d
+        action_id:
+          type: string
+          description: The id of the action to which this version belongs.
+          default: 910b1053-577f-4d81-a8c8-020e7319a38a
+        code:
+          type: string
+          description: The source code of this specific version of the action.
+          default: module.exports = () => {}
+        dependencies:
+          type: array
+          description: 'The list of third party npm modules, and their versions, that this specific version depends on. '
+          items:
+            $ref: '#/components/schemas/ActionVersionDependency'
+        deployed:
+          type: boolean
+          description: Indicates if this specific version is the currently one deployed.
+          default: true
+        runtime:
+          type: string
+          description: 'The Node runtime. For example: `node22`'
+          default: node22
+        secrets:
+          type: array
+          description: The list of secrets that are included in an action or a version of an action.
+          items:
+            $ref: '#/components/schemas/ActionSecretResponse'
+        status:
+          $ref: '#/components/schemas/ActionVersionBuildStatusEnum'
+        number:
+          type: number
+          description: The index of this version in list of versions for the action.
+          default: 1
+        errors:
+          type: array
+          description: Any errors that occurred while the version was being built.
+          items:
+            $ref: '#/components/schemas/ActionError'
+        action:
+          $ref: '#/components/schemas/ActionBase'
+        built_at:
+          type: string
+          description: The time when this version was built successfully.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        created_at:
+          type: string
+          description: The time when this version was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when a version was updated. Versions are never updated externally. Only Auth0 will update an action version as it is being built.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        supported_triggers:
+          type: array
+          description: The list of triggers that this version supports. At this time, a version can only target a single trigger at a time.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+        modules:
+          type: array
+          description: The list of action modules and their versions used by this action version.
+          items:
+            $ref: '#/components/schemas/ActionModuleReference'
+    GetActionModuleVersionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID for this version.
+        module_id:
+          type: string
+          description: The ID of the parent module.
+        version_number:
+          type: integer
+          description: The sequential version number.
+        code:
+          type: string
+          description: The exact source code that was published with this version.
+        secrets:
+          type: array
+          description: Secrets available to this version (name and updated_at only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
+        dependencies:
+          type: array
+          description: Dependencies locked to this version.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependency'
+        created_at:
+          type: string
+          description: The timestamp when this version was created.
+          format: date-time
+    UpdateActionBindingItem:
+      oneOf:
+      - $ref: '#/components/schemas/ActionBindingWithRef'
+    RollbackActionModuleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the module.
+        name:
+          type: string
+          description: The name of the module.
+        code:
+          type: string
+          description: The source code from the module's draft version.
+        dependencies:
+          type: array
+          description: The npm dependencies from the module's draft version.
+          items:
+            $ref: '#/components/schemas/ActionModuleDependency'
+        secrets:
+          type: array
+          description: The secrets from the module's draft version (names and timestamps only, values never returned).
+          items:
+            $ref: '#/components/schemas/ActionModuleSecret'
+        actions_using_module_total:
+          type: integer
+          description: The number of deployed actions using this module.
+        all_changes_published:
+          type: boolean
+          description: Whether all draft changes have been published as a version.
+        latest_version_number:
+          type: integer
+          description: The version number of the latest published version. Omitted if no versions have been published.
+        created_at:
+          type: string
+          description: Timestamp when the module was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the module was last updated.
+          format: date-time
+        latest_version:
+          $ref: '#/components/schemas/ActionModuleVersionReference'
+    ActionExecutionResult:
+      type: object
+      description: Captures the results of a single action being executed.
+      additionalProperties: false
+      properties:
+        action_name:
+          type: string
+          description: The name of the action that was executed.
+          default: my-action
+        error:
+          $ref: '#/components/schemas/ActionError'
+        started_at:
+          type: string
+          description: The time when the action was started.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        ended_at:
+          type: string
+          description: The time when the action finished executing.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+    ActionBindingRefTypeEnum:
+      type: string
+      description: 'How the action is being referred to: `action_id` or `action_name`.'
+      default: action_name
+      enum:
+      - binding_id
+      - action_id
+      - action_name
+    IntegrationRequiredParam:
+      type: object
+      description: 'Param are form input values, primarily utilized when specifying secrets and
+
+        configuration values for actions.
+
+
+        These are especially important for partner integrations -- but can be
+
+        exposed to tenant admins as well if they want to parameterize their custom
+
+        actions.'
+      additionalProperties: false
+      properties:
+        type:
+          $ref: '#/components/schemas/IntegrationRequiredParamTypeEnum'
+        name:
+          type: string
+          description: The name of the parameter.
+        required:
+          type: boolean
+          description: The flag for if this parameter is required.
+        optional:
+          type: boolean
+          description: The temp flag for if this parameter is required (experimental; for Labs use only).
+        label:
+          type: string
+          description: The short label for this parameter.
+        description:
+          type: string
+          description: The lengthier description for this parameter.
+        default_value:
+          type: string
+          description: The default value for this parameter.
+        placeholder:
+          type: string
+          description: Placeholder text for this parameter.
+        options:
+          type: array
+          description: The allowable options for this param.
+          items:
+            $ref: '#/components/schemas/IntegrationRequiredParamOption'
+    GetActionModuleVersionsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        versions:
+          type: array
+          description: A list of ActionsModuleVersion objects.
+          items:
+            $ref: '#/components/schemas/ActionModuleVersion'
+        total:
+          type: integer
+          description: The total number of versions for this module.
+        page:
+          type: integer
+          description: The page index of the returned results.
+        per_page:
+          type: integer
+          description: The number of results requested per page.
+    ActionModuleSecret:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the secret.
+        updated_at:
+          type: string
+          description: The time when the secret was last updated.
+          format: date-time
+    ActionModuleSecretRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          description: The name of the secret.
+          maxLength: 255
+          pattern: ^[^]*$
+        value:
+          type: string
+          description: The value of the secret.
+          maxLength: 4096
+          pattern: ^[^]*$
+    Action:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the action.
+          default: 910b1053-577f-4d81-a8c8-020e7319a38a
+        name:
+          type: string
+          description: The name of an action.
+          default: my-action
+        supported_triggers:
+          type: array
+          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+        all_changes_deployed:
+          type: boolean
+          description: True if all of an Action's contents have been deployed.
+          default: false
+        created_at:
+          type: string
+          description: The time when this action was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this action was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        code:
+          type: string
+          description: The source code of the action.
+          default: module.exports = () => {}
+        dependencies:
+          type: array
+          description: The list of third party npm modules, and their versions, that this action depends on.
+          items:
+            $ref: '#/components/schemas/ActionVersionDependency'
+        runtime:
+          type: string
+          description: 'The Node runtime. For example: `node22`, defaults to `node22`'
+          default: node22
+        secrets:
+          type: array
+          description: The list of secrets that are included in an action or a version of an action.
+          items:
+            $ref: '#/components/schemas/ActionSecretResponse'
+        deployed_version:
+          $ref: '#/components/schemas/ActionDeployedVersion'
+        installed_integration_id:
+          type: string
+          description: installed_integration_id is the fk reference to the InstalledIntegration entity.
+          default: 7d2bc0c9-c0c2-433a-9f4e-86ef80270aad
+        integration:
+          $ref: '#/components/schemas/Integration'
+        status:
+          $ref: '#/components/schemas/ActionBuildStatusEnum'
+        built_at:
+          type: string
+          description: The time when this action was built successfully.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        deploy:
+          type: boolean
+          description: True if the action should be deployed after creation.
+          default: false
+        modules:
+          type: array
+          description: The list of action modules and their versions used by this action.
+          items:
+            $ref: '#/components/schemas/ActionModuleReference'
+    GetActionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the action.
+          default: 910b1053-577f-4d81-a8c8-020e7319a38a
+        name:
+          type: string
+          description: The name of an action.
+          default: my-action
+        supported_triggers:
+          type: array
+          description: The list of triggers that this action supports. At this time, an action can only target a single trigger at a time.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ActionTrigger'
+            x-release-lifecycle: GA
+        all_changes_deployed:
+          type: boolean
+          description: True if all of an Action's contents have been deployed.
+          default: false
+        created_at:
+          type: string
+          description: The time when this action was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this action was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        code:
+          type: string
+          description: The source code of the action.
+          default: module.exports = () => {}
+        dependencies:
+          type: array
+          description: The list of third party npm modules, and their versions, that this action depends on.
+          items:
+            $ref: '#/components/schemas/ActionVersionDependency'
+        runtime:
+          type: string
+          description: 'The Node runtime. For example: `node22`, defaults to `node22`'
+          default: node22
+        secrets:
+          type: array
+          description: The list of secrets that are included in an action or a version of an action.
+          items:
+            $ref: '#/components/schemas/ActionSecretResponse'
+        deployed_version:
+          $ref: '#/components/schemas/ActionDeployedVersion'
+        installed_integration_id:
+          type: string
+          description: installed_integration_id is the fk reference to the InstalledIntegration entity.
+          default: 7d2bc0c9-c0c2-433a-9f4e-86ef80270aad
+        integration:
+          $ref: '#/components/schemas/Integration'
+        status:
+          $ref: '#/components/schemas/ActionBuildStatusEnum'
+        built_at:
+          type: string
+          description: The time when this action was built successfully.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        deploy:
+          type: boolean
+          description: True if the action should be deployed after creation.
+          default: false
+        modules:
+          type: array
+          description: The list of action modules and their versions used by this action.
+          items:
+            $ref: '#/components/schemas/ActionModuleReference'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            read:federated_connections_tokens: Read Federated Connections Tokens
+            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_idp_tokens: Read User Idp Tokens
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

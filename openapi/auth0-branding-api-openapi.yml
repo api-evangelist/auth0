@@ -1,15 +1,20 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
-  title: Auth0 Authentication actions branding API
-  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
-  version: 1.0.0
+  title: Auth0 Management Branding API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
 servers:
-- url: '{auth0_domain}'
-  description: The Authentication API is served over HTTPS.
+- url: https://{tenantDomain}/api/v2
   variables:
-    auth0_domain:
-      description: Auth0 domain
-      default: https://demo.us.auth0.com
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
 tags:
 - name: branding
 paths:
@@ -986,138 +991,39 @@ paths:
         - update:branding
 components:
   schemas:
-    UpdateBrandingPhoneProviderRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          $ref: '#/components/schemas/PhoneProviderNameEnum'
-        disabled:
-          type: boolean
-          description: Whether the provider is enabled (false) or disabled (true).
-        credentials:
-          $ref: '#/components/schemas/PhoneProviderCredentials'
-        configuration:
-          $ref: '#/components/schemas/PhoneProviderConfiguration'
-    UpdateBrandingPhoneMaskingEnum:
-      type: string
-      description: Controls how phone numbers are masked when displayed back to users.
-      default: mask_digits
-      enum:
-      - show_all
-      - hide_country_code
-      - mask_digits
-    BrandingFont:
-      type: object
-      description: Custom font settings.
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        url:
-          type: string
-          description: URL for the custom font. The URL must point to a font file and not a stylesheet. Must use HTTPS.
-          format: strict-https-uri
-    CreatePhoneTemplateResponseContent:
+    GetBrandingDefaultThemeResponseContent:
       type: object
       additionalProperties: false
       required:
-      - content
-      - disabled
-      - id
-      - type
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
       properties:
-        id:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
           type: string
-          minLength: 1
-          maxLength: 255
-        channel:
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
           type: string
-        customizable:
-          type: boolean
-        tenant:
-          type: string
-          minLength: 1
-          maxLength: 255
-        content:
-          $ref: '#/components/schemas/PhoneTemplateContent'
-        type:
-          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-    CustomProviderDeliveryMethodEnum:
-      type: string
-      enum:
-      - text
-      - voice
-    PhoneProviderCredentials:
-      description: Provider credentials required to use authenticate to the provider.
-      anyOf:
-      - $ref: '#/components/schemas/TwilioProviderCredentials'
-      - $ref: '#/components/schemas/CustomProviderCredentials'
-    BrandingThemeFontLinksStyleEnum:
-      type: string
-      description: Links style
-      enum:
-      - normal
-      - underlined
-    BrandingThemeFontTitle:
-      type: object
-      description: Title
-      additionalProperties: false
-      required:
-      - bold
-      - size
-      properties:
-        bold:
-          type: boolean
-          description: Title bold
-        size:
-          type: number
-          description: Title size
-          minimum: 75
-          maximum: 150
-    UpdateBrandingLoginDisplayEnum:
-      type: string
-      description: Controls identifier input presentation on the login flow. Defaults to "unified" for legacy tenants, "separate" for tenants created post-GA of this feature.
-      default: unified
-      enum:
-      - unified
-      - separate
-    BrandingThemeWidgetSocialButtonsLayoutEnum:
-      type: string
-      description: Social buttons layout
-      enum:
-      - bottom
-      - top
-    BrandingThemeColorsCaptchaWidgetThemeEnum:
-      type: string
-      description: Captcha Widget Theme
-      enum:
-      - auto
-      - dark
-      - light
-    BrandingPhoneMaskingEnum:
-      type: string
-      description: Controls how phone numbers are masked when displayed back to users.
-      default: mask_digits
-      enum:
-      - show_all
-      - hide_country_code
-      - mask_digits
-    CreatePhoneProviderSendTestResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        code:
-          type: number
-          description: The status code of the operation.
-        message:
-          type: string
-          description: The description of the operation status.
-    PhoneProviderSchemaMasked:
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    GetBrandingPhoneProviderResponseContent:
       type: object
       description: Phone provider configuration schema
       additionalProperties: false
@@ -1153,633 +1059,43 @@ components:
           description: The date and time of the last update to the provider in ISO 8601 format
           maxLength: 27
           format: date-time
-    PhoneTemplateContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        syntax:
-          type: string
-        from:
-          type: string
-          description: Default phone number to be used as 'from' when sending a phone notification
-          minLength: 1
-          maxLength: 16
-        body:
-          $ref: '#/components/schemas/PhoneTemplateBody'
-    PartialPhoneTemplateContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        from:
-          type: string
-          description: Default phone number to be used as 'from' when sending a phone notification
-          minLength: 1
-          maxLength: 16
-        body:
-          $ref: '#/components/schemas/PhoneTemplateBody'
-    BrandingThemeFontInputLabels:
-      type: object
-      description: Input Labels
-      additionalProperties: false
-      required:
-      - bold
-      - size
-      properties:
-        bold:
-          type: boolean
-          description: Input Labels bold
-        size:
-          type: number
-          description: Input Labels size
-          minimum: 0
-          maximum: 150
-    TwilioProviderConfiguration:
+    BrandingThemePageBackground:
       type: object
       additionalProperties: false
       required:
-      - sid
+      - background_color
+      - background_image_url
+      - page_layout
+      properties:
+        background_color:
+          type: string
+          description: Background color
+          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
+        background_image_url:
+          type: string
+          description: Background image url
+          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
+        page_layout:
+          $ref: '#/components/schemas/BrandingThemePageBackgroundPageLayoutEnum'
+    BrandingThemeWidgetLogoPositionEnum:
+      type: string
+      description: Logo position
+      enum:
+      - center
+      - left
+      - none
+      - right
+    CustomProviderConfiguration:
+      type: object
+      additionalProperties: false
+      required:
       - delivery_methods
       properties:
-        default_from:
-          type: string
-        mssid:
-          type: string
-        sid:
-          type: string
         delivery_methods:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/TwilioProviderDeliveryMethodEnum'
-    BrandingThemeFontBodyText:
-      type: object
-      description: Body text
-      additionalProperties: false
-      required:
-      - bold
-      - size
-      properties:
-        bold:
-          type: boolean
-          description: Body text bold
-        size:
-          type: number
-          description: Body text size
-          minimum: 0
-          maximum: 150
-    CreatePhoneTemplateRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
-          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-        content:
-          $ref: '#/components/schemas/PhoneTemplateContent'
-    BrandingThemeWidgetHeaderTextAlignmentEnum:
-      type: string
-      description: Header text alignment
-      enum:
-      - center
-      - left
-      - right
-    CreateBrandingPhoneProviderRequestContent:
-      type: object
-      description: Phone provider configuration schema
-      additionalProperties: true
-      required:
-      - name
-      - credentials
-      properties:
-        name:
-          $ref: '#/components/schemas/PhoneProviderNameEnum'
-        disabled:
-          type: boolean
-          description: Whether the provider is enabled (false) or disabled (true).
-        configuration:
-          $ref: '#/components/schemas/PhoneProviderConfiguration'
-        credentials:
-          $ref: '#/components/schemas/PhoneProviderCredentials'
-    BrandingIdentifiers:
-      type: object
-      description: Identifier input display settings.
-      additionalProperties: false
-      properties:
-        login_display:
-          $ref: '#/components/schemas/BrandingLoginDisplayEnum'
-        otp_autocomplete:
-          type: boolean
-          description: Whether OTP autocomplete (autocomplete="one-time-code") is enabled.
-          default: true
-        phone_display:
-          $ref: '#/components/schemas/BrandingPhoneDisplay'
-    CreatePhoneTemplateTestNotificationResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - message
-      properties:
-        message:
-          type: string
-    UpdateBrandingResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        colors:
-          $ref: '#/components/schemas/BrandingColors'
-        favicon_url:
-          type: string
-          description: URL for the favicon. Must use HTTPS.
-          format: strict-https-uri
-        logo_url:
-          type: string
-          description: URL for the logo. Must use HTTPS.
-          format: strict-https-uri
-        identifiers:
-          $ref: '#/components/schemas/BrandingIdentifiers'
-        font:
-          $ref: '#/components/schemas/BrandingFont'
-    TwilioProviderDeliveryMethodEnum:
-      type: string
-      enum:
-      - text
-      - voice
-    PhoneTemplate:
-      type: object
-      additionalProperties: false
-      required:
-      - content
-      - disabled
-      - id
-      - type
-      properties:
-        id:
-          type: string
-          minLength: 1
-          maxLength: 255
-        channel:
-          type: string
-        customizable:
-          type: boolean
-        tenant:
-          type: string
-          minLength: 1
-          maxLength: 255
-        content:
-          $ref: '#/components/schemas/PhoneTemplateContent'
-        type:
-          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-    BrandingThemePageBackgroundPageLayoutEnum:
-      type: string
-      description: Page Layout
-      enum:
-      - center
-      - left
-      - right
-    PhoneTemplateNotificationTypeEnum:
-      type: string
-      maxLength: 255
-      enum:
-      - otp_verify
-      - otp_enroll
-      - change_password
-      - blocked_account
-      - password_breach
-    UpdateBrandingColors:
-      type:
-      - object
-      - 'null'
-      description: Custom color settings.
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        primary:
-          type:
-          - string
-          - 'null'
-          description: Accent color.
-          format: html-color-or-null
-        page_background:
-          $ref: '#/components/schemas/UpdateBrandingPageBackground'
-    UpdateBrandingRequestContent:
-      type: object
-      description: Branding settings
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        colors:
-          $ref: '#/components/schemas/UpdateBrandingColors'
-        favicon_url:
-          type:
-          - string
-          - 'null'
-          description: URL for the favicon. Must use HTTPS.
-          format: strict-https-uri-or-null
-        logo_url:
-          type:
-          - string
-          - 'null'
-          description: URL for the logo. Must use HTTPS.
-          format: strict-https-uri-or-null
-        identifiers:
-          $ref: '#/components/schemas/UpdateBrandingIdentifiers'
-        font:
-          $ref: '#/components/schemas/UpdateBrandingFont'
-    PhoneProviderNameEnum:
-      type: string
-      description: Name of the phone notification provider
-      minLength: 1
-      maxLength: 100
-      enum:
-      - twilio
-      - custom
-    BrandingThemeFontSubtitle:
-      type: object
-      description: Subtitle
-      additionalProperties: false
-      required:
-      - bold
-      - size
-      properties:
-        bold:
-          type: boolean
-          description: Subtitle bold
-        size:
-          type: number
-          description: Subtitle size
-          minimum: 0
-          maximum: 150
-    ResetPhoneTemplateRequestContent: {}
-    CreatePhoneProviderSendTestRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - to
-      properties:
-        to:
-          type: string
-          description: The recipient phone number to receive a given notification.
-          minLength: 1
-          maxLength: 16
-        delivery_method:
-          $ref: '#/components/schemas/PhoneProviderDeliveryMethodEnum'
-    BrandingThemeBorders:
-      type: object
-      additionalProperties: false
-      required:
-      - button_border_radius
-      - button_border_weight
-      - buttons_style
-      - input_border_radius
-      - input_border_weight
-      - inputs_style
-      - show_widget_shadow
-      - widget_border_weight
-      - widget_corner_radius
-      properties:
-        button_border_radius:
-          type: number
-          description: Button border radius
-          minimum: 1
-          maximum: 10
-        button_border_weight:
-          type: number
-          description: Button border weight
-          minimum: 0
-          maximum: 10
-        buttons_style:
-          $ref: '#/components/schemas/BrandingThemeBordersButtonsStyleEnum'
-        input_border_radius:
-          type: number
-          description: Input border radius
-          minimum: 0
-          maximum: 10
-        input_border_weight:
-          type: number
-          description: Input border weight
-          minimum: 0
-          maximum: 3
-        inputs_style:
-          $ref: '#/components/schemas/BrandingThemeBordersInputsStyleEnum'
-        show_widget_shadow:
-          type: boolean
-          description: Show widget shadow
-        widget_border_weight:
-          type: number
-          description: Widget border weight
-          minimum: 0
-          maximum: 10
-        widget_corner_radius:
-          type: number
-          description: Widget corner radius
-          minimum: 0
-          maximum: 50
-    UpdateBrandingPageBackground:
-      description: "Page Background Color or Gradient.\nProperty contains either <code>null</code> to unset, a solid color as a string value <code>#FFFFFF</code>, or a gradient as an object.\n\n<pre><code>\n{\n  type: 'linear-gradient',\n  start: '#FFFFFF',\n  end: '#000000',\n  angle_deg: 35\n}\n</code></pre>\n"
-      oneOf:
-      - type:
-        - string
-        - 'null'
-      - type:
-        - object
-        - 'null'
-        additionalProperties: true
-    PhoneProviderDeliveryMethodEnum:
-      type: string
-      description: The delivery method for the notification
-      minLength: 1
-      maxLength: 10
-      enum:
-      - text
-      - voice
-    UpdatePhoneTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - content
-      - disabled
-      - id
-      - type
-      properties:
-        id:
-          type: string
-          minLength: 1
-          maxLength: 255
-        channel:
-          type: string
-        customizable:
-          type: boolean
-        tenant:
-          type: string
-          minLength: 1
-          maxLength: 255
-        content:
-          $ref: '#/components/schemas/PhoneTemplateContent'
-        type:
-          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-    PhoneProviderChannelEnum:
-      type: string
-      description: This depicts the type of notifications this provider can receive.
-      maxLength: 100
-      enum:
-      - phone
-    BrandingPhoneFormattingEnum:
-      type: string
-      description: Controls the format used when displaying phone numbers.
-      default: international
-      enum:
-      - regional
-      - international
-    BrandingThemeFontLinks:
-      type: object
-      description: Links
-      additionalProperties: false
-      required:
-      - bold
-      - size
-      properties:
-        bold:
-          type: boolean
-          description: Links bold
-        size:
-          type: number
-          description: Links size
-          minimum: 0
-          maximum: 150
-    ResetPhoneTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - content
-      - disabled
-      - id
-      - type
-      properties:
-        id:
-          type: string
-          minLength: 1
-          maxLength: 255
-        channel:
-          type: string
-        customizable:
-          type: boolean
-        tenant:
-          type: string
-          minLength: 1
-          maxLength: 255
-        content:
-          $ref: '#/components/schemas/PhoneTemplateContent'
-        type:
-          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-    BrandingLoginDisplayEnum:
-      type: string
-      description: Controls identifier input presentation on the login flow. Defaults to "unified" for legacy tenants, "separate" for tenants created post-GA of this feature.
-      default: unified
-      enum:
-      - unified
-      - separate
-    ListBrandingPhoneProvidersResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        providers:
-          type: array
-          items:
-            $ref: '#/components/schemas/PhoneProviderSchemaMasked'
-    CustomProviderCredentials:
-      type: object
-      additionalProperties: false
-      properties: {}
-    UpdateBrandingThemeResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - borders
-      - colors
-      - displayName
-      - fonts
-      - page_background
-      - themeId
-      - widget
-      properties:
-        borders:
-          $ref: '#/components/schemas/BrandingThemeBorders'
-        colors:
-          $ref: '#/components/schemas/BrandingThemeColors'
-        displayName:
-          type: string
-          description: Display Name
-          maxLength: 2048
-          pattern: ^[^<>]*$
-        fonts:
-          $ref: '#/components/schemas/BrandingThemeFonts'
-        page_background:
-          $ref: '#/components/schemas/BrandingThemePageBackground'
-        themeId:
-          type: string
-          description: Theme Id
-          maxLength: 32
-          pattern: ^[a-zA-Z0-9]{32}$
-        widget:
-          $ref: '#/components/schemas/BrandingThemeWidget'
-    GetPhoneTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - content
-      - disabled
-      - id
-      - type
-      properties:
-        id:
-          type: string
-          minLength: 1
-          maxLength: 255
-        channel:
-          type: string
-        customizable:
-          type: boolean
-        tenant:
-          type: string
-          minLength: 1
-          maxLength: 255
-        content:
-          $ref: '#/components/schemas/PhoneTemplateContent'
-        type:
-          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-    PhoneTemplateBody:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        text:
-          type: string
-          description: Content of the phone template for text notifications
-          minLength: 1
-          maxLength: 20000
-        voice:
-          type: string
-          description: Content of the phone template for voice notifications
-          minLength: 1
-          maxLength: 20000
-    BrandingColors:
-      type: object
-      description: Custom color settings.
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        primary:
-          type: string
-          description: Accent color.
-          format: html-color
-        page_background:
-          $ref: '#/components/schemas/BrandingPageBackground'
-    ListPhoneTemplatesResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        templates:
-          type: array
-          items:
-            $ref: '#/components/schemas/PhoneTemplate'
-    BrandingThemeFontButtonsText:
-      type: object
-      description: Buttons text
-      additionalProperties: false
-      required:
-      - bold
-      - size
-      properties:
-        bold:
-          type: boolean
-          description: Buttons text bold
-        size:
-          type: number
-          description: Buttons text size
-          minimum: 0
-          maximum: 150
-    UpdateBrandingFont:
-      type:
-      - object
-      - 'null'
-      description: Custom font settings.
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        url:
-          type:
-          - string
-          - 'null'
-          description: URL for the custom font. The URL must point to a font file and not a stylesheet. Must use HTTPS.
-          format: strict-https-uri-or-null
-    TwilioProviderCredentials:
-      type: object
-      additionalProperties: false
-      required:
-      - auth_token
-      properties:
-        auth_token:
-          type: string
-          minLength: 1
-          maxLength: 255
-    BrandingPageBackground:
-      description: "Page Background Color or Gradient.\nProperty contains either <code>null</code> to unset, a solid color as a string value <code>#FFFFFF</code>, or a gradient as an object.\n\n<pre><code>\n{\n  type: 'linear-gradient',\n  start: '#FFFFFF',\n  end: '#000000',\n  angle_deg: 35\n}\n</code></pre>\n"
-      oneOf:
-      - type:
-        - string
-        - 'null'
-      - type:
-        - object
-        - 'null'
-        additionalProperties: true
-    CreateBrandingThemeRequestContent:
-      type: object
-      description: Branding theme
-      additionalProperties: false
-      required:
-      - borders
-      - colors
-      - fonts
-      - page_background
-      - widget
-      minProperties: 1
-      properties:
-        borders:
-          $ref: '#/components/schemas/BrandingThemeBorders'
-        colors:
-          $ref: '#/components/schemas/BrandingThemeColors'
-        displayName:
-          type: string
-          description: Display Name
-          maxLength: 2048
-          pattern: ^[^<>]*$
-        fonts:
-          $ref: '#/components/schemas/BrandingThemeFonts'
-        page_background:
-          $ref: '#/components/schemas/BrandingThemePageBackground'
-        widget:
-          $ref: '#/components/schemas/BrandingThemeWidget'
+            $ref: '#/components/schemas/CustomProviderDeliveryMethodEnum'
     BrandingThemeColors:
       type: object
       additionalProperties: false
@@ -1879,7 +1195,397 @@ components:
           type: string
           description: Widget border
           pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
-    GetBrandingDefaultThemeResponseContent:
+    PhoneTemplateContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        syntax:
+          type: string
+        from:
+          type: string
+          description: Default phone number to be used as 'from' when sending a phone notification
+          minLength: 1
+          maxLength: 16
+        body:
+          $ref: '#/components/schemas/PhoneTemplateBody'
+    BrandingThemeColorsCaptchaWidgetThemeEnum:
+      type: string
+      description: Captcha Widget Theme
+      enum:
+      - auto
+      - dark
+      - light
+    UpdatePhoneTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        content:
+          $ref: '#/components/schemas/PartialPhoneTemplateContent'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    BrandingThemeFontLinks:
+      type: object
+      description: Links
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Links bold
+        size:
+          type: number
+          description: Links size
+          minimum: 0
+          maximum: 150
+    BrandingPhoneDisplay:
+      type: object
+      description: Phone number display settings.
+      additionalProperties: false
+      properties:
+        masking:
+          $ref: '#/components/schemas/BrandingPhoneMaskingEnum'
+        formatting:
+          $ref: '#/components/schemas/BrandingPhoneFormattingEnum'
+    BrandingThemeWidget:
+      type: object
+      additionalProperties: false
+      required:
+      - header_text_alignment
+      - logo_height
+      - logo_position
+      - logo_url
+      - social_buttons_layout
+      properties:
+        header_text_alignment:
+          $ref: '#/components/schemas/BrandingThemeWidgetHeaderTextAlignmentEnum'
+        logo_height:
+          type: number
+          description: Logo height
+          minimum: 1
+          maximum: 100
+        logo_position:
+          $ref: '#/components/schemas/BrandingThemeWidgetLogoPositionEnum'
+        logo_url:
+          type: string
+          description: Logo url
+          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
+        social_buttons_layout:
+          $ref: '#/components/schemas/BrandingThemeWidgetSocialButtonsLayoutEnum'
+    UpdateBrandingColors:
+      type:
+      - object
+      - 'null'
+      description: Custom color settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        primary:
+          type:
+          - string
+          - 'null'
+          description: Accent color.
+          format: html-color-or-null
+        page_background:
+          $ref: '#/components/schemas/UpdateBrandingPageBackground'
+    CustomProviderCredentials:
+      type: object
+      additionalProperties: false
+      properties: {}
+    UpdatePhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    UpdateBrandingPageBackground:
+      description: "Page Background Color or Gradient.\nProperty contains either <code>null</code> to unset, a solid color as a string value <code>#FFFFFF</code>, or a gradient as an object.\n\n<pre><code>\n{\n  type: 'linear-gradient',\n  start: '#FFFFFF',\n  end: '#000000',\n  angle_deg: 35\n}\n</code></pre>\n"
+      oneOf:
+      - type:
+        - string
+        - 'null'
+      - type:
+        - object
+        - 'null'
+        additionalProperties: true
+    PhoneProviderDeliveryMethodEnum:
+      type: string
+      description: The delivery method for the notification
+      minLength: 1
+      maxLength: 10
+      enum:
+      - text
+      - voice
+    CreatePhoneTemplateTestNotificationResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - message
+      properties:
+        message:
+          type: string
+    UpdateBrandingPhoneProviderRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        credentials:
+          $ref: '#/components/schemas/PhoneProviderCredentials'
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+    UpdateBrandingRequestContent:
+      type: object
+      description: Branding settings
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        colors:
+          $ref: '#/components/schemas/UpdateBrandingColors'
+        favicon_url:
+          type:
+          - string
+          - 'null'
+          description: URL for the favicon. Must use HTTPS.
+          format: strict-https-uri-or-null
+        logo_url:
+          type:
+          - string
+          - 'null'
+          description: URL for the logo. Must use HTTPS.
+          format: strict-https-uri-or-null
+        identifiers:
+          $ref: '#/components/schemas/UpdateBrandingIdentifiers'
+        font:
+          $ref: '#/components/schemas/UpdateBrandingFont'
+    PhoneProviderChannelEnum:
+      type: string
+      description: This depicts the type of notifications this provider can receive.
+      maxLength: 100
+      enum:
+      - phone
+    TwilioProviderDeliveryMethodEnum:
+      type: string
+      enum:
+      - text
+      - voice
+    BrandingIdentifiers:
+      type: object
+      description: Identifier input display settings.
+      additionalProperties: false
+      properties:
+        login_display:
+          $ref: '#/components/schemas/BrandingLoginDisplayEnum'
+        otp_autocomplete:
+          type: boolean
+          description: Whether OTP autocomplete (autocomplete="one-time-code") is enabled.
+          default: true
+        phone_display:
+          $ref: '#/components/schemas/BrandingPhoneDisplay'
+    BrandingThemeBordersButtonsStyleEnum:
+      type: string
+      description: Buttons style
+      enum:
+      - pill
+      - rounded
+      - sharp
+    BrandingThemeFontInputLabels:
+      type: object
+      description: Input Labels
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Input Labels bold
+        size:
+          type: number
+          description: Input Labels size
+          minimum: 0
+          maximum: 150
+    CreateBrandingPhoneProviderRequestContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: true
+      required:
+      - name
+      - credentials
+      properties:
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        credentials:
+          $ref: '#/components/schemas/PhoneProviderCredentials'
+    CreatePhoneProviderSendTestResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: number
+          description: The status code of the operation.
+        message:
+          type: string
+          description: The description of the operation status.
+    CreatePhoneProviderSendTestRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - to
+      properties:
+        to:
+          type: string
+          description: The recipient phone number to receive a given notification.
+          minLength: 1
+          maxLength: 16
+        delivery_method:
+          $ref: '#/components/schemas/PhoneProviderDeliveryMethodEnum'
+    BrandingThemeWidgetHeaderTextAlignmentEnum:
+      type: string
+      description: Header text alignment
+      enum:
+      - center
+      - left
+      - right
+    UpdateBrandingFont:
+      type:
+      - object
+      - 'null'
+      description: Custom font settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        url:
+          type:
+          - string
+          - 'null'
+          description: URL for the custom font. The URL must point to a font file and not a stylesheet. Must use HTTPS.
+          format: strict-https-uri-or-null
+    CreatePhoneTemplateTestNotificationRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - to
+      properties:
+        to:
+          type: string
+          description: Destination of the testing phone notification
+          minLength: 1
+          maxLength: 16
+        delivery_method:
+          $ref: '#/components/schemas/PhoneProviderDeliveryMethodEnum'
+          description: Medium to use to send the notification
+    UpdateBrandingIdentifiers:
+      type:
+      - object
+      - 'null'
+      description: Identifier input display settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        login_display:
+          $ref: '#/components/schemas/UpdateBrandingLoginDisplayEnum'
+        otp_autocomplete:
+          type: boolean
+          description: Whether OTP autocomplete (autocomplete="one-time-code") is enabled.
+          default: true
+        phone_display:
+          $ref: '#/components/schemas/UpdateBrandingPhoneDisplay'
+    CreateBrandingThemeResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
+          type: string
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    BrandingFont:
+      type: object
+      description: Custom font settings.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        url:
+          type: string
+          description: URL for the custom font. The URL must point to a font file and not a stylesheet. Must use HTTPS.
+          format: strict-https-uri
+    PhoneProviderNameEnum:
+      type: string
+      description: Name of the phone notification provider
+      minLength: 1
+      maxLength: 100
+      enum:
+      - twilio
+      - custom
+    ListPhoneTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneTemplate'
+    GetBrandingThemeResponseContent:
       type: object
       additionalProperties: false
       required:
@@ -1929,130 +1635,178 @@ components:
           $ref: '#/components/schemas/BrandingIdentifiers'
         font:
           $ref: '#/components/schemas/BrandingFont'
-    BrandingThemePageBackground:
-      type: object
-      additionalProperties: false
-      required:
-      - background_color
-      - background_image_url
-      - page_layout
-      properties:
-        background_color:
-          type: string
-          description: Background color
-          pattern: ^#(([0-9a-fA-F]{3}){1,2}|([0-9a-fA-F]{4}){1,2})$
-        background_image_url:
-          type: string
-          description: Background image url
-          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
-        page_layout:
-          $ref: '#/components/schemas/BrandingThemePageBackgroundPageLayoutEnum'
-    UpdatePhoneTemplateRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        content:
-          $ref: '#/components/schemas/PartialPhoneTemplateContent'
-        disabled:
-          type: boolean
-          description: Whether the template is enabled (false) or disabled (true).
-          default: false
-    CreateBrandingThemeResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - borders
-      - colors
-      - displayName
-      - fonts
-      - page_background
-      - themeId
-      - widget
-      properties:
-        borders:
-          $ref: '#/components/schemas/BrandingThemeBorders'
-        colors:
-          $ref: '#/components/schemas/BrandingThemeColors'
-        displayName:
-          type: string
-          description: Display Name
-          maxLength: 2048
-          pattern: ^[^<>]*$
-        fonts:
-          $ref: '#/components/schemas/BrandingThemeFonts'
-        page_background:
-          $ref: '#/components/schemas/BrandingThemePageBackground'
-        themeId:
-          type: string
-          description: Theme Id
-          maxLength: 32
-          pattern: ^[a-zA-Z0-9]{32}$
-        widget:
-          $ref: '#/components/schemas/BrandingThemeWidget'
-    GetBrandingThemeResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - borders
-      - colors
-      - displayName
-      - fonts
-      - page_background
-      - themeId
-      - widget
-      properties:
-        borders:
-          $ref: '#/components/schemas/BrandingThemeBorders'
-        colors:
-          $ref: '#/components/schemas/BrandingThemeColors'
-        displayName:
-          type: string
-          description: Display Name
-          maxLength: 2048
-          pattern: ^[^<>]*$
-        fonts:
-          $ref: '#/components/schemas/BrandingThemeFonts'
-        page_background:
-          $ref: '#/components/schemas/BrandingThemePageBackground'
-        themeId:
-          type: string
-          description: Theme Id
-          maxLength: 32
-          pattern: ^[a-zA-Z0-9]{32}$
-        widget:
-          $ref: '#/components/schemas/BrandingThemeWidget'
-    GetUniversalLoginTemplateResponseContent:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/GetUniversalLoginTemplate'
-      - type: string
-        description: The custom page template for the New Universal Login Experience
-    BrandingThemeWidgetLogoPositionEnum:
-      type: string
-      description: Logo position
-      enum:
-      - center
-      - left
-      - none
-      - right
-    CustomProviderConfiguration:
-      type: object
-      additionalProperties: false
-      required:
-      - delivery_methods
-      properties:
-        delivery_methods:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/CustomProviderDeliveryMethodEnum'
-    UpdateBrandingPhoneFormattingEnum:
+    BrandingPhoneFormattingEnum:
       type: string
       description: Controls the format used when displaying phone numbers.
       default: international
       enum:
       - regional
       - international
+    GetUniversalLoginTemplateResponseContent:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/GetUniversalLoginTemplate'
+      - type: string
+        description: The custom page template for the New Universal Login Experience
+    BrandingPageBackground:
+      description: "Page Background Color or Gradient.\nProperty contains either <code>null</code> to unset, a solid color as a string value <code>#FFFFFF</code>, or a gradient as an object.\n\n<pre><code>\n{\n  type: 'linear-gradient',\n  start: '#FFFFFF',\n  end: '#000000',\n  angle_deg: 35\n}\n</code></pre>\n"
+      oneOf:
+      - type:
+        - string
+        - 'null'
+      - type:
+        - object
+        - 'null'
+        additionalProperties: true
+    ResetPhoneTemplateRequestContent: {}
+    UpdateBrandingPhoneProviderResponseContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        tenant:
+          type: string
+          description: The name of the tenant
+          minLength: 1
+          maxLength: 255
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        channel:
+          $ref: '#/components/schemas/PhoneProviderChannelEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        created_at:
+          type: string
+          description: The provider's creation date and time in ISO 8601 format
+          maxLength: 27
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time of the last update to the provider in ISO 8601 format
+          maxLength: 27
+          format: date-time
+    BrandingThemePageBackgroundPageLayoutEnum:
+      type: string
+      description: Page Layout
+      enum:
+      - center
+      - left
+      - right
+    BrandingThemeFontSubtitle:
+      type: object
+      description: Subtitle
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Subtitle bold
+        size:
+          type: number
+          description: Subtitle size
+          minimum: 0
+          maximum: 150
+    ListBrandingPhoneProvidersResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneProviderSchemaMasked'
+    CreateBrandingPhoneProviderResponseContent:
+      type: object
+      description: Phone provider configuration schema
+      additionalProperties: false
+      required:
+      - name
+      - credentials
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        tenant:
+          type: string
+          description: The name of the tenant
+          minLength: 1
+          maxLength: 255
+        name:
+          $ref: '#/components/schemas/PhoneProviderNameEnum'
+        channel:
+          $ref: '#/components/schemas/PhoneProviderChannelEnum'
+        disabled:
+          type: boolean
+          description: Whether the provider is enabled (false) or disabled (true).
+        configuration:
+          $ref: '#/components/schemas/PhoneProviderConfiguration'
+        created_at:
+          type: string
+          description: The provider's creation date and time in ISO 8601 format
+          maxLength: 27
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time of the last update to the provider in ISO 8601 format
+          maxLength: 27
+          format: date-time
+    CreatePhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    BrandingThemeFontTitle:
+      type: object
+      description: Title
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Title bold
+        size:
+          type: number
+          description: Title size
+          minimum: 75
+          maximum: 150
     BrandingThemeFonts:
       type: object
       additionalProperties: false
@@ -2090,29 +1844,51 @@ components:
           $ref: '#/components/schemas/BrandingThemeFontSubtitle'
         title:
           $ref: '#/components/schemas/BrandingThemeFontTitle'
-    CreatePhoneTemplateTestNotificationRequestContent:
-      type: object
-      additionalProperties: true
-      required:
-      - to
-      properties:
-        to:
-          type: string
-          description: Destination of the testing phone notification
-          minLength: 1
-          maxLength: 16
-        delivery_method:
-          $ref: '#/components/schemas/PhoneProviderDeliveryMethodEnum'
-          description: Medium to use to send the notification
-    BrandingPhoneDisplay:
-      type: object
+    UpdateBrandingPhoneDisplay:
+      type:
+      - object
+      - 'null'
       description: Phone number display settings.
       additionalProperties: false
+      required:
+      - masking
+      - formatting
+      minProperties: 1
       properties:
         masking:
-          $ref: '#/components/schemas/BrandingPhoneMaskingEnum'
+          $ref: '#/components/schemas/UpdateBrandingPhoneMaskingEnum'
         formatting:
-          $ref: '#/components/schemas/BrandingPhoneFormattingEnum'
+          $ref: '#/components/schemas/UpdateBrandingPhoneFormattingEnum'
+    PhoneTemplateBody:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        text:
+          type: string
+          description: Content of the phone template for text notifications
+          minLength: 1
+          maxLength: 20000
+        voice:
+          type: string
+          description: Content of the phone template for voice notifications
+          minLength: 1
+          maxLength: 20000
+    UpdateBrandingPhoneFormattingEnum:
+      type: string
+      description: Controls the format used when displaying phone numbers.
+      default: international
+      enum:
+      - regional
+      - international
+    BrandingPhoneMaskingEnum:
+      type: string
+      description: Controls how phone numbers are masked when displayed back to users.
+      default: mask_digits
+      enum:
+      - show_all
+      - hide_country_code
+      - mask_digits
     BrandingThemeBordersInputsStyleEnum:
       type: string
       description: Inputs style
@@ -2120,125 +1896,135 @@ components:
       - pill
       - rounded
       - sharp
-    UpdateBrandingIdentifiers:
-      type:
-      - object
-      - 'null'
-      description: Identifier input display settings.
+    PhoneProviderCredentials:
+      description: Provider credentials required to use authenticate to the provider.
+      anyOf:
+      - $ref: '#/components/schemas/TwilioProviderCredentials'
+      - $ref: '#/components/schemas/CustomProviderCredentials'
+    BrandingThemeFontBodyText:
+      type: object
+      description: Body text
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Body text bold
+        size:
+          type: number
+          description: Body text size
+          minimum: 0
+          maximum: 150
+    UpdateBrandingThemeResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - displayName
+      - fonts
+      - page_background
+      - themeId
+      - widget
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        themeId:
+          type: string
+          description: Theme Id
+          maxLength: 32
+          pattern: ^[a-zA-Z0-9]{32}$
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    BrandingThemeFontLinksStyleEnum:
+      type: string
+      description: Links style
+      enum:
+      - normal
+      - underlined
+    PartialPhoneTemplateContent:
+      type: object
       additionalProperties: false
       minProperties: 1
       properties:
-        login_display:
-          $ref: '#/components/schemas/UpdateBrandingLoginDisplayEnum'
-        otp_autocomplete:
-          type: boolean
-          description: Whether OTP autocomplete (autocomplete="one-time-code") is enabled.
-          default: true
-        phone_display:
-          $ref: '#/components/schemas/UpdateBrandingPhoneDisplay'
-    CreateBrandingPhoneProviderResponseContent:
-      type: object
-      description: Phone provider configuration schema
-      additionalProperties: false
-      required:
-      - name
-      - credentials
-      properties:
-        id:
+        from:
           type: string
+          description: Default phone number to be used as 'from' when sending a phone notification
           minLength: 1
-          maxLength: 255
-        tenant:
-          type: string
-          description: The name of the tenant
-          minLength: 1
-          maxLength: 255
-        name:
-          $ref: '#/components/schemas/PhoneProviderNameEnum'
-        channel:
-          $ref: '#/components/schemas/PhoneProviderChannelEnum'
-        disabled:
-          type: boolean
-          description: Whether the provider is enabled (false) or disabled (true).
-        configuration:
-          $ref: '#/components/schemas/PhoneProviderConfiguration'
-        created_at:
-          type: string
-          description: The provider's creation date and time in ISO 8601 format
-          maxLength: 27
-          format: date-time
-        updated_at:
-          type: string
-          description: The date and time of the last update to the provider in ISO 8601 format
-          maxLength: 27
-          format: date-time
-    UpdateBrandingPhoneProviderResponseContent:
-      type: object
-      description: Phone provider configuration schema
-      additionalProperties: false
-      required:
-      - name
-      - credentials
-      properties:
-        id:
-          type: string
-          minLength: 1
-          maxLength: 255
-        tenant:
-          type: string
-          description: The name of the tenant
-          minLength: 1
-          maxLength: 255
-        name:
-          $ref: '#/components/schemas/PhoneProviderNameEnum'
-        channel:
-          $ref: '#/components/schemas/PhoneProviderChannelEnum'
-        disabled:
-          type: boolean
-          description: Whether the provider is enabled (false) or disabled (true).
-        configuration:
-          $ref: '#/components/schemas/PhoneProviderConfiguration'
-        created_at:
-          type: string
-          description: The provider's creation date and time in ISO 8601 format
-          maxLength: 27
-          format: date-time
-        updated_at:
-          type: string
-          description: The date and time of the last update to the provider in ISO 8601 format
-          maxLength: 27
-          format: date-time
-    PhoneProviderConfiguration:
-      type: object
-      anyOf:
-      - $ref: '#/components/schemas/TwilioProviderConfiguration'
-      - $ref: '#/components/schemas/CustomProviderConfiguration'
-    GetUniversalLoginTemplate:
-      type: object
-      additionalProperties: false
-      properties:
+          maxLength: 16
         body:
+          $ref: '#/components/schemas/PhoneTemplateBody'
+    PhoneTemplate:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
           type: string
-          description: The custom page template for the New Universal Login Experience
-    UpdateUniversalLoginTemplateRequestContent:
-      oneOf:
-      - type: string
-        maxLength: 102400
-      - type: object
-        additionalProperties: false
-        required:
-        - template
-        properties:
-          template:
-            type: string
-            maxLength: 102400
-    BrandingThemeBordersButtonsStyleEnum:
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    UpdateBrandingLoginDisplayEnum:
       type: string
-      description: Buttons style
+      description: Controls identifier input presentation on the login flow. Defaults to "unified" for legacy tenants, "separate" for tenants created post-GA of this feature.
+      default: unified
       enum:
-      - pill
-      - rounded
-      - sharp
+      - unified
+      - separate
+    BrandingThemeWidgetSocialButtonsLayoutEnum:
+      type: string
+      description: Social buttons layout
+      enum:
+      - bottom
+      - top
+    BrandingThemeFontButtonsText:
+      type: object
+      description: Buttons text
+      additionalProperties: false
+      required:
+      - bold
+      - size
+      properties:
+        bold:
+          type: boolean
+          description: Buttons text bold
+        size:
+          type: number
+          description: Buttons text size
+          minimum: 0
+          maximum: 150
     UpdateBrandingThemeRequestContent:
       type: object
       description: Branding theme
@@ -2266,22 +2052,217 @@ components:
           $ref: '#/components/schemas/BrandingThemePageBackground'
         widget:
           $ref: '#/components/schemas/BrandingThemeWidget'
-    UpdateBrandingPhoneDisplay:
-      type:
-      - object
-      - 'null'
-      description: Phone number display settings.
+    UpdateUniversalLoginTemplateRequestContent:
+      oneOf:
+      - type: string
+        maxLength: 102400
+      - type: object
+        additionalProperties: false
+        required:
+        - template
+        properties:
+          template:
+            type: string
+            maxLength: 102400
+    TwilioProviderCredentials:
+      type: object
       additionalProperties: false
       required:
-      - masking
-      - formatting
+      - auth_token
+      properties:
+        auth_token:
+          type: string
+          minLength: 1
+          maxLength: 255
+    UpdateBrandingResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        colors:
+          $ref: '#/components/schemas/BrandingColors'
+        favicon_url:
+          type: string
+          description: URL for the favicon. Must use HTTPS.
+          format: strict-https-uri
+        logo_url:
+          type: string
+          description: URL for the logo. Must use HTTPS.
+          format: strict-https-uri
+        identifiers:
+          $ref: '#/components/schemas/BrandingIdentifiers'
+        font:
+          $ref: '#/components/schemas/BrandingFont'
+    ResetPhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    PhoneProviderConfiguration:
+      type: object
+      anyOf:
+      - $ref: '#/components/schemas/TwilioProviderConfiguration'
+      - $ref: '#/components/schemas/CustomProviderConfiguration'
+    BrandingThemeBorders:
+      type: object
+      additionalProperties: false
+      required:
+      - button_border_radius
+      - button_border_weight
+      - buttons_style
+      - input_border_radius
+      - input_border_weight
+      - inputs_style
+      - show_widget_shadow
+      - widget_border_weight
+      - widget_corner_radius
+      properties:
+        button_border_radius:
+          type: number
+          description: Button border radius
+          minimum: 1
+          maximum: 10
+        button_border_weight:
+          type: number
+          description: Button border weight
+          minimum: 0
+          maximum: 10
+        buttons_style:
+          $ref: '#/components/schemas/BrandingThemeBordersButtonsStyleEnum'
+        input_border_radius:
+          type: number
+          description: Input border radius
+          minimum: 0
+          maximum: 10
+        input_border_weight:
+          type: number
+          description: Input border weight
+          minimum: 0
+          maximum: 3
+        inputs_style:
+          $ref: '#/components/schemas/BrandingThemeBordersInputsStyleEnum'
+        show_widget_shadow:
+          type: boolean
+          description: Show widget shadow
+        widget_border_weight:
+          type: number
+          description: Widget border weight
+          minimum: 0
+          maximum: 10
+        widget_corner_radius:
+          type: number
+          description: Widget corner radius
+          minimum: 0
+          maximum: 50
+    TwilioProviderConfiguration:
+      type: object
+      additionalProperties: false
+      required:
+      - sid
+      - delivery_methods
+      properties:
+        default_from:
+          type: string
+        mssid:
+          type: string
+        sid:
+          type: string
+        delivery_methods:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/TwilioProviderDeliveryMethodEnum'
+    CustomProviderDeliveryMethodEnum:
+      type: string
+      enum:
+      - text
+      - voice
+    CreatePhoneTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+    BrandingColors:
+      type: object
+      description: Custom color settings.
+      additionalProperties: false
       minProperties: 1
       properties:
-        masking:
-          $ref: '#/components/schemas/UpdateBrandingPhoneMaskingEnum'
-        formatting:
-          $ref: '#/components/schemas/UpdateBrandingPhoneFormattingEnum'
-    GetBrandingPhoneProviderResponseContent:
+        primary:
+          type: string
+          description: Accent color.
+          format: html-color
+        page_background:
+          $ref: '#/components/schemas/BrandingPageBackground'
+    GetPhoneTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      - disabled
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        channel:
+          type: string
+        customizable:
+          type: boolean
+        tenant:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          $ref: '#/components/schemas/PhoneTemplateContent'
+        type:
+          $ref: '#/components/schemas/PhoneTemplateNotificationTypeEnum'
+        disabled:
+          type: boolean
+          description: Whether the template is enabled (false) or disabled (true).
+          default: false
+    PhoneTemplateNotificationTypeEnum:
+      type: string
+      maxLength: 255
+      enum:
+      - otp_verify
+      - otp_enroll
+      - change_password
+      - blocked_account
+      - password_breach
+    PhoneProviderSchemaMasked:
       type: object
       description: Phone provider configuration schema
       additionalProperties: false
@@ -2317,28 +2298,289 @@ components:
           description: The date and time of the last update to the provider in ISO 8601 format
           maxLength: 27
           format: date-time
-    BrandingThemeWidget:
+    GetUniversalLoginTemplate:
       type: object
       additionalProperties: false
-      required:
-      - header_text_alignment
-      - logo_height
-      - logo_position
-      - logo_url
-      - social_buttons_layout
       properties:
-        header_text_alignment:
-          $ref: '#/components/schemas/BrandingThemeWidgetHeaderTextAlignmentEnum'
-        logo_height:
-          type: number
-          description: Logo height
-          minimum: 1
-          maximum: 100
-        logo_position:
-          $ref: '#/components/schemas/BrandingThemeWidgetLogoPositionEnum'
-        logo_url:
+        body:
           type: string
-          description: Logo url
-          pattern: ^$|^(?=.)(?!https?:\/(?:$|[^/]))(?!https?:\/\/\/)(?!https?:[^/])(?:(?:https):(?:(?:\/\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[\dA-Fa-f]{1,4}:){6}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|::(?:[\dA-Fa-f]{1,4}:){5}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){4}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,1}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){3}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,2}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:){2}(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,3}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}:(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,4}[\dA-Fa-f]{1,4})?::(?:[\dA-Fa-f]{1,4}:[\dA-Fa-f]{1,4}|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(?:(?:[\dA-Fa-f]{1,4}:){0,5}[\dA-Fa-f]{1,4})?::[\dA-Fa-f]{1,4}|(?:(?:[\dA-Fa-f]{1,4}:){0,6}[\dA-Fa-f]{1,4})?::)|v[\dA-Fa-f]+\.[\w-\.~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(?:0{0,2}\d|0?[1-9]\d|1\d\d|2[0-4]\d|25[0-5])|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=]{1,255})(?::\d*)?(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*|(?:\/\/\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*(?:\/[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@]*)*)))(?:\?[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[\w-\.~%\dA-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?$
-        social_buttons_layout:
-          $ref: '#/components/schemas/BrandingThemeWidgetSocialButtonsLayoutEnum'
+          description: The custom page template for the New Universal Login Experience
+    BrandingLoginDisplayEnum:
+      type: string
+      description: Controls identifier input presentation on the login flow. Defaults to "unified" for legacy tenants, "separate" for tenants created post-GA of this feature.
+      default: unified
+      enum:
+      - unified
+      - separate
+    CreateBrandingThemeRequestContent:
+      type: object
+      description: Branding theme
+      additionalProperties: false
+      required:
+      - borders
+      - colors
+      - fonts
+      - page_background
+      - widget
+      minProperties: 1
+      properties:
+        borders:
+          $ref: '#/components/schemas/BrandingThemeBorders'
+        colors:
+          $ref: '#/components/schemas/BrandingThemeColors'
+        displayName:
+          type: string
+          description: Display Name
+          maxLength: 2048
+          pattern: ^[^<>]*$
+        fonts:
+          $ref: '#/components/schemas/BrandingThemeFonts'
+        page_background:
+          $ref: '#/components/schemas/BrandingThemePageBackground'
+        widget:
+          $ref: '#/components/schemas/BrandingThemeWidget'
+    UpdateBrandingPhoneMaskingEnum:
+      type: string
+      description: Controls how phone numbers are masked when displayed back to users.
+      default: mask_digits
+      enum:
+      - show_all
+      - hide_country_code
+      - mask_digits
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            read:federated_connections_tokens: Read Federated Connections Tokens
+            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_idp_tokens: Read User Idp Tokens
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

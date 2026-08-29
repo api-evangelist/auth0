@@ -1,15 +1,15 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
-  title: Auth0 Authentication actions Stores API
-  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
-  version: 1.0.0
-servers:
-- url: '{auth0_domain}'
-  description: The Authentication API is served over HTTPS.
-  variables:
-    auth0_domain:
-      description: Auth0 domain
-      default: https://demo.us.auth0.com
+  title: OpenFGA Stores API
+  description: A high performance and flexible authorization/permission engine built for developers and inspired by Google Zanzibar.
+  version: 1.x
+  contact:
+    name: OpenFGA
+    url: https://openfga.dev
+    email: community@openfga.dev
+  license:
+    name: Apache-2.0
+    url: https://github.com/openfga/openfga/blob/main/LICENSE
 tags:
 - name: Stores
 paths:
@@ -25,51 +25,70 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/ListStoresResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStoresResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: page_size
         in: query
         required: false
-        type: integer
-        format: int32
+        schema:
+          type: integer
+          format: int32
       - name: continuation_token
         in: query
         required: false
-        type: string
+        schema:
+          type: string
       - name: name
         description: The name parameter instructs the API to only include results that match that name.Multiple results may be returned. Only exact matches will be returned; substring matches and regexes will not be evaluated
         in: query
         required: false
-        type: string
+        schema:
+          type: string
       tags:
       - Stores
     post:
@@ -79,44 +98,60 @@ paths:
       responses:
         '201':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/CreateStoreResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateStoreResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/CreateStoreRequest'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       tags:
       - Stores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStoreRequest'
+        required: true
   /stores/{store_id}:
     get:
       summary: Get a store
@@ -125,41 +160,58 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/GetStoreResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStoreResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
+        schema:
+          type: string
       tags:
       - Stores
     delete:
@@ -171,287 +223,303 @@ paths:
           description: A successful response.
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
+        schema:
+          type: string
       tags:
       - Stores
-definitions:
-  UnprocessableContentMessageResponse:
-    type: object
-    example:
-      code: throttled_timeout_error
-      message: timeout due to throttling on complex request
-    properties:
-      code:
-        $ref: '#/definitions/UnprocessableContentErrorCode'
-      message:
-        type: string
-  ErrorCode:
-    type: string
-    enum:
-    - no_error
-    - validation_error
-    - authorization_model_not_found
-    - authorization_model_resolution_too_complex
-    - invalid_write_input
-    - cannot_allow_duplicate_tuples_in_one_request
-    - cannot_allow_duplicate_types_in_one_request
-    - cannot_allow_multiple_references_to_one_relation
-    - invalid_continuation_token
-    - invalid_tuple_set
-    - invalid_check_input
-    - invalid_expand_input
-    - unsupported_user_set
-    - invalid_object_format
-    - write_failed_due_to_invalid_input
-    - authorization_model_assertions_not_found
-    - latest_authorization_model_not_found
-    - type_not_found
-    - relation_not_found
-    - empty_relation_definition
-    - invalid_user
-    - invalid_tuple
-    - unknown_relation
-    - store_id_invalid_length
-    - assertions_too_many_items
-    - id_too_long
-    - authorization_model_id_too_long
-    - tuple_key_value_not_specified
-    - tuple_keys_too_many_or_too_few_items
-    - page_size_invalid
-    - param_missing_value
-    - difference_base_missing_value
-    - subtract_base_missing_value
-    - object_too_long
-    - relation_too_long
-    - type_definitions_too_few_items
-    - type_invalid_length
-    - type_invalid_pattern
-    - relations_too_few_items
-    - relations_too_long
-    - relations_invalid_pattern
-    - object_invalid_pattern
-    - query_string_type_continuation_token_mismatch
-    - exceeded_entity_limit
-    - invalid_contextual_tuple
-    - duplicate_contextual_tuple
-    - invalid_authorization_model
-    - unsupported_schema_version
-    - cancelled
-    - invalid_start_time
-    default: no_error
-  ForbiddenResponse:
-    type: object
-    example:
-      code: forbidden
-      message: the principal is not authorized to perform the action
-    properties:
-      code:
-        $ref: '#/definitions/AuthErrorCode'
-      message:
-        type: string
-  InternalErrorMessageResponse:
-    type: object
-    example:
-      code: internal_error
-      message: Internal Server Error
-    properties:
-      code:
-        $ref: '#/definitions/InternalErrorCode'
-      message:
-        type: string
-  PathUnknownErrorMessageResponse:
-    type: object
-    example:
-      code: undefined_endpoint
-      message: Endpoint not enabled
-    properties:
-      code:
-        $ref: '#/definitions/NotFoundErrorCode'
-      message:
-        type: string
-  NotFoundErrorCode:
-    type: string
-    enum:
-    - no_not_found_error
-    - undefined_endpoint
-    - store_id_not_found
-    - unimplemented
-    default: no_not_found_error
-  AuthErrorCode:
-    type: string
-    enum:
-    - no_auth_error
-    - auth_failed_invalid_subject
-    - auth_failed_invalid_audience
-    - auth_failed_invalid_issuer
-    - invalid_claims
-    - auth_failed_invalid_bearer_token
-    - bearer_token_missing
-    - unauthenticated
-    - forbidden
-    default: no_auth_error
-  InternalErrorCode:
-    type: string
-    enum:
-    - no_internal_error
-    - internal_error
-    - deadline_exceeded
-    - already_exists
-    - resource_exhausted
-    - failed_precondition
-    - aborted
-    - out_of_range
-    - unavailable
-    - data_loss
-    default: no_internal_error
-  UnauthenticatedResponse:
-    type: object
-    example:
-      code: unauthenticated
-      message: unauthenticated
-    properties:
-      code:
-        $ref: '#/definitions/ErrorCode'
-      message:
-        type: string
-  CreateStoreResponse:
-    type: object
-    properties:
-      id:
-        type: string
-        example: 01YCP46JKYM8FJCQ37NMBYHE5X
-      name:
-        type: string
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-    - id
-    - name
-    - created_at
-    - updated_at
-  GetStoreResponse:
-    type: object
-    properties:
-      id:
-        type: string
-        example: 01YCP46JKYM8FJCQ37NMBYHE5X
-      name:
-        type: string
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-      deleted_at:
-        type: string
-        format: date-time
-    required:
-    - id
-    - name
-    - created_at
-    - updated_at
-  CreateStoreRequest:
-    type: object
-    properties:
-      name:
-        type: string
-        example: my-store-name
-    required:
-    - name
-  ListStoresResponse:
-    type: object
-    properties:
-      stores:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/Store'
-      continuation_token:
-        type: string
-        example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-        description: The continuation token will be empty if there are no more stores.
-    required:
-    - stores
-    - continuation_token
-  AbortedMessageResponse:
-    type: object
-    example:
-      code: '10'
-      message: transaction conflict
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-  ValidationErrorMessageResponse:
-    type: object
-    example:
-      code: validation_error
-      message: Generic validation error
-    properties:
-      code:
-        $ref: '#/definitions/ErrorCode'
-      message:
-        type: string
-  UnprocessableContentErrorCode:
-    type: string
-    enum:
-    - no_throttled_error_code
-    - throttled_timeout_error
-    default: no_throttled_error_code
-  Store:
-    type: object
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-      deleted_at:
-        type: string
-        format: date-time
-    required:
-    - id
-    - name
-    - created_at
-    - updated_at
+components:
+  schemas:
+    CreateStoreRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: my-store-name
+      required:
+      - name
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    Store:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    CreateStoreResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 01YCP46JKYM8FJCQ37NMBYHE5X
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    ListStoresResponse:
+      type: object
+      properties:
+        stores:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Store'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be empty if there are no more stores.
+      required:
+      - stores
+      - continuation_token
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    ErrorCode:
+      type: string
+      enum:
+      - no_error
+      - validation_error
+      - authorization_model_not_found
+      - authorization_model_resolution_too_complex
+      - invalid_write_input
+      - cannot_allow_duplicate_tuples_in_one_request
+      - cannot_allow_duplicate_types_in_one_request
+      - cannot_allow_multiple_references_to_one_relation
+      - invalid_continuation_token
+      - invalid_tuple_set
+      - invalid_check_input
+      - invalid_expand_input
+      - unsupported_user_set
+      - invalid_object_format
+      - write_failed_due_to_invalid_input
+      - authorization_model_assertions_not_found
+      - latest_authorization_model_not_found
+      - type_not_found
+      - relation_not_found
+      - empty_relation_definition
+      - invalid_user
+      - invalid_tuple
+      - unknown_relation
+      - store_id_invalid_length
+      - assertions_too_many_items
+      - id_too_long
+      - authorization_model_id_too_long
+      - tuple_key_value_not_specified
+      - tuple_keys_too_many_or_too_few_items
+      - page_size_invalid
+      - param_missing_value
+      - difference_base_missing_value
+      - subtract_base_missing_value
+      - object_too_long
+      - relation_too_long
+      - type_definitions_too_few_items
+      - type_invalid_length
+      - type_invalid_pattern
+      - relations_too_few_items
+      - relations_too_long
+      - relations_invalid_pattern
+      - object_invalid_pattern
+      - query_string_type_continuation_token_mismatch
+      - exceeded_entity_limit
+      - invalid_contextual_tuple
+      - duplicate_contextual_tuple
+      - invalid_authorization_model
+      - unsupported_schema_version
+      - cancelled
+      - invalid_start_time
+      default: no_error
+    GetStoreResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 01YCP46JKYM8FJCQ37NMBYHE5X
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at

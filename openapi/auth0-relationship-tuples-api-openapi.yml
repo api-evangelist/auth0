@@ -1,15 +1,15 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
-  title: Auth0 Authentication actions Relationship Tuples API
-  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
-  version: 1.0.0
-servers:
-- url: '{auth0_domain}'
-  description: The Authentication API is served over HTTPS.
-  variables:
-    auth0_domain:
-      description: Auth0 domain
-      default: https://demo.us.auth0.com
+  title: OpenFGA Relationship Tuples API
+  description: A high performance and flexible authorization/permission engine built for developers and inspired by Google Zanzibar.
+  version: 1.x
+  contact:
+    name: OpenFGA
+    url: https://openfga.dev
+    email: community@openfga.dev
+  license:
+    name: Apache-2.0
+    url: https://github.com/openfga/openfga/blob/main/LICENSE
 tags:
 - name: Relationship Tuples
 paths:
@@ -29,54 +29,74 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/ReadChangesResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadChangesResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
+        schema:
+          type: string
       - name: type
         in: query
         required: false
-        type: string
+        schema:
+          type: string
       - name: page_size
         in: query
         required: false
-        type: integer
-        format: int32
+        schema:
+          type: integer
+          format: int32
       - name: continuation_token
         in: query
         required: false
-        type: string
+        schema:
+          type: string
       - name: start_time
         description: 'Start date and time of changes to read.
 
@@ -85,8 +105,9 @@ paths:
           If a continuation_token is provided along side start_time, the continuation_token will take precedence over start_time.'
         in: query
         required: false
-        type: string
-        format: date-time
+        schema:
+          type: string
+          format: date-time
       tags:
       - Relationship Tuples
   /stores/{store_id}/read:
@@ -97,63 +118,81 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/ReadResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            tuple_key:
-              $ref: '#/definitions/ReadRequestTupleKey'
-            page_size:
-              type: integer
-              format: int32
-              example: 50
-              maximum: 100
-              minimum: 1
-            continuation_token:
-              type: string
-              example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-              description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+          type: string
       tags:
       - Relationship Tuples
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tuple_key:
+                  $ref: '#/components/schemas/ReadRequestTupleKey'
+                page_size:
+                  type: integer
+                  format: int32
+                  example: 50
+                  maximum: 100
+                  minimum: 1
+                continuation_token:
+                  type: string
+                  example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+                  description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+        required: true
   /stores/{store_id}/write:
     post:
       summary: Add or delete tuples from the store
@@ -162,401 +201,420 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/WriteResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriteResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            writes:
-              $ref: '#/definitions/WriteRequestWrites'
-            deletes:
-              $ref: '#/definitions/WriteRequestDeletes'
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
+          type: string
       tags:
       - Relationship Tuples
-definitions:
-  PathUnknownErrorMessageResponse:
-    type: object
-    example:
-      code: undefined_endpoint
-      message: Endpoint not enabled
-    properties:
-      code:
-        $ref: '#/definitions/NotFoundErrorCode'
-      message:
-        type: string
-  RelationshipCondition:
-    type: object
-    properties:
-      name:
-        type: string
-        example: condition1
-        description: A reference (by name) of the relationship condition defined in the authorization model.
-        maxLength: 256
-      context:
-        type: object
-        description: 'Additional context/data to persist along with the condition.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                writes:
+                  $ref: '#/components/schemas/WriteRequestWrites'
+                deletes:
+                  $ref: '#/components/schemas/WriteRequestDeletes'
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+        required: true
+components:
+  schemas:
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    ReadChangesResponse:
+      type: object
+      properties:
+        changes:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleChange'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be identical if there are no new changes.
+      required:
+      - changes
+    TupleKey:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+        condition:
+          $ref: '#/components/schemas/RelationshipCondition'
+      required:
+      - user
+      - relation
+      - object
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    WriteRequestWrites:
+      type: object
+      properties:
+        tuple_keys:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKey'
+          minItems: 1
+        on_duplicate:
+          type: string
+          example: ignore
+          enum:
+          - error
+          - ignore
+          default: error
+          description: On 'error' ( or unspecified ), the API returns an error if an identical tuple already exists. On 'ignore', identical writes are treated as no-ops (matching on user, relation, object, and RelationshipCondition).
+      required:
+      - tuple_keys
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    Tuple:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/TupleKey'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - key
+      - timestamp
+    TupleOperation:
+      type: string
+      enum:
+      - TUPLE_OPERATION_WRITE
+      - TUPLE_OPERATION_DELETE
+      default: TUPLE_OPERATION_WRITE
+      title: buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+    TupleChange:
+      type: object
+      properties:
+        tuple_key:
+          $ref: '#/components/schemas/TupleKey'
+        operation:
+          $ref: '#/components/schemas/TupleOperation'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - tuple_key
+      - operation
+      - timestamp
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    RelationshipCondition:
+      type: object
+      properties:
+        name:
+          type: string
+          example: condition1
+          description: A reference (by name) of the relationship condition defined in the authorization model.
+          maxLength: 256
+        context:
+          type: object
+          description: 'Additional context/data to persist along with the condition.
 
-          The keys must match the parameters defined by the condition, and the value types must
+            The keys must match the parameters defined by the condition, and the value types must
 
-          match the parameter type definitions.'
-    required:
-    - name
-  TupleKey:
-    type: object
-    properties:
-      user:
-        type: string
-        example: user:anne
-        maxLength: 512
-      relation:
-        type: string
-        example: reader
-        maxLength: 50
-      object:
-        type: string
-        example: document:2021-budget
-        maxLength: 256
-      condition:
-        $ref: '#/definitions/RelationshipCondition'
-    required:
-    - user
-    - relation
-    - object
-  TupleOperation:
-    type: string
-    enum:
-    - TUPLE_OPERATION_WRITE
-    - TUPLE_OPERATION_DELETE
-    default: TUPLE_OPERATION_WRITE
-    title: buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
-  InternalErrorCode:
-    type: string
-    enum:
-    - no_internal_error
-    - internal_error
-    - deadline_exceeded
-    - already_exists
-    - resource_exhausted
-    - failed_precondition
-    - aborted
-    - out_of_range
-    - unavailable
-    - data_loss
-    default: no_internal_error
-  TupleKeyWithoutCondition:
-    type: object
-    properties:
-      user:
-        type: string
-        example: user:anne
-        maxLength: 512
-      relation:
-        type: string
-        example: reader
-        maxLength: 50
-      object:
-        type: string
-        example: document:2021-budget
-        maxLength: 256
-    required:
-    - user
-    - relation
-    - object
-  WriteRequestWrites:
-    type: object
-    properties:
-      tuple_keys:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/TupleKey'
-        minItems: 1
-      on_duplicate:
-        type: string
-        example: ignore
-        enum:
-        - error
-        - ignore
-        default: error
-        description: On 'error' ( or unspecified ), the API returns an error if an identical tuple already exists. On 'ignore', identical writes are treated as no-ops (matching on user, relation, object, and RelationshipCondition).
-    required:
-    - tuple_keys
-  AbortedMessageResponse:
-    type: object
-    example:
-      code: '10'
-      message: transaction conflict
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-  TupleChange:
-    type: object
-    properties:
-      tuple_key:
-        $ref: '#/definitions/TupleKey'
-      operation:
-        $ref: '#/definitions/TupleOperation'
-      timestamp:
-        type: string
-        format: date-time
-    required:
-    - tuple_key
-    - operation
-    - timestamp
-  AuthErrorCode:
-    type: string
-    enum:
-    - no_auth_error
-    - auth_failed_invalid_subject
-    - auth_failed_invalid_audience
-    - auth_failed_invalid_issuer
-    - invalid_claims
-    - auth_failed_invalid_bearer_token
-    - bearer_token_missing
-    - unauthenticated
-    - forbidden
-    default: no_auth_error
-  ReadResponse:
-    type: object
-    properties:
-      tuples:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/Tuple'
-      continuation_token:
-        type: string
-        example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-        description: The continuation token will be empty if there are no more tuples.
-    required:
-    - tuples
-    - continuation_token
-  ConsistencyPreference:
-    type: string
-    enum:
-    - UNSPECIFIED
-    - MINIMIZE_LATENCY
-    - HIGHER_CONSISTENCY
-    default: UNSPECIFIED
-    description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
-    example: MINIMIZE_LATENCY
-  ReadRequestTupleKey:
-    type: object
-    properties:
-      user:
-        type: string
-        example: user:anne
-        maxLength: 512
-      relation:
-        type: string
-        example: reader
-        maxLength: 50
-      object:
-        type: string
-        example: document:2021-budget
-        maxLength: 256
-  NotFoundErrorCode:
-    type: string
-    enum:
-    - no_not_found_error
-    - undefined_endpoint
-    - store_id_not_found
-    - unimplemented
-    default: no_not_found_error
-  Tuple:
-    type: object
-    properties:
-      key:
-        $ref: '#/definitions/TupleKey'
-      timestamp:
-        type: string
-        format: date-time
-    required:
-    - key
-    - timestamp
-  ReadChangesResponse:
-    type: object
-    properties:
-      changes:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/TupleChange'
-      continuation_token:
-        type: string
-        example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-        description: The continuation token will be identical if there are no new changes.
-    required:
-    - changes
-  ValidationErrorMessageResponse:
-    type: object
-    example:
-      code: validation_error
-      message: Generic validation error
-    properties:
-      code:
-        $ref: '#/definitions/ErrorCode'
-      message:
-        type: string
-  UnprocessableContentMessageResponse:
-    type: object
-    example:
-      code: throttled_timeout_error
-      message: timeout due to throttling on complex request
-    properties:
-      code:
-        $ref: '#/definitions/UnprocessableContentErrorCode'
-      message:
-        type: string
-  ErrorCode:
-    type: string
-    enum:
-    - no_error
-    - validation_error
-    - authorization_model_not_found
-    - authorization_model_resolution_too_complex
-    - invalid_write_input
-    - cannot_allow_duplicate_tuples_in_one_request
-    - cannot_allow_duplicate_types_in_one_request
-    - cannot_allow_multiple_references_to_one_relation
-    - invalid_continuation_token
-    - invalid_tuple_set
-    - invalid_check_input
-    - invalid_expand_input
-    - unsupported_user_set
-    - invalid_object_format
-    - write_failed_due_to_invalid_input
-    - authorization_model_assertions_not_found
-    - latest_authorization_model_not_found
-    - type_not_found
-    - relation_not_found
-    - empty_relation_definition
-    - invalid_user
-    - invalid_tuple
-    - unknown_relation
-    - store_id_invalid_length
-    - assertions_too_many_items
-    - id_too_long
-    - authorization_model_id_too_long
-    - tuple_key_value_not_specified
-    - tuple_keys_too_many_or_too_few_items
-    - page_size_invalid
-    - param_missing_value
-    - difference_base_missing_value
-    - subtract_base_missing_value
-    - object_too_long
-    - relation_too_long
-    - type_definitions_too_few_items
-    - type_invalid_length
-    - type_invalid_pattern
-    - relations_too_few_items
-    - relations_too_long
-    - relations_invalid_pattern
-    - object_invalid_pattern
-    - query_string_type_continuation_token_mismatch
-    - exceeded_entity_limit
-    - invalid_contextual_tuple
-    - duplicate_contextual_tuple
-    - invalid_authorization_model
-    - unsupported_schema_version
-    - cancelled
-    - invalid_start_time
-    default: no_error
-  WriteRequestDeletes:
-    type: object
-    properties:
-      tuple_keys:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/TupleKeyWithoutCondition'
-        minItems: 1
-      on_missing:
-        type: string
-        example: ignore
-        enum:
-        - error
-        - ignore
-        default: error
-        description: On 'error', the API returns an error when deleting a tuple that does not exist. On 'ignore', deletes of non-existent tuples are treated as no-ops.
-    required:
-    - tuple_keys
-  ForbiddenResponse:
-    type: object
-    example:
-      code: forbidden
-      message: the principal is not authorized to perform the action
-    properties:
-      code:
-        $ref: '#/definitions/AuthErrorCode'
-      message:
-        type: string
-  InternalErrorMessageResponse:
-    type: object
-    example:
-      code: internal_error
-      message: Internal Server Error
-    properties:
-      code:
-        $ref: '#/definitions/InternalErrorCode'
-      message:
-        type: string
-  UnauthenticatedResponse:
-    type: object
-    example:
-      code: unauthenticated
-      message: unauthenticated
-    properties:
-      code:
-        $ref: '#/definitions/ErrorCode'
-      message:
-        type: string
-  UnprocessableContentErrorCode:
-    type: string
-    enum:
-    - no_throttled_error_code
-    - throttled_timeout_error
-    default: no_throttled_error_code
-  WriteResponse:
-    type: object
+            match the parameter type definitions.'
+      required:
+      - name
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    ReadRequestTupleKey:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+    ConsistencyPreference:
+      type: string
+      enum:
+      - UNSPECIFIED
+      - MINIMIZE_LATENCY
+      - HIGHER_CONSISTENCY
+      default: UNSPECIFIED
+      description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
+      example: MINIMIZE_LATENCY
+    TupleKeyWithoutCondition:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+      required:
+      - user
+      - relation
+      - object
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    WriteResponse:
+      type: object
+    WriteRequestDeletes:
+      type: object
+      properties:
+        tuple_keys:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKeyWithoutCondition'
+          minItems: 1
+        on_missing:
+          type: string
+          example: ignore
+          enum:
+          - error
+          - ignore
+          default: error
+          description: On 'error', the API returns an error when deleting a tuple that does not exist. On 'ignore', deletes of non-existent tuples are treated as no-ops.
+      required:
+      - tuple_keys
+    ReadResponse:
+      type: object
+      properties:
+        tuples:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Tuple'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be empty if there are no more tuples.
+      required:
+      - tuples
+      - continuation_token
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    ErrorCode:
+      type: string
+      enum:
+      - no_error
+      - validation_error
+      - authorization_model_not_found
+      - authorization_model_resolution_too_complex
+      - invalid_write_input
+      - cannot_allow_duplicate_tuples_in_one_request
+      - cannot_allow_duplicate_types_in_one_request
+      - cannot_allow_multiple_references_to_one_relation
+      - invalid_continuation_token
+      - invalid_tuple_set
+      - invalid_check_input
+      - invalid_expand_input
+      - unsupported_user_set
+      - invalid_object_format
+      - write_failed_due_to_invalid_input
+      - authorization_model_assertions_not_found
+      - latest_authorization_model_not_found
+      - type_not_found
+      - relation_not_found
+      - empty_relation_definition
+      - invalid_user
+      - invalid_tuple
+      - unknown_relation
+      - store_id_invalid_length
+      - assertions_too_many_items
+      - id_too_long
+      - authorization_model_id_too_long
+      - tuple_key_value_not_specified
+      - tuple_keys_too_many_or_too_few_items
+      - page_size_invalid
+      - param_missing_value
+      - difference_base_missing_value
+      - subtract_base_missing_value
+      - object_too_long
+      - relation_too_long
+      - type_definitions_too_few_items
+      - type_invalid_length
+      - type_invalid_pattern
+      - relations_too_few_items
+      - relations_too_long
+      - relations_invalid_pattern
+      - object_invalid_pattern
+      - query_string_type_continuation_token_mismatch
+      - exceeded_entity_limit
+      - invalid_contextual_tuple
+      - duplicate_contextual_tuple
+      - invalid_authorization_model
+      - unsupported_schema_version
+      - cancelled
+      - invalid_start_time
+      default: no_error

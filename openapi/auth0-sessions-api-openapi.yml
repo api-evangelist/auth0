@@ -1,15 +1,20 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
-  title: Auth0 Authentication actions sessions API
-  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
-  version: 1.0.0
+  title: Auth0 Management Sessions API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
 servers:
-- url: '{auth0_domain}'
-  description: The Authentication API is served over HTTPS.
+- url: https://{tenantDomain}/api/v2
   variables:
-    auth0_domain:
-      description: Auth0 domain
-      default: https://demo.us.auth0.com
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
 tags:
 - name: sessions
 paths:
@@ -171,13 +176,16 @@ paths:
         - delete:refresh_tokens
 components:
   schemas:
-    SessionMetadata:
-      type:
-      - object
-      - 'null'
-      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+    SessionAuthenticationSignals:
+      type: object
+      description: Details about authentication signals obtained during the login flow
       additionalProperties: true
-      maxProperties: 25
+      properties:
+        methods:
+          type: array
+          description: Contains the authentication methods a user has completed during their session
+          items:
+            $ref: '#/components/schemas/SessionAuthenticationSignal'
     SessionAuthenticationSignal:
       type: object
       description: Authentication signal details
@@ -191,101 +199,15 @@ components:
         type:
           type: string
           description: A specific MFA factor. Only present when "name" is set to "mfa"
-    SessionAuthenticationSignals:
-      type: object
-      description: Details about authentication signals obtained during the login flow
-      additionalProperties: true
-      properties:
-        methods:
-          type: array
-          description: Contains the authentication methods a user has completed during their session
-          items:
-            $ref: '#/components/schemas/SessionAuthenticationSignal'
-    UpdateSessionResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The ID of the session
-        user_id:
-          type: string
-          description: ID of the user which can be used when interacting with other APIs.
-        created_at:
-          $ref: '#/components/schemas/SessionDate'
-        updated_at:
-          $ref: '#/components/schemas/SessionDate'
-        authenticated_at:
-          $ref: '#/components/schemas/SessionDate'
-        idle_expires_at:
-          $ref: '#/components/schemas/SessionDate'
-        expires_at:
-          $ref: '#/components/schemas/SessionDate'
-        last_interacted_at:
-          $ref: '#/components/schemas/SessionDate'
-        device:
-          $ref: '#/components/schemas/SessionDeviceMetadata'
-        clients:
-          type: array
-          description: List of client details for the session
-          items:
-            $ref: '#/components/schemas/SessionClientMetadata'
-        authentication:
-          $ref: '#/components/schemas/SessionAuthenticationSignals'
-        cookie:
-          $ref: '#/components/schemas/SessionCookieMetadata'
-        session_metadata:
-          $ref: '#/components/schemas/SessionMetadata'
-    SessionCookieMetadataModeEnum:
-      type: string
-      description: '[Private Early Access] The persistence mode of the session cookie. When set to "non-persistent" (ephemeral), the cookie will be deleted when the browser is closed. When set to "persistent", the cookie will be stored until it expires or is deleted by the user.'
-      enum:
-      - non-persistent
-      - persistent
-    SessionClientMetadata:
-      type: object
-      description: Client details
-      additionalProperties: true
-      properties:
-        client_id:
-          type: string
-          description: ID of client for the session
-    UpdateSessionRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        session_metadata:
-          $ref: '#/components/schemas/SessionMetadata'
-          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
-    SessionDeviceMetadata:
-      type: object
-      description: Metadata related to the device used in the session
-      additionalProperties: true
-      properties:
-        initial_user_agent:
-          type: string
-          description: First user agent of the device from which this user logged in
-        initial_ip:
-          $ref: '#/components/schemas/SessionIp'
-        initial_asn:
-          type: string
-          description: First autonomous system number associated with this session
-        last_user_agent:
-          type: string
-          description: Last user agent of the device from which this user logged in
-        last_ip:
-          $ref: '#/components/schemas/SessionIp'
-        last_asn:
-          type: string
-          description: Last autonomous system number from which this user logged in
-    SessionCookieMetadata:
-      type: object
-      description: '[Private Early Access] Session cookie configuration.'
-      additionalProperties: true
-      properties:
-        mode:
-          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
+    SessionDate:
+      oneOf:
+      - type: string
+        description: The date and time when the session was created
+        format: date-time
+      - type: object
+        description: The date and time when the session was created
+        additionalProperties: true
+      - type: 'null'
     GetSessionResponseContent:
       type: object
       additionalProperties: true
@@ -321,17 +243,337 @@ components:
           $ref: '#/components/schemas/SessionCookieMetadata'
         session_metadata:
           $ref: '#/components/schemas/SessionMetadata'
-    SessionDate:
-      oneOf:
-      - type: string
-        description: The date and time when the session was created
-        format: date-time
-      - type: object
-        description: The date and time when the session was created
-        additionalProperties: true
-      - type: 'null'
+    UpdateSessionResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the session
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        created_at:
+          $ref: '#/components/schemas/SessionDate'
+        updated_at:
+          $ref: '#/components/schemas/SessionDate'
+        authenticated_at:
+          $ref: '#/components/schemas/SessionDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        last_interacted_at:
+          $ref: '#/components/schemas/SessionDate'
+        device:
+          $ref: '#/components/schemas/SessionDeviceMetadata'
+        clients:
+          type: array
+          description: List of client details for the session
+          items:
+            $ref: '#/components/schemas/SessionClientMetadata'
+        authentication:
+          $ref: '#/components/schemas/SessionAuthenticationSignals'
+        cookie:
+          $ref: '#/components/schemas/SessionCookieMetadata'
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+    SessionDeviceMetadata:
+      type: object
+      description: Metadata related to the device used in the session
+      additionalProperties: true
+      properties:
+        initial_user_agent:
+          type: string
+          description: First user agent of the device from which this user logged in
+        initial_ip:
+          $ref: '#/components/schemas/SessionIp'
+        initial_asn:
+          type: string
+          description: First autonomous system number associated with this session
+        last_user_agent:
+          type: string
+          description: Last user agent of the device from which this user logged in
+        last_ip:
+          $ref: '#/components/schemas/SessionIp'
+        last_asn:
+          type: string
+          description: Last autonomous system number from which this user logged in
+    SessionClientMetadata:
+      type: object
+      description: Client details
+      additionalProperties: true
+      properties:
+        client_id:
+          type: string
+          description: ID of client for the session
+    SessionCookieMetadataModeEnum:
+      type: string
+      description: '[Private Early Access] The persistence mode of the session cookie. When set to "non-persistent" (ephemeral), the cookie will be deleted when the browser is closed. When set to "persistent", the cookie will be stored until it expires or is deleted by the user.'
+      enum:
+      - non-persistent
+      - persistent
     SessionIp:
       type:
       - string
       - 'null'
       description: First IP address associated with this session
+    SessionCookieMetadata:
+      type: object
+      description: '[Private Early Access] Session cookie configuration.'
+      additionalProperties: true
+      properties:
+        mode:
+          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
+    UpdateSessionRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
+    SessionMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties: true
+      maxProperties: 25
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            read:federated_connections_tokens: Read Federated Connections Tokens
+            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_idp_tokens: Read User Idp Tokens
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

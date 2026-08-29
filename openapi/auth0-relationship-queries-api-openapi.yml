@@ -1,15 +1,15 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
-  title: Auth0 Authentication actions Relationship Queries API
-  description: Auth0 Authentication API. Endpoints for authentication and authorization using OpenID Connect, OAuth 2.0, SAML, WS-Federation, and Passwordless flows.
-  version: 1.0.0
-servers:
-- url: '{auth0_domain}'
-  description: The Authentication API is served over HTTPS.
-  variables:
-    auth0_domain:
-      description: Auth0 domain
-      default: https://demo.us.auth0.com
+  title: OpenFGA Relationship Queries API
+  description: A high performance and flexible authorization/permission engine built for developers and inspired by Google Zanzibar.
+  version: 1.x
+  contact:
+    name: OpenFGA
+    url: https://openfga.dev
+    email: community@openfga.dev
+  license:
+    name: Apache-2.0
+    url: https://github.com/openfga/openfga/blob/main/LICENSE
 tags:
 - name: Relationship Queries
 paths:
@@ -21,62 +21,80 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/BatchCheckResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCheckResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            checks:
-              type: array
-              items:
-                type: object
-                $ref: '#/definitions/BatchCheckItem'
-              minItems: 1
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-          required:
-          - checks
+          type: string
       tags:
       - Relationship Queries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                checks:
+                  type: array
+                  items:
+                    type: object
+                    $ref: '#/components/schemas/BatchCheckItem'
+                  minItems: 1
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+              required:
+              - checks
+        required: true
   /stores/{store_id}/check:
     post:
       summary: Check whether a user is authorized to access an object
@@ -85,71 +103,89 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/CheckResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            tuple_key:
-              $ref: '#/definitions/CheckRequestTupleKey'
-            contextual_tuples:
-              $ref: '#/definitions/ContextualTupleKeys'
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
-            trace:
-              type: boolean
-              example: false
-              description: Defaults to false. Making it true has performance implications.
-              readOnly: true
-            context:
-              type: object
-              description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
-
-                in the query evaluation.'
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-              description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
-          required:
-          - tuple_key
+          type: string
       tags:
       - Relationship Queries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tuple_key:
+                  $ref: '#/components/schemas/CheckRequestTupleKey'
+                contextual_tuples:
+                  $ref: '#/components/schemas/ContextualTupleKeys'
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+                trace:
+                  type: boolean
+                  example: false
+                  description: Defaults to false. Making it true has performance implications.
+                  readOnly: true
+                context:
+                  type: object
+                  description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
+
+                    in the query evaluation.'
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+                  description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+              required:
+              - tuple_key
+        required: true
   /stores/{store_id}/expand:
     post:
       summary: Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship
@@ -158,61 +194,79 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/ExpandResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            tuple_key:
-              $ref: '#/definitions/ExpandRequestTupleKey'
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-              description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
-            contextual_tuples:
-              $ref: '#/definitions/ContextualTupleKeys'
-          required:
-          - tuple_key
+          type: string
       tags:
       - Relationship Queries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tuple_key:
+                  $ref: '#/components/schemas/ExpandRequestTupleKey'
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+                  description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+                contextual_tuples:
+                  $ref: '#/components/schemas/ContextualTupleKeys'
+              required:
+              - tuple_key
+        required: true
   /stores/{store_id}/list-objects:
     post:
       summary: List all objects of the given type that the user has a relation with
@@ -221,77 +275,95 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/ListObjectsResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListObjectsResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
-            type:
-              type: string
-              example: document
-            relation:
-              type: string
-              example: reader
-            user:
-              type: string
-              example: user:anne
-              maxLength: 512
-              minLength: 1
-            contextual_tuples:
-              $ref: '#/definitions/ContextualTupleKeys'
-            context:
-              type: object
-              description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
-
-                in the query evaluation.'
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-              description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
-          required:
-          - type
-          - relation
-          - user
+          type: string
       tags:
       - Relationship Queries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+                type:
+                  type: string
+                  example: document
+                relation:
+                  type: string
+                  example: reader
+                user:
+                  type: string
+                  example: user:anne
+                  maxLength: 512
+                  minLength: 1
+                contextual_tuples:
+                  $ref: '#/components/schemas/ContextualTupleKeys'
+                context:
+                  type: object
+                  description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
+
+                    in the query evaluation.'
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+                  description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+              required:
+              - type
+              - relation
+              - user
+        required: true
   /stores/{store_id}/list-users:
     post:
       summary: List the users matching the provided filter who have a certain relation to a particular type.
@@ -300,88 +372,106 @@ paths:
       responses:
         '200':
           description: A successful response.
-          schema:
-            $ref: '#/definitions/ListUsersResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponse'
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
-            object:
-              $ref: '#/definitions/Object'
-              example: document:example
-            relation:
-              type: string
-              example: reader
-            user_filters:
-              type: array
-              example:
-              - type: user
-              - type: group
-                relation: member
-              items:
-                type: object
-                $ref: '#/definitions/UserTypeFilter'
-              description: The type of results returned. Only accepts exactly one value.
-              maxItems: 1
-              minItems: 1
-            contextual_tuples:
-              type: array
-              items:
-                type: object
-                $ref: '#/definitions/TupleKey'
-              maxItems: 100
-            context:
-              type: object
-              description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
-
-                in the query evaluation.'
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-              description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
-          required:
-          - object
-          - relation
-          - user_filters
+          type: string
       tags:
       - Relationship Queries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+                object:
+                  $ref: '#/components/schemas/Object'
+                  example: document:example
+                relation:
+                  type: string
+                  example: reader
+                user_filters:
+                  type: array
+                  example:
+                  - type: user
+                  - type: group
+                    relation: member
+                  items:
+                    type: object
+                    $ref: '#/components/schemas/UserTypeFilter'
+                  description: The type of results returned. Only accepts exactly one value.
+                  maxItems: 1
+                  minItems: 1
+                contextual_tuples:
+                  type: array
+                  items:
+                    type: object
+                    $ref: '#/components/schemas/TupleKey'
+                  maxItems: 100
+                context:
+                  type: object
+                  description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
+
+                    in the query evaluation.'
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+                  description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+              required:
+              - object
+              - relation
+              - user_filters
+        required: true
   /stores/{store_id}/streamed-list-objects:
     post:
       summary: Stream all objects of the given type that the user has a relation with
@@ -390,622 +480,641 @@ paths:
       responses:
         '200':
           description: A successful response.(streaming responses)
-          schema:
-            type: object
-            properties:
-              result:
-                $ref: '#/definitions/StreamedListObjectsResponse'
-              error:
-                $ref: '#/definitions/Status'
-            title: Stream result of StreamedListObjectsResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: '#/components/schemas/StreamedListObjectsResponse'
+                  error:
+                    $ref: '#/components/schemas/Status'
+                title: Stream result of StreamedListObjectsResponse
         '400':
           description: Request failed due to invalid input.
-          schema:
-            $ref: '#/definitions/ValidationErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorMessageResponse'
         '401':
           description: Not authenticated.
-          schema:
-            $ref: '#/definitions/UnauthenticatedResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthenticatedResponse'
         '403':
           description: Forbidden.
-          schema:
-            $ref: '#/definitions/ForbiddenResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
         '404':
           description: Request failed due to incorrect path.
-          schema:
-            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathUnknownErrorMessageResponse'
         '409':
           description: Request was aborted due a transaction conflict.
-          schema:
-            $ref: '#/definitions/AbortedMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortedMessageResponse'
         '422':
           description: Request timed out due to excessive request throttling.
-          schema:
-            $ref: '#/definitions/UnprocessableContentMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContentMessageResponse'
         '500':
           description: Request failed due to internal server error.
-          schema:
-            $ref: '#/definitions/InternalErrorMessageResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorMessageResponse'
       parameters:
       - name: store_id
         in: path
         required: true
-        type: string
-      - name: body
-        in: body
-        required: true
         schema:
-          type: object
-          properties:
-            authorization_model_id:
-              type: string
-              example: 01G5JAVJ41T49E9TT3SKVS7X1J
-            type:
-              type: string
-              example: document
-            relation:
-              type: string
-              example: reader
-            user:
-              type: string
-              example: user:anne
-              maxLength: 512
-              minLength: 1
-            contextual_tuples:
-              $ref: '#/definitions/ContextualTupleKeys'
-            context:
-              type: object
-              description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
-
-                in the query evaluation.'
-            consistency:
-              $ref: '#/definitions/ConsistencyPreference'
-              description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
-          required:
-          - type
-          - relation
-          - user
+          type: string
       tags:
       - Relationship Queries
-definitions:
-  PathUnknownErrorMessageResponse:
-    type: object
-    example:
-      code: undefined_endpoint
-      message: Endpoint not enabled
-    properties:
-      code:
-        $ref: '#/definitions/NotFoundErrorCode'
-      message:
-        type: string
-  UserTypeFilter:
-    type: object
-    properties:
-      type:
-        type: string
-        example: group
-      relation:
-        type: string
-        example: member
-    required:
-    - type
-  RelationshipCondition:
-    type: object
-    properties:
-      name:
-        type: string
-        example: condition1
-        description: A reference (by name) of the relationship condition defined in the authorization model.
-        maxLength: 256
-      context:
-        type: object
-        description: 'Additional context/data to persist along with the condition.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authorization_model_id:
+                  type: string
+                  example: 01G5JAVJ41T49E9TT3SKVS7X1J
+                type:
+                  type: string
+                  example: document
+                relation:
+                  type: string
+                  example: reader
+                user:
+                  type: string
+                  example: user:anne
+                  maxLength: 512
+                  minLength: 1
+                contextual_tuples:
+                  $ref: '#/components/schemas/ContextualTupleKeys'
+                context:
+                  type: object
+                  description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
 
-          The keys must match the parameters defined by the condition, and the value types must
-
-          match the parameter type definitions.'
-    required:
-    - name
-  TupleKey:
-    type: object
-    properties:
-      user:
-        type: string
-        example: user:anne
-        maxLength: 512
-      relation:
-        type: string
-        example: reader
-        maxLength: 50
-      object:
-        type: string
-        example: document:2021-budget
-        maxLength: 256
-      condition:
-        $ref: '#/definitions/RelationshipCondition'
-    required:
-    - user
-    - relation
-    - object
-  InternalErrorCode:
-    type: string
-    enum:
-    - no_internal_error
-    - internal_error
-    - deadline_exceeded
-    - already_exists
-    - resource_exhausted
-    - failed_precondition
-    - aborted
-    - out_of_range
-    - unavailable
-    - data_loss
-    default: no_internal_error
-  CheckResponse:
-    type: object
-    properties:
-      allowed:
-        type: boolean
-        example: true
-      resolution:
-        type: string
-        description: For internal use only.
-  Leaf:
-    type: object
-    properties:
-      users:
-        $ref: '#/definitions/Users'
-      computed:
-        $ref: '#/definitions/Computed'
-      tupleToUserset:
-        $ref: '#/definitions/UsersetTree.TupleToUserset'
-    description: "A leaf node contains either\n- a set of users (which may be individual users, or usersets\n  referencing other relations)\n- a computed node, which is the result of a computed userset\n  value in the authorization model\n- a tupleToUserset nodes, containing the result of expanding\n  a tupleToUserset value in a authorization model."
-  ContextualTupleKeys:
-    type: object
-    properties:
-      tuple_keys:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/TupleKey'
-        maxItems: 100
-    required:
-    - tuple_keys
-  ExpandRequestTupleKey:
-    type: object
-    properties:
-      relation:
-        type: string
-        example: reader
-        maxLength: 50
-      object:
-        type: string
-        example: document:2021-budget
-        maxLength: 256
-    required:
-    - relation
-    - object
-  BatchCheckSingleResult:
-    type: object
-    properties:
-      allowed:
-        type: boolean
-      error:
-        $ref: '#/definitions/CheckError'
-  AbortedMessageResponse:
-    type: object
-    example:
-      code: '10'
-      message: transaction conflict
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-  UsersetUser:
-    type: object
-    properties:
-      type:
-        type: string
-        example: group
-      id:
-        type: string
-        example: fga
-      relation:
-        type: string
-        example: member
-    description: 'Userset.
-
-
-      A set or group of users, represented in the `<type>:<id>#<relation>` format
-
-
-      `group:fga#member` represents all members of group FGA, not to be confused by `group:fga` which represents the group itself as a specific object.
-
-
-      See: https://openfga.dev/docs/modeling/building-blocks/usersets#what-is-a-userset'
-    required:
-    - type
-    - id
-    - relation
-  ListObjectsResponse:
-    type: object
-    properties:
-      objects:
-        type: array
-        example:
-        - document:roadmap
-        - document:planning
-        items:
+                    in the query evaluation.'
+                consistency:
+                  $ref: '#/components/schemas/ConsistencyPreference'
+                  description: Controls the consistency preference for this request. Default value is UNSPECIFIED, which will have the same behavior as MINIMIZE_LATENCY.
+              required:
+              - type
+              - relation
+              - user
+        required: true
+components:
+  schemas:
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    CheckRequestTupleKey:
+      type: object
+      properties:
+        user:
           type: string
-    required:
-    - objects
-  AuthErrorCode:
-    type: string
-    enum:
-    - no_auth_error
-    - auth_failed_invalid_subject
-    - auth_failed_invalid_audience
-    - auth_failed_invalid_issuer
-    - invalid_claims
-    - auth_failed_invalid_bearer_token
-    - bearer_token_missing
-    - unauthenticated
-    - forbidden
-    default: no_auth_error
-  Computed:
-    type: object
-    properties:
-      userset:
-        type: string
-    required:
-    - userset
-  CheckRequestTupleKey:
-    type: object
-    properties:
-      user:
-        type: string
-        example: user:anne
-        maxLength: 512
-      relation:
-        type: string
-        example: reader
-        maxLength: 50
-      object:
-        type: string
-        example: document:2021-budget
-        maxLength: 256
-    required:
-    - user
-    - relation
-    - object
-  Node:
-    type: object
-    properties:
-      name:
-        type: string
-      leaf:
-        $ref: '#/definitions/Leaf'
-      difference:
-        $ref: '#/definitions/UsersetTree.Difference'
-      union:
-        $ref: '#/definitions/Nodes'
-      intersection:
-        $ref: '#/definitions/Nodes'
-    required:
-    - name
-  BatchCheckItem:
-    type: object
-    properties:
-      tuple_key:
-        $ref: '#/definitions/CheckRequestTupleKey'
-      contextual_tuples:
-        $ref: '#/definitions/ContextualTupleKeys'
-      context:
-        type: object
-      correlation_id:
-        type: string
-        example: 1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc
-        description: correlation_id must be a string containing only letters, numbers, or hyphens, with length ≤ 36 characters.
-    required:
-    - tuple_key
-    - correlation_id
-  Any:
-    type: object
-    properties:
-      '@type':
-        type: string
-    additionalProperties: {}
-  ConsistencyPreference:
-    type: string
-    enum:
-    - UNSPECIFIED
-    - MINIMIZE_LATENCY
-    - HIGHER_CONSISTENCY
-    default: UNSPECIFIED
-    description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
-    example: MINIMIZE_LATENCY
-  Users:
-    type: object
-    properties:
-      users:
-        type: array
-        items:
+          example: user:anne
+          maxLength: 512
+        relation:
           type: string
-    required:
-    - users
-  NotFoundErrorCode:
-    type: string
-    enum:
-    - no_not_found_error
-    - undefined_endpoint
-    - store_id_not_found
-    - unimplemented
-    default: no_not_found_error
-  User:
-    type: object
-    properties:
-      object:
-        $ref: '#/definitions/Object'
-      userset:
-        $ref: '#/definitions/UsersetUser'
-      wildcard:
-        $ref: '#/definitions/TypedWildcard'
-    description: 'User.
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+      required:
+      - user
+      - relation
+      - object
+    Users:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: string
+      required:
+      - users
+    TupleKey:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+        condition:
+          $ref: '#/components/schemas/RelationshipCondition'
+      required:
+      - user
+      - relation
+      - object
+    BatchCheckSingleResult:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+        error:
+          $ref: '#/components/schemas/CheckError'
+    ContextualTupleKeys:
+      type: object
+      properties:
+        tuple_keys:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKey'
+          maxItems: 100
+      required:
+      - tuple_keys
+    Object:
+      type: object
+      properties:
+        type:
+          type: string
+          example: document
+        id:
+          type: string
+          example: 0bcdf6fa-a6aa-4730-a8eb-9cf172ff16d9
+      description: 'Object represents an OpenFGA Object.
 
 
-      Represents any possible value for a user (subject or principal). Can be a:
-
-      - Specific user object e.g.: ''user:will'', ''folder:marketing'', ''org:contoso'', ...)
-
-      - Specific userset (e.g. ''group:engineering#member'')
-
-      - Public-typed wildcard (e.g. ''user:*'')
+        An Object is composed of a type and identifier (e.g. ''document:1'')
 
 
-      See https://openfga.dev/docs/concepts#what-is-a-user'
-  ExpandResponse:
-    type: object
-    properties:
-      tree:
-        $ref: '#/definitions/UsersetTree'
-  Status:
-    type: object
-    properties:
-      code:
-        type: integer
-        format: int32
-      message:
-        type: string
-      details:
-        type: array
-        items:
+        See https://openfga.dev/docs/concepts#what-is-an-object'
+      required:
+      - type
+      - id
+    BatchCheckItem:
+      type: object
+      properties:
+        tuple_key:
+          $ref: '#/components/schemas/CheckRequestTupleKey'
+        contextual_tuples:
+          $ref: '#/components/schemas/ContextualTupleKeys'
+        context:
           type: object
-          $ref: '#/definitions/Any'
-  Nodes:
-    type: object
-    properties:
-      nodes:
-        type: array
-        items:
+        correlation_id:
+          type: string
+          example: 1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc
+          description: correlation_id must be a string containing only letters, numbers, or hyphens, with length ≤ 36 characters.
+      required:
+      - tuple_key
+      - correlation_id
+    BatchCheckResponse:
+      type: object
+      properties:
+        result:
           type: object
-          $ref: '#/definitions/Node'
-    required:
-    - nodes
-  ValidationErrorMessageResponse:
-    type: object
-    example:
-      code: validation_error
-      message: Generic validation error
-    properties:
-      code:
-        $ref: '#/definitions/ErrorCode'
-      message:
-        type: string
-  UnprocessableContentMessageResponse:
-    type: object
-    example:
-      code: throttled_timeout_error
-      message: timeout due to throttling on complex request
-    properties:
-      code:
-        $ref: '#/definitions/UnprocessableContentErrorCode'
-      message:
-        type: string
-  ErrorCode:
-    type: string
-    enum:
-    - no_error
-    - validation_error
-    - authorization_model_not_found
-    - authorization_model_resolution_too_complex
-    - invalid_write_input
-    - cannot_allow_duplicate_tuples_in_one_request
-    - cannot_allow_duplicate_types_in_one_request
-    - cannot_allow_multiple_references_to_one_relation
-    - invalid_continuation_token
-    - invalid_tuple_set
-    - invalid_check_input
-    - invalid_expand_input
-    - unsupported_user_set
-    - invalid_object_format
-    - write_failed_due_to_invalid_input
-    - authorization_model_assertions_not_found
-    - latest_authorization_model_not_found
-    - type_not_found
-    - relation_not_found
-    - empty_relation_definition
-    - invalid_user
-    - invalid_tuple
-    - unknown_relation
-    - store_id_invalid_length
-    - assertions_too_many_items
-    - id_too_long
-    - authorization_model_id_too_long
-    - tuple_key_value_not_specified
-    - tuple_keys_too_many_or_too_few_items
-    - page_size_invalid
-    - param_missing_value
-    - difference_base_missing_value
-    - subtract_base_missing_value
-    - object_too_long
-    - relation_too_long
-    - type_definitions_too_few_items
-    - type_invalid_length
-    - type_invalid_pattern
-    - relations_too_few_items
-    - relations_too_long
-    - relations_invalid_pattern
-    - object_invalid_pattern
-    - query_string_type_continuation_token_mismatch
-    - exceeded_entity_limit
-    - invalid_contextual_tuple
-    - duplicate_contextual_tuple
-    - invalid_authorization_model
-    - unsupported_schema_version
-    - cancelled
-    - invalid_start_time
-    default: no_error
-  ForbiddenResponse:
-    type: object
-    example:
-      code: forbidden
-      message: the principal is not authorized to perform the action
-    properties:
-      code:
-        $ref: '#/definitions/AuthErrorCode'
-      message:
-        type: string
-  InternalErrorMessageResponse:
-    type: object
-    example:
-      code: internal_error
-      message: Internal Server Error
-    properties:
-      code:
-        $ref: '#/definitions/InternalErrorCode'
-      message:
-        type: string
-  TypedWildcard:
-    type: object
-    properties:
-      type:
-        type: string
-        example: employee
-    description: 'Type bound public access.
+          example:
+            1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc:
+              allowed: true
+              error:
+                message: ''
+          additionalProperties:
+            $ref: '#/components/schemas/BatchCheckSingleResult'
+          description: map keys are the correlation_id values from the BatchCheckItems in the request
+    Leaf:
+      type: object
+      properties:
+        users:
+          $ref: '#/components/schemas/Users'
+        computed:
+          $ref: '#/components/schemas/Computed'
+        tupleToUserset:
+          $ref: '#/components/schemas/UsersetTree.TupleToUserset'
+      description: "A leaf node contains either\n- a set of users (which may be individual users, or usersets\n  referencing other relations)\n- a computed node, which is the result of a computed userset\n  value in the authorization model\n- a tupleToUserset nodes, containing the result of expanding\n  a tupleToUserset value in a authorization model."
+    Computed:
+      type: object
+      properties:
+        userset:
+          type: string
+      required:
+      - userset
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    User:
+      type: object
+      properties:
+        object:
+          $ref: '#/components/schemas/Object'
+        userset:
+          $ref: '#/components/schemas/UsersetUser'
+        wildcard:
+          $ref: '#/components/schemas/TypedWildcard'
+      description: 'User.
 
 
-      Normally represented using the `<type>:*` syntax
+        Represents any possible value for a user (subject or principal). Can be a:
+
+        - Specific user object e.g.: ''user:will'', ''folder:marketing'', ''org:contoso'', ...)
+
+        - Specific userset (e.g. ''group:engineering#member'')
+
+        - Public-typed wildcard (e.g. ''user:*'')
 
 
-      `employee:*` represents every object of type `employee`, including those not currently present in the system
+        See https://openfga.dev/docs/concepts#what-is-a-user'
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    Status:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Any'
+    CheckResponse:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+          example: true
+        resolution:
+          type: string
+          description: For internal use only.
+    ListObjectsResponse:
+      type: object
+      properties:
+        objects:
+          type: array
+          example:
+          - document:roadmap
+          - document:planning
+          items:
+            type: string
+      required:
+      - objects
+    ExpandResponse:
+      type: object
+      properties:
+        tree:
+          $ref: '#/components/schemas/UsersetTree'
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    UserTypeFilter:
+      type: object
+      properties:
+        type:
+          type: string
+          example: group
+        relation:
+          type: string
+          example: member
+      required:
+      - type
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    UsersetUser:
+      type: object
+      properties:
+        type:
+          type: string
+          example: group
+        id:
+          type: string
+          example: fga
+        relation:
+          type: string
+          example: member
+      description: 'Userset.
 
 
-      See https://openfga.dev/docs/concepts#what-is-type-bound-public-access'
-    required:
-    - type
-  UsersetTree:
-    type: object
-    properties:
-      root:
-        $ref: '#/definitions/Node'
-    description: A UsersetTree contains the result of an Expansion.
-  UnauthenticatedResponse:
-    type: object
-    example:
-      code: unauthenticated
-      message: unauthenticated
-    properties:
-      code:
-        $ref: '#/definitions/ErrorCode'
-      message:
-        type: string
-  BatchCheckResponse:
-    type: object
-    properties:
-      result:
-        type: object
-        example:
-          1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc:
-            allowed: true
-            error:
-              message: ''
-        additionalProperties:
-          $ref: '#/definitions/BatchCheckSingleResult'
-        description: map keys are the correlation_id values from the BatchCheckItems in the request
-  CheckError:
-    type: object
-    properties:
-      input_error:
-        $ref: '#/definitions/ErrorCode'
-      internal_error:
-        $ref: '#/definitions/InternalErrorCode'
-      message:
-        type: string
-  UsersetTree.TupleToUserset:
-    type: object
-    properties:
-      tupleset:
-        type: string
-      computed:
-        type: array
-        items:
+        A set or group of users, represented in the `<type>:<id>#<relation>` format
+
+
+        `group:fga#member` represents all members of group FGA, not to be confused by `group:fga` which represents the group itself as a specific object.
+
+
+        See: https://openfga.dev/docs/modeling/building-blocks/usersets#what-is-a-userset'
+      required:
+      - type
+      - id
+      - relation
+    UsersetTree.TupleToUserset:
+      type: object
+      properties:
+        tupleset:
+          type: string
+        computed:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Computed'
+      required:
+      - tupleset
+      - computed
+    RelationshipCondition:
+      type: object
+      properties:
+        name:
+          type: string
+          example: condition1
+          description: A reference (by name) of the relationship condition defined in the authorization model.
+          maxLength: 256
+        context:
           type: object
-          $ref: '#/definitions/Computed'
-    required:
-    - tupleset
-    - computed
-  Object:
-    type: object
-    properties:
-      type:
-        type: string
-        example: document
-      id:
-        type: string
-        example: 0bcdf6fa-a6aa-4730-a8eb-9cf172ff16d9
-    description: 'Object represents an OpenFGA Object.
+          description: 'Additional context/data to persist along with the condition.
+
+            The keys must match the parameters defined by the condition, and the value types must
+
+            match the parameter type definitions.'
+      required:
+      - name
+    TypedWildcard:
+      type: object
+      properties:
+        type:
+          type: string
+          example: employee
+      description: 'Type bound public access.
 
 
-      An Object is composed of a type and identifier (e.g. ''document:1'')
+        Normally represented using the `<type>:*` syntax
 
 
-      See https://openfga.dev/docs/concepts#what-is-an-object'
-    required:
-    - type
-    - id
-  UsersetTree.Difference:
-    type: object
-    properties:
-      base:
-        $ref: '#/definitions/Node'
-      subtract:
-        $ref: '#/definitions/Node'
-    required:
-    - base
-    - subtract
-  StreamedListObjectsResponse:
-    type: object
-    properties:
-      object:
-        type: string
-        example: document:roadmap
-    description: The response for a StreamedListObjects RPC.
-    required:
-    - object
-  ListUsersResponse:
-    type: object
-    properties:
-      users:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/User'
-    required:
-    - users
-  UnprocessableContentErrorCode:
-    type: string
-    enum:
-    - no_throttled_error_code
-    - throttled_timeout_error
-    default: no_throttled_error_code
+        `employee:*` represents every object of type `employee`, including those not currently present in the system
+
+
+        See https://openfga.dev/docs/concepts#what-is-type-bound-public-access'
+      required:
+      - type
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    Node:
+      type: object
+      properties:
+        name:
+          type: string
+        leaf:
+          $ref: '#/components/schemas/Leaf'
+        difference:
+          $ref: '#/components/schemas/UsersetTree.Difference'
+        union:
+          $ref: '#/components/schemas/Nodes'
+        intersection:
+          $ref: '#/components/schemas/Nodes'
+      required:
+      - name
+    Nodes:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Node'
+      required:
+      - nodes
+    ListUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/User'
+      required:
+      - users
+    ExpandRequestTupleKey:
+      type: object
+      properties:
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+      required:
+      - relation
+      - object
+    StreamedListObjectsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          example: document:roadmap
+      description: The response for a StreamedListObjects RPC.
+      required:
+      - object
+    ConsistencyPreference:
+      type: string
+      enum:
+      - UNSPECIFIED
+      - MINIMIZE_LATENCY
+      - HIGHER_CONSISTENCY
+      default: UNSPECIFIED
+      description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
+      example: MINIMIZE_LATENCY
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    Any:
+      type: object
+      properties:
+        '@type':
+          type: string
+      additionalProperties: {}
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    CheckError:
+      type: object
+      properties:
+        input_error:
+          $ref: '#/components/schemas/ErrorCode'
+        internal_error:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    UsersetTree:
+      type: object
+      properties:
+        root:
+          $ref: '#/components/schemas/Node'
+      description: A UsersetTree contains the result of an Expansion.
+    ErrorCode:
+      type: string
+      enum:
+      - no_error
+      - validation_error
+      - authorization_model_not_found
+      - authorization_model_resolution_too_complex
+      - invalid_write_input
+      - cannot_allow_duplicate_tuples_in_one_request
+      - cannot_allow_duplicate_types_in_one_request
+      - cannot_allow_multiple_references_to_one_relation
+      - invalid_continuation_token
+      - invalid_tuple_set
+      - invalid_check_input
+      - invalid_expand_input
+      - unsupported_user_set
+      - invalid_object_format
+      - write_failed_due_to_invalid_input
+      - authorization_model_assertions_not_found
+      - latest_authorization_model_not_found
+      - type_not_found
+      - relation_not_found
+      - empty_relation_definition
+      - invalid_user
+      - invalid_tuple
+      - unknown_relation
+      - store_id_invalid_length
+      - assertions_too_many_items
+      - id_too_long
+      - authorization_model_id_too_long
+      - tuple_key_value_not_specified
+      - tuple_keys_too_many_or_too_few_items
+      - page_size_invalid
+      - param_missing_value
+      - difference_base_missing_value
+      - subtract_base_missing_value
+      - object_too_long
+      - relation_too_long
+      - type_definitions_too_few_items
+      - type_invalid_length
+      - type_invalid_pattern
+      - relations_too_few_items
+      - relations_too_long
+      - relations_invalid_pattern
+      - object_invalid_pattern
+      - query_string_type_continuation_token_mismatch
+      - exceeded_entity_limit
+      - invalid_contextual_tuple
+      - duplicate_contextual_tuple
+      - invalid_authorization_model
+      - unsupported_schema_version
+      - cancelled
+      - invalid_start_time
+      default: no_error
+    UsersetTree.Difference:
+      type: object
+      properties:
+        base:
+          $ref: '#/components/schemas/Node'
+        subtract:
+          $ref: '#/components/schemas/Node'
+      required:
+      - base
+      - subtract
