@@ -1,0 +1,407 @@
+slug: auth0
+provider: Auth0
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 41
+edges:
+- tag: MFA
+  spec_file: auth0-mfa-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.93
+  evidence: POST /mfa/challenge — 'Request a Challenge for Multi-factor Authentication'; 'Associates or
+    Adds a New Authenticator'
+  reason: Multi-factor authenticator enrolment and challenge is squarely Identity & Access Management.
+- tag: roles
+  spec_file: auth0-roles-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.92
+  evidence: '"Get Permissions Granted by Role", "Associate Permissions with a Role", "Assign Users to
+    a Role" (schemas Role, RoleUser, PermissionRequestPayload)'
+  reason: Role-based access control administration — creating roles, attaching permissions, assigning
+    users — is squarely Identity & Access Management for this identity-as-a-service vendor.
+- tag: users
+  spec_file: auth0-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.92
+  evidence: POST /users 'Create a User'; GET /users/{id}/authentication-methods 'Get a List of Authentication
+    Methods'; schemas ListUserRolesResponseContent, CreateUserPermissionsRequestContent
+  reason: Operations manage the full lifecycle of user identities, their authentication methods, roles
+    and permissions on an identity-as-a-service platform — squarely Identity & Access Management rather
+    than HR employee records or CRM customer data.
+- tag: Authorize User
+  spec_file: auth0-authorize-user-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: GET /authorize  authorize  Auth0 Authenticate a User with a Social Provider, Database/AD/LDAP
+    (Passive), SAML/Windows Azure AD (Passive), Authorization Code Flow
+  reason: The single operation is the OAuth/OIDC authorize endpoint performing user authentication and
+    authorization-code issuance — federation and access management.
+- tag: OAuth Token
+  spec_file: auth0-oauth-token-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: POST /oauth/token; schemas ClientCredentials, AuthorizationCodePKCE, RefreshToken, OTP
+  reason: Token issuance across OAuth grant types — authentication and access token management, i.e. IAM.
+- tag: SAML
+  spec_file: auth0-saml-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: GET /samlp/{client_id} — 'Accept a SAML Request to Initiate a Login'; GET /samlp/metadata/{client_id}
+  reason: SAML login initiation and federation metadata — identity federation, part of IAM.
+- tag: AuthZenService
+  spec_file: auth0-authzenservice-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /stores/{store_id}/access/v1/evaluation  Evaluation  [Experimental] Evaluate whether
+    a subject can perform an action on a resource
+  reason: Operations perform authorization decisions and access searches (which subjects can access which
+    resources), the core of access management.
+- tag: Authorization Models
+  spec_file: auth0-authorization-models-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /stores/{store_id}/authorization-models  WriteAuthorizationModel  Create a new authorization
+    model
+  reason: Creating and versioning fine-grained authorization models is definition of access-control policy
+    — Identity & Access Management.
+- tag: Deprecated > Passwordless
+  spec_file: auth0-deprecated-passwordless-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /passwordless/verify — 'Verify with Verification Code'; 'Given the User's Credentials,
+    This Endpoint Will Authenticate the User'
+  reason: Legacy passwordless/resource-owner authentication endpoints; user authentication is Identity
+    & Access Management, the vendor's core function.
+- tag: Passwordless
+  spec_file: auth0-passwordless-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /passwordless/start — 'Start Passwordless Flow'
+  reason: Initiates a passwordless authentication flow — user authentication, i.e. Identity & Access Management.
+- tag: Relationship Queries
+  spec_file: auth0-relationship-queries-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /stores/{store_id}/check — 'Check whether a user is authorized to access an object'
+  reason: Fine-grained authorization decision queries (OpenFGA); access authorization is Identity & Access
+    Management.
+- tag: SSO
+  spec_file: auth0-sso-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /login/callback — 'Accepts an IdP-Initiated Sign on SAMLResponse from a SAML Identity
+    Provider'
+  reason: Single sign-on callback handling from an external identity provider — federation within Identity
+    & Access Management.
+- tag: guardian
+  spec_file: auth0-guardian-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.88
+  evidence: POST /guardian/enrollments/ticket 'Create a Multi-factor Authentication Enrollment Ticket';
+    GET /guardian/factors 'Get Factors and Multi-factor Authentication Details'
+  reason: 'Guardian here is Auth0''s MFA subsystem: enrollment tickets, factor providers (DUO, Twilio,
+    push). This is authentication/access control administration, squarely Identity & Access Management
+    rather than any business-domain capability.'
+- tag: Deprecated > Authenticate
+  spec_file: auth0-deprecated-authenticate-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: POST /oauth/access_token  oauth_access_token  Auth0 Login Using a Social Provider's Access
+    Token
+  reason: Login/token exchange and JWT-based profile retrieval are authentication operations, i.e. Identity
+    & Access Management.
+- tag: Device Flow
+  spec_file: auth0-device-flow-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: POST /oauth/device/code — 'Get Device Code'
+  reason: OAuth 2.0 device authorization grant initiation — an authentication/authorization flow, i.e.
+    IAM.
+- tag: Logout
+  spec_file: auth0-logout-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: GET /oidc/logout — 'Logout a User'; POST /samlp/{CLIENT_ID}/logout
+  reason: Session termination across OIDC and SAML is part of identity and access management, not a separate
+    business capability.
+- tag: Revoke Refresh Token
+  spec_file: auth0-revoke-refresh-token-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: POST /oauth/revoke — 'Revoke Refresh Token'
+  reason: Revocation of issued credentials/tokens is access lifecycle management within IAM.
+- tag: sessions
+  spec_file: auth0-sessions-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: '"Get Session", "Revokes a Session"; schemas SessionAuthenticationSignals, SessionDeviceMetadata,
+    SessionCookieMetadata'
+  reason: Authenticated session inspection and revocation is core access management functionality of the
+    identity platform.
+- tag: Relationship Tuples
+  spec_file: auth0-relationship-tuples-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.82
+  evidence: POST /stores/{store_id}/write — 'Add or delete tuples from the store'
+  reason: Writing/reading authorization relationship tuples that define who may access what — access rights
+    administration within IAM.
+- tag: connections
+  spec_file: auth0-connections-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.82
+  evidence: POST /connections/{id}/directory-provisioning  Create a Directory Provisioning Configuration
+  reason: Manages identity provider connections and directory (SCIM-style) user provisioning with attribute
+    mapping — federation and joiner-mover-leaver provisioning under Identity & Access Management.
+- tag: grants
+  spec_file: auth0-grants-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.82
+  evidence: GET /grants — "Get Grants"; DELETE /grants — "Delete a Grant by User_id"; schema UserGrant
+  reason: Listing and revoking OAuth authorization grants held by users against applications is access-rights
+    administration — Identity & Access Management.
+- tag: groups
+  spec_file: auth0-groups-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.82
+  evidence: GET /groups/{id}/members — "Get Group Members"; schemas Group, GroupMember, GroupMemberTypeEnum
+  reason: Groups and group membership are the standard construct for assigning access rights to sets of
+    identities; these operations administer access grouping, i.e. Identity & Access Management.
+- tag: Deprecated > Delegated Authentication
+  spec_file: auth0-deprecated-delegated-authentication-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: POST /delegation  delegation  Auth0 Obtain a Delegation Token (from a Refresh_token)
+  reason: Issuing delegation tokens from refresh tokens is token/credential issuance for access — Identity
+    & Access Management.
+- tag: connections-scim-configurations
+  spec_file: auth0-connections-scim-configurations-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: GET /connections-scim-configurations — "Get a List of SCIM Configurations"; schemas ScimConfiguration,
+    ScimMappingItem
+  reason: SCIM configuration governs automated user account provisioning/de-provisioning from an identity
+    source, squarely Identity & Access Management (federation, JML).
+- tag: tickets
+  spec_file: auth0-tickets-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: '"Create an Email Verification Ticket", "Create a Password Change Ticket" (ChangePasswordTicketRequestContent)'
+  reason: Credential reset and email verification flows for end-user identities are identity and access
+    administration, not customer service ticketing despite the tag name.
+- tag: user-blocks
+  spec_file: auth0-user-blocks-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: '"Get a User''s Blocks", "Unblock a User", "Unblock by Identifier" (UserBlockIdentifier)'
+  reason: Blocking and unblocking user accounts controls authentication access for identities, an IAM
+    administration function.
+- tag: DB Connections
+  spec_file: auth0-db-connections-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.78
+  evidence: POST /dbconnections/change_password  dbconnections_change_password  Auth0 Send a Change Password
+    Email
+  reason: Credential (password) reset for database-connection user accounts is user credential lifecycle
+    within Identity & Access Management.
+- tag: DbConnections
+  spec_file: auth0-dbconnections-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.78
+  evidence: POST /dbconnections/signup  dbconnections_signup  Auth0 Signup with User's Credentials
+  reason: Creating a user account with credentials in an identity store is user provisioning under Identity
+    & Access Management.
+- tag: connections-directory-provisionings
+  spec_file: auth0-connections-directory-provisionings-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.78
+  evidence: GET /connections-directory-provisionings — "Get a List of Directory Provisioning Configurations";
+    schemas DirectoryProvisioningMappingItem, SynchronizeGroupsEnum
+  reason: Directory provisioning configuration (attribute/group mapping between an external directory
+    and the identity platform) is user account provisioning — Identity & Access Management, specifically
+    federation and joiner-mover-leaver sync. Not a tenant-side SaaS capability but the buyer's IAM control
+    plane.
+- tag: refresh-tokens
+  spec_file: auth0-refresh-tokens-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.78
+  evidence: POST /refresh-tokens/revoke 'Revoke Refresh Tokens'; DELETE /refresh-tokens/{id} 'Delete a
+    Refresh Token'
+  reason: Lifecycle and revocation of OAuth refresh tokens (with device and session metadata) is credential/session
+    administration within Identity & Access Management.
+- tag: Deprecated > Impersonation
+  spec_file: auth0-deprecated-impersonation-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: POST /users/{user_id}/impersonate  impersonate  Auth0 Obtain an Impersonation URL
+  reason: Impersonating a user is privileged access delegation, part of identity and access management.
+- tag: WS-Federation
+  spec_file: auth0-ws-federation-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: GET /wsfed/{client_id}  wsfed_login  Accepts a WS-Federation Request to Initiate a Login
+  reason: Federated login initiation is authentication/federation, squarely Identity & Access Management
+    for this identity provider.
+- tag: device-credentials
+  spec_file: auth0-device-credentials-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: POST /device-credentials — "Create a Device Public Key Credential"; schemas DeviceCredential,
+    DeviceCredentialPublicKeyTypeEnum
+  reason: Issuance and revocation of per-device public-key credentials used to authenticate users is credential
+    lifecycle within Identity & Access Management.
+- tag: users-by-email
+  spec_file: auth0-users-by-email-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: GET /users-by-email 'Search Users by Email'; schemas UserIdentitySchema, UserResponseSchema
+  reason: Single lookup operation over the identity platform's user directory; it is a directory/identity
+    query, so IAM is the honest mapping, though the surface is thin (one operation).
+- tag: attack-protection
+  spec_file: auth0-attack-protection-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.72
+  evidence: GET /attack-protection/bot-detection ... GET /attack-protection/brute-force-protection  Get
+    Brute-force Settings
+  reason: Configures bot detection, breached-password detection, brute-force protection and suspicious
+    IP throttling — detection and response controls against attacks on authentication.
+- tag: token-exchange-profiles
+  spec_file: auth0-token-exchange-profiles-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.72
+  evidence: '"Create a Token Exchange Profile"; schema TokenExchangeProfileTypeEnum, within OAuth 2.0
+    authorization endpoints'
+  reason: Configuration of OAuth token-exchange behaviour governs how access tokens are issued between
+    identities — access management configuration. Generic CRUD surface keeps confidence moderate.
+- tag: User Profile
+  spec_file: auth0-user-profile-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: GET /userinfo  userinfo  Auth0 Returns a User's Profile
+  reason: The OIDC userinfo endpoint returns authenticated user identity claims, part of identity and
+    access management rather than CRM customer data (the vendor is an identity-as-a-service platform).
+- tag: keys
+  spec_file: auth0-keys-api-openapi.yml
+  capability_id: BC-620
+  capability_id_l1: BC-620
+  capability_name: Cybersecurity Management
+  confidence: 0.7
+  evidence: POST /keys/encryption/rekey 'Rekey the Key Hierarchy'; POST /keys/signing/rotate 'Rotate the
+    Application Signing Key'
+  reason: Cryptographic signing and encryption key lifecycle (creation, import, rotation, wrapping keys)
+    is a security control capability. Left at L1 because it sits between security architecture and secrets
+    management with no decisive evidence.
+- tag: network-acls
+  spec_file: auth0-network-acls-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: GET /network-acls 'Get All Access Control List Entries for a Tenant'; schemas NetworkAclActionBlockEnum,
+    NetworkACLMatchIpv4Cidr
+  reason: Defines allow/block/redirect rules on connecting IP ranges for a tenant — access control policy
+    administration. Mapped to Identity & Access Management as the closest access-control capability, with
+    residual ambiguity vs security architecture.
+- tag: risk-assessments
+  spec_file: auth0-risk-assessments-api-openapi.yml
+  capability_id: BC-620
+  capability_id_l1: BC-620
+  capability_name: Cybersecurity Management
+  confidence: 0.7
+  evidence: GET /risk-assessments/settings 'Get Risk Assessment Settings'; GET /risk-assessments/settings/new-device
+    'Get New Device Assessor'
+  reason: Despite the 'risk' wording this is adaptive-authentication risk signal configuration (new-device
+    assessor) for login decisions, not enterprise risk management. Mapped to Cybersecurity at L1 as the
+    sub-capability (access vs threat detection) is ambiguous.
+- tag: user-attribute-profiles
+  spec_file: auth0-user-attribute-profiles-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: schemas UserAttributeProfileSamlMapping, UserAttributeProfileOidcMapping, UserAttributeProfileUserId;
+    "Get User Attribute Profile Templates"
+  reason: Defines how external IdP (SAML/OIDC) claims map onto user identity attributes — identity federation/attribute
+    mapping within IAM. Could alternatively be read as identity data modelling, hence 0.7.
