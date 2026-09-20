@@ -1,155 +1,54 @@
-specification: API Commons Plans
-specificationVersion: '0.1'
-schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
-provider: Auth0
-providerId: auth0
-created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-22'
-reconciled: true
-tags:
-  - Identity
-  - Authentication
-  - B2B SaaS
-description: Auth0 (Okta) per-MAU pricing. B2C and B2B plans differ in price.
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-09-20'
+method: searched
+source: https://auth0.com/pricing
 sources:
-  - https://auth0.com/pricing
+- https://auth0.com/pricing
+provenance:
+  tool: planning/api-economics/harvest_pricing.py
+  run: 20260920T120546
+  grounding: every price_text was found verbatim in the fetched page text
+audience: business-product
+pricing_basis: tiered-subscription
+published: true
+note: Auth0 pricing page with MAU slider; B2C/B2B and monthly/yearly toggles not reflected in static text.
+  Three numeric self-service tiers plus contact-us Enterprise, and a detailed plan comparison table.
+plan_count: 4
+currency: USD
 plans:
-  - id: auth0-free
-    name: Free
-    type: freemium
-    description: Free; up to 25,000 MAUs.
-    entries:
-      - label: MAUs
-        name: mau
-        type: quota
-        metric: MAU
-        limit: 25000
-        timeFrame: month
-        geo: global
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-    elements:
-      - name: 1 Custom Domain
-      - name: Secure Agentic AI workflows
-      - name: Passwordless
-      - name: Unlimited social connections
-      - name: 5 Organizations
-      - name: 1 Enterprise Connection
-      - name: Self-Service SSO
-      - name: SCIM
-  - id: auth0-essentials
-    name: Essentials
-    type: paid
-    description: $35/mo (B2C) | $150/mo (B2B); starting at 500 MAUs.
-    entries:
-      - label: Monthly base (B2C)
-        name: base_b2c
-        type: subscription
-        metric: month
-        limit: -1
-        timeFrame: month
-        geo: global
-        unit: 1
-        price: '35.00'
-        userMultiplied: false
-      - label: Monthly base (B2B)
-        name: base_b2b
-        type: subscription
-        metric: month
-        limit: -1
-        timeFrame: month
-        geo: global
-        unit: 1
-        price: '150.00'
-        userMultiplied: false
-      - label: MAUs included
-        name: mau
-        type: quota
-        metric: MAU
-        limit: 500
-        timeFrame: month
-        geo: global
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-    elements:
-      - name: Higher Auth/API limits
-      - name: Pro MFA
-      - name: RBAC
-      - name: 10 Organizations (B2C) / Unlimited (B2B)
-      - name: Audit Log streaming
-      - name: Standard Support
-  - id: auth0-professional
-    name: Professional
-    type: paid
-    description: $240/mo (B2C) | $800/mo (B2B); starting at 500 MAUs.
-    entries:
-      - label: Monthly base (B2C)
-        name: base_b2c
-        type: subscription
-        metric: month
-        limit: -1
-        timeFrame: month
-        geo: global
-        unit: 1
-        price: '240.00'
-        userMultiplied: false
-      - label: Monthly base (B2B)
-        name: base_b2b
-        type: subscription
-        metric: month
-        limit: -1
-        timeFrame: month
-        geo: global
-        unit: 1
-        price: '800.00'
-        userMultiplied: false
-    elements:
-      - name: Enhanced Attack Protection
-      - name: Custom Database Connections
-      - name: Enterprise MFA
-      - name: Security Center
-      - name: M2M Token add-on
-  - id: auth0-enterprise
-    name: Enterprise
-    type: enterprise
-    description: Custom pricing.
-    entries:
-      - label: Annual (custom)
-        name: annual
-        type: subscription
-        metric: year
-        limit: -1
-        timeFrame: year
-        geo: global
-        unit: 1
-        price: custom
-        userMultiplied: false
-    elements:
-      - name: Custom User & SSO Tiers
-      - name: 99.99% SLA
-      - name: Enterprise Rate Limits
-      - name: Enterprise Administration & Support
-      - name: Advanced Security Features
-      - name: Private Deployment
-addOns:
-  - id: auth0-ai-agents
-    name: Auth0 for AI Agents
-    description: Adds Token Vault, asynchronous authorization, Auth for MCP, and FGA for RAG. Generally available.
-    pricing: 50% of base plan price
-  - id: m2m-tokens
-    name: M2M Tokens
-    description: Machine-to-machine token volume add-on.
-    pricing: $30–$1,200/month depending on volume
-  - id: enterprise-sso
-    name: Enterprise SSO Connections
-    description: Additional enterprise connections beyond plan inclusion.
-    pricing: $100/month per connection
-  - id: enterprise-mfa
-    name: Enterprise MFA
-    description: Available as add-on for B2B Essentials; included in Professional+.
-    pricing: $100/month
+- name: Free
+  price_text: $ 0 / month
+  price: 0
+  currency: USD
+  period: month
+  unit: monthly active users
+  included_quota: Up to 25,000 monthly active users, 1 Custom Domain, 5 Organizations, 1 Enterprise Connection,
+    Community Support
+- name: Essentials
+  price_text: $ 35 / month
+  price: 35
+  currency: USD
+  period: month
+  unit: monthly active users
+  included_quota: Up to 500 monthly active users; Everything in Free plus Pro MFA, RBAC, 10 Organizations,
+    Standard Support
+- name: Professional
+  price_text: $ 240 / month
+  price: 240
+  currency: USD
+  period: month
+  unit: monthly active users
+  included_quota: Up to 500 monthly active users; Everything in Essentials plus custom database logins,
+    Enterprise MFA, Custom Token Exchange, M2M Tokens Add-on
+- name: Enterprise
+  price_text: Contact us
+  period: none
+  included_quota: Everything in Professional plus Custom User & SSO Tiers, 99.99% SLA, Enterprise Rate
+    Limits, Advanced Security, Private Deployment add-on
+rate_limit_statements:
+- Enterprise Rate Limits
+- 'Private Cloud Performance : Includes all Private Cloud Basic capabilities and increases requests per
+  second (RPS) to 500'
+- 'Private Cloud Performance Plus : Includes all Private Cloud Performance capabilities and increases
+  RPS to 1,500'
+- Machine-to-Machine Authentication 1,000 1,000 5,000 5,000
