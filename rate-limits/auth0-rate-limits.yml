@@ -1,73 +1,110 @@
-specification: API Commons Rate Limits
-specificationVersion: '0.1'
-schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
-provider: Auth0
-providerId: auth0
-created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-22'
-reconciled: true
-tags:
-  - Rate Limiting
-  - Identity
-description: Auth0 rate limits depend on tenant subscription tier.
+# Rate limits transcribed from the provider's own documentation — see provenance. Quoted, not derived.
+generated: '2026-09-20'
+method: searched
+source: https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy
 sources:
-  - https://auth0.com/pricing
-  - https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy
-headers:
-  limit: X-RateLimit-Limit
-  remaining: X-RateLimit-Remaining
-  reset: X-RateLimit-Reset
-responseCodes:
-  throttled: 429
-  anomalyDetection: 429
+- https://auth0.com/docs/troubleshoot/customer-support/operational-policies/rate-limit-policy
+provenance:
+  tool: planning/api-economics/harvest_ratelimits.py
+  run: 20260920T133210
+  grounding: every limit_text was found verbatim in the fetched page text
+published: true
+note: Policy overview page; specific per-plan matrices are linked elsewhere. No rate-limit headers or
+  status codes documented here.
+limit_count: 14
 limits:
-  - name: Free Authentication API
-    scope: tenant
-    metric: requests_per_second
-    limit: 100
-    timeFrame: second
-  - name: Paid Authentication API
-    scope: tenant
-    metric: requests_per_second
-    limit: 200
-    timeFrame: second
-  - name: Management API (Free)
-    scope: tenant
-    metric: requests_per_second
-    limit: 2
-    timeFrame: second
-  - name: Management API (Paid)
-    scope: tenant
-    metric: requests_per_second
-    limit: 15
-    timeFrame: second
-  - name: Anomaly Detection (per IP)
-    scope: ip
-    metric: auth_attempts
-    limit: configurable
-  - name: MFA SMS Messages
-    scope: device
-    metric: sms_per_hour
-    limit: 10
-    timeFrame: hour
-    description: If more than 10 SMS messages are sent to a device within an hour, an error is returned.
-  - name: Database Login Brute Force
-    scope: ip+account
-    metric: attempts_per_minute
-    limit: 20
-    timeFrame: minute
-    description: 20 login attempts per minute per IP to same user account before rate limit triggers; then 10/minute.
-  - name: Extensibility Concurrency (Public Cloud)
-    scope: tenant
-    metric: concurrent_requests
-    limit: 250
-    description: Concurrent extensibility requests per tenant on Public Cloud (Private Cloud 100–1200 by tier).
-  - name: Public Performance Burst (Enterprise add-on)
-    scope: tenant
-    metric: rps_multiplier
-    limit: 4
-    timeFrame: 48-hours-per-month
-    description: 2x/3x/4x multiplier over default 100 RPS for up to 48 hours/month.
+- name: Same user login rate limit
+  limit_text: If one IP address makes 20 login attempts in one minute to the same user account, the rate
+    limit comes into effect.
+  limit: 20
+  window: minute
+  scope: ip
+  endpoint: database connection login
+- name: Same user login allowance after limit
+  limit_text: After that, Auth0 allows the user 10 attempts per minute.
+  limit: 10
+  window: minute
+  scope: user
+  endpoint: database connection login
+- name: MFA SMS limit
+  limit_text: If you attempt to send more than 10 SMS messages to your device within one hour, you will
+    receive an error message about a rate limit exception.
+  limit: 10
+  window: hour
+  scope: user
+  endpoint: MFA SMS
+- name: Enterprise default Authentication API limit
+  limit_text: the default enterprise request limit of 100 RPS
+  limit: 100
+  window: second
+  scope: account
+  plan: Enterprise
+  endpoint: Authentication API
+- name: Public Performance Burst multipliers
+  limit_text: three Public Performance Burst modifiers (2x, 3x, and 4x) allowing 200, 300, and 400 RPS,
+    respectively, for the Authentication API for up to 48 hours monthly
+  window: second
+  scope: account
+  plan: Enterprise (Public Performance Burst add-on)
+  endpoint: Authentication API
+  kind: burst
+- name: Private Performance Burst 30x/60x
+  limit_text: includes a burst (peak) performance capacity up to 30x (3,000 RPS) or 60x (6,000 RPS) for
+    up to 80 hours per month
+  window: second
+  scope: account
+  plan: Private Cloud Performance Burst
+  endpoint: Authentication API
+  kind: burst
+- name: 30x base capacity
+  limit_text: 'Base capacity: 1,500 RPS for full month'
+  limit: 1500
+  window: second
+  scope: account
+  plan: Private Performance Burst 30x
+  endpoint: Authentication API
+- name: 30x burst capacity
+  limit_text: 'Burst/peak capacity: 3,000 RPS for up to 80 hours a month'
+  limit: 3000
+  window: second
+  scope: account
+  plan: Private Performance Burst 30x
+  endpoint: Authentication API
+  kind: burst
+- name: Public Cloud concurrency
+  limit_text: Public Cloud 250
+  limit: 250
+  scope: account
+  plan: Public Cloud
+  endpoint: extensibility
+- name: Dev Private Cloud concurrency
+  limit_text: Tier Dev Private Cloud 100
+  limit: 100
+  scope: account
+  plan: Dev Private Cloud
+  endpoint: extensibility
+- name: Private Cloud Basic concurrency
+  limit_text: Private Cloud Basic 100 RPS (1x) 200
+  limit: 200
+  scope: account
+  plan: Private Cloud Basic
+  endpoint: extensibility
+- name: Private Cloud 5x concurrency
+  limit_text: Private Cloud Performance 500 RPS (5x) 400
+  limit: 400
+  scope: account
+  plan: Private Cloud Performance 5x
+  endpoint: extensibility
+- name: Private Cloud 15x concurrency
+  limit_text: Private Cloud Performance 1500 RPS (15x) 1200
+  limit: 1200
+  scope: account
+  plan: Private Cloud Performance 15x
+  endpoint: extensibility
+- name: Environment limit example
+  limit_text: With an environment limit of 1500 rps, Tenant 1 at 1400 rps and Tenant 2 at 900 rps (combined
+    2300 rps) will result in 800 requests being rate limited.
+  limit: 1500
+  window: second
+  scope: account
+  plan: Private Cloud
