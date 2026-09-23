@@ -16,7 +16,33 @@ paths:
   /.well-known/authzen-configuration/{store_id}:
     get:
       summary: '[Experimental] Get AuthZEN PDP configuration and capabilities'
-      description: "[Experimental] The GetConfiguration API returns metadata about the Policy Decision Point (PDP) including its name, version, supported endpoints, and capabilities. This endpoint follows the AuthZEN specification for PDP discovery.\n\nFollowing the AuthZEN spec's multi-tenant pattern, OpenFGA provides a per-store discovery endpoint at `/.well-known/authzen-configuration/{store_id}`. This returns absolute endpoint URLs specific to that store.\n\n## Example Response\n```json\n{\n  \"policy_decision_point\": \"https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV\",\n  \"access_evaluation_endpoint\": \"https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/evaluation\",\n  \"access_evaluations_endpoint\": \"https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/evaluations\",\n  \"search_subject_endpoint\": \"https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/search/subject\",\n  \"search_resource_endpoint\": \"https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/search/resource\",\n  \"search_action_endpoint\": \"https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/search/action\"\n}\n```\n"
+      description: '[Experimental] The GetConfiguration API returns metadata about the Policy Decision Point (PDP) including its name, version, supported endpoints, and capabilities. This endpoint follows the AuthZEN specification for PDP discovery.
+
+
+        Following the AuthZEN spec''s multi-tenant pattern, OpenFGA provides a per-store discovery endpoint at `/.well-known/authzen-configuration/{store_id}`. This returns absolute endpoint URLs specific to that store.
+
+
+        ## Example Response
+
+        ```json
+
+        {
+
+        "policy_decision_point": "https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV",
+
+        "access_evaluation_endpoint": "https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/evaluation",
+
+        "access_evaluations_endpoint": "https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/evaluations",
+
+        "search_subject_endpoint": "https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/search/subject",
+
+        "search_resource_endpoint": "https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/search/resource",
+
+        "search_action_endpoint": "https://example.com/stores/01ARZ3NDEKTSV4RRFFQ69G5FAV/access/v1/search/action"
+
+        }
+
+        ```'
       operationId: GetConfiguration
       responses:
         '200':
@@ -81,7 +107,158 @@ paths:
   /stores/{store_id}/access/v1/evaluation:
     post:
       summary: '[Experimental] Evaluate whether a subject can perform an action on a resource'
-      description: "[Experimental] The Evaluation API determines whether a subject is authorized to perform an action on a resource. This endpoint implements the AuthZEN Access Evaluation API specification.\n\n## Request Structure\nThe request requires three components:\n- **subject**: The entity requesting access (e.g., a user or service)\n- **action**: The operation being performed (maps to a relation in the authorization model)\n- **resource**: The object being accessed\n\nEach component has a `type` and `id` field, and may include optional `properties` for ABAC (Attribute-Based Access Control) conditions.\n\n## Response\nThe response contains a `decision` field (boolean) indicating whether access is permitted, and an optional `context` object with additional information such as the evaluation ID or error details.\n\n## ABAC Support\nProperties on subject, action, and resource are automatically merged into the evaluation context with prefixes:\n- Subject properties: `subject_<property_name>`\n- Resource properties: `resource_<property_name>`\n- Action properties: `action_<property_name>`\n\nThese merged properties can be used in conditions defined in your authorization model.\n\n## Examples\n### Basic authorization check\nCheck if user Anne can read a document:\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"action\": {\"name\": \"can_read\"},\n  \"resource\": {\"type\": \"document\", \"id\": \"roadmap\"}\n}\n```\nResponse when authorized:\n```json\n{\n  \"decision\": true\n}\n```\n### Using properties for ABAC\nCheck access with subject and resource attributes:\n```json\n{\n  \"subject\": {\n    \"type\": \"user\",\n    \"id\": \"anne\",\n    \"properties\": {\"department\": \"engineering\", \"clearance_level\": 3}\n  },\n  \"action\": {\"name\": \"can_read\"},\n  \"resource\": {\n    \"type\": \"document\",\n    \"id\": \"secret-project\",\n    \"properties\": {\"classification\": \"confidential\", \"required_clearance\": 2}\n  }\n}\n```\n### Using request context\nProvide additional context for time-based or environmental conditions:\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"bob\"},\n  \"action\": {\"name\": \"can_access\"},\n  \"resource\": {\"type\": \"system\", \"id\": \"production\"},\n  \"context\": {\n    \"current_time\": \"2024-01-15T14:30:00Z\",\n    \"ip_address\": \"192.168.1.100\",\n    \"is_vpn_connected\": true\n  }\n}\n```\n### Specifying authorization model\nPin the evaluation to a specific authorization model version using the `Openfga-Authorization-Model-Id` header:\n```\nPOST /stores/{store_id}/access/v1/evaluation\nOpenfga-Authorization-Model-Id: 01G50QVV17PECNVAHX1GG4Y5NC\n\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"action\": {\"name\": \"can_write\"},\n  \"resource\": {\"type\": \"document\", \"id\": \"budget-2024\"}\n}\n```\n"
+      description: '[Experimental] The Evaluation API determines whether a subject is authorized to perform an action on a resource. This endpoint implements the AuthZEN Access Evaluation API specification.
+
+
+        ## Request Structure
+
+        The request requires three components:
+
+        - **subject**: The entity requesting access (e.g., a user or service)
+
+        - **action**: The operation being performed (maps to a relation in the authorization model)
+
+        - **resource**: The object being accessed
+
+
+        Each component has a `type` and `id` field, and may include optional `properties` for ABAC (Attribute-Based Access Control) conditions.
+
+
+        ## Response
+
+        The response contains a `decision` field (boolean) indicating whether access is permitted, and an optional `context` object with additional information such as the evaluation ID or error details.
+
+
+        ## ABAC Support
+
+        Properties on subject, action, and resource are automatically merged into the evaluation context with prefixes:
+
+        - Subject properties: `subject_`
+
+        - Resource properties: `resource_`
+
+        - Action properties: `action_`
+
+
+        These merged properties can be used in conditions defined in your authorization model.
+
+
+        ## Examples
+
+        ### Basic authorization check
+
+        Check if user Anne can read a document:
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "action": {"name": "can_read"},
+
+        "resource": {"type": "document", "id": "roadmap"}
+
+        }
+
+        ```
+
+        Response when authorized:
+
+        ```json
+
+        {
+
+        "decision": true
+
+        }
+
+        ```
+
+        ### Using properties for ABAC
+
+        Check access with subject and resource attributes:
+
+        ```json
+
+        {
+
+        "subject": {
+
+        "type": "user",
+
+        "id": "anne",
+
+        "properties": {"department": "engineering", "clearance_level": 3}
+
+        },
+
+        "action": {"name": "can_read"},
+
+        "resource": {
+
+        "type": "document",
+
+        "id": "secret-project",
+
+        "properties": {"classification": "confidential", "required_clearance": 2}
+
+        }
+
+        }
+
+        ```
+
+        ### Using request context
+
+        Provide additional context for time-based or environmental conditions:
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "bob"},
+
+        "action": {"name": "can_access"},
+
+        "resource": {"type": "system", "id": "production"},
+
+        "context": {
+
+        "current_time": "2024-01-15T14:30:00Z",
+
+        "ip_address": "192.168.1.100",
+
+        "is_vpn_connected": true
+
+        }
+
+        }
+
+        ```
+
+        ### Specifying authorization model
+
+        Pin the evaluation to a specific authorization model version using the `Openfga-Authorization-Model-Id` header:
+
+        ```
+
+        POST /stores/{store_id}/access/v1/evaluation
+
+        Openfga-Authorization-Model-Id: 01G50QVV17PECNVAHX1GG4Y5NC
+
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "action": {"name": "can_write"},
+
+        "resource": {"type": "document", "id": "budget-2024"}
+
+        }
+
+        ```'
       operationId: Evaluation
       responses:
         '200':
@@ -161,8 +338,112 @@ paths:
         required: true
   /stores/{store_id}/access/v1/evaluations:
     post:
-      summary: '[Experimental] Check whether one or more users are authorized to access resources'
-      description: "[Experimental] The Evaluations API allows batch authorization checks in a single request. It supports request-level defaults for subject, action, resource, and context that can be overridden per evaluation item.\n\n## Evaluation Semantics\nThe `options.evaluations_semantic` field controls how evaluations are processed:\n- `execute_all` (default): Execute all evaluations and return all results\n- `deny_on_first_deny`: Stop processing on first deny decision\n- `permit_on_first_permit`: Stop processing on first permit decision\n\nWhen using `deny_on_first_deny` or `permit_on_first_permit`, the response may include fewer items than the request because processing short-circuits when the condition is met.\n\n## Authorization Model Selection\nTo pin evaluations to a specific authorization model version, send the `Openfga-Authorization-Model-Id` header. If the header is not provided, the latest model is used.\n\n## Examples\n### Basic batch evaluation\nCheck if a user can perform multiple actions on a document:\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"resource\": {\"type\": \"document\", \"id\": \"roadmap\"},\n  \"evaluations\": [\n    {\"action\": {\"name\": \"can_read\"}},\n    {\"action\": {\"name\": \"can_write\"}},\n    {\"action\": {\"name\": \"can_delete\"}}\n  ]\n}\n```\n### Using evaluation semantics\nStop on first permitted action (useful for finding any valid permission):\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"resource\": {\"type\": \"document\", \"id\": \"roadmap\"},\n  \"evaluations\": [\n    {\"action\": {\"name\": \"can_read\"}},\n    {\"action\": {\"name\": \"can_write\"}}\n  ],\n  \"options\": {\n    \"evaluations_semantic\": \"permit_on_first_permit\"\n  }\n}\n```\n### Overriding defaults per evaluation\nCheck permissions across multiple resources:\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"action\": {\"name\": \"can_read\"},\n  \"evaluations\": [\n    {\"resource\": {\"type\": \"document\", \"id\": \"doc1\"}},\n    {\"resource\": {\"type\": \"document\", \"id\": \"doc2\"}},\n    {\"resource\": {\"type\": \"folder\", \"id\": \"folder1\"}}\n  ]\n}\n```\n"
+      summary: '[Experimental] Check whether one or more users are authorized to access…'
+      description: '[Experimental] The Evaluations API allows batch authorization checks in a single request. It supports request-level defaults for subject, action, resource, and context that can be overridden per evaluation item.
+
+
+        ## Evaluation Semantics
+
+        The `options.evaluations_semantic` field controls how evaluations are processed:
+
+        - `execute_all` (default): Execute all evaluations and return all results
+
+        - `deny_on_first_deny`: Stop processing on first deny decision
+
+        - `permit_on_first_permit`: Stop processing on first permit decision
+
+
+        When using `deny_on_first_deny` or `permit_on_first_permit`, the response may include fewer items than the request because processing short-circuits when the condition is met.
+
+
+        ## Authorization Model Selection
+
+        To pin evaluations to a specific authorization model version, send the `Openfga-Authorization-Model-Id` header. If the header is not provided, the latest model is used.
+
+
+        ## Examples
+
+        ### Basic batch evaluation
+
+        Check if a user can perform multiple actions on a document:
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "resource": {"type": "document", "id": "roadmap"},
+
+        "evaluations": [
+
+        {"action": {"name": "can_read"}},
+
+        {"action": {"name": "can_write"}},
+
+        {"action": {"name": "can_delete"}}
+
+        ]
+
+        }
+
+        ```
+
+        ### Using evaluation semantics
+
+        Stop on first permitted action (useful for finding any valid permission):
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "resource": {"type": "document", "id": "roadmap"},
+
+        "evaluations": [
+
+        {"action": {"name": "can_read"}},
+
+        {"action": {"name": "can_write"}}
+
+        ],
+
+        "options": {
+
+        "evaluations_semantic": "permit_on_first_permit"
+
+        }
+
+        }
+
+        ```
+
+        ### Overriding defaults per evaluation
+
+        Check permissions across multiple resources:
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "action": {"name": "can_read"},
+
+        "evaluations": [
+
+        {"resource": {"type": "document", "id": "doc1"}},
+
+        {"resource": {"type": "document", "id": "doc2"}},
+
+        {"resource": {"type": "folder", "id": "folder1"}}
+
+        ]
+
+        }
+
+        ```'
       operationId: Evaluations
       responses:
         '200':
@@ -248,7 +529,84 @@ paths:
   /stores/{store_id}/access/v1/search/action:
     post:
       summary: '[Experimental] Search for actions a subject can perform on a resource'
-      description: "[Experimental] The ActionSearch API returns all actions (relations) that a subject can perform on a specific resource. This is useful for answering questions like \"What can Anne do with this document?\" or building dynamic UIs that show only the actions a user is permitted to perform.\n\n## Examples\n### Find all actions a user can perform on a document\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"resource\": {\"type\": \"document\", \"id\": \"roadmap\"}\n}\n```\nResponse:\n```json\n{\n  \"results\": [\n    {\"name\": \"can_read\"},\n    {\"name\": \"can_write\"},\n    {\"name\": \"can_share\"}\n  ],\n  \"page\": {\"count\": 3}\n}\n```\n### Search with ABAC context for time-based permissions\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"bob\"},\n  \"resource\": {\"type\": \"report\", \"id\": \"quarterly-financials\"},\n  \"context\": {\n    \"current_time\": \"2024-01-15T14:30:00Z\",\n    \"user_department\": \"finance\"\n  }\n}\n```\n### Paginated action search\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"admin\"},\n  \"resource\": {\"type\": \"system\", \"id\": \"production\"},\n  \"page\": {\"limit\": 50}\n}\n```\n"
+      description: '[Experimental] The ActionSearch API returns all actions (relations) that a subject can perform on a specific resource. This is useful for answering questions like "What can Anne do with this document?" or building dynamic UIs that show only the actions a user is permitted to perform.
+
+
+        ## Examples
+
+        ### Find all actions a user can perform on a document
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "resource": {"type": "document", "id": "roadmap"}
+
+        }
+
+        ```
+
+        Response:
+
+        ```json
+
+        {
+
+        "results": [
+
+        {"name": "can_read"},
+
+        {"name": "can_write"},
+
+        {"name": "can_share"}
+
+        ],
+
+        "page": {"count": 3}
+
+        }
+
+        ```
+
+        ### Search with ABAC context for time-based permissions
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "bob"},
+
+        "resource": {"type": "report", "id": "quarterly-financials"},
+
+        "context": {
+
+        "current_time": "2024-01-15T14:30:00Z",
+
+        "user_department": "finance"
+
+        }
+
+        }
+
+        ```
+
+        ### Paginated action search
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "admin"},
+
+        "resource": {"type": "system", "id": "production"},
+
+        "page": {"limit": 50}
+
+        }
+
+        ```'
       operationId: ActionSearch
       responses:
         '200':
@@ -329,7 +687,93 @@ paths:
   /stores/{store_id}/access/v1/search/resource:
     post:
       summary: '[Experimental] Search for resources a subject has access to'
-      description: "[Experimental] The ResourceSearch API returns all resources of a given type that a subject has a specific action (relation) on. This is useful for answering questions like \"What documents can Anne read?\" or \"What folders can Bob administer?\"\n\nThe resource type filter is required. Results support pagination for large result sets.\n\n## Examples\n### Find all documents a user can read\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"action\": {\"name\": \"can_read\"},\n  \"resource\": {\"type\": \"document\"}\n}\n```\nResponse:\n```json\n{\n  \"results\": [\n    {\"type\": \"document\", \"id\": \"roadmap\"},\n    {\"type\": \"document\", \"id\": \"budget-2024\"},\n    {\"type\": \"document\", \"id\": \"team-roster\"}\n  ],\n  \"page\": {\"count\": 3}\n}\n```\n### Find folders a user can administer with pagination\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"bob\"},\n  \"action\": {\"name\": \"can_admin\"},\n  \"resource\": {\"type\": \"folder\"},\n  \"page\": {\"limit\": 25}\n}\n```\n### Search with ABAC context\n```json\n{\n  \"subject\": {\"type\": \"user\", \"id\": \"anne\"},\n  \"action\": {\"name\": \"can_read\"},\n  \"resource\": {\"type\": \"document\"},\n  \"context\": {\n    \"current_time\": \"2024-01-15T10:00:00Z\",\n    \"ip_address\": \"192.168.1.100\"\n  }\n}\n```\n"
+      description: '[Experimental] The ResourceSearch API returns all resources of a given type that a subject has a specific action (relation) on. This is useful for answering questions like "What documents can Anne read?" or "What folders can Bob administer?"
+
+
+        The resource type filter is required. Results support pagination for large result sets.
+
+
+        ## Examples
+
+        ### Find all documents a user can read
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "action": {"name": "can_read"},
+
+        "resource": {"type": "document"}
+
+        }
+
+        ```
+
+        Response:
+
+        ```json
+
+        {
+
+        "results": [
+
+        {"type": "document", "id": "roadmap"},
+
+        {"type": "document", "id": "budget-2024"},
+
+        {"type": "document", "id": "team-roster"}
+
+        ],
+
+        "page": {"count": 3}
+
+        }
+
+        ```
+
+        ### Find folders a user can administer with pagination
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "bob"},
+
+        "action": {"name": "can_admin"},
+
+        "resource": {"type": "folder"},
+
+        "page": {"limit": 25}
+
+        }
+
+        ```
+
+        ### Search with ABAC context
+
+        ```json
+
+        {
+
+        "subject": {"type": "user", "id": "anne"},
+
+        "action": {"name": "can_read"},
+
+        "resource": {"type": "document"},
+
+        "context": {
+
+        "current_time": "2024-01-15T10:00:00Z",
+
+        "ip_address": "192.168.1.100"
+
+        }
+
+        }
+
+        ```'
       operationId: ResourceSearch
       responses:
         '200':
@@ -414,7 +858,87 @@ paths:
   /stores/{store_id}/access/v1/search/subject:
     post:
       summary: '[Experimental] Search for subjects with access to a resource'
-      description: "[Experimental] The SubjectSearch API returns all subjects that have a specific action (relation) on a given resource. This is useful for answering questions like \"Who can read this document?\" or \"Who can administer this folder?\"\n\nResults can be filtered by subject type and support pagination for large result sets.\n\n## Examples\n### Find all users who can read a document\n```json\n{\n  \"resource\": {\"type\": \"document\", \"id\": \"roadmap\"},\n  \"action\": {\"name\": \"can_read\"},\n  \"subject\": {\"type\": \"user\"}\n}\n```\nResponse:\n```json\n{\n  \"results\": [\n    {\"type\": \"user\", \"id\": \"anne\"},\n    {\"type\": \"user\", \"id\": \"bob\"},\n    {\"type\": \"user\", \"id\": \"charlie\"}\n  ],\n  \"page\": {\"count\": 3}\n}\n```\n### Paginated search with limit\n```json\n{\n  \"resource\": {\"type\": \"folder\", \"id\": \"engineering\"},\n  \"action\": {\"name\": \"can_view\"},\n  \"subject\": {\"type\": \"user\"},\n  \"page\": {\"limit\": 10}\n}\n```\n### Continue from previous page\n```json\n{\n  \"resource\": {\"type\": \"folder\", \"id\": \"engineering\"},\n  \"action\": {\"name\": \"can_view\"},\n  \"subject\": {\"type\": \"user\"},\n  \"page\": {\"token\": \"eyJsYXN0X2lkIjoiMTAwIn0=\", \"limit\": 10}\n}\n```\n"
+      description: '[Experimental] The SubjectSearch API returns all subjects that have a specific action (relation) on a given resource. This is useful for answering questions like "Who can read this document?" or "Who can administer this folder?"
+
+
+        Results can be filtered by subject type and support pagination for large result sets.
+
+
+        ## Examples
+
+        ### Find all users who can read a document
+
+        ```json
+
+        {
+
+        "resource": {"type": "document", "id": "roadmap"},
+
+        "action": {"name": "can_read"},
+
+        "subject": {"type": "user"}
+
+        }
+
+        ```
+
+        Response:
+
+        ```json
+
+        {
+
+        "results": [
+
+        {"type": "user", "id": "anne"},
+
+        {"type": "user", "id": "bob"},
+
+        {"type": "user", "id": "charlie"}
+
+        ],
+
+        "page": {"count": 3}
+
+        }
+
+        ```
+
+        ### Paginated search with limit
+
+        ```json
+
+        {
+
+        "resource": {"type": "folder", "id": "engineering"},
+
+        "action": {"name": "can_view"},
+
+        "subject": {"type": "user"},
+
+        "page": {"limit": 10}
+
+        }
+
+        ```
+
+        ### Continue from previous page
+
+        ```json
+
+        {
+
+        "resource": {"type": "folder", "id": "engineering"},
+
+        "action": {"name": "can_view"},
+
+        "subject": {"type": "user"},
+
+        "page": {"token": "eyJsYXN0X2lkIjoiMTAwIn0=", "limit": 10}
+
+        }
+
+        ```'
       operationId: SubjectSearch
       responses:
         '200':
@@ -498,114 +1022,6 @@ paths:
         required: true
 components:
   schemas:
-    NotFoundErrorCode:
-      type: string
-      enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
-    Resource:
-      type: object
-      properties:
-        type:
-          type: string
-          example: document
-        id:
-          type: string
-          example: roadmap
-        properties:
-          type: object
-      required:
-      - type
-      - id
-    PageRequest:
-      type: object
-      properties:
-        token:
-          type: string
-          title: Continuation token from previous response
-        limit:
-          type: integer
-          format: int64
-          title: 'Maximum number of results to return (default: 50, max: 1000)'
-      title: Pagination request parameters for search operations
-    ActionSearchResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Action'
-        page:
-          $ref: '#/components/schemas/PageResponse'
-          title: Optional per AuthZEN spec - omit if pagination not supported
-    ResourceFilter:
-      type: object
-      properties:
-        type:
-          type: string
-          example: document
-        id:
-          type: string
-          description: Optional resource id. If present in Resource Search, it is ignored per AuthZEN spec.
-        properties:
-          type: object
-      title: ResourceFilter is used for search operations where only type is required
-      required:
-      - type
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    SubjectSearchResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Subject'
-        page:
-          $ref: '#/components/schemas/PageResponse'
-          title: Optional per AuthZEN spec - omit if pagination not supported
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
-    PageResponse:
-      type: object
-      properties:
-        next_token:
-          type: string
-          title: Token to retrieve next page (empty if no more results)
-        count:
-          type: integer
-          format: int64
-          title: Number of results in this page
-        total:
-          type: integer
-          format: int64
-          title: Total number of results (if known, otherwise 0)
-      title: Pagination response parameters
     EvaluationResponse:
       type: object
       properties:
@@ -613,12 +1029,66 @@ components:
           type: boolean
         context:
           type: object
+    SubjectFilter:
+      type: object
+      properties:
+        type:
+          type: string
+          example: user
+        id:
+          type: string
+          description: Optional subject id. If present in Subject Search, it is ignored per AuthZEN spec.
+        properties:
+          type: object
+      title: SubjectFilter is used for search operations where only type is required
+      required:
+      - type
     UnprocessableContentErrorCode:
       type: string
       enum:
       - no_throttled_error_code
       - throttled_timeout_error
       default: no_throttled_error_code
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    EvaluationsOptions:
+      type: object
+      properties:
+        evaluations_semantic:
+          $ref: '#/components/schemas/EvaluationsSemantic'
+          title: Controls how batch evaluations are processed
+      title: Options for batch evaluations
+    Subject:
+      type: object
+      properties:
+        type:
+          type: string
+          example: user
+        id:
+          type: string
+          example: anne
+        properties:
+          type: object
+      required:
+      - type
+      - id
+    EvaluationsSemantic:
+      type: string
+      enum:
+      - execute_all
+      - deny_on_first_deny
+      - permit_on_first_permit
+      default: execute_all
+      description: "- execute_all: Execute all evaluations (default behavior)\n - deny_on_first_deny: Stop on first deny decision\n - permit_on_first_permit: Stop on first permit decision"
+      title: Enum for evaluation semantics
     GetConfigurationResponse:
       type: object
       properties:
@@ -652,46 +1122,44 @@ components:
       required:
       - policy_decision_point
       - access_evaluation_endpoint
-    UnauthenticatedResponse:
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    UnprocessableContentMessageResponse:
       type: object
       example:
-        code: unauthenticated
-        message: unauthenticated
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
       properties:
         code:
-          $ref: '#/components/schemas/ErrorCode'
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
         message:
           type: string
-    InternalErrorMessageResponse:
+    ResourceFilter:
       type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
       properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
+        type:
           type: string
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
+          example: document
+        id:
           type: string
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
+          description: Optional resource id. If present in Resource Search, it is ignored per AuthZEN spec.
+        properties:
+          type: object
+      title: ResourceFilter is used for search operations where only type is required
+      required:
+      - type
     AuthErrorCode:
       type: string
       enum:
@@ -705,92 +1173,84 @@ components:
       - unauthenticated
       - forbidden
       default: no_auth_error
-    EvaluationsItemRequest:
-      type: object
-      properties:
-        subject:
-          $ref: '#/components/schemas/Subject'
-        resource:
-          $ref: '#/components/schemas/Resource'
-        action:
-          $ref: '#/components/schemas/Action'
-        context:
-          type: object
-    UnprocessableContentMessageResponse:
+    InternalErrorMessageResponse:
       type: object
       example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
+        code: internal_error
+        message: Internal Server Error
       properties:
         code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+          $ref: '#/components/schemas/InternalErrorCode'
         message:
           type: string
-    Subject:
-      type: object
-      properties:
-        type:
-          type: string
-          example: user
-        id:
-          type: string
-          example: anne
-        properties:
-          type: object
-      required:
-      - type
-      - id
-    ResourceSearchResponse:
+    ActionSearchResponse:
       type: object
       properties:
         results:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/Action'
         page:
           $ref: '#/components/schemas/PageResponse'
           title: Optional per AuthZEN spec - omit if pagination not supported
-    ForbiddenResponse:
+    AbortedMessageResponse:
       type: object
       example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
+        code: '10'
+        message: transaction conflict
       properties:
         code:
-          $ref: '#/components/schemas/AuthErrorCode'
+          type: string
         message:
           type: string
-    EvaluationsSemantic:
-      type: string
-      enum:
-      - execute_all
-      - deny_on_first_deny
-      - permit_on_first_permit
-      default: execute_all
-      description: "- execute_all: Execute all evaluations (default behavior)\n - deny_on_first_deny: Stop on first deny decision\n - permit_on_first_permit: Stop on first permit decision"
-      title: Enum for evaluation semantics
-    SubjectFilter:
+    PageRequest:
       type: object
       properties:
-        type:
+        token:
           type: string
-          example: user
-        id:
+          title: Continuation token from previous response
+        limit:
+          type: integer
+          format: int64
+          title: 'Maximum number of results to return (default: 50, max: 1000)'
+      title: Pagination request parameters for search operations
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
           type: string
-          description: Optional subject id. If present in Subject Search, it is ignored per AuthZEN spec.
+    Action:
+      type: object
+      properties:
+        name:
+          type: string
+          example: can_read
         properties:
           type: object
-      title: SubjectFilter is used for search operations where only type is required
       required:
-      - type
-    EvaluationsOptions:
+      - name
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    EvaluationsResponse:
       type: object
       properties:
-        evaluations_semantic:
-          $ref: '#/components/schemas/EvaluationsSemantic'
-          title: Controls how batch evaluations are processed
-      title: Options for batch evaluations
+        evaluations:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/EvaluationResponse'
     ErrorCode:
       type: string
       enum:
@@ -845,21 +1305,85 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    Action:
+    Resource:
       type: object
       properties:
-        name:
+        type:
           type: string
-          example: can_read
+          example: document
+        id:
+          type: string
+          example: roadmap
         properties:
           type: object
       required:
-      - name
-    EvaluationsResponse:
+      - type
+      - id
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    SubjectSearchResponse:
       type: object
       properties:
-        evaluations:
+        results:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/EvaluationResponse'
+            $ref: '#/components/schemas/Subject'
+        page:
+          $ref: '#/components/schemas/PageResponse'
+          title: Optional per AuthZEN spec - omit if pagination not supported
+    ResourceSearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Resource'
+        page:
+          $ref: '#/components/schemas/PageResponse'
+          title: Optional per AuthZEN spec - omit if pagination not supported
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    PageResponse:
+      type: object
+      properties:
+        next_token:
+          type: string
+          title: Token to retrieve next page (empty if no more results)
+        count:
+          type: integer
+          format: int64
+          title: Number of results in this page
+        total:
+          type: integer
+          format: int64
+          title: Total number of results (if known, otherwise 0)
+      title: Pagination response parameters
+    EvaluationsItemRequest:
+      type: object
+      properties:
+        subject:
+          $ref: '#/components/schemas/Subject'
+        resource:
+          $ref: '#/components/schemas/Resource'
+        action:
+          $ref: '#/components/schemas/Action'
+        context:
+          type: object

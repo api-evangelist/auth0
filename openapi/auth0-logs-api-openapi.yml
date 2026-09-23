@@ -16,14 +16,62 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: logs
+- name: Logs
 paths:
   /logs:
     get:
       summary: Search Log Events
-      description: "Retrieve log entries that match the specified search criteria (or all log entries if no criteria specified).\n\nSet custom search criteria using the <code>q</code> parameter, or search from a specific log ID (<i>\"search from checkpoint\"</i>).\n\nFor more information on all possible event types, their respective acronyms, and descriptions, see <a href=\"https://auth0.com/docs/logs/log-event-type-codes\">Log Event Type Codes</a>.\n\n<h5>To set custom search criteria, use the following parameters:</h5>\n\n<ul>\n    <li><b>q:</b> Search Criteria using <a href=\"https://auth0.com/docs/logs/log-search-query-syntax\">Query String Syntax</a></li>\n    <li><b>page:</b> Page index of the results to return. First page is 0.</li>\n    <li><b>per_page:</b> Number of results per page.</li>\n    <li><b>sort:</b> Field to use for sorting appended with `:1` for ascending and `:-1` for descending. e.g. `date:-1`</li>\n    <li><b>fields:</b> Comma-separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields.</li>\n    <li><b>include_fields:</b> Whether specified fields are to be included (true) or excluded (false).</li>\n    <li><b>include_totals:</b> Return results inside an object that contains the total result count (true) or as a direct array of results (false, default). <b>Deprecated:</b> this field is deprecated and should be removed from use. See <a href=\"https://auth0.com/docs/product-lifecycle/deprecations-and-migrations/migrate-to-tenant-log-search-v3#pagination\">Search Engine V3 Breaking Changes</a></li>\n</ul>\n\nFor more information on the list of fields that can be used in <code>fields</code> and <code>sort</code>, see <a href=\"https://auth0.com/docs/logs/log-search-query-syntax#searchable-fields\">Searchable Fields</a>.\n\nAuth0 <a href=\"https://auth0.com/docs/logs/retrieve-log-events-using-mgmt-api#limitations\">limits the number of logs</a> you can return by search criteria to 100 logs per request. Furthermore, you may paginate only through 1,000 search results. If you exceed this threshold, please redefine your search or use the <a href=\"https://auth0.com/docs/logs/retrieve-log-events-using-mgmt-api#retrieve-logs-by-checkpoint\">get logs by checkpoint method</a>.\n\n<h5>To search from a checkpoint log ID, use the following parameters:</h5>\n<ul>\n    <li><b>from:</b> Log Event ID from which to start retrieving logs. You can limit the number of logs returned using the <code>take</code> parameter. If you use <code>from</code> at the same time as <code>q</code>, <code>from</code> takes precedence and <code>q</code> is ignored.</li>\n    <li><b>take:</b> Number of entries to retrieve when using the <code>from</code> parameter.</li>\n</ul>\n\n<strong>Important:</strong> When fetching logs from a checkpoint log ID, any parameter other than <code>from</code> and <code>take</code> will be ignored, and date ordering is not guaranteed.\n"
+      description: 'Retrieve log entries that match the specified search criteria (or all log entries if no criteria specified).
+
+
+        Set custom search criteria using the q parameter, or search from a specific log ID ("search from checkpoint").
+
+
+        For more information on all possible event types, their respective acronyms, and descriptions, see Log Event Type Codes.
+
+
+        To set custom search criteria, use the following parameters:
+
+
+        q: Search Criteria using Query String Syntax
+
+
+        page: Page index of the results to return. First page is 0.
+
+
+        per_page: Number of results per page.
+
+
+        sort: Field to use for sorting appended with `:1` for ascending and `:-1` for descending. e.g. `date:-1`
+
+
+        fields: Comma-separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields.
+
+
+        include_fields: Whether specified fields are to be included (true) or excluded (false).
+
+
+        include_totals: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default). Deprecated: this field is deprecated and should be removed from use. See Search Engine V3 Breaking Changes
+
+
+        For more information on the list of fields that can be used in fields and sort, see Searchable Fields.
+
+
+        Auth0 limits the number of logs you can return by search criteria to 100 logs per request. Furthermore, you may paginate only through 1,000 search results. If you exceed this threshold, please redefine your search or use the get logs by checkpoint method.
+
+
+        To search from a checkpoint log ID, use the following parameters:
+
+
+        from: Log Event ID from which to start retrieving logs. You can limit the number of logs returned using the take parameter. If you use from at the same time as q, from takes precedence and q is ignored.
+
+
+        take: Number of entries to retrieve when using the from parameter.
+
+
+        Important: When fetching logs from a checkpoint log ID, any parameter other than from and take will be ignored, and date ordering is not guaranteed.'
       tags:
-      - logs
+      - Logs
       parameters:
       - name: page
         in: query
@@ -110,7 +158,7 @@ paths:
       summary: Get a Log Event by Id
       description: Retrieve an individual log event.
       tags:
-      - logs
+      - Logs
       parameters:
       - name: id
         in: path
@@ -147,132 +195,7 @@ paths:
         - read:logs_users
 components:
   schemas:
-    LogLocationInfo:
-      type: object
-      description: Information about the location that triggered this event based on the `ip`.
-      additionalProperties: true
-      properties:
-        country_code:
-          type: string
-          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
-          minLength: 2
-          maxLength: 2
-        country_code3:
-          type: string
-          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
-          minLength: 3
-          maxLength: 3
-        country_name:
-          type: string
-          description: Full country name in English.
-        city_name:
-          type: string
-          description: Full city name in English.
-        latitude:
-          type: number
-          description: Global latitude (horizontal) position.
-        longitude:
-          type: number
-          description: Global longitude (vertical) position.
-        time_zone:
-          type: string
-          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
-        continent_code:
-          type: string
-          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
-    LogDateObject:
-      type: object
-      description: Date when the event occurred in ISO 8601 format.
-      additionalProperties: true
     Log:
-      type: object
-      additionalProperties: true
-      properties:
-        date:
-          $ref: '#/components/schemas/LogDate'
-        type:
-          type: string
-          description: Type of event.
-          default: sapi
-        description:
-          type:
-          - string
-          - 'null'
-          description: Description of this event.
-        connection:
-          type: string
-          description: Name of the connection the event relates to.
-        connection_id:
-          type: string
-          description: ID of the connection the event relates to.
-        client_id:
-          type: string
-          description: ID of the client (application).
-          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
-        client_name:
-          type: string
-          description: Name of the client (application).
-          default: My application Name
-        ip:
-          type: string
-          description: IP address of the log event source.
-          default: 190.257.209.19
-        hostname:
-          type: string
-          description: Hostname the event applies to.
-          default: 190.257.209.19
-        user_id:
-          type: string
-          description: ID of the user involved in the event.
-          default: auth0|56c75c4e42b6359e98374bc2
-        user_name:
-          type: string
-          description: Name of the user involved in the event.
-        audience:
-          type: string
-          description: API audience the event applies to.
-        scope:
-          type: string
-          description: Scope permissions applied to the event.
-          default: ''
-        strategy:
-          type: string
-          description: Name of the strategy involved in the event.
-        strategy_type:
-          type: string
-          description: Type of strategy involved in the event.
-        log_id:
-          type: string
-          description: Unique ID of the event.
-        isMobile:
-          type: boolean
-          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
-        details:
-          $ref: '#/components/schemas/LogDetails'
-        user_agent:
-          type: string
-          description: User agent string from the client device that caused the event.
-        security_context:
-          $ref: '#/components/schemas/LogSecurityContext'
-        location_info:
-          $ref: '#/components/schemas/LogLocationInfo'
-    ListLogOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        length:
-          type: number
-        total:
-          type: number
-        logs:
-          type: array
-          items:
-            $ref: '#/components/schemas/Log'
-    GetLogResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -361,16 +284,141 @@ components:
         ja4:
           type: string
           description: JA4 fingerprint value.
+    LogDateObject:
+      type: object
+      description: Date when the event occurred in ISO 8601 format.
+      additionalProperties: true
     LogDetails:
       type: object
       description: Additional useful details about this event (structure is dependent upon event type).
       additionalProperties: true
+    ListLogOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        length:
+          type: number
+        total:
+          type: number
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Log'
     ListLogResponseContent:
       oneOf:
       - type: array
         items:
           $ref: '#/components/schemas/Log'
       - $ref: '#/components/schemas/ListLogOffsetPaginatedResponseContent'
+    LogLocationInfo:
+      type: object
+      description: Information about the location that triggered this event based on the `ip`.
+      additionalProperties: true
+      properties:
+        country_code:
+          type: string
+          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
+          minLength: 2
+          maxLength: 2
+        country_code3:
+          type: string
+          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
+          minLength: 3
+          maxLength: 3
+        country_name:
+          type: string
+          description: Full country name in English.
+        city_name:
+          type: string
+          description: Full city name in English.
+        latitude:
+          type: number
+          description: Global latitude (horizontal) position.
+        longitude:
+          type: number
+          description: Global longitude (vertical) position.
+        time_zone:
+          type: string
+          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
+        continent_code:
+          type: string
+          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
+    GetLogResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        date:
+          $ref: '#/components/schemas/LogDate'
+        type:
+          type: string
+          description: Type of event.
+          default: sapi
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description of this event.
+        connection:
+          type: string
+          description: Name of the connection the event relates to.
+        connection_id:
+          type: string
+          description: ID of the connection the event relates to.
+        client_id:
+          type: string
+          description: ID of the client (application).
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+        client_name:
+          type: string
+          description: Name of the client (application).
+          default: My application Name
+        ip:
+          type: string
+          description: IP address of the log event source.
+          default: 190.257.209.19
+        hostname:
+          type: string
+          description: Hostname the event applies to.
+          default: 190.257.209.19
+        user_id:
+          type: string
+          description: ID of the user involved in the event.
+          default: auth0|56c75c4e42b6359e98374bc2
+        user_name:
+          type: string
+          description: Name of the user involved in the event.
+        audience:
+          type: string
+          description: API audience the event applies to.
+        scope:
+          type: string
+          description: Scope permissions applied to the event.
+          default: ''
+        strategy:
+          type: string
+          description: Name of the strategy involved in the event.
+        strategy_type:
+          type: string
+          description: Type of strategy involved in the event.
+        log_id:
+          type: string
+          description: Unique ID of the event.
+        isMobile:
+          type: boolean
+          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
+        details:
+          $ref: '#/components/schemas/LogDetails'
+        user_agent:
+          type: string
+          description: User agent string from the client device that caused the event.
+        security_context:
+          $ref: '#/components/schemas/LogSecurityContext'
+        location_info:
+          $ref: '#/components/schemas/LogLocationInfo'
   securitySchemes:
     bearerAuth:
       type: http

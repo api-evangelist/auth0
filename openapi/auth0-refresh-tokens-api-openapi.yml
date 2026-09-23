@@ -261,25 +261,6 @@ components:
         next:
           type: string
           description: A cursor to be used as the "from" query parameter for the next page of results.
-    RefreshTokenDateObject:
-      type: object
-      description: The date and time when the refresh token was created
-      additionalProperties: true
-    RefreshTokenMetadata:
-      type:
-      - object
-      - 'null'
-      description: Metadata associated with the refresh token, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
-      additionalProperties: true
-      maxProperties: 25
-    UpdateRefreshTokenRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        refresh_token_metadata:
-          $ref: '#/components/schemas/RefreshTokenMetadata'
-          description: Metadata associated with the refresh token. Pass null or {} to remove all metadata.
     RefreshTokenDevice:
       type: object
       description: Device used while issuing/exchanging the refresh token
@@ -303,11 +284,67 @@ components:
         last_user_agent:
           type: string
           description: Last user agent associated with the refresh token
-    RefreshTokenSessionId:
-      type:
-      - string
-      - 'null'
-      description: ID of the authenticated session used to obtain this refresh-token
+    RefreshTokenResourceServer:
+      type: object
+      additionalProperties: true
+      properties:
+        audience:
+          type: string
+          description: Resource server ID
+        scopes:
+          type: string
+          description: List of scopes for the refresh token
+    UpdateRefreshTokenRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+          description: Metadata associated with the refresh token. Pass null or {} to remove all metadata.
+    RefreshTokenDate:
+      oneOf:
+      - type: string
+        description: The date and time when the refresh token was created
+        format: date-time
+      - $ref: '#/components/schemas/RefreshTokenDateObject'
+      - type: 'null'
+    GetRefreshTokenResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the refresh token
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        created_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        device:
+          $ref: '#/components/schemas/RefreshTokenDevice'
+        client_id:
+          type: string
+          description: ID of the client application granted with this refresh token
+        session_id:
+          $ref: '#/components/schemas/RefreshTokenSessionId'
+        rotating:
+          type: boolean
+          description: True if the token is a rotating refresh token
+        resource_servers:
+          type: array
+          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
+          items:
+            $ref: '#/components/schemas/RefreshTokenResourceServer'
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+        last_exchanged_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
     RevokeRefreshTokensRequestContent:
       type: object
       description: 'Exactly one of the following combinations must be provided: `ids` (up to 100 token IDs); `user_id`; `user_id` + `client_id`; or `client_id` alone. `ids` cannot be combined with `user_id` or `client_id`.'
@@ -369,59 +406,13 @@ components:
           $ref: '#/components/schemas/RefreshTokenMetadata'
         last_exchanged_at:
           $ref: '#/components/schemas/RefreshTokenDate'
-    RefreshTokenDate:
-      oneOf:
-      - type: string
-        description: The date and time when the refresh token was created
-        format: date-time
-      - $ref: '#/components/schemas/RefreshTokenDateObject'
-      - type: 'null'
-    GetRefreshTokenResponseContent:
-      type: object
+    RefreshTokenMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the refresh token, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
       additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The ID of the refresh token
-        user_id:
-          type: string
-          description: ID of the user which can be used when interacting with other APIs.
-          default: auth0|507f1f77bcf86cd799439020
-        created_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-        idle_expires_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-        expires_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-        device:
-          $ref: '#/components/schemas/RefreshTokenDevice'
-        client_id:
-          type: string
-          description: ID of the client application granted with this refresh token
-        session_id:
-          $ref: '#/components/schemas/RefreshTokenSessionId'
-        rotating:
-          type: boolean
-          description: True if the token is a rotating refresh token
-        resource_servers:
-          type: array
-          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
-          items:
-            $ref: '#/components/schemas/RefreshTokenResourceServer'
-        refresh_token_metadata:
-          $ref: '#/components/schemas/RefreshTokenMetadata'
-        last_exchanged_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-    RefreshTokenResourceServer:
-      type: object
-      additionalProperties: true
-      properties:
-        audience:
-          type: string
-          description: Resource server ID
-        scopes:
-          type: string
-          description: List of scopes for the refresh token
+      maxProperties: 25
     UpdateRefreshTokenResponseContent:
       type: object
       additionalProperties: true
@@ -458,6 +449,15 @@ components:
           $ref: '#/components/schemas/RefreshTokenMetadata'
         last_exchanged_at:
           $ref: '#/components/schemas/RefreshTokenDate'
+    RefreshTokenSessionId:
+      type:
+      - string
+      - 'null'
+      description: ID of the authenticated session used to obtain this refresh-token
+    RefreshTokenDateObject:
+      type: object
+      description: The date and time when the refresh token was created
+      additionalProperties: true
   securitySchemes:
     bearerAuth:
       type: http

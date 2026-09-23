@@ -18,8 +18,30 @@ paths:
       operationId: oauth_token
       tags:
       - OAuth Token
-      summary: Auth0 Authenticates a User Using a Verification Code, Verifies Multi-factor Authentication (MFA) Using a One-time Password (OTP), Out-of-band (OOB) Challenge, or a Recovery Code, or Exchanges an Authorization Code for a Token
-      description: "This endpoint supports multiple methods. Depending on the method, different parameters are required in the request body. The supported methods are:\n  - Authenticate User with verification code\n  - OTP\n  - OOB\n  - Recovery Code\n  - Authorization Code\n  - Authorization Code PKCE\n  - Client Credentials\n  - Resource Owner Password\n  - Device Authorization\n  - Refresh Token\n  - Native Social Token Exchange\n"
+      summary: Auth0 Authenticates a User Using a Verification Code, Verifies Multi-factor…
+      description: 'This endpoint supports multiple methods. Depending on the method, different parameters are required in the request body. The supported methods are:
+
+        - Authenticate User with verification code
+
+        - OTP
+
+        - OOB
+
+        - Recovery Code
+
+        - Authorization Code
+
+        - Authorization Code PKCE
+
+        - Client Credentials
+
+        - Resource Owner Password
+
+        - Device Authorization
+
+        - Refresh Token
+
+        - Native Social Token Exchange'
       parameters:
       - in: header
         name: auth0-forwarded-for
@@ -119,28 +141,6 @@ components:
                 type: string
               error_description:
                 type: string
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              error_description:
-                type: string
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              error_description:
-                type: string
     MethodNotAllowed:
       description: Method Not Allowed
       content:
@@ -152,6 +152,8 @@ components:
                 type: string
               error_description:
                 type: string
+    InternalServerError:
+      description: Internal Server Error
     BadRequest:
       description: Bad Request
       content:
@@ -174,9 +176,53 @@ components:
                 type: string
               error_description:
                 type: string
-    InternalServerError:
-      description: Internal Server Error
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              error_description:
+                type: string
   schemas:
+    RefreshToken:
+      type: object
+      required:
+      - grant_type
+      - client_id
+      - refresh_token
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. To refresh a token, use refresh_token.
+          enum:
+          - refresh_token
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
+        refresh_token:
+          type: string
+          description: The Refresh Token to use.
+        scope:
+          type: string
+          description: A space-delimited list of requested scope permissions. If not sent, the original scopes will be used; otherwise you can request a reduced set of scopes. Note that this must be URL encoded.
     NativeSocialTokenExchange:
       type: object
       required:
@@ -208,32 +254,6 @@ components:
         user_profile:
           type: string
           description: 'Optional element used for native iOS interactions for which profile updates can occur. Expected parameter value will be JSON in the form of: { name: { firstName: ''John'', lastName: ''Smith }}'
-    AuthorizationCode:
-      type: object
-      required:
-      - grant_type
-      - client_id
-      - client_secret
-      - code
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For Authorization Code, use authorization_code.
-          enum:
-          - authorization_code
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_secret:
-          type: string
-          description: Your application's Client Secret.
-        code:
-          type: string
-          description: The Authorization Code received from the initial /authorize call.
-        redirect_uri:
-          type: string
-          description: This is required only if it was set at the GET /authorize endpoint. The values must match.
-          format: uri
     DeviceAuthorization:
       type: object
       required:
@@ -252,190 +272,6 @@ components:
         device_code:
           type: string
           description: The device code previously returned from the /oauth/device/code endpoint.
-    ResourceOwnerPassword:
-      type: object
-      required:
-      - grant_type
-      - client_id
-      - username
-      - password
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For Resource Owner Password, use password.
-          enum:
-          - password
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_secret:
-          type: string
-          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
-        audience:
-          type: string
-          description: The unique identifier of the target API you want to access.
-        username:
-          type: string
-          description: Resource Owner's identifier, such as a username or email address.
-        password:
-          type: string
-          description: Resource Owner's secret.
-        scope:
-          type: string
-          description: String value of the different scopes the application is asking for. Multiple scopes are separated with whitespace.
-        realm:
-          type: string
-          description: String value of the realm the user belongs. Set this if you want to add realm support at this grant. For more information on what realms are refer to Realm Support.
-    OOB:
-      description: To verify MFA using an OOB challenge, your application must make a request to /oauth/token with grant_type=http://auth0.com/oauth/grant-type/mfa-oob. Include the oob_code you received from the challenge response, as well as the mfa_token you received as part of mfa_required error.
-      type: object
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For OTP MFA, use http://auth0.com/oauth/grant-type/mfa-oob.
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_assertion:
-          type: string
-          description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
-        client_assertion_type:
-          type: string
-          description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
-        client_secret:
-          type: string
-          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
-        mfa_token:
-          type: string
-          description: The mfa_token you received from mfa_required error.
-        oob_code:
-          type: string
-          description: The oob code received from the challenge request.
-        binding_code:
-          type: string
-          description: A code used to bind the side channel (used to deliver the challenge) with the main channel you are using to authenticate. This is usually an OTP-like code delivered as part of the challenge message.
-    RecoveryCode:
-      description: Some multi-factor authentication (MFA) providers (such as Guardian) support using a recovery code to login. Use this method to authenticate when the user's enrolled device is unavailable, or the user cannot receive the challenge or accept it due to connectivity issues.
-      type: object
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For recovery code use http://auth0.com/oauth/grant-type/mfa-recovery-code.
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_assertion:
-          type: string
-          description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
-        client_assertion_type:
-          type: string
-          description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
-        client_secret:
-          type: string
-          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
-        mfa_token:
-          type: string
-          description: The mfa_token you received from mfa_required error.
-        recovery_code:
-          type: string
-          description: Recovery code provided by the end-user.
-    AuthorizationCodePKCE:
-      type: object
-      required:
-      - grant_type
-      - client_id
-      - code
-      - code_verifier
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For Authorization Code (PKCE), use authorization_code.
-          enum:
-          - authorization_code
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        code:
-          type: string
-          description: The Authorization Code received from the initial /authorize call.
-        code_verifier:
-          type: string
-          description: Cryptographically random key that was used to generate the code_challenge passed to /authorize.
-        redirect_uri:
-          type: string
-          description: This is required only if it was set at the GET /authorize endpoint. The values must match.
-          format: uri
-    ClientCredentials:
-      type: object
-      required:
-      - grant_type
-      - client_id
-      - client_secret
-      - audience
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For Client Credentials, use client_credentials.
-          enum:
-          - client_credentials
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_secret:
-          type: string
-          description: Your application's Client Secret.
-        audience:
-          type: string
-          description: The unique identifier of the target API you want to access.
-    OTP:
-      description: To verify MFA with an OTP, prompt the user to get the OTP code, then make a request to the /oauth/token endpoint. The request must have the OTP code, the mfa_token you received (from the mfa_required error), and the grant_type set to http://auth0.com/oauth/grant-type/mfa-otp. The response is the same as responses for password or http://auth0.com/oauth/grant-type/password-realm grant types.
-      type: object
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. For OTP MFA use http://auth0.com/oauth/grant-type/mfa-otp.
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_assertion:
-          type: string
-          description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
-        client_assertion_type:
-          type: string
-          description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
-        client_secret:
-          type: string
-          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
-        mfa_token:
-          type: string
-          description: The mfa_token you received from mfa_required error.
-        otp:
-          type: string
-          description: OTP Code provided by the user.
-    RefreshToken:
-      type: object
-      required:
-      - grant_type
-      - client_id
-      - refresh_token
-      properties:
-        grant_type:
-          type: string
-          description: Denotes the flow you are using. To refresh a token, use refresh_token.
-          enum:
-          - refresh_token
-        client_id:
-          type: string
-          description: Your application's Client ID.
-        client_secret:
-          type: string
-          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
-        refresh_token:
-          type: string
-          description: The Refresh Token to use.
-        scope:
-          type: string
-          description: A space-delimited list of requested scope permissions. If not sent, the original scopes will be used; otherwise you can request a reduced set of scopes. Note that this must be URL encoded.
     AuthenticateUserWithVerificationCode:
       description: Authenticate a user using a verification code.
       type: object
@@ -473,3 +309,189 @@ components:
         redirect_uri:
           type: string
           description: A callback URL that has been registered with your application's Allowed Callback URLs.
+    RecoveryCode:
+      description: Some multi-factor authentication (MFA) providers (such as Guardian) support using a recovery code to login. Use this method to authenticate when the user's enrolled device is unavailable, or the user cannot receive the challenge or accept it due to connectivity issues.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For recovery code use http://auth0.com/oauth/grant-type/mfa-recovery-code.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_assertion:
+          type: string
+          description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
+        client_assertion_type:
+          type: string
+          description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
+        client_secret:
+          type: string
+          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
+        mfa_token:
+          type: string
+          description: The mfa_token you received from mfa_required error.
+        recovery_code:
+          type: string
+          description: Recovery code provided by the end-user.
+    AuthorizationCode:
+      type: object
+      required:
+      - grant_type
+      - client_id
+      - client_secret
+      - code
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For Authorization Code, use authorization_code.
+          enum:
+          - authorization_code
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: Your application's Client Secret.
+        code:
+          type: string
+          description: The Authorization Code received from the initial /authorize call.
+        redirect_uri:
+          type: string
+          description: This is required only if it was set at the GET /authorize endpoint. The values must match.
+          format: uri
+    AuthorizationCodePKCE:
+      type: object
+      required:
+      - grant_type
+      - client_id
+      - code
+      - code_verifier
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For Authorization Code (PKCE), use authorization_code.
+          enum:
+          - authorization_code
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        code:
+          type: string
+          description: The Authorization Code received from the initial /authorize call.
+        code_verifier:
+          type: string
+          description: Cryptographically random key that was used to generate the code_challenge passed to /authorize.
+        redirect_uri:
+          type: string
+          description: This is required only if it was set at the GET /authorize endpoint. The values must match.
+          format: uri
+    ResourceOwnerPassword:
+      type: object
+      required:
+      - grant_type
+      - client_id
+      - username
+      - password
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For Resource Owner Password, use password.
+          enum:
+          - password
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
+        audience:
+          type: string
+          description: The unique identifier of the target API you want to access.
+        username:
+          type: string
+          description: Resource Owner's identifier, such as a username or email address.
+        password:
+          type: string
+          description: Resource Owner's secret.
+        scope:
+          type: string
+          description: String value of the different scopes the application is asking for. Multiple scopes are separated with whitespace.
+        realm:
+          type: string
+          description: String value of the realm the user belongs. Set this if you want to add realm support at this grant. For more information on what realms are refer to Realm Support.
+    ClientCredentials:
+      type: object
+      required:
+      - grant_type
+      - client_id
+      - client_secret
+      - audience
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For Client Credentials, use client_credentials.
+          enum:
+          - client_credentials
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_secret:
+          type: string
+          description: Your application's Client Secret.
+        audience:
+          type: string
+          description: The unique identifier of the target API you want to access.
+    OOB:
+      description: To verify MFA using an OOB challenge, your application must make a request to /oauth/token with grant_type=http://auth0.com/oauth/grant-type/mfa-oob. Include the oob_code you received from the challenge response, as well as the mfa_token you received as part of mfa_required error.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For OTP MFA, use http://auth0.com/oauth/grant-type/mfa-oob.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_assertion:
+          type: string
+          description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
+        client_assertion_type:
+          type: string
+          description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
+        client_secret:
+          type: string
+          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
+        mfa_token:
+          type: string
+          description: The mfa_token you received from mfa_required error.
+        oob_code:
+          type: string
+          description: The oob code received from the challenge request.
+        binding_code:
+          type: string
+          description: A code used to bind the side channel (used to deliver the challenge) with the main channel you are using to authenticate. This is usually an OTP-like code delivered as part of the challenge message.
+    OTP:
+      description: To verify MFA with an OTP, prompt the user to get the OTP code, then make a request to the /oauth/token endpoint. The request must have the OTP code, the mfa_token you received (from the mfa_required error), and the grant_type set to http://auth0.com/oauth/grant-type/mfa-otp. The response is the same as responses for password or http://auth0.com/oauth/grant-type/password-realm grant types.
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: Denotes the flow you are using. For OTP MFA use http://auth0.com/oauth/grant-type/mfa-otp.
+        client_id:
+          type: string
+          description: Your application's Client ID.
+        client_assertion:
+          type: string
+          description: A JWT containing a signed assertion with your application credentials. Required when Private Key JWT is your application authentication method.
+        client_assertion_type:
+          type: string
+          description: The value is urn:ietf:params:oauth:client-assertion-type:jwt-bearer. Required when Private Key JWT is the application authentication method.
+        client_secret:
+          type: string
+          description: Your application's Client Secret. Required when the Token Endpoint Authentication Method field at your Application Settings is Post or Basic.
+        mfa_token:
+          type: string
+          description: The mfa_token you received from mfa_required error.
+        otp:
+          type: string
+          description: OTP Code provided by the user.

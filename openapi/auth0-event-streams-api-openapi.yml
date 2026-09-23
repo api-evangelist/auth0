@@ -16,13 +16,13 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: event-streams
+- name: Event Streams
 paths:
   /event-streams:
     get:
       summary: Get Event Streams
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: from
         in: query
@@ -65,7 +65,7 @@ paths:
     post:
       summary: Create an Event Stream
       tags:
-      - event-streams
+      - Event Streams
       requestBody:
         content:
           application/json:
@@ -111,7 +111,7 @@ paths:
     get:
       summary: Get an Event Stream by ID
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -149,7 +149,7 @@ paths:
     delete:
       summary: Delete an Event Stream
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -183,7 +183,7 @@ paths:
     patch:
       summary: Update an Event Stream
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -230,7 +230,7 @@ paths:
     get:
       summary: Get This Event Stream's Delivery History
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -311,7 +311,7 @@ paths:
     get:
       summary: Get a Specific Event's Delivery History
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -361,7 +361,7 @@ paths:
     post:
       summary: Redeliver Failed Events
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -412,7 +412,7 @@ paths:
     post:
       summary: Redeliver a Single Failed Event by ID
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -460,7 +460,7 @@ paths:
     post:
       summary: Send a Test Event to an Event Stream
       tags:
-      - event-streams
+      - Event Streams
       parameters:
       - name: id
         in: path
@@ -503,202 +503,66 @@ paths:
         - update:event_streams
 components:
   schemas:
-    EventStreamWebhookBasicAuth:
-      type: object
-      description: 'Basic Authorization for HTTP requests (e.g., ''Basic credentials'').
-
-        '
-      additionalProperties: false
-      required:
-      - method
-      - username
-      properties:
-        method:
-          $ref: '#/components/schemas/EventStreamWebhookBasicAuthMethodEnum'
-        username:
-          type: string
-          description: Username
-          maxLength: 128
-          pattern: ^[^:]+$
-    CreateEventStreamActionRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - destination
-      properties:
-        name:
-          type: string
-          description: Name of the event stream.
-          minLength: 1
-          maxLength: 128
-        subscriptions:
-          type: array
-          description: List of event types subscribed to in this stream.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/EventStreamSubscription'
-        destination:
-          $ref: '#/components/schemas/EventStreamActionDestination'
-        status:
-          $ref: '#/components/schemas/EventStreamStatusEnum'
-    EventStreamEventTypeEnum:
-      type: string
-      enum:
-      - group.created
-      - group.deleted
-      - group.member.added
-      - group.member.deleted
-      - group.role.assigned
-      - group.role.deleted
-      - group.updated
-      - organization.connection.added
-      - organization.connection.removed
-      - organization.connection.updated
-      - organization.created
-      - organization.deleted
-      - organization.group.role.assigned
-      - organization.group.role.deleted
-      - organization.member.added
-      - organization.member.deleted
-      - organization.member.role.assigned
-      - organization.member.role.deleted
-      - organization.updated
-      - user.created
-      - user.deleted
-      - user.updated
-    EventStreamActionDestination:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - configuration
-      properties:
-        type:
-          $ref: '#/components/schemas/EventStreamActionDestinationTypeEnum'
-        configuration:
-          $ref: '#/components/schemas/EventStreamActionConfiguration'
-    EventStreamCloudEvent:
-      type: object
-      description: Event content. This will only be set if delivery failed.
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the event
-          minLength: 26
-          maxLength: 26
-          format: event-id
-        source:
-          type: string
-          description: Where the event originated
-        specversion:
-          type: string
-          description: Version of CloudEvents spec
-        type:
-          type: string
-          description: Type of the event (e.g., user.created)
-        time:
-          type: string
-          description: Timestamp at which the event was generated
-          format: date-time
-        data:
-          type: string
-          description: Event contents encoded as a string.
-    EventStreamDeliveryStatusEnum:
-      type: string
-      description: Delivery status
-      maxLength: 6
-      enum:
-      - failed
-    TestEventDataContent:
-      type: object
-      description: The raw payload of the test event.
-      additionalProperties: true
-    EventStreamActionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the event stream.
-          minLength: 26
-          maxLength: 26
-          format: event-stream-id
-        name:
-          type: string
-          description: Name of the event stream.
-          minLength: 1
-          maxLength: 128
-        subscriptions:
-          type: array
-          description: List of event types subscribed to in this stream.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/EventStreamSubscription'
-        destination:
-          $ref: '#/components/schemas/EventStreamActionDestination'
-        status:
-          $ref: '#/components/schemas/EventStreamStatusEnum'
-        created_at:
-          type: string
-          description: Timestamp when the event stream was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp when the event stream was last updated.
-          format: date-time
     EventStreamWebhookBasicAuthMethodEnum:
       type: string
       description: Type of authorization.
       enum:
       - basic
-    EventStreamWebhookDestinationTypeEnum:
-      type: string
-      enum:
-      - webhook
-    EventStreamTestEventTypeEnum:
-      type: string
-      description: The type of event this test event represents.
-      maxLength: 33
-      enum:
-      - group.created
-      - group.deleted
-      - group.member.added
-      - group.member.deleted
-      - group.role.assigned
-      - group.role.deleted
-      - group.updated
-      - organization.connection.added
-      - organization.connection.removed
-      - organization.connection.updated
-      - organization.created
-      - organization.deleted
-      - organization.group.role.assigned
-      - organization.group.role.deleted
-      - organization.member.added
-      - organization.member.deleted
-      - organization.member.role.assigned
-      - organization.member.role.deleted
-      - organization.updated
-      - user.created
-      - user.deleted
-      - user.updated
-    EventStreamWebhookDestination:
+    EventStreamDelivery:
       type: object
+      description: Metadata about a specific attempt to deliver an event
       additionalProperties: false
       required:
-      - type
-      - configuration
+      - id
+      - event_stream_id
+      - status
+      - event_type
+      - attempts
       properties:
-        type:
-          $ref: '#/components/schemas/EventStreamWebhookDestinationTypeEnum'
-        configuration:
-          $ref: '#/components/schemas/EventStreamWebhookConfiguration'
-    EventStreamWebhookBearerAuthMethodEnum:
-      type: string
-      description: Type of authorization.
-      enum:
-      - bearer
+        id:
+          type: string
+          description: Unique identifier for the delivery
+        event_stream_id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        status:
+          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_type:
+          $ref: '#/components/schemas/EventStreamDeliveryEventTypeEnum'
+        attempts:
+          type: array
+          description: Results of delivery attempts
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryAttempt'
+        event:
+          $ref: '#/components/schemas/EventStreamCloudEvent'
+    CreateEventStreamRedeliveryRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        date_from:
+          type: string
+          description: An RFC-3339 date-time for redelivery start, inclusive. Does not allow sub-second precision.
+          maxLength: 20
+          format: date-time
+        date_to:
+          type: string
+          description: An RFC-3339 date-time for redelivery end, exclusive. Does not allow sub-second precision.
+          maxLength: 20
+          format: date-time
+        statuses:
+          type: array
+          description: Filter by status
+          items:
+            $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        event_types:
+          type: array
+          description: Filter by event type
+          items:
+            $ref: '#/components/schemas/EventStreamEventTypeEnum'
     EventStreamEventBridgeAWSRegionEnum:
       type: string
       description: AWS Region for EventBridge destination.
@@ -739,139 +603,11 @@ components:
       - us-east-2
       - us-west-1
       - us-west-2
-    EventStreamEventBridgeResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the event stream.
-          minLength: 26
-          maxLength: 26
-          format: event-stream-id
-        name:
-          type: string
-          description: Name of the event stream.
-          minLength: 1
-          maxLength: 128
-        subscriptions:
-          type: array
-          description: List of event types subscribed to in this stream.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/EventStreamSubscription'
-        destination:
-          $ref: '#/components/schemas/EventStreamEventBridgeDestination'
-        status:
-          $ref: '#/components/schemas/EventStreamStatusEnum'
-        created_at:
-          type: string
-          description: Timestamp when the event stream was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp when the event stream was last updated.
-          format: date-time
-    EventStreamDestinationPatch:
+    EventStreamWebhookAuthorizationResponse:
       oneOf:
-      - $ref: '#/components/schemas/EventStreamWebhookDestination'
-      - $ref: '#/components/schemas/EventStreamActionDestination'
-    CreateEventStreamEventBridgeRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - destination
-      properties:
-        name:
-          type: string
-          description: Name of the event stream.
-          minLength: 1
-          maxLength: 128
-        subscriptions:
-          type: array
-          description: List of event types subscribed to in this stream.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/EventStreamSubscription'
-        destination:
-          $ref: '#/components/schemas/EventStreamEventBridgeDestination'
-        status:
-          $ref: '#/components/schemas/EventStreamStatusEnum'
-    UpdateEventStreamResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
-      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
-      - $ref: '#/components/schemas/EventStreamActionResponseContent'
-    EventStreamResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
-      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
-      - $ref: '#/components/schemas/EventStreamActionResponseContent'
-    CreateEventStreamRedeliveryResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        date_from:
-          type: string
-          description: An RFC-3339 date-time for redelivery start, inclusive. Does not allow sub-second precision.
-          maxLength: 20
-          format: date-time
-        date_to:
-          type: string
-          description: An RFC-3339 date-time for redelivery end, exclusive. Does not allow sub-second precision.
-          maxLength: 20
-          format: date-time
-        statuses:
-          type: array
-          description: Filter by status
-          items:
-            $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
-        event_types:
-          type: array
-          description: Filter by event type
-          items:
-            $ref: '#/components/schemas/EventStreamEventTypeEnum'
-    EventStreamDeliveryAttempt:
-      type: object
-      additionalProperties: false
-      required:
-      - status
-      - timestamp
-      properties:
-        status:
-          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
-        timestamp:
-          type: string
-          description: Timestamp of delivery attempt
-          format: date-time
-        error_message:
-          type: string
-          description: Delivery error message, if applicable
-    EventStreamActionDestinationTypeEnum:
-      type: string
-      enum:
-      - action
-    EventStreamEventBridgeConfiguration:
-      type: object
-      description: Configuration specific to an eventbridge destination.
-      additionalProperties: false
-      required:
-      - aws_account_id
-      - aws_region
-      properties:
-        aws_account_id:
-          type: string
-          description: 'AWS Account ID for EventBridge destination.
-
-            '
-          pattern: ^\d{12}$
-        aws_region:
-          $ref: '#/components/schemas/EventStreamEventBridgeAWSRegionEnum'
-        aws_partner_event_source:
-          type: string
-          description: 'AWS Partner Event Source for EventBridge destination.
-
-            '
+      - $ref: '#/components/schemas/EventStreamWebhookBasicAuth'
+      - $ref: '#/components/schemas/EventStreamWebhookBearerAuth'
+      - $ref: '#/components/schemas/EventStreamWebhookCustomHeaderAuth'
     CreateEventStreamTestEventResponseContent:
       type: object
       description: Metadata about a specific attempt to deliver an event
@@ -903,113 +639,33 @@ components:
             $ref: '#/components/schemas/EventStreamDeliveryAttempt'
         event:
           $ref: '#/components/schemas/EventStreamCloudEvent'
-    EventStreamWebhookCustomHeaderAuth:
+    EventStreamCloudEvent:
       type: object
-      description: Custom header authorization for HTTP requests.
+      description: Event content. This will only be set if delivery failed.
       additionalProperties: false
-      required:
-      - method
-      - header_key
-      properties:
-        method:
-          $ref: '#/components/schemas/EventStreamWebhookCustomHeaderAuthMethodEnum'
-        header_key:
-          type: string
-          description: HTTP header name.
-          minLength: 1
-          pattern: ^[a-zA-Z0-9!#$%&'*+.^_`|~-]+$
-    EventStreamWebhookConfiguration:
-      type: object
-      description: Configuration specific to a webhook destination.
-      additionalProperties: false
-      required:
-      - webhook_endpoint
-      - webhook_authorization
-      properties:
-        webhook_endpoint:
-          type: string
-          description: Target HTTP endpoint URL.
-          pattern: ^https://.*
-        webhook_authorization:
-          $ref: '#/components/schemas/EventStreamWebhookAuthorizationResponse'
-    CreateEventStreamTestEventRequestContent:
-      type: object
-      description: The payload for sending a test event to an event stream.
-      additionalProperties: false
-      required:
-      - event_type
-      properties:
-        event_type:
-          $ref: '#/components/schemas/EventStreamTestEventTypeEnum'
-        data:
-          $ref: '#/components/schemas/TestEventDataContent'
-    EventStreamWebhookAuthorizationResponse:
-      oneOf:
-      - $ref: '#/components/schemas/EventStreamWebhookBasicAuth'
-      - $ref: '#/components/schemas/EventStreamWebhookBearerAuth'
-      - $ref: '#/components/schemas/EventStreamWebhookCustomHeaderAuth'
-    EventStreamWebhookBearerAuth:
-      type: object
-      description: 'Bearer Authorization for HTTP requests (e.g., ''Bearer token'').
-
-        '
-      additionalProperties: false
-      required:
-      - method
-      properties:
-        method:
-          $ref: '#/components/schemas/EventStreamWebhookBearerAuthMethodEnum'
-    EventStreamDelivery:
-      type: object
-      description: Metadata about a specific attempt to deliver an event
-      additionalProperties: false
-      required:
-      - id
-      - event_stream_id
-      - status
-      - event_type
-      - attempts
       properties:
         id:
           type: string
-          description: Unique identifier for the delivery
-        event_stream_id:
-          type: string
-          description: Unique identifier for the event stream.
+          description: Unique identifier for the event
           minLength: 26
           maxLength: 26
-          format: event-stream-id
-        status:
-          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
-        event_type:
-          $ref: '#/components/schemas/EventStreamDeliveryEventTypeEnum'
-        attempts:
-          type: array
-          description: Results of delivery attempts
-          items:
-            $ref: '#/components/schemas/EventStreamDeliveryAttempt'
-        event:
-          $ref: '#/components/schemas/EventStreamCloudEvent'
-    EventStreamWebhookCustomHeaderAuthMethodEnum:
-      type: string
-      description: Type of authorization.
-      enum:
-      - custom_header
-    ListEventStreamsResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        eventStreams:
-          type: array
-          items:
-            $ref: '#/components/schemas/EventStreamResponseContent'
-        next:
+          format: event-id
+        source:
           type: string
-          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.
-    EventStreamEventBridgeDestinationTypeEnum:
-      type: string
-      enum:
-      - eventbridge
+          description: Where the event originated
+        specversion:
+          type: string
+          description: Version of CloudEvents spec
+        type:
+          type: string
+          description: Type of the event (e.g., user.created)
+        time:
+          type: string
+          description: Timestamp at which the event was generated
+          format: date-time
+        data:
+          type: string
+          description: Event contents encoded as a string.
     EventStreamWebhookResponseContent:
       type: object
       additionalProperties: false
@@ -1043,74 +699,10 @@ components:
           type: string
           description: Timestamp when the event stream was last updated.
           format: date-time
-    UpdateEventStreamRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of the event stream.
-          minLength: 1
-          maxLength: 128
-        subscriptions:
-          type: array
-          description: List of event types subscribed to in this stream.
-          items:
-            $ref: '#/components/schemas/EventStreamSubscription'
-        destination:
-          $ref: '#/components/schemas/EventStreamDestinationPatch'
-        status:
-          $ref: '#/components/schemas/EventStreamStatusEnum'
-    EventStreamSubscription:
-      type: object
-      description: Event types
-      additionalProperties: false
-      properties:
-        event_type:
-          type: string
-    EventStreamEventBridgeDestination:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - configuration
-      properties:
-        type:
-          $ref: '#/components/schemas/EventStreamEventBridgeDestinationTypeEnum'
-        configuration:
-          $ref: '#/components/schemas/EventStreamEventBridgeConfiguration'
-    EventStreamDeliveryEventTypeEnum:
+    EventStreamActionDestinationTypeEnum:
       type: string
-      description: Type of event
-      maxLength: 33
       enum:
-      - group.created
-      - group.deleted
-      - group.member.added
-      - group.member.deleted
-      - group.role.assigned
-      - group.role.deleted
-      - group.updated
-      - organization.connection.added
-      - organization.connection.removed
-      - organization.connection.updated
-      - organization.created
-      - organization.deleted
-      - organization.group.role.assigned
-      - organization.group.role.deleted
-      - organization.member.added
-      - organization.member.deleted
-      - organization.member.role.assigned
-      - organization.member.role.deleted
-      - organization.updated
-      - user.created
-      - user.deleted
-      - user.updated
-    CreateEventStreamResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
-      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
-      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+      - action
     GetEventStreamDeliveryHistoryResponseContent:
       type: object
       description: Metadata about a specific attempt to deliver an event
@@ -1142,43 +734,40 @@ components:
             $ref: '#/components/schemas/EventStreamDeliveryAttempt'
         event:
           $ref: '#/components/schemas/EventStreamCloudEvent'
-    EventStreamActionConfiguration:
+    CreateEventStreamTestEventRequestContent:
       type: object
-      description: Configuration specific to an action destination.
+      description: The payload for sending a test event to an event stream.
       additionalProperties: false
       required:
-      - action_id
+      - event_type
       properties:
-        action_id:
-          type: string
-          description: Action ID for the action destination.
+        event_type:
+          $ref: '#/components/schemas/EventStreamTestEventTypeEnum'
+        data:
+          $ref: '#/components/schemas/TestEventDataContent'
     GetEventStreamResponseContent:
       oneOf:
       - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
       - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
       - $ref: '#/components/schemas/EventStreamActionResponseContent'
-    CreateEventStreamWebHookRequestContent:
+    EventStreamEventBridgeDestination:
       type: object
       additionalProperties: false
       required:
-      - destination
+      - type
+      - configuration
       properties:
-        name:
-          type: string
-          description: Name of the event stream.
-          minLength: 1
-          maxLength: 128
-        subscriptions:
-          type: array
-          description: List of event types subscribed to in this stream.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/EventStreamSubscription'
-        destination:
-          $ref: '#/components/schemas/EventStreamWebhookDestination'
-        status:
-          $ref: '#/components/schemas/EventStreamStatusEnum'
-    CreateEventStreamRedeliveryRequestContent:
+        type:
+          $ref: '#/components/schemas/EventStreamEventBridgeDestinationTypeEnum'
+        configuration:
+          $ref: '#/components/schemas/EventStreamEventBridgeConfiguration'
+    EventStreamDeliveryStatusEnum:
+      type: string
+      description: Delivery status
+      maxLength: 6
+      enum:
+      - failed
+    CreateEventStreamRedeliveryResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -1202,6 +791,273 @@ components:
           description: Filter by event type
           items:
             $ref: '#/components/schemas/EventStreamEventTypeEnum'
+    EventStreamWebhookCustomHeaderAuthMethodEnum:
+      type: string
+      description: Type of authorization.
+      enum:
+      - custom_header
+    EventStreamEventBridgeConfiguration:
+      type: object
+      description: Configuration specific to an eventbridge destination.
+      additionalProperties: false
+      required:
+      - aws_account_id
+      - aws_region
+      properties:
+        aws_account_id:
+          type: string
+          description: 'AWS Account ID for EventBridge destination.
+
+            '
+          pattern: ^\d{12}$
+        aws_region:
+          $ref: '#/components/schemas/EventStreamEventBridgeAWSRegionEnum'
+        aws_partner_event_source:
+          type: string
+          description: 'AWS Partner Event Source for EventBridge destination.
+
+            '
+    EventStreamSubscription:
+      type: object
+      description: Event types
+      additionalProperties: false
+      properties:
+        event_type:
+          type: string
+    EventStreamActionConfiguration:
+      type: object
+      description: Configuration specific to an action destination.
+      additionalProperties: false
+      required:
+      - action_id
+      properties:
+        action_id:
+          type: string
+          description: Action ID for the action destination.
+    UpdateEventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    EventStreamWebhookConfiguration:
+      type: object
+      description: Configuration specific to a webhook destination.
+      additionalProperties: false
+      required:
+      - webhook_endpoint
+      - webhook_authorization
+      properties:
+        webhook_endpoint:
+          type: string
+          description: Target HTTP endpoint URL.
+          pattern: ^https://.*
+        webhook_authorization:
+          $ref: '#/components/schemas/EventStreamWebhookAuthorizationResponse'
+    EventStreamEventTypeEnum:
+      type: string
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    TestEventDataContent:
+      type: object
+      description: The raw payload of the test event.
+      additionalProperties: true
+    EventStreamWebhookCustomHeaderAuth:
+      type: object
+      description: Custom header authorization for HTTP requests.
+      additionalProperties: false
+      required:
+      - method
+      - header_key
+      properties:
+        method:
+          $ref: '#/components/schemas/EventStreamWebhookCustomHeaderAuthMethodEnum'
+        header_key:
+          type: string
+          description: HTTP header name.
+          minLength: 1
+          pattern: ^[a-zA-Z0-9!#$%&'*+.^_`|~-]+$
+    EventStreamDestinationPatch:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookDestination'
+      - $ref: '#/components/schemas/EventStreamActionDestination'
+    EventStreamEventBridgeResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamEventBridgeDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+        created_at:
+          type: string
+          description: Timestamp when the event stream was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the event stream was last updated.
+          format: date-time
+    EventStreamActionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event stream.
+          minLength: 26
+          maxLength: 26
+          format: event-stream-id
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamActionDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+        created_at:
+          type: string
+          description: Timestamp when the event stream was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp when the event stream was last updated.
+          format: date-time
+    CreateEventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    EventStreamWebhookBearerAuthMethodEnum:
+      type: string
+      description: Type of authorization.
+      enum:
+      - bearer
+    EventStreamDeliveryEventTypeEnum:
+      type: string
+      description: Type of event
+      maxLength: 33
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    EventStreamTestEventTypeEnum:
+      type: string
+      description: The type of event this test event represents.
+      maxLength: 33
+      enum:
+      - group.created
+      - group.deleted
+      - group.member.added
+      - group.member.deleted
+      - group.role.assigned
+      - group.role.deleted
+      - group.updated
+      - organization.connection.added
+      - organization.connection.removed
+      - organization.connection.updated
+      - organization.created
+      - organization.deleted
+      - organization.group.role.assigned
+      - organization.group.role.deleted
+      - organization.member.added
+      - organization.member.deleted
+      - organization.member.role.assigned
+      - organization.member.role.deleted
+      - organization.updated
+      - user.created
+      - user.deleted
+      - user.updated
+    EventStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/EventStreamWebhookResponseContent'
+      - $ref: '#/components/schemas/EventStreamEventBridgeResponseContent'
+      - $ref: '#/components/schemas/EventStreamActionResponseContent'
+    EventStreamEventBridgeDestinationTypeEnum:
+      type: string
+      enum:
+      - eventbridge
+    UpdateEventStreamRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamDestinationPatch'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
     EventStreamStatusEnum:
       type: string
       description: Indicates whether the event stream is actively forwarding events.
@@ -1209,6 +1065,150 @@ components:
       enum:
       - enabled
       - disabled
+    EventStreamWebhookBasicAuth:
+      type: object
+      description: 'Basic Authorization for HTTP requests (e.g., ''Basic credentials'').
+
+        '
+      additionalProperties: false
+      required:
+      - method
+      - username
+      properties:
+        method:
+          $ref: '#/components/schemas/EventStreamWebhookBasicAuthMethodEnum'
+        username:
+          type: string
+          description: Username
+          maxLength: 128
+          pattern: ^[^:]+$
+    EventStreamWebhookDestination:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - configuration
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamWebhookDestinationTypeEnum'
+        configuration:
+          $ref: '#/components/schemas/EventStreamWebhookConfiguration'
+    CreateEventStreamActionRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - destination
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamActionDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    EventStreamDeliveryAttempt:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      - timestamp
+      properties:
+        status:
+          $ref: '#/components/schemas/EventStreamDeliveryStatusEnum'
+        timestamp:
+          type: string
+          description: Timestamp of delivery attempt
+          format: date-time
+        error_message:
+          type: string
+          description: Delivery error message, if applicable
+    ListEventStreamsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        eventStreams:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventStreamResponseContent'
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.
+    CreateEventStreamWebHookRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - destination
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamWebhookDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    EventStreamActionDestination:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - configuration
+      properties:
+        type:
+          $ref: '#/components/schemas/EventStreamActionDestinationTypeEnum'
+        configuration:
+          $ref: '#/components/schemas/EventStreamActionConfiguration'
+    EventStreamWebhookBearerAuth:
+      type: object
+      description: 'Bearer Authorization for HTTP requests (e.g., ''Bearer token'').
+
+        '
+      additionalProperties: false
+      required:
+      - method
+      properties:
+        method:
+          $ref: '#/components/schemas/EventStreamWebhookBearerAuthMethodEnum'
+    CreateEventStreamEventBridgeRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - destination
+      properties:
+        name:
+          type: string
+          description: Name of the event stream.
+          minLength: 1
+          maxLength: 128
+        subscriptions:
+          type: array
+          description: List of event types subscribed to in this stream.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EventStreamSubscription'
+        destination:
+          $ref: '#/components/schemas/EventStreamEventBridgeDestination'
+        status:
+          $ref: '#/components/schemas/EventStreamStatusEnum'
+    EventStreamWebhookDestinationTypeEnum:
+      type: string
+      enum:
+      - webhook
   securitySchemes:
     bearerAuth:
       type: http

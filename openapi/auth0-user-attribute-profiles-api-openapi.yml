@@ -21,9 +21,7 @@ paths:
   /user-attribute-profiles:
     get:
       summary: Get User Attribute Profiles
-      description: 'Retrieve a list of User Attribute Profiles. This endpoint supports Checkpoint pagination.
-
-        '
+      description: Retrieve a list of User Attribute Profiles. This endpoint supports Checkpoint pagination.
       tags:
       - user-attribute-profiles
       parameters:
@@ -108,9 +106,7 @@ paths:
   /user-attribute-profiles/templates:
     get:
       summary: Get User Attribute Profile Templates
-      description: 'Retrieve a list of User Attribute Profile Templates.
-
-        '
+      description: Retrieve a list of User Attribute Profile Templates.
       tags:
       - user-attribute-profiles
       responses:
@@ -139,9 +135,7 @@ paths:
   /user-attribute-profiles/templates/{id}:
     get:
       summary: Get User Attribute Profile Template
-      description: 'Retrieve a User Attribute Profile Template.
-
-        '
+      description: Retrieve a User Attribute Profile Template.
       tags:
       - user-attribute-profiles
       parameters:
@@ -179,7 +173,7 @@ paths:
   /user-attribute-profiles/{id}:
     get:
       summary: Get User Attribute Profile
-      description: 'Retrieve details about a single User Attribute Profile specified by ID. '
+      description: Retrieve details about a single User Attribute Profile specified by ID.
       tags:
       - user-attribute-profiles
       parameters:
@@ -216,9 +210,7 @@ paths:
         - read:user_attribute_profiles
     delete:
       summary: Delete User Attribute Profile
-      description: 'Delete a single User Attribute Profile specified by ID.
-
-        '
+      description: Delete a single User Attribute Profile specified by ID.
       tags:
       - user-attribute-profiles
       parameters:
@@ -249,9 +241,7 @@ paths:
         - delete:user_attribute_profiles
     patch:
       summary: Modify a User Attribute Profile
-      description: 'Update the details of a specific User attribute profile, such as name, user_id and user_attributes.
-
-        '
+      description: Update the details of a specific User attribute profile, such as name, user_id and user_attributes.
       tags:
       - user-attribute-profiles
       parameters:
@@ -296,164 +286,6 @@ paths:
         - update:user_attribute_profiles
 components:
   schemas:
-    UserAttributeProfileId:
-      type: string
-      description: User Attribute Profile identifier.
-      format: user-attribute-profile-id
-    UserAttributeProfileUserAttributes:
-      type: object
-      description: User attributes configuration map. Keys are attribute names, values are the mapping configuration for each attribute.
-      additionalProperties:
-        $ref: '#/components/schemas/UserAttributeProfileUserAttributeAdditionalProperties'
-      minProperties: 1
-      maxProperties: 64
-    UserAttributeProfileStrategyOverridesUserIdMapping:
-      type: object
-      additionalProperties: false
-      properties:
-        oidc_mapping:
-          $ref: '#/components/schemas/UserAttributeProfileUserIdOidcStrategyOverrideMapping'
-        saml_mapping:
-          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
-        scim_mapping:
-          type: string
-          description: SCIM mapping override for this strategy
-          minLength: 1
-          maxLength: 128
-    UserAttributeProfile:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          $ref: '#/components/schemas/UserAttributeProfileId'
-        name:
-          $ref: '#/components/schemas/UserAttributeProfileName'
-        user_id:
-          $ref: '#/components/schemas/UserAttributeProfileUserId'
-        user_attributes:
-          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
-    GetUserAttributeProfileTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The id of the template.
-        display_name:
-          type: string
-          description: The user-friendly name of the template displayed in the UI.
-        template:
-          $ref: '#/components/schemas/UserAttributeProfileTemplate'
-    UserAttributeProfilePatchUserId:
-      oneOf:
-      - $ref: '#/components/schemas/UserAttributeProfileUserId'
-      - type: 'null'
-    UserAttributeProfileName:
-      type: string
-      description: The name of the user attribute profile.
-      minLength: 1
-      maxLength: 128
-    UserAttributeProfileUserId:
-      type: object
-      description: User ID mapping configuration
-      additionalProperties: false
-      properties:
-        oidc_mapping:
-          $ref: '#/components/schemas/UserAttributeProfileUserIdOidcMappingEnum'
-        saml_mapping:
-          $ref: '#/components/schemas/UserAttributeProfileUserIdSamlMapping'
-        scim_mapping:
-          type: string
-          description: SCIM mapping for user ID
-          minLength: 1
-          maxLength: 128
-        strategy_overrides:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserId'
-    UserAttributeProfileStrategyOverridesMapping:
-      type: object
-      additionalProperties: false
-      properties:
-        oidc_mapping:
-          $ref: '#/components/schemas/UserAttributeProfileOidcMapping'
-          description: OIDC mapping override for this strategy
-        saml_mapping:
-          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
-        scim_mapping:
-          type: string
-          description: SCIM mapping override for this strategy
-          minLength: 1
-          maxLength: 128
-    UserAttributeProfileOidcMapping:
-      type: object
-      description: OIDC mapping for this attribute
-      additionalProperties: false
-      required:
-      - mapping
-      properties:
-        mapping:
-          type: string
-          description: OIDC mapping field
-          minLength: 1
-          maxLength: 50
-        display_name:
-          type: string
-          description: Display name for the OIDC mapping
-          minLength: 1
-          maxLength: 50
-    UpdateUserAttributeProfileRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          $ref: '#/components/schemas/UserAttributeProfileName'
-        user_id:
-          $ref: '#/components/schemas/UserAttributeProfilePatchUserId'
-        user_attributes:
-          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
-    CreateUserAttributeProfileRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - user_attributes
-      properties:
-        name:
-          $ref: '#/components/schemas/UserAttributeProfileName'
-        user_id:
-          $ref: '#/components/schemas/UserAttributeProfileUserId'
-        user_attributes:
-          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
-    UserAttributeProfileTemplate:
-      type: object
-      description: The structure of the template, which can be used as the payload for creating or updating a User Attribute Profile.
-      additionalProperties: false
-      properties:
-        name:
-          $ref: '#/components/schemas/UserAttributeProfileName'
-        user_id:
-          $ref: '#/components/schemas/UserAttributeProfileUserId'
-        user_attributes:
-          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
-    ListUserAttributeProfilesPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
-        user_attribute_profiles:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserAttributeProfile'
-    UserAttributeProfileUserIdSamlMapping:
-      type: array
-      description: SAML mapping for user ID
-      minItems: 1
-      items:
-        type: string
-        description: SAML mapping field
-        minLength: 1
-        maxLength: 128
     UserAttributeProfileUserAttributeAdditionalProperties:
       type: object
       additionalProperties: false
@@ -493,36 +325,7 @@ components:
           maxLength: 128
         strategy_overrides:
           $ref: '#/components/schemas/UserAttributeProfileStrategyOverrides'
-    ListUserAttributeProfileTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        user_attribute_profile_templates:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserAttributeProfileTemplateItem'
-    UserAttributeProfileStrategyOverrides:
-      type: object
-      description: Strategy-specific overrides for this attribute
-      additionalProperties: false
-      properties:
-        pingfederate:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        ad:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        adfs:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        waad:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        google-apps:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        okta:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        oidc:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-        samlp:
-          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
-    UserAttributeProfileTemplateItem:
+    GetUserAttributeProfileTemplateResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -546,6 +349,38 @@ components:
           $ref: '#/components/schemas/UserAttributeProfileUserId'
         user_attributes:
           $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileUserId:
+      type: object
+      description: User ID mapping configuration
+      additionalProperties: false
+      properties:
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileUserIdOidcMappingEnum'
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileUserIdSamlMapping'
+        scim_mapping:
+          type: string
+          description: SCIM mapping for user ID
+          minLength: 1
+          maxLength: 128
+        strategy_overrides:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserId'
+    UserAttributeProfileName:
+      type: string
+      description: The name of the user attribute profile.
+      minLength: 1
+      maxLength: 128
+    ListUserAttributeProfilesPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        user_attribute_profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAttributeProfile'
     UserAttributeProfileStrategyOverridesUserId:
       type: object
       description: Strategy-specific overrides for user ID
@@ -567,6 +402,68 @@ components:
           $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
         samlp:
           $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesUserIdMapping'
+    CreateUserAttributeProfileRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - user_attributes
+      properties:
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UpdateUserAttributeProfileRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfilePatchUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileStrategyOverridesUserIdMapping:
+      type: object
+      additionalProperties: false
+      properties:
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileUserIdOidcStrategyOverrideMapping'
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
+        scim_mapping:
+          type: string
+          description: SCIM mapping override for this strategy
+          minLength: 1
+          maxLength: 128
+    UserAttributeProfileStrategyOverridesMapping:
+      type: object
+      additionalProperties: false
+      properties:
+        oidc_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileOidcMapping'
+          description: OIDC mapping override for this strategy
+        saml_mapping:
+          $ref: '#/components/schemas/UserAttributeProfileSamlMapping'
+        scim_mapping:
+          type: string
+          description: SCIM mapping override for this strategy
+          minLength: 1
+          maxLength: 128
+    UpdateUserAttributeProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
     UserAttributeProfileSamlMapping:
       type: array
       description: SAML mapping override for this strategy
@@ -576,19 +473,71 @@ components:
         description: SAML mapping field
         minLength: 1
         maxLength: 128
-    UserAttributeProfileUserIdOidcMappingEnum:
-      type: string
-      description: OIDC mapping for user ID
-      minLength: 1
-      maxLength: 50
-      enum:
-      - sub
-    UpdateUserAttributeProfileResponseContent:
+    UserAttributeProfileUserAttributes:
+      type: object
+      description: User attributes configuration map. Keys are attribute names, values are the mapping configuration for each attribute.
+      additionalProperties:
+        $ref: '#/components/schemas/UserAttributeProfileUserAttributeAdditionalProperties'
+      minProperties: 1
+      maxProperties: 64
+    UserAttributeProfileTemplateItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the template.
+        display_name:
+          type: string
+          description: The user-friendly name of the template displayed in the UI.
+        template:
+          $ref: '#/components/schemas/UserAttributeProfileTemplate'
+    UserAttributeProfileOidcMapping:
+      type: object
+      description: OIDC mapping for this attribute
+      additionalProperties: false
+      required:
+      - mapping
+      properties:
+        mapping:
+          type: string
+          description: OIDC mapping field
+          minLength: 1
+          maxLength: 50
+        display_name:
+          type: string
+          description: Display name for the OIDC mapping
+          minLength: 1
+          maxLength: 50
+    GetUserAttributeProfileResponseContent:
       type: object
       additionalProperties: false
       properties:
         id:
           $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/UserAttributeProfileId'
+        name:
+          $ref: '#/components/schemas/UserAttributeProfileName'
+        user_id:
+          $ref: '#/components/schemas/UserAttributeProfileUserId'
+        user_attributes:
+          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+    UserAttributeProfileTemplate:
+      type: object
+      description: The structure of the template, which can be used as the payload for creating or updating a User Attribute Profile.
+      additionalProperties: false
+      properties:
         name:
           $ref: '#/components/schemas/UserAttributeProfileName'
         user_id:
@@ -604,18 +553,59 @@ components:
       - sub
       - oid
       - email
-    GetUserAttributeProfileResponseContent:
+    UserAttributeProfileUserIdOidcMappingEnum:
+      type: string
+      description: OIDC mapping for user ID
+      minLength: 1
+      maxLength: 50
+      enum:
+      - sub
+    UserAttributeProfilePatchUserId:
+      oneOf:
+      - $ref: '#/components/schemas/UserAttributeProfileUserId'
+      - type: 'null'
+    UserAttributeProfileStrategyOverrides:
+      type: object
+      description: Strategy-specific overrides for this attribute
+      additionalProperties: false
+      properties:
+        pingfederate:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        ad:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        adfs:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        waad:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        google-apps:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        okta:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        oidc:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+        samlp:
+          $ref: '#/components/schemas/UserAttributeProfileStrategyOverridesMapping'
+    UserAttributeProfileId:
+      type: string
+      description: User Attribute Profile identifier.
+      format: user-attribute-profile-id
+    ListUserAttributeProfileTemplateResponseContent:
       type: object
       additionalProperties: false
       properties:
-        id:
-          $ref: '#/components/schemas/UserAttributeProfileId'
-        name:
-          $ref: '#/components/schemas/UserAttributeProfileName'
-        user_id:
-          $ref: '#/components/schemas/UserAttributeProfileUserId'
-        user_attributes:
-          $ref: '#/components/schemas/UserAttributeProfileUserAttributes'
+        user_attribute_profile_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAttributeProfileTemplateItem'
+    UserAttributeProfileUserIdSamlMapping:
+      type: array
+      description: SAML mapping for user ID
+      minItems: 1
+      items:
+        type: string
+        description: SAML mapping field
+        minLength: 1
+        maxLength: 128
   securitySchemes:
     bearerAuth:
       type: http

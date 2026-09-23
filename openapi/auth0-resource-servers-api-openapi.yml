@@ -16,14 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: resource-servers
+- name: Resource Servers
 paths:
   /resource-servers:
     get:
       summary: Get Resource Servers
       description: Retrieve details of all APIs associated with your tenant.
       tags:
-      - resource-servers
+      - Resource Servers
       parameters:
       - name: identifiers
         in: query
@@ -86,9 +86,9 @@ paths:
         - read:resource_servers
     post:
       summary: Create a Resource Server
-      description: Create a new API associated with your tenant. Note that all new APIs must be registered with Auth0. For more information, read <a href="https://www.auth0.com/docs/get-started/apis"> APIs</a>.
+      description: Create a new API associated with your tenant. Note that all new APIs must be registered with Auth0. For more information, read APIs.
       tags:
-      - resource-servers
+      - Resource Servers
       requestBody:
         content:
           application/json:
@@ -129,9 +129,9 @@ paths:
   /resource-servers/{id}:
     get:
       summary: Get a Resource Server
-      description: Retrieve <a href="https://auth0.com/docs/apis">API</a> details with the given ID.
+      description: Retrieve API details with the given ID.
       tags:
-      - resource-servers
+      - Resource Servers
       parameters:
       - name: id
         in: path
@@ -176,9 +176,9 @@ paths:
         - read:resource_servers
     delete:
       summary: Delete a Resource Server
-      description: Delete an existing API by ID. For more information, read <a href="https://www.auth0.com/docs/get-started/apis/api-settings">API Settings</a>.
+      description: Delete an existing API by ID. For more information, read API Settings.
       tags:
-      - resource-servers
+      - Resource Servers
       parameters:
       - name: id
         in: path
@@ -210,9 +210,9 @@ paths:
         - delete:resource_servers
     patch:
       summary: Update a Resource Server
-      description: Change an existing API setting by resource server ID. For more information, read <a href="https://www.auth0.com/docs/get-started/apis/api-settings">API Settings</a>.
+      description: Change an existing API setting by resource server ID. For more information, read API Settings.
       tags:
-      - resource-servers
+      - Resource Servers
       parameters:
       - name: id
         in: path
@@ -258,44 +258,25 @@ paths:
         - update:resource_servers
 components:
   schemas:
-    ResourceServerAuthorizationPolicy:
-      type:
-      - object
-      - 'null'
-      description: Authorization policy for the resource server.
+    ResourceServerTokenEncryptionFormatEnum:
+      description: Format of the encrypted JWT payload.
+      enum:
+      - compact-nested-jwe
+    ResourceServerScope:
+      type: object
       additionalProperties: false
       required:
-      - policy_id
-      x-release-lifecycle: EA
+      - value
       properties:
-        policy_id:
+        value:
           type: string
-          description: The ID of the authorization policy to apply.
+          description: Value of this scope.
           minLength: 1
-          maxLength: 1024
-    ResourceServerSubjectTypeAuthorizationUser:
-      type: object
-      description: Access Permissions for user flows
-      additionalProperties: true
-      properties:
-        policy:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUserPolicyEnum'
-    SigningAlgorithmEnum:
-      type: string
-      description: Algorithm used to sign JWTs. Can be `HS256` (default) or `RS256`. `PS256` available via addon.
-      default: HS256
-      enum:
-      - HS256
-      - RS256
-      - RS512
-      - PS256
-    ResourceServerTokenEncryptionAlgorithmEnum:
-      type: string
-      description: Algorithm used to encrypt the token.
-      enum:
-      - RSA-OAEP-256
-      - RSA-OAEP-384
-      - RSA-OAEP-512
+          maxLength: 280
+        description:
+          type: string
+          description: User-friendly description of this scope.
+          maxLength: 500
     ResourceServerTokenDialectResponseEnum:
       type: string
       description: Dialect of access tokens that should be issued. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
@@ -310,7 +291,7 @@ components:
         items:
           $ref: '#/components/schemas/ResourceServer'
       - $ref: '#/components/schemas/ListResourceServerOffsetPaginatedResponseContent'
-    ResourceServer:
+    GetResourceServerResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -377,6 +358,28 @@ components:
           type: string
           description: The client ID of the client that this resource server is linked to
           format: client-id
+    ResourceServerAuthorizationPolicy:
+      type:
+      - object
+      - 'null'
+      description: Authorization policy for the resource server.
+      additionalProperties: false
+      required:
+      - policy_id
+      x-release-lifecycle: EA
+      properties:
+        policy_id:
+          type: string
+          description: The ID of the authorization policy to apply.
+          minLength: 1
+          maxLength: 1024
+    ResourceServerSubjectTypeAuthorizationClient:
+      type: object
+      description: Access Permissions for client flows
+      additionalProperties: true
+      properties:
+        policy:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClientPolicyEnum'
     CreateResourceServerRequestContent:
       type: object
       additionalProperties: false
@@ -439,7 +442,7 @@ components:
         authorization_policy:
           $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
           x-release-lifecycle: EA
-    GetResourceServerResponseContent:
+    UpdateResourceServerResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -520,27 +523,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResourceServer'
-    ResourceServerSubjectTypeAuthorizationClient:
-      type: object
-      description: Access Permissions for client flows
-      additionalProperties: true
-      properties:
-        policy:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClientPolicyEnum'
-    ResourceServerProofOfPossessionRequiredForEnum:
-      type: string
-      description: Specifies which client types require Proof-of-Possession
-      enum:
-      - public_clients
-      - all_clients
-    ResourceServerSubjectTypeAuthorizationUserPolicyEnum:
-      type: string
-      description: Defines the user flows policy for the resource server
-      enum:
-      - allow_all
-      - deny_all
-      - require_client_grant
-    CreateResourceServerResponseContent:
+    ResourceServer:
       type: object
       additionalProperties: false
       properties:
@@ -607,25 +590,15 @@ components:
           type: string
           description: The client ID of the client that this resource server is linked to
           format: client-id
-    ResourceServerTokenEncryption:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      required:
-      - format
-      - encryption_key
-      properties:
-        format:
-          $ref: '#/components/schemas/ResourceServerTokenEncryptionFormatEnum'
-        encryption_key:
-          $ref: '#/components/schemas/ResourceServerTokenEncryptionKey'
-    ResourceServerProofOfPossessionMechanismEnum:
+    SigningAlgorithmEnum:
       type: string
-      description: Intended mechanism for Proof-of-Possession
+      description: Algorithm used to sign JWTs. Can be `HS256` (default) or `RS256`. `PS256` available via addon.
+      default: HS256
       enum:
-      - mtls
-      - dpop
+      - HS256
+      - RS256
+      - RS512
+      - PS256
     ResourceServerTokenEncryptionKey:
       type: object
       additionalProperties: false
@@ -657,24 +630,13 @@ components:
             '
           minLength: 1
           maxLength: 4096
-    ResourceServerProofOfPossession:
-      type:
-      - object
-      - 'null'
-      description: Proof-of-Possession configuration for access tokens
-      additionalProperties: false
-      required:
-      - mechanism
-      - required
-      properties:
-        mechanism:
-          $ref: '#/components/schemas/ResourceServerProofOfPossessionMechanismEnum'
-        required:
-          type: boolean
-          description: Whether the use of Proof-of-Possession is required for the resource server
-        required_for:
-          $ref: '#/components/schemas/ResourceServerProofOfPossessionRequiredForEnum'
-    UpdateResourceServerResponseContent:
+    ResourceServerProofOfPossessionMechanismEnum:
+      type: string
+      description: Intended mechanism for Proof-of-Possession
+      enum:
+      - mtls
+      - dpop
+    CreateResourceServerResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -796,46 +758,6 @@ components:
         authorization_policy:
           $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
           x-release-lifecycle: EA
-    ResourceServerTokenDialectSchemaEnum:
-      type: string
-      description: Dialect of issued access token. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
-      enum:
-      - access_token
-      - access_token_authz
-      - rfc9068_profile
-      - rfc9068_profile_authz
-    ResourceServerTokenEncryptionFormatEnum:
-      description: Format of the encrypted JWT payload.
-      enum:
-      - compact-nested-jwe
-    ResourceServerConsentPolicyEnum:
-      type:
-      - string
-      - 'null'
-      enum:
-      - transactional-authorization-with-mfa
-      - null
-    ResourceServerScope:
-      type: object
-      additionalProperties: false
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          description: Value of this scope.
-          minLength: 1
-          maxLength: 280
-        description:
-          type: string
-          description: User-friendly description of this scope.
-          maxLength: 500
-    ResourceServerSubjectTypeAuthorizationClientPolicyEnum:
-      type: string
-      description: Defines the client flows policy for the resource server
-      enum:
-      - deny_all
-      - require_client_grant
     ResourceServerSubjectTypeAuthorization:
       type: object
       description: Defines application access permission for a resource server
@@ -845,6 +767,84 @@ components:
           $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUser'
         client:
           $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClient'
+    ResourceServerSubjectTypeAuthorizationUser:
+      type: object
+      description: Access Permissions for user flows
+      additionalProperties: true
+      properties:
+        policy:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUserPolicyEnum'
+    ResourceServerConsentPolicyEnum:
+      type:
+      - string
+      - 'null'
+      enum:
+      - transactional-authorization-with-mfa
+      - null
+    ResourceServerSubjectTypeAuthorizationClientPolicyEnum:
+      type: string
+      description: Defines the client flows policy for the resource server
+      enum:
+      - deny_all
+      - require_client_grant
+    ResourceServerTokenEncryptionAlgorithmEnum:
+      type: string
+      description: Algorithm used to encrypt the token.
+      enum:
+      - RSA-OAEP-256
+      - RSA-OAEP-384
+      - RSA-OAEP-512
+    ResourceServerProofOfPossessionRequiredForEnum:
+      type: string
+      description: Specifies which client types require Proof-of-Possession
+      enum:
+      - public_clients
+      - all_clients
+    ResourceServerProofOfPossession:
+      type:
+      - object
+      - 'null'
+      description: Proof-of-Possession configuration for access tokens
+      additionalProperties: false
+      required:
+      - mechanism
+      - required
+      properties:
+        mechanism:
+          $ref: '#/components/schemas/ResourceServerProofOfPossessionMechanismEnum'
+        required:
+          type: boolean
+          description: Whether the use of Proof-of-Possession is required for the resource server
+        required_for:
+          $ref: '#/components/schemas/ResourceServerProofOfPossessionRequiredForEnum'
+    ResourceServerTokenEncryption:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - format
+      - encryption_key
+      properties:
+        format:
+          $ref: '#/components/schemas/ResourceServerTokenEncryptionFormatEnum'
+        encryption_key:
+          $ref: '#/components/schemas/ResourceServerTokenEncryptionKey'
+    ResourceServerTokenDialectSchemaEnum:
+      type: string
+      description: Dialect of issued access token. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
+      enum:
+      - access_token
+      - access_token_authz
+      - rfc9068_profile
+      - rfc9068_profile_authz
+    ResourceServerSubjectTypeAuthorizationUserPolicyEnum:
+      type: string
+      description: Defines the user flows policy for the resource server
+      enum:
+      - allow_all
+      - deny_all
+      - require_client_grant
   securitySchemes:
     bearerAuth:
       type: http

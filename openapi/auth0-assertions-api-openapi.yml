@@ -16,7 +16,7 @@ paths:
   /stores/{store_id}/assertions/{authorization_model_id}:
     get:
       summary: Read assertions for an authorization model ID
-      description: 'The ReadAssertions API will return, for a given authorization model id, all the assertions stored for it. '
+      description: The ReadAssertions API will return, for a given authorization model id, all the assertions stored for it.
       operationId: ReadAssertions
       responses:
         '200':
@@ -159,6 +159,19 @@ paths:
         required: true
 components:
   schemas:
+    ReadAssertionsResponse:
+      type: object
+      properties:
+        authorization_model_id:
+          type: string
+          example: 01G5JAVJ41T49E9TT3SKVS7X1J
+        assertions:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Assertion'
+      required:
+      - authorization_model_id
     UnauthenticatedResponse:
       type: object
       example:
@@ -169,14 +182,62 @@ components:
           $ref: '#/components/schemas/ErrorCode'
         message:
           type: string
-    NotFoundErrorCode:
+    InternalErrorCode:
       type: string
       enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    AssertionTupleKey:
+      type: object
+      properties:
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+      required:
+      - object
+      - relation
+      - user
     InternalErrorMessageResponse:
       type: object
       example:
@@ -187,14 +248,14 @@ components:
           $ref: '#/components/schemas/InternalErrorCode'
         message:
           type: string
-    UnprocessableContentMessageResponse:
+    ValidationErrorMessageResponse:
       type: object
       example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
+        code: validation_error
+        message: Generic validation error
       properties:
         code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+          $ref: '#/components/schemas/ErrorCode'
         message:
           type: string
     RelationshipCondition:
@@ -214,26 +275,20 @@ components:
             match the parameter type definitions.'
       required:
       - name
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
     TupleKey:
       type: object
       properties:
@@ -265,85 +320,16 @@ components:
           $ref: '#/components/schemas/AuthErrorCode'
         message:
           type: string
-    PathUnknownErrorMessageResponse:
+    AbortedMessageResponse:
       type: object
       example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
+        code: '10'
+        message: transaction conflict
       properties:
         code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
+          type: string
         message:
           type: string
-    AuthErrorCode:
-      type: string
-      enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    Assertion:
-      type: object
-      properties:
-        tuple_key:
-          $ref: '#/components/schemas/AssertionTupleKey'
-        expectation:
-          type: boolean
-        contextual_tuples:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/TupleKey'
-          maxItems: 20
-        context:
-          type: object
-          example:
-            view_count: 100
-          description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
-
-            in the query evaluation.'
-      required:
-      - tuple_key
-      - expectation
-    ReadAssertionsResponse:
-      type: object
-      properties:
-        authorization_model_id:
-          type: string
-          example: 01G5JAVJ41T49E9TT3SKVS7X1J
-        assertions:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Assertion'
-      required:
-      - authorization_model_id
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
     ErrorCode:
       type: string
       enum:
@@ -398,22 +384,36 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    AssertionTupleKey:
+    Assertion:
       type: object
       properties:
-        object:
-          type: string
-          example: document:2021-budget
-          maxLength: 256
-        relation:
-          type: string
-          example: reader
-          maxLength: 50
-        user:
-          type: string
-          example: user:anne
-          maxLength: 512
+        tuple_key:
+          $ref: '#/components/schemas/AssertionTupleKey'
+        expectation:
+          type: boolean
+        contextual_tuples:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKey'
+          maxItems: 20
+        context:
+          type: object
+          example:
+            view_count: 100
+          description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
+
+            in the query evaluation.'
       required:
-      - object
-      - relation
-      - user
+      - tuple_key
+      - expectation
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string

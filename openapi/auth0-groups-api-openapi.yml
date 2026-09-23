@@ -16,16 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: groups
+- name: Groups
 paths:
   /groups:
     get:
       summary: Get All Groups
-      description: 'List all groups in your tenant.
-
-        '
+      description: List all groups in your tenant.
       tags:
-      - groups
+      - Groups
       parameters:
       - name: connection_id
         in: query
@@ -125,11 +123,9 @@ paths:
   /groups/{id}:
     get:
       summary: Get a Group
-      description: 'Retrieve a group by its ID.
-
-        '
+      description: Retrieve a group by its ID.
       tags:
-      - groups
+      - Groups
       parameters:
       - name: id
         in: path
@@ -170,11 +166,9 @@ paths:
         - read:groups
     delete:
       summary: Delete a Group
-      description: 'Delete a group by its ID.
-
-        '
+      description: Delete a group by its ID.
       tags:
-      - groups
+      - Groups
       parameters:
       - name: id
         in: path
@@ -210,11 +204,9 @@ paths:
   /groups/{id}/members:
     get:
       summary: Get Group Members
-      description: 'List all users that are a member of this group.
-
-        '
+      description: List all users that are a member of this group.
       tags:
-      - groups
+      - Groups
       parameters:
       - name: id
         in: path
@@ -299,6 +291,13 @@ components:
           type: string
           description: Timestamp of when the membership was created.
           format: date-time
+    GroupTypeEnum:
+      type: string
+      description: Type of the group.
+      enum:
+      - connection
+      - organization
+      - tenant
     GetGroupMembersResponseContent:
       type: object
       additionalProperties: false
@@ -312,32 +311,6 @@ components:
         next:
           type: string
           description: A cursor to be used as the "from" query parameter for the next page of results.
-    GroupTypeEnum:
-      type: string
-      description: Type of the group.
-      enum:
-      - connection
-      - organization
-      - tenant
-    ListGroupsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - groups
-      properties:
-        groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/Group'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
     GetGroupResponseContent:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -420,18 +393,37 @@ components:
           type: string
           description: Timestamp of when the group was last updated.
           format: date-time
-    GroupMemberTypeEnum:
-      type: string
-      description: Type of the member.
-      enum:
-      - user
-      - group
     ListGroupsResponseContent:
       oneOf:
       - type: array
         items:
           $ref: '#/components/schemas/Group'
       - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
+    GroupMemberTypeEnum:
+      type: string
+      description: Type of the member.
+      enum:
+      - user
+      - group
+    ListGroupsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
   securitySchemes:
     bearerAuth:
       type: http

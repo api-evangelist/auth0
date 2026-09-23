@@ -16,16 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: rules
+- name: Rules
 paths:
   /rules:
     get:
       summary: Get Rules
-      description: 'Retrieve a filtered list of <a href="https://auth0.com/docs/rules">rules</a>. Accepts a list of fields to include or exclude.
-
-        '
+      description: Retrieve a filtered list of rules. Accepts a list of fields to include or exclude.
       tags:
-      - rules
+      - Rules
       parameters:
       - name: page
         in: query
@@ -91,14 +89,12 @@ paths:
         - read:rules
     post:
       summary: Create a Rule
-      description: 'Create a <a href="https://auth0.com/docs/rules#create-a-new-rule-using-the-management-api">new rule</a>.
+      description: 'Create a new rule.
 
 
-        Note: Changing a rule''s stage of execution from the default <code>login_success</code> can change the rule''s function signature to have user omitted.
-
-        '
+        Note: Changing a rule''s stage of execution from the default login_success can change the rule''s function signature to have user omitted.'
       tags:
-      - rules
+      - Rules
       requestBody:
         content:
           application/json:
@@ -140,11 +136,9 @@ paths:
   /rules/{id}:
     get:
       summary: Get a Rule
-      description: 'Retrieve <a href="https://auth0.com/docs/rules">rule</a> details. Accepts a list of fields to include or exclude in the result.
-
-        '
+      description: Retrieve rule details. Accepts a list of fields to include or exclude in the result.
       tags:
-      - rules
+      - Rules
       parameters:
       - name: id
         in: path
@@ -195,11 +189,9 @@ paths:
         - read:rules
     delete:
       summary: Delete a Rule
-      description: 'Delete a rule.
-
-        '
+      description: Delete a rule.
       tags:
-      - rules
+      - Rules
       parameters:
       - name: id
         in: path
@@ -231,11 +223,9 @@ paths:
         - delete:rules
     patch:
       summary: Update a Rule
-      description: 'Update an existing rule.
-
-        '
+      description: Update an existing rule.
       tags:
-      - rules
+      - Rules
       parameters:
       - name: id
         in: path
@@ -284,7 +274,47 @@ paths:
         - update:rules
 components:
   schemas:
-    Rule:
+    CreateRuleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - script
+      properties:
+        name:
+          type: string
+          description: Name of this rule.
+          default: my-rule
+          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
+        script:
+          type: string
+          description: Code to be executed when this rule runs.
+          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
+          minLength: 1
+        order:
+          type: number
+          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
+          default: 2
+          minimum: 0
+        enabled:
+          type: boolean
+          description: Whether the rule is enabled (true), or disabled (false).
+          default: true
+    ListRulesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+    GetRuleResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -312,33 +342,41 @@ components:
           type: string
           description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
           default: login_success
-    CreateRuleRequestContent:
+    CreateRuleResponseContent:
       type: object
       additionalProperties: false
-      required:
-      - name
-      - script
       properties:
         name:
           type: string
           description: Name of this rule.
-          default: my-rule
-          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
-        script:
+          default: rule_1
+        id:
           type: string
-          description: Code to be executed when this rule runs.
-          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
-          minLength: 1
-        order:
-          type: number
-          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
-          default: 2
-          minimum: 0
+          description: ID of this rule.
+          default: con_0000000000000001
         enabled:
           type: boolean
           description: Whether the rule is enabled (true), or disabled (false).
           default: true
-    CreateRuleResponseContent:
+        script:
+          type: string
+          description: Code to be executed when this rule runs.
+          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
+        order:
+          type: number
+          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
+          default: 1
+        stage:
+          type: string
+          description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
+          default: login_success
+    ListRulesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Rule'
+      - $ref: '#/components/schemas/ListRulesOffsetPaginatedResponseContent'
+    Rule:
       type: object
       additionalProperties: false
       properties:
@@ -418,54 +456,6 @@ components:
           type: boolean
           description: Whether the rule is enabled (true), or disabled (false).
           default: true
-    ListRulesOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        rules:
-          type: array
-          items:
-            $ref: '#/components/schemas/Rule'
-    ListRulesResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Rule'
-      - $ref: '#/components/schemas/ListRulesOffsetPaginatedResponseContent'
-    GetRuleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of this rule.
-          default: rule_1
-        id:
-          type: string
-          description: ID of this rule.
-          default: con_0000000000000001
-        enabled:
-          type: boolean
-          description: Whether the rule is enabled (true), or disabled (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this rule runs.
-          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
-        order:
-          type: number
-          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
-          default: 1
-        stage:
-          type: string
-          description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
-          default: login_success
   securitySchemes:
     bearerAuth:
       type: http

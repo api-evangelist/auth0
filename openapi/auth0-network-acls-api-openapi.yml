@@ -16,14 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: network-acls
+- name: Network ACLs
 paths:
   /network-acls:
     get:
       summary: Get All Access Control List Entries for a Tenant
       description: Get all access control list entries for your client.
       tags:
-      - network-acls
+      - Network ACLs
       parameters:
       - name: page
         in: query
@@ -73,7 +73,7 @@ paths:
       summary: Create Access Control List
       description: Create a new access control list for your client.
       tags:
-      - network-acls
+      - Network ACLs
       requestBody:
         content:
           application/json:
@@ -114,7 +114,7 @@ paths:
       summary: Get a Specific Access Control List Entry for a Tenant
       description: Get a specific access control list entry for your client.
       tags:
-      - network-acls
+      - Network ACLs
       parameters:
       - name: id
         in: path
@@ -152,7 +152,7 @@ paths:
       summary: Delete Access Control List
       description: Delete existing access control list for your client.
       tags:
-      - network-acls
+      - Network ACLs
       parameters:
       - name: id
         in: path
@@ -189,7 +189,7 @@ paths:
       summary: Partial Update for an Access Control List
       description: Update existing access control list for your client.
       tags:
-      - network-acls
+      - Network ACLs
       parameters:
       - name: id
         in: path
@@ -237,7 +237,7 @@ paths:
       summary: Update Access Control List
       description: Update existing access control list for your client.
       tags:
-      - network-acls
+      - Network ACLs
       parameters:
       - name: id
         in: path
@@ -283,6 +283,138 @@ paths:
         - update:network_acls
 components:
   schemas:
+    NetworkACLMatchIpv6Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    NetworkAclAction:
+      type: object
+      additionalProperties: false
+      properties:
+        block:
+          $ref: '#/components/schemas/NetworkAclActionBlockEnum'
+        allow:
+          $ref: '#/components/schemas/NetworkAclActionAllowEnum'
+        log:
+          $ref: '#/components/schemas/NetworkAclActionLogEnum'
+        redirect:
+          $ref: '#/components/schemas/NetworkAclActionRedirectEnum'
+        redirect_uri:
+          type: string
+          description: The URI to which the match or not_match requests will be routed
+          minLength: 1
+          maxLength: 2000
+    NetworkAclsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    UpdateNetworkAclResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    ListNetworkAclsResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/ListNetworkAclsOffsetPaginatedResponseContent'
+      - type: array
+        items:
+          $ref: '#/components/schemas/NetworkAclsResponseContent'
+    NetworkACLMatchConnectingIpv4Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: cidr
+    GetNetworkAclsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    NetworkACLMatchConnectingIpv6Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    SetNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - description
+      - active
+      - rule
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          default: 50
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
     NetworkAclRule:
       type: object
       additionalProperties: false
@@ -312,98 +444,6 @@ components:
           type: number
         total:
           type: number
-    NetworkACLMatchIpv6Cidr:
-      type: string
-      oneOf:
-      - type: string
-        format: ipv6
-      - type: string
-        format: ipv6_cidr
-    GetNetworkAclsResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-        description:
-          type: string
-        active:
-          type: boolean
-        priority:
-          type: number
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-        created_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was created
-        updated_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was last updated
-    NetworkAclAction:
-      type: object
-      additionalProperties: false
-      properties:
-        block:
-          $ref: '#/components/schemas/NetworkAclActionBlockEnum'
-        allow:
-          $ref: '#/components/schemas/NetworkAclActionAllowEnum'
-        log:
-          $ref: '#/components/schemas/NetworkAclActionLogEnum'
-        redirect:
-          $ref: '#/components/schemas/NetworkAclActionRedirectEnum'
-        redirect_uri:
-          type: string
-          description: The URI to which the match or not_match requests will be routed
-          minLength: 1
-          maxLength: 2000
-    ListNetworkAclsResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/ListNetworkAclsOffsetPaginatedResponseContent'
-      - type: array
-        items:
-          $ref: '#/components/schemas/NetworkAclsResponseContent'
-    NetworkAclRuleScopeEnum:
-      type: string
-      description: Identifies the origin of the request as the Management API (management), Authentication API (authentication), Dynamic Client Registration API (dynamic_client_registration), or any (tenant)
-      enum:
-      - management
-      - authentication
-      - tenant
-      - dynamic_client_registration
-    NetworkAclActionRedirectEnum:
-      type: boolean
-      description: Indicates the rule will redirect requests that either match or not_match specific criteria
-      enum:
-      - true
-    UpdateNetworkAclResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-        description:
-          type: string
-        active:
-          type: boolean
-        priority:
-          type: number
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-        created_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was created
-        updated_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was last updated
-    NetworkAclActionAllowEnum:
-      type: boolean
-      description: Indicates the rule will allow requests that either match or not_match specific criteria
-      enum:
-      - true
     NetworkACLMatchIpv4Cidr:
       type: string
       oneOf:
@@ -411,45 +451,6 @@ components:
         format: ipv4
       - type: string
         format: cidr
-    NetworkAclActionLogEnum:
-      type: boolean
-      description: Indicates the rule will log requests that either match or not_match specific criteria
-      enum:
-      - true
-    NetworkAclActionBlockEnum:
-      type: boolean
-      description: Indicates the rule will block requests that either match or not_match specific criteria
-      enum:
-      - true
-    NetworkACLMatchConnectingIpv4Cidr:
-      type: string
-      oneOf:
-      - type: string
-        format: ipv4
-      - type: string
-        format: cidr
-    SetNetworkAclRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - description
-      - active
-      - rule
-      properties:
-        description:
-          type: string
-          maxLength: 255
-        active:
-          type: boolean
-          description: Indicates whether or not this access control list is actively being used
-        priority:
-          type: number
-          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
-          default: 50
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
     NetworkAclMatch:
       type: object
       additionalProperties: false
@@ -532,13 +533,46 @@ components:
           maximum: 100
         rule:
           $ref: '#/components/schemas/NetworkAclRule'
-    NetworkACLMatchConnectingIpv6Cidr:
+    NetworkAclActionLogEnum:
+      type: boolean
+      description: Indicates the rule will log requests that either match or not_match specific criteria
+      enum:
+      - true
+    UpdateNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+    NetworkAclActionBlockEnum:
+      type: boolean
+      description: Indicates the rule will block requests that either match or not_match specific criteria
+      enum:
+      - true
+    NetworkAclRuleScopeEnum:
       type: string
-      oneOf:
-      - type: string
-        format: ipv6
-      - type: string
-        format: ipv6_cidr
+      description: Identifies the origin of the request as the Management API (management), Authentication API (authentication), Dynamic Client Registration API (dynamic_client_registration), or any (tenant)
+      enum:
+      - management
+      - authentication
+      - tenant
+      - dynamic_client_registration
+    NetworkAclActionAllowEnum:
+      type: boolean
+      description: Indicates the rule will allow requests that either match or not_match specific criteria
+      enum:
+      - true
     SetNetworkAclsResponseContent:
       type: object
       additionalProperties: true
@@ -561,45 +595,11 @@ components:
         updated_at:
           type: string
           description: The timestamp when the Network ACL Configuration was last updated
-    NetworkAclsResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-        description:
-          type: string
-        active:
-          type: boolean
-        priority:
-          type: number
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-        created_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was created
-        updated_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was last updated
-    UpdateNetworkAclRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        description:
-          type: string
-          maxLength: 255
-        active:
-          type: boolean
-          description: Indicates whether or not this access control list is actively being used
-        priority:
-          type: number
-          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
+    NetworkAclActionRedirectEnum:
+      type: boolean
+      description: Indicates the rule will redirect requests that either match or not_match specific criteria
+      enum:
+      - true
   securitySchemes:
     bearerAuth:
       type: http

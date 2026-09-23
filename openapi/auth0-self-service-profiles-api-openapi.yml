@@ -21,9 +21,7 @@ paths:
   /self-service-profiles:
     get:
       summary: Get Self-service Profiles
-      description: 'Retrieves self-service profiles.
-
-        '
+      description: Retrieves self-service profiles.
       tags:
       - self-service-profiles
       parameters:
@@ -72,9 +70,7 @@ paths:
         - read:self_service_profiles
     post:
       summary: Create a Self-service Profile
-      description: 'Creates a self-service profile.
-
-        '
+      description: Creates a self-service profile.
       tags:
       - self-service-profiles
       requestBody:
@@ -239,9 +235,7 @@ paths:
   /self-service-profiles/{id}/custom-text/{language}/{page}:
     get:
       summary: Get Custom Text for a Self-service Profile
-      description: 'Retrieves text customizations for a given self-service profile, language and Self-Service Enterprise Configuration flow page.
-
-        '
+      description: Retrieves text customizations for a given self-service profile, language and Self-Service Enterprise Configuration flow page.
       tags:
       - self-service-profiles
       parameters:
@@ -292,9 +286,7 @@ paths:
         - read:self_service_profile_custom_texts
     put:
       summary: Set Custom Text for a Self-service Profile
-      description: 'Updates text customizations for a given self-service profile, language and Self-Service Enterprise Configuration flow page.
-
-        '
+      description: Updates text customizations for a given self-service profile, language and Self-Service Enterprise Configuration flow page.
       tags:
       - self-service-profiles
       parameters:
@@ -353,10 +345,8 @@ paths:
         - update:self_service_profile_custom_texts
   /self-service-profiles/{id}/sso-ticket:
     post:
-      summary: Create an Access Ticket to Initiate the Self-Service Enterprise Configuration Flow
-      description: 'Creates an access ticket to initiate the Self-Service Enterprise Configuration flow using a self-service profile.
-
-        '
+      summary: Create an Access Ticket to Initiate the Self-Service Enterprise Configuration…
+      description: Creates an access ticket to initiate the Self-Service Enterprise Configuration flow using a self-service profile.
       tags:
       - self-service-profiles
       parameters:
@@ -406,9 +396,7 @@ paths:
       summary: Revoke a Self-Service Enterprise Configuration Access Ticket
       description: 'Revokes a Self-Service Enterprise Configuration access ticket and invalidates associated sessions. The ticket will no longer be accepted to initiate a Self-Service Enterprise Configuration session. If any users have already started a session through this ticket, their session will be terminated. Clients should expect a `202 Accepted` response upon successful processing, indicating that the request has been acknowledged and that the revocation is underway but may not be fully completed at the time of response. If the specified ticket does not exist, a `202 Accepted` response is also returned, signaling that no further action is required.
 
-        Clients should treat these `202` responses as an acknowledgment that the request has been accepted and is in progress, even if the ticket was not found.
-
-        '
+        Clients should treat these `202` responses as an acknowledgment that the request has been accepted and is in progress, even if the ticket was not found.'
       tags:
       - self-service-profiles
       parameters:
@@ -447,170 +435,6 @@ paths:
         - delete:sso_access_tickets
 components:
   schemas:
-    SelfServiceProfileBranding:
-      oneOf:
-      - $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
-      - type: 'null'
-    CreateSelfServiceProfileSsoTicketResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        ticket:
-          type: string
-          description: The URL for the created ticket.
-    SelfServiceProfileSsoTicketDomainVerificationEnum:
-      type: string
-      description: Whether the end user should complete the domain verification step. Possible values are 'none' (the step is not shown to the user), 'optional' (the user may add a domain alias in the domain verification step) or 'required' (the user must add a domain alias in order to enable the connection). Defaults to 'none'.
-      enum:
-      - none
-      - optional
-      - required
-    SelfServiceProfileSsoTicketGoogleWorkspaceConfig:
-      type: object
-      description: Configuration for Google Workspace Directory Sync during the self-service flow.
-      additionalProperties: false
-      required:
-      - sync_users
-      x-release-lifecycle: GA
-      properties:
-        sync_users:
-          type: boolean
-          description: Whether to enable Google Workspace Directory Sync for users during the self-service flow.
-    SelfServiceProfileSsoTicketDomainAliasesConfig:
-      type: object
-      description: Configuration for the setup of the connection’s domain_aliases in the Self-Service Enterprise Configuration flow.
-      additionalProperties: false
-      required:
-      - domain_verification
-      properties:
-        domain_verification:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketDomainVerificationEnum'
-        pending_domains:
-          type: array
-          description: List of domains that will be submitted for verification during the Self-Service Enterprise Configuration flow.
-          x-release-lifecycle: GA
-          items:
-            type: string
-            minLength: 1
-            maxLength: 255
-    UpdateSelfServiceProfileRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 0
-      properties:
-        name:
-          type: string
-          description: The name of the self-service Profile.
-          minLength: 1
-          maxLength: 100
-        description:
-          $ref: '#/components/schemas/SelfServiceProfileDescription'
-        branding:
-          $ref: '#/components/schemas/SelfServiceProfileBranding'
-        allowed_strategies:
-          type: array
-          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
-        user_attributes:
-          $ref: '#/components/schemas/SelfServiceProfileUserAttributes'
-        user_attribute_profile_id:
-          type:
-          - string
-          - 'null'
-          description: ID of the user-attribute-profile to associate with this self-service profile.
-          format: user-attribute-profile-id
-          x-release-lifecycle: EA
-    ConnectionsMetadata:
-      type: object
-      description: Metadata associated with the connection in the form of an object with string values (max 255 chars).  Maximum of 10 metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 10
-    SetSelfServiceProfileCustomTextRequestContent:
-      type: object
-      description: The list of text keys and values to customize the Self-Service Enterprise Configuration flow page. Values can be plain text or rich HTML content limited to basic styling tags and hyperlinks.
-      additionalProperties:
-        type: string
-        maxLength: 2000
-    SelfServiceProfileAllowedStrategyEnum:
-      type: string
-      enum:
-      - oidc
-      - samlp
-      - waad
-      - google-apps
-      - adfs
-      - okta
-      - auth0-samlp
-      - okta-samlp
-      - keycloak-samlp
-      - pingfederate
-    SelfServiceProfileSsoTicketEnabledFeatures:
-      type: object
-      description: Specifies which features are enabled for an "edit connection" ticket. Only applicable when connection ID is provided.
-      additionalProperties: false
-      x-release-lifecycle: GA
-      properties:
-        sso:
-          type: boolean
-          description: Whether SSO configuration is enabled in this ticket.
-        domain_verification:
-          type: boolean
-          description: Whether domain verification is enabled in this ticket.
-        provisioning:
-          type: boolean
-          description: Whether provisioning configuration is enabled in this ticket.
-    SelfServiceProfileDescription:
-      type:
-      - string
-      - 'null'
-      description: The description of the self-service Profile.
-      minLength: 1
-      maxLength: 140
-    CreateSelfServiceProfileSsoTicketRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        connection_id:
-          type: string
-          description: If provided, this will allow editing of the provided connection during the Self-Service Enterprise Configuration flow
-          format: connection-id
-        connection_config:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketConnectionConfig'
-        enabled_clients:
-          type: array
-          description: List of client_ids that the connection will be enabled for.
-          minItems: 0
-          items:
-            type: string
-        enabled_organizations:
-          type: array
-          description: List of organizations that the connection will be enabled for.
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/SelfServiceProfileSsoTicketEnabledOrganization'
-        ttl_sec:
-          type: integer
-          description: Number of seconds for which the ticket is valid before expiration. If unspecified or set to 0, this value defaults to 432000 seconds (5 days).
-          minimum: 0
-          maximum: 432000
-        domain_aliases_config:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketDomainAliasesConfig'
-        provisioning_config:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketProvisioningConfig'
-          x-release-lifecycle: GA
-        use_for_organization_discovery:
-          type: boolean
-          description: Indicates whether a verified domain should be used for organization discovery during authentication.
-          x-release-lifecycle: GA
-        enabled_features:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketEnabledFeatures'
-          x-release-lifecycle: GA
     SelfServiceProfile:
       type: object
       additionalProperties: false
@@ -653,6 +477,74 @@ components:
           description: ID of the user-attribute-profile to associate with this self-service profile.
           format: user-attribute-profile-id
           x-release-lifecycle: EA
+    SelfServiceProfileUserAttributes:
+      type:
+      - array
+      - 'null'
+      description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+      items:
+        $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+    SelfServiceProfileCustomTextLanguageEnum:
+      type: string
+      enum:
+      - en
+      description: The language of the custom text.
+    SelfServiceProfileSsoTicketEnabledOrganization:
+      type: object
+      additionalProperties: false
+      required:
+      - organization_id
+      properties:
+        organization_id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+    ListSelfServiceProfilesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/SelfServiceProfile'
+      - $ref: '#/components/schemas/ListSelfServiceProfilesPaginatedResponseContent'
+    ListSelfServiceProfileCustomTextResponseContent:
+      type: object
+      description: The list of custom text keys and values.
+      additionalProperties:
+        type: string
+    CreateSelfServiceProfileSsoTicketResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ticket:
+          type: string
+          description: The URL for the created ticket.
+    SelfServiceProfileSsoTicketDomainVerificationEnum:
+      type: string
+      description: Whether the end user should complete the domain verification step. Possible values are 'none' (the step is not shown to the user), 'optional' (the user may add a domain alias in the domain verification step) or 'required' (the user must add a domain alias in order to enable the connection). Defaults to 'none'.
+      enum:
+      - none
+      - optional
+      - required
+    ListSelfServiceProfilesPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        self_service_profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/SelfServiceProfile'
     SelfServiceProfileUserAttribute:
       type: object
       additionalProperties: false
@@ -671,80 +563,73 @@ components:
         is_optional:
           type: boolean
           description: Determines if this attribute is required
-    SelfServiceProfileSsoTicketProvisioningScopeEnum:
-      type: string
-      enum:
-      - get:users
-      - post:users
-      - put:users
-      - patch:users
-      - delete:users
-      - get:groups
-      - post:groups
-      - put:groups
-      - patch:groups
-      - delete:groups
-    SelfServiceProfileCustomTextPageEnum:
-      type: string
-      enum:
-      - get-started
-      description: The page where the custom text is shown.
-    SelfServiceProfileSsoTicketEnabledOrganization:
+    CreateSelfServiceProfileSsoTicketRequestContent:
       type: object
       additionalProperties: false
-      required:
-      - organization_id
       properties:
-        organization_id:
+        connection_id:
           type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        assign_membership_on_login:
+          description: If provided, this will allow editing of the provided connection during the Self-Service Enterprise Configuration flow
+          format: connection-id
+        connection_config:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketConnectionConfig'
+        enabled_clients:
+          type: array
+          description: List of client_ids that the connection will be enabled for.
+          minItems: 0
+          items:
+            type: string
+        enabled_organizations:
+          type: array
+          description: List of organizations that the connection will be enabled for.
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileSsoTicketEnabledOrganization'
+        ttl_sec:
+          type: integer
+          description: Number of seconds for which the ticket is valid before expiration. If unspecified or set to 0, this value defaults to 432000 seconds (5 days).
+          minimum: 0
+          maximum: 432000
+        domain_aliases_config:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketDomainAliasesConfig'
+        provisioning_config:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketProvisioningConfig'
+          x-release-lifecycle: GA
+        use_for_organization_discovery:
           type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+          description: Indicates whether a verified domain should be used for organization discovery during authentication.
+          x-release-lifecycle: GA
+        enabled_features:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketEnabledFeatures'
+          x-release-lifecycle: GA
+    SelfServiceProfileSsoTicketConnectionConfig:
+      type: object
+      description: If provided, this will create a new connection for the Self-Service Enterprise Configuration flow with the given configuration
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The name of the connection that will be created as a part of the Self-Service Enterprise Configuration flow.
+          default: sso-generated-SAML-customer-12
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
+        display_name:
+          type: string
+          description: Connection name used in the new universal login experience
+          maxLength: 128
+        is_domain_connection:
+          type: boolean
+          description: <code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)
         show_as_button:
           type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-    SelfServiceProfileBrandingColors:
-      type: object
-      additionalProperties: true
-      required:
-      - primary
-      properties:
-        primary:
-          type: string
-          pattern: ^#([\dA-Fa-f]{6}|[\dA-Fa-f]{3})$
-    SetSelfServiceProfileCustomTextResponseContent:
-      type: object
-      description: The resulting list of custom text keys and values.
-      additionalProperties:
-        type: string
-    SelfServiceProfileSsoTicketIdpInitiatedOptions:
-      type:
-      - object
-      - 'null'
-      description: Allows IdP-initiated login
-      additionalProperties: false
-      properties:
-        enabled:
-          type: boolean
-          description: Enables IdP-initiated login for this connection
-        client_id:
-          type: string
-          description: Default application <code>client_id</code> user is redirected to after validated SAML response
-          format: client-id
-        client_protocol:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketIdpInitiatedClientProtocolEnum'
-        client_authorizequery:
-          type: string
-          description: 'Query string options to customize the behaviour for OpenID Connect when <code>idpinitiated.client_protocol</code> is <code>oauth2</code>. Allowed parameters: <code>redirect_uri</code>, <code>scope</code>, <code>response_type</code>. For example, <code>redirect_uri=https://jwt.io&scope=openid email&response_type=token</code>'
-          maxLength: 256
-    ListSelfServiceProfileCustomTextResponseContent:
-      type: object
-      description: The list of custom text keys and values.
-      additionalProperties:
-        type: string
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        options:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketConnectionOptions'
     SelfServiceProfileSsoTicketConnectionOptions:
       type:
       - object
@@ -769,11 +654,15 @@ components:
             maxLength: 255
         idpinitiated:
           $ref: '#/components/schemas/SelfServiceProfileSsoTicketIdpInitiatedOptions'
-    CreateSelfServiceProfileRequestContent:
+    SelfServiceProfileCustomTextPageEnum:
+      type: string
+      enum:
+      - get-started
+      description: The page where the custom text is shown.
+    UpdateSelfServiceProfileRequestContent:
       type: object
       additionalProperties: false
-      required:
-      - name
+      minProperties: 0
       properties:
         name:
           type: string
@@ -781,12 +670,9 @@ components:
           minLength: 1
           maxLength: 100
         description:
-          type: string
-          description: The description of the self-service Profile.
-          minLength: 1
-          maxLength: 140
+          $ref: '#/components/schemas/SelfServiceProfileDescription'
         branding:
-          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+          $ref: '#/components/schemas/SelfServiceProfileBranding'
         allowed_strategies:
           type: array
           description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
@@ -794,43 +680,14 @@ components:
           items:
             $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
         user_attributes:
-          type: array
-          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
-          items:
-            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+          $ref: '#/components/schemas/SelfServiceProfileUserAttributes'
         user_attribute_profile_id:
-          type: string
+          type:
+          - string
+          - 'null'
           description: ID of the user-attribute-profile to associate with this self-service profile.
           format: user-attribute-profile-id
           x-release-lifecycle: EA
-    SelfServiceProfileSsoTicketProvisioningConfig:
-      type: object
-      description: Configuration for the setup of Provisioning in the self-service flow.
-      additionalProperties: false
-      x-release-lifecycle: GA
-      properties:
-        scopes:
-          type: array
-          description: The scopes of the SCIM tokens generated during the self-service flow.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/SelfServiceProfileSsoTicketProvisioningScopeEnum'
-        google_workspace:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketGoogleWorkspaceConfig'
-          x-release-lifecycle: GA
-        token_lifetime:
-          description: Lifetime of the tokens in seconds. Must be greater than 900. If not provided, the tokens don't expire.
-          type:
-          - integer
-          - 'null'
-          minimum: 900
-    SelfServiceProfileUserAttributes:
-      type:
-      - array
-      - 'null'
-      description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
-      items:
-        $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
     SelfServiceProfileSsoTicketIdpInitiatedClientProtocolEnum:
       type: string
       description: The protocol used to connect to the the default application
@@ -838,54 +695,35 @@ components:
       - samlp
       - wsfed
       - oauth2
-    GetSelfServiceProfileResponseContent:
-      type: object
+    SelfServiceProfileSsoTicketIdpInitiatedOptions:
+      type:
+      - object
+      - 'null'
+      description: Allows IdP-initiated login
       additionalProperties: false
       properties:
-        id:
+        enabled:
+          type: boolean
+          description: Enables IdP-initiated login for this connection
+        client_id:
           type: string
-          description: The unique ID of the self-service Profile.
-          default: ssp_n7SNCL8seoyV1TuSTCnAeo
-        name:
+          description: Default application <code>client_id</code> user is redirected to after validated SAML response
+          format: client-id
+        client_protocol:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketIdpInitiatedClientProtocolEnum'
+        client_authorizequery:
           type: string
-          description: The name of the self-service Profile.
-        description:
-          type: string
-          description: The description of the self-service Profile.
-        user_attributes:
-          type: array
-          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
-          items:
-            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
-        created_at:
-          type: string
-          description: The time when this self-service Profile was created.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        updated_at:
-          type: string
-          description: The time when this self-service Profile was updated.
-          default: '2021-01-01T00:00:00.000Z'
-          format: date-time
-        branding:
-          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
-        allowed_strategies:
-          type: array
-          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
-        user_attribute_profile_id:
-          type: string
-          description: ID of the user-attribute-profile to associate with this self-service profile.
-          format: user-attribute-profile-id
-          x-release-lifecycle: EA
-    ListSelfServiceProfilesResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/SelfServiceProfile'
-      - $ref: '#/components/schemas/ListSelfServiceProfilesPaginatedResponseContent'
+          description: 'Query string options to customize the behaviour for OpenID Connect when <code>idpinitiated.client_protocol</code> is <code>oauth2</code>. Allowed parameters: <code>redirect_uri</code>, <code>scope</code>, <code>response_type</code>. For example, <code>redirect_uri=https://jwt.io&scope=openid email&response_type=token</code>'
+          maxLength: 256
+    ConnectionsMetadata:
+      type: object
+      description: Metadata associated with the connection in the form of an object with string values (max 255 chars).  Maximum of 10 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
     CreateSelfServiceProfileResponseContent:
       type: object
       additionalProperties: false
@@ -928,39 +766,143 @@ components:
           description: ID of the user-attribute-profile to associate with this self-service profile.
           format: user-attribute-profile-id
           x-release-lifecycle: EA
-    SelfServiceProfileSsoTicketConnectionConfig:
+    SetSelfServiceProfileCustomTextResponseContent:
       type: object
-      description: If provided, this will create a new connection for the Self-Service Enterprise Configuration flow with the given configuration
+      description: The resulting list of custom text keys and values.
+      additionalProperties:
+        type: string
+    SelfServiceProfileSsoTicketDomainAliasesConfig:
+      type: object
+      description: Configuration for the setup of the connection’s domain_aliases in the Self-Service Enterprise Configuration flow.
+      additionalProperties: false
+      required:
+      - domain_verification
+      properties:
+        domain_verification:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketDomainVerificationEnum'
+        pending_domains:
+          type: array
+          description: List of domains that will be submitted for verification during the Self-Service Enterprise Configuration flow.
+          x-release-lifecycle: GA
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+    SelfServiceProfileSsoTicketEnabledFeatures:
+      type: object
+      description: Specifies which features are enabled for an "edit connection" ticket. Only applicable when connection ID is provided.
+      additionalProperties: false
+      x-release-lifecycle: GA
+      properties:
+        sso:
+          type: boolean
+          description: Whether SSO configuration is enabled in this ticket.
+        domain_verification:
+          type: boolean
+          description: Whether domain verification is enabled in this ticket.
+        provisioning:
+          type: boolean
+          description: Whether provisioning configuration is enabled in this ticket.
+    SelfServiceProfileAllowedStrategyEnum:
+      type: string
+      enum:
+      - oidc
+      - samlp
+      - waad
+      - google-apps
+      - adfs
+      - okta
+      - auth0-samlp
+      - okta-samlp
+      - keycloak-samlp
+      - pingfederate
+    GetSelfServiceProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The unique ID of the self-service Profile.
+          default: ssp_n7SNCL8seoyV1TuSTCnAeo
+        name:
+          type: string
+          description: The name of the self-service Profile.
+        description:
+          type: string
+          description: The description of the self-service Profile.
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        created_at:
+          type: string
+          description: The time when this self-service Profile was created.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        updated_at:
+          type: string
+          description: The time when this self-service Profile was updated.
+          default: '2021-01-01T00:00:00.000Z'
+          format: date-time
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    CreateSelfServiceProfileRequestContent:
+      type: object
       additionalProperties: false
       required:
       - name
       properties:
         name:
           type: string
-          description: The name of the connection that will be created as a part of the Self-Service Enterprise Configuration flow.
-          default: sso-generated-SAML-customer-12
+          description: The name of the self-service Profile.
           minLength: 1
-          maxLength: 128
-          pattern: ^[a-zA-Z0-9](-[a-zA-Z0-9]|[a-zA-Z0-9])*$
-        display_name:
+          maxLength: 100
+        description:
           type: string
-          description: Connection name used in the new universal login experience
-          maxLength: 128
-        is_domain_connection:
+          description: The description of the self-service Profile.
+          minLength: 1
+          maxLength: 140
+        branding:
+          $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+        allowed_strategies:
+          type: array
+          description: 'List of IdP strategies that will be shown to users during the Self-Service Enterprise Configuration flow. Possible values: [`oidc`, `samlp`, `waad`, `google-apps`, `adfs`, `okta`, `auth0-samlp`, `okta-samlp`, `keycloak-samlp`, `pingfederate`]'
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileAllowedStrategyEnum'
+        user_attributes:
+          type: array
+          description: List of attributes to be mapped that will be shown to the user during the Self-Service Enterprise Configuration flow.
+          items:
+            $ref: '#/components/schemas/SelfServiceProfileUserAttribute'
+        user_attribute_profile_id:
+          type: string
+          description: ID of the user-attribute-profile to associate with this self-service profile.
+          format: user-attribute-profile-id
+          x-release-lifecycle: EA
+    SelfServiceProfileSsoTicketGoogleWorkspaceConfig:
+      type: object
+      description: Configuration for Google Workspace Directory Sync during the self-service flow.
+      additionalProperties: false
+      required:
+      - sync_users
+      x-release-lifecycle: GA
+      properties:
+        sync_users:
           type: boolean
-          description: <code>true</code> promotes to a domain-level connection so that third-party applications can use it. <code>false</code> does not promote the connection, so only first-party applications with the connection enabled can use it. (Defaults to <code>false</code>.)
-        show_as_button:
-          type: boolean
-          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD. (Defaults to <code>false</code>.)
-        metadata:
-          $ref: '#/components/schemas/ConnectionsMetadata'
-        options:
-          $ref: '#/components/schemas/SelfServiceProfileSsoTicketConnectionOptions'
-    SelfServiceProfileCustomTextLanguageEnum:
-      type: string
-      enum:
-      - en
-      description: The language of the custom text.
+          description: Whether to enable Google Workspace Directory Sync for users during the self-service flow.
     UpdateSelfServiceProfileResponseContent:
       type: object
       additionalProperties: false
@@ -1014,20 +956,66 @@ components:
           pattern: ^https://
         colors:
           $ref: '#/components/schemas/SelfServiceProfileBrandingColors'
-    ListSelfServiceProfilesPaginatedResponseContent:
+    SelfServiceProfileBranding:
+      oneOf:
+      - $ref: '#/components/schemas/SelfServiceProfileBrandingProperties'
+      - type: 'null'
+    SelfServiceProfileDescription:
+      type:
+      - string
+      - 'null'
+      description: The description of the self-service Profile.
+      minLength: 1
+      maxLength: 140
+    SelfServiceProfileSsoTicketProvisioningScopeEnum:
+      type: string
+      enum:
+      - get:users
+      - post:users
+      - put:users
+      - patch:users
+      - delete:users
+      - get:groups
+      - post:groups
+      - put:groups
+      - patch:groups
+      - delete:groups
+    SetSelfServiceProfileCustomTextRequestContent:
       type: object
-      additionalProperties: false
+      description: The list of text keys and values to customize the Self-Service Enterprise Configuration flow page. Values can be plain text or rich HTML content limited to basic styling tags and hyperlinks.
+      additionalProperties:
+        type: string
+        maxLength: 2000
+    SelfServiceProfileBrandingColors:
+      type: object
+      additionalProperties: true
+      required:
+      - primary
       properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        self_service_profiles:
+        primary:
+          type: string
+          pattern: ^#([\dA-Fa-f]{6}|[\dA-Fa-f]{3})$
+    SelfServiceProfileSsoTicketProvisioningConfig:
+      type: object
+      description: Configuration for the setup of Provisioning in the self-service flow.
+      additionalProperties: false
+      x-release-lifecycle: GA
+      properties:
+        scopes:
           type: array
+          description: The scopes of the SCIM tokens generated during the self-service flow.
+          minItems: 1
           items:
-            $ref: '#/components/schemas/SelfServiceProfile'
+            $ref: '#/components/schemas/SelfServiceProfileSsoTicketProvisioningScopeEnum'
+        google_workspace:
+          $ref: '#/components/schemas/SelfServiceProfileSsoTicketGoogleWorkspaceConfig'
+          x-release-lifecycle: GA
+        token_lifetime:
+          description: Lifetime of the tokens in seconds. Must be greater than 900. If not provided, the tokens don't expire.
+          type:
+          - integer
+          - 'null'
+          minimum: 900
   securitySchemes:
     bearerAuth:
       type: http

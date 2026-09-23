@@ -22,9 +22,7 @@ paths:
 
         When reading a write tuple change, if it was conditioned, the condition will be returned.
 
-        When reading a delete tuple change, the condition will NOT be returned regardless of whether it was originally conditioned or not.
-
-        '
+        When reading a delete tuple change, the condition will NOT be returned regardless of whether it was originally conditioned or not.'
       operationId: ReadChanges
       responses:
         '200':
@@ -112,8 +110,202 @@ paths:
       - Relationship Tuples
   /stores/{store_id}/read:
     post:
-      summary: Get tuples from the store that matches a query, without following userset rewrite rules
-      description: "The Read API will return the tuples for a certain store that match a query filter specified in the body of the request. \nThe API doesn't guarantee order by any field. \nIt is different from the `/stores/{store_id}/expand` API in that it only returns relationship tuples that are stored in the system and satisfy the query. \nIn the body:\n1. `tuple_key` is optional. If not specified, it will return all tuples in the store.\n2. `tuple_key.object` is mandatory if `tuple_key` is specified. It can be a full object (e.g., `type:object_id`) or type only (e.g., `type:`).\n3. `tuple_key.user` is mandatory if tuple_key is specified in the case the `tuple_key.object` is a type only. If tuple_key.user is specified, it needs to be a full object (e.g., `type:user_id`).\n## Examples\n### Query for all objects in a type definition\nTo query for all objects that `user:bob` has `reader` relationship in the `document` type definition, call read API with body of\n```json\n{\n \"tuple_key\": {\n     \"user\": \"user:bob\",\n     \"relation\": \"reader\",\n     \"object\": \"document:\"\n  }\n}\n```\nThe API will return tuples and a continuation token, something like\n```json\n{\n  \"tuples\": [\n    {\n      \"key\": {\n        \"user\": \"user:bob\",\n        \"relation\": \"reader\",\n        \"object\": \"document:2021-budget\"\n      },\n      \"timestamp\": \"2021-10-06T15:32:11.128Z\"\n    }\n  ],\n  \"continuation_token\": \"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==\"\n}\n```\nThis means that `user:bob` has a `reader` relationship with 1 document `document:2021-budget`. Note that this API, unlike the List Objects API, does not evaluate the tuples in the store.\nThe continuation token will be empty if there are no more tuples to query.\n### Query for all stored relationship tuples that have a particular relation and object\nTo query for all users that have `reader` relationship with `document:2021-budget`, call read API with body of \n```json\n{\n  \"tuple_key\": {\n     \"object\": \"document:2021-budget\",\n     \"relation\": \"reader\"\n   }\n}\n```\nThe API will return something like \n```json\n{\n  \"tuples\": [\n    {\n      \"key\": {\n        \"user\": \"user:bob\",\n        \"relation\": \"reader\",\n        \"object\": \"document:2021-budget\"\n      },\n      \"timestamp\": \"2021-10-06T15:32:11.128Z\"\n    }\n  ],\n  \"continuation_token\": \"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==\"\n}\n```\nThis means that `document:2021-budget` has 1 `reader` (`user:bob`).  Note that, even if the model said that all `writers` are also `readers`, the API will not return writers such as `user:anne` because it only returns tuples and does not evaluate them.\n### Query for all users with all relationships for a particular document\nTo query for all users that have any relationship with `document:2021-budget`, call read API with body of \n```json\n{\n  \"tuple_key\": {\n      \"object\": \"document:2021-budget\"\n   }\n}\n```\nThe API will return something like \n```json\n{\n  \"tuples\": [\n    {\n      \"key\": {\n        \"user\": \"user:anne\",\n        \"relation\": \"writer\",\n        \"object\": \"document:2021-budget\"\n      },\n      \"timestamp\": \"2021-10-05T13:42:12.356Z\"\n    },\n    {\n      \"key\": {\n        \"user\": \"user:bob\",\n        \"relation\": \"reader\",\n        \"object\": \"document:2021-budget\"\n      },\n      \"timestamp\": \"2021-10-06T15:32:11.128Z\"\n    }\n  ],\n  \"continuation_token\": \"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==\"\n}\n```\nThis means that `document:2021-budget` has 1 `reader` (`user:bob`) and 1 `writer` (`user:anne`).\n"
+      summary: Get tuples from the store that matches a query, without following userset…
+      description: 'The Read API will return the tuples for a certain store that match a query filter specified in the body of the request.
+
+        The API doesn''t guarantee order by any field.
+
+        It is different from the `/stores/{store_id}/expand` API in that it only returns relationship tuples that are stored in the system and satisfy the query.
+
+        In the body:
+
+        1. `tuple_key` is optional. If not specified, it will return all tuples in the store.
+
+        2. `tuple_key.object` is mandatory if `tuple_key` is specified. It can be a full object (e.g., `type:object_id`) or type only (e.g., `type:`).
+
+        3. `tuple_key.user` is mandatory if tuple_key is specified in the case the `tuple_key.object` is a type only. If tuple_key.user is specified, it needs to be a full object (e.g., `type:user_id`).
+
+        ## Examples
+
+        ### Query for all objects in a type definition
+
+        To query for all objects that `user:bob` has `reader` relationship in the `document` type definition, call read API with body of
+
+        ```json
+
+        {
+
+        "tuple_key": {
+
+        "user": "user:bob",
+
+        "relation": "reader",
+
+        "object": "document:"
+
+        }
+
+        }
+
+        ```
+
+        The API will return tuples and a continuation token, something like
+
+        ```json
+
+        {
+
+        "tuples": [
+
+        {
+
+        "key": {
+
+        "user": "user:bob",
+
+        "relation": "reader",
+
+        "object": "document:2021-budget"
+
+        },
+
+        "timestamp": "2021-10-06T15:32:11.128Z"
+
+        }
+
+        ],
+
+        "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+
+        }
+
+        ```
+
+        This means that `user:bob` has a `reader` relationship with 1 document `document:2021-budget`. Note that this API, unlike the List Objects API, does not evaluate the tuples in the store.
+
+        The continuation token will be empty if there are no more tuples to query.
+
+        ### Query for all stored relationship tuples that have a particular relation and object
+
+        To query for all users that have `reader` relationship with `document:2021-budget`, call read API with body of
+
+        ```json
+
+        {
+
+        "tuple_key": {
+
+        "object": "document:2021-budget",
+
+        "relation": "reader"
+
+        }
+
+        }
+
+        ```
+
+        The API will return something like
+
+        ```json
+
+        {
+
+        "tuples": [
+
+        {
+
+        "key": {
+
+        "user": "user:bob",
+
+        "relation": "reader",
+
+        "object": "document:2021-budget"
+
+        },
+
+        "timestamp": "2021-10-06T15:32:11.128Z"
+
+        }
+
+        ],
+
+        "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+
+        }
+
+        ```
+
+        This means that `document:2021-budget` has 1 `reader` (`user:bob`). Note that, even if the model said that all `writers` are also `readers`, the API will not return writers such as `user:anne` because it only returns tuples and does not evaluate them.
+
+        ### Query for all users with all relationships for a particular document
+
+        To query for all users that have any relationship with `document:2021-budget`, call read API with body of
+
+        ```json
+
+        {
+
+        "tuple_key": {
+
+        "object": "document:2021-budget"
+
+        }
+
+        }
+
+        ```
+
+        The API will return something like
+
+        ```json
+
+        {
+
+        "tuples": [
+
+        {
+
+        "key": {
+
+        "user": "user:anne",
+
+        "relation": "writer",
+
+        "object": "document:2021-budget"
+
+        },
+
+        "timestamp": "2021-10-05T13:42:12.356Z"
+
+        },
+
+        {
+
+        "key": {
+
+        "user": "user:bob",
+
+        "relation": "reader",
+
+        "object": "document:2021-budget"
+
+        },
+
+        "timestamp": "2021-10-06T15:32:11.128Z"
+
+        }
+
+        ],
+
+        "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+
+        }
+
+        ```
+
+        This means that `document:2021-budget` has 1 `reader` (`user:bob`) and 1 `writer` (`user:anne`).'
       operationId: Read
       responses:
         '200':
@@ -196,7 +388,89 @@ paths:
   /stores/{store_id}/write:
     post:
       summary: Add or delete tuples from the store
-      description: "The Write API will transactionally update the tuples for a certain store. Tuples and type definitions allow OpenFGA to determine whether a relationship exists between an object and an user.\nIn the body, `writes` adds new tuples and `deletes` removes existing tuples. When deleting a tuple, any `condition` specified with it is ignored.\nThe API is not idempotent by default: if, later on, you try to add the same tuple key (even if the `condition` is different), or if you try to delete a non-existing tuple, it will throw an error.\nTo allow writes when an identical tuple already exists in the database, set `\"on_duplicate\": \"ignore\"` on the `writes` object.\nTo allow deletes when a tuple was already removed from the database, set `\"on_missing\": \"ignore\"` on the `deletes` object.\nIf a Write request contains both idempotent (ignore) and non-idempotent (error) operations, the most restrictive action (error) will take precedence. If a condition fails for a sub-request with an error flag, the entire transaction will be rolled back. This gives developers explicit control over the atomicity of the requests.\nThe API will not allow you to write tuples such as `document:2021-budget#viewer@document:2021-budget#viewer`, because they are implicit.\nAn `authorization_model_id` may be specified in the body. If it is, it will be used to assert that each written tuple (not deleted) is valid for the model specified. If it is not specified, the latest authorization model ID will be used.\n## Example\n### Adding relationships\nTo add `user:anne` as a `writer` for `document:2021-budget`, call write API with the following \n```json\n{\n  \"writes\": {\n    \"tuple_keys\": [\n      {\n        \"user\": \"user:anne\",\n        \"relation\": \"writer\",\n        \"object\": \"document:2021-budget\"\n      }\n    ],\n    \"on_duplicate\": \"ignore\"\n  },\n  \"authorization_model_id\": \"01G50QVV17PECNVAHX1GG4Y5NC\"\n}\n```\n### Removing relationships\nTo remove `user:bob` as a `reader` for `document:2021-budget`, call write API with the following \n```json\n{\n  \"deletes\": {\n    \"tuple_keys\": [\n      {\n        \"user\": \"user:bob\",\n        \"relation\": \"reader\",\n        \"object\": \"document:2021-budget\"\n      }\n    ],\n    \"on_missing\": \"ignore\"\n  }\n}\n```\n"
+      description: 'The Write API will transactionally update the tuples for a certain store. Tuples and type definitions allow OpenFGA to determine whether a relationship exists between an object and an user.
+
+        In the body, `writes` adds new tuples and `deletes` removes existing tuples. When deleting a tuple, any `condition` specified with it is ignored.
+
+        The API is not idempotent by default: if, later on, you try to add the same tuple key (even if the `condition` is different), or if you try to delete a non-existing tuple, it will throw an error.
+
+        To allow writes when an identical tuple already exists in the database, set `"on_duplicate": "ignore"` on the `writes` object.
+
+        To allow deletes when a tuple was already removed from the database, set `"on_missing": "ignore"` on the `deletes` object.
+
+        If a Write request contains both idempotent (ignore) and non-idempotent (error) operations, the most restrictive action (error) will take precedence. If a condition fails for a sub-request with an error flag, the entire transaction will be rolled back. This gives developers explicit control over the atomicity of the requests.
+
+        The API will not allow you to write tuples such as `document:2021-budget#viewer@document:2021-budget#viewer`, because they are implicit.
+
+        An `authorization_model_id` may be specified in the body. If it is, it will be used to assert that each written tuple (not deleted) is valid for the model specified. If it is not specified, the latest authorization model ID will be used.
+
+        ## Example
+
+        ### Adding relationships
+
+        To add `user:anne` as a `writer` for `document:2021-budget`, call write API with the following
+
+        ```json
+
+        {
+
+        "writes": {
+
+        "tuple_keys": [
+
+        {
+
+        "user": "user:anne",
+
+        "relation": "writer",
+
+        "object": "document:2021-budget"
+
+        }
+
+        ],
+
+        "on_duplicate": "ignore"
+
+        },
+
+        "authorization_model_id": "01G50QVV17PECNVAHX1GG4Y5NC"
+
+        }
+
+        ```
+
+        ### Removing relationships
+
+        To remove `user:bob` as a `reader` for `document:2021-budget`, call write API with the following
+
+        ```json
+
+        {
+
+        "deletes": {
+
+        "tuple_keys": [
+
+        {
+
+        "user": "user:bob",
+
+        "relation": "reader",
+
+        "object": "document:2021-budget"
+
+        }
+
+        ],
+
+        "on_missing": "ignore"
+
+        }
+
+        }
+
+        ```'
       operationId: Write
       responses:
         '200':
@@ -271,14 +545,124 @@ paths:
         required: true
 components:
   schemas:
-    NotFoundErrorCode:
+    WriteRequestDeletes:
+      type: object
+      properties:
+        tuple_keys:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKeyWithoutCondition'
+          minItems: 1
+        on_missing:
+          type: string
+          example: ignore
+          enum:
+          - error
+          - ignore
+          default: error
+          description: On 'error', the API returns an error when deleting a tuple that does not exist. On 'ignore', deletes of non-existent tuples are treated as no-ops.
+      required:
+      - tuple_keys
+    UnprocessableContentErrorCode:
       type: string
       enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    ReadResponse:
+      type: object
+      properties:
+        tuples:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Tuple'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be empty if there are no more tuples.
+      required:
+      - tuples
+      - continuation_token
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    WriteResponse:
+      type: object
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    WriteRequestWrites:
+      type: object
+      properties:
+        tuple_keys:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKey'
+          minItems: 1
+        on_duplicate:
+          type: string
+          example: ignore
+          enum:
+          - error
+          - ignore
+          default: error
+          description: On 'error' ( or unspecified ), the API returns an error if an identical tuple already exists. On 'ignore', identical writes are treated as no-ops (matching on user, relation, object, and RelationshipCondition).
+      required:
+      - tuple_keys
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
     ReadChangesResponse:
       type: object
       properties:
@@ -314,93 +698,6 @@ components:
       - user
       - relation
       - object
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    WriteRequestWrites:
-      type: object
-      properties:
-        tuple_keys:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/TupleKey'
-          minItems: 1
-        on_duplicate:
-          type: string
-          example: ignore
-          enum:
-          - error
-          - ignore
-          default: error
-          description: On 'error' ( or unspecified ), the API returns an error if an identical tuple already exists. On 'ignore', identical writes are treated as no-ops (matching on user, relation, object, and RelationshipCondition).
-      required:
-      - tuple_keys
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    Tuple:
-      type: object
-      properties:
-        key:
-          $ref: '#/components/schemas/TupleKey'
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - key
-      - timestamp
-    TupleOperation:
-      type: string
-      enum:
-      - TUPLE_OPERATION_WRITE
-      - TUPLE_OPERATION_DELETE
-      default: TUPLE_OPERATION_WRITE
-      title: buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
-    TupleChange:
-      type: object
-      properties:
-        tuple_key:
-          $ref: '#/components/schemas/TupleKey'
-        operation:
-          $ref: '#/components/schemas/TupleOperation'
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - tuple_key
-      - operation
-      - timestamp
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
     AbortedMessageResponse:
       type: object
       example:
@@ -411,61 +708,6 @@ components:
           type: string
         message:
           type: string
-    RelationshipCondition:
-      type: object
-      properties:
-        name:
-          type: string
-          example: condition1
-          description: A reference (by name) of the relationship condition defined in the authorization model.
-          maxLength: 256
-        context:
-          type: object
-          description: 'Additional context/data to persist along with the condition.
-
-            The keys must match the parameters defined by the condition, and the value types must
-
-            match the parameter type definitions.'
-      required:
-      - name
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    AuthErrorCode:
-      type: string
-      enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
-    ReadRequestTupleKey:
-      type: object
-      properties:
-        user:
-          type: string
-          example: user:anne
-          maxLength: 512
-        relation:
-          type: string
-          example: reader
-          maxLength: 50
-        object:
-          type: string
-          example: document:2021-budget
-          maxLength: 256
     ConsistencyPreference:
       type: string
       enum:
@@ -475,6 +717,16 @@ components:
       default: UNSPECIFIED
       description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
       example: MINIMIZE_LATENCY
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
     TupleKeyWithoutCondition:
       type: object
       properties:
@@ -494,76 +746,28 @@ components:
       - user
       - relation
       - object
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
-        message:
-          type: string
-    WriteResponse:
-      type: object
-    WriteRequestDeletes:
-      type: object
-      properties:
-        tuple_keys:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/TupleKeyWithoutCondition'
-          minItems: 1
-        on_missing:
-          type: string
-          example: ignore
-          enum:
-          - error
-          - ignore
-          default: error
-          description: On 'error', the API returns an error when deleting a tuple that does not exist. On 'ignore', deletes of non-existent tuples are treated as no-ops.
-      required:
-      - tuple_keys
-    ReadResponse:
-      type: object
-      properties:
-        tuples:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Tuple'
-        continuation_token:
-          type: string
-          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-          description: The continuation token will be empty if there are no more tuples.
-      required:
-      - tuples
-      - continuation_token
-    InternalErrorCode:
+    NotFoundErrorCode:
       type: string
       enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    TupleChange:
+      type: object
+      properties:
+        tuple_key:
+          $ref: '#/components/schemas/TupleKey'
+        operation:
+          $ref: '#/components/schemas/TupleOperation'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - tuple_key
+      - operation
+      - timestamp
     ErrorCode:
       type: string
       enum:
@@ -618,3 +822,73 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
+    ReadRequestTupleKey:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    TupleOperation:
+      type: string
+      enum:
+      - TUPLE_OPERATION_WRITE
+      - TUPLE_OPERATION_DELETE
+      default: TUPLE_OPERATION_WRITE
+      title: buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+    Tuple:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/TupleKey'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - key
+      - timestamp
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    RelationshipCondition:
+      type: object
+      properties:
+        name:
+          type: string
+          example: condition1
+          description: A reference (by name) of the relationship condition defined in the authorization model.
+          maxLength: 256
+        context:
+          type: object
+          description: 'Additional context/data to persist along with the condition.
+
+            The keys must match the parameters defined by the condition, and the value types must
+
+            match the parameter type definitions.'
+      required:
+      - name

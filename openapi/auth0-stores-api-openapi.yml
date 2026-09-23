@@ -18,9 +18,7 @@ paths:
       summary: List all stores
       description: 'Returns a paginated list of OpenFGA stores and a continuation token to get additional stores.
 
-        The continuation token will be empty if there are no more stores.
-
-        '
+        The continuation token will be empty if there are no more stores.'
       operationId: ListStores
       responses:
         '200':
@@ -273,14 +271,6 @@ paths:
       - Stores
 components:
   schemas:
-    CreateStoreRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          example: my-store-name
-      required:
-      - name
     UnauthenticatedResponse:
       type: object
       example:
@@ -289,6 +279,75 @@ components:
       properties:
         code:
           $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    GetStoreResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 01YCP46JKYM8FJCQ37NMBYHE5X
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
         message:
           type: string
     Store:
@@ -312,6 +371,30 @@ components:
       - name
       - created_at
       - updated_at
+    CreateStoreRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: my-store-name
+      required:
+      - name
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
     NotFoundErrorCode:
       type: string
       enum:
@@ -320,14 +403,14 @@ components:
       - store_id_not_found
       - unimplemented
       default: no_not_found_error
-    UnprocessableContentMessageResponse:
+    ForbiddenResponse:
       type: object
       example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
+        code: forbidden
+        message: the principal is not authorized to perform the action
       properties:
         code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+          $ref: '#/components/schemas/AuthErrorCode'
         message:
           type: string
     AbortedMessageResponse:
@@ -340,113 +423,6 @@ components:
           type: string
         message:
           type: string
-    CreateStoreResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 01YCP46JKYM8FJCQ37NMBYHE5X
-        name:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-      - id
-      - name
-      - created_at
-      - updated_at
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
-        message:
-          type: string
-    AuthErrorCode:
-      type: string
-      enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    ListStoresResponse:
-      type: object
-      properties:
-        stores:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Store'
-        continuation_token:
-          type: string
-          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-          description: The continuation token will be empty if there are no more stores.
-      required:
-      - stores
-      - continuation_token
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
     ErrorCode:
       type: string
       enum:
@@ -501,7 +477,7 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    GetStoreResponse:
+    CreateStoreResponse:
       type: object
       properties:
         id:
@@ -515,11 +491,33 @@ components:
         updated_at:
           type: string
           format: date-time
-        deleted_at:
-          type: string
-          format: date-time
       required:
       - id
       - name
       - created_at
       - updated_at
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    ListStoresResponse:
+      type: object
+      properties:
+        stores:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Store'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be empty if there are no more stores.
+      required:
+      - stores
+      - continuation_token

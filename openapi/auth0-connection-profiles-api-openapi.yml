@@ -16,16 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: connection-profiles
+- name: Connection Profiles
 paths:
   /connection-profiles:
     get:
       summary: Get Connection Profiles
-      description: 'Retrieve a list of Connection Profiles. This endpoint supports Checkpoint pagination.
-
-        '
+      description: Retrieve a list of Connection Profiles. This endpoint supports Checkpoint pagination.
       tags:
-      - connection-profiles
+      - Connection Profiles
       parameters:
       - name: from
         in: query
@@ -67,11 +65,9 @@ paths:
         - read:connection_profiles
     post:
       summary: Create a Connection Profile
-      description: 'Create a Connection Profile.
-
-        '
+      description: Create a Connection Profile.
       tags:
-      - connection-profiles
+      - Connection Profiles
       requestBody:
         content:
           application/json:
@@ -109,11 +105,9 @@ paths:
   /connection-profiles/templates:
     get:
       summary: Get Connection Profile Templates
-      description: 'Retrieve a list of Connection Profile Templates.
-
-        '
+      description: Retrieve a list of Connection Profile Templates.
       tags:
-      - connection-profiles
+      - Connection Profiles
       responses:
         '200':
           description: Connection Profile Templates successfully retrieved.
@@ -139,11 +133,9 @@ paths:
   /connection-profiles/templates/{id}:
     get:
       summary: Get Connection Profile Template
-      description: 'Retrieve a Connection Profile Template.
-
-        '
+      description: Retrieve a Connection Profile Template.
       tags:
-      - connection-profiles
+      - Connection Profiles
       parameters:
       - name: id
         in: path
@@ -178,11 +170,9 @@ paths:
   /connection-profiles/{id}:
     get:
       summary: Get Connection Profile
-      description: 'Retrieve details about a single Connection Profile specified by ID.
-
-        '
+      description: Retrieve details about a single Connection Profile specified by ID.
       tags:
-      - connection-profiles
+      - Connection Profiles
       parameters:
       - name: id
         in: path
@@ -216,11 +206,9 @@ paths:
         - read:connection_profiles
     delete:
       summary: Delete Connection Profile
-      description: 'Delete a single Connection Profile specified by ID.
-
-        '
+      description: Delete a single Connection Profile specified by ID.
       tags:
-      - connection-profiles
+      - Connection Profiles
       parameters:
       - name: id
         in: path
@@ -248,11 +236,9 @@ paths:
         - delete:connection_profiles
     patch:
       summary: Modify a Connection Profile
-      description: 'Update the details of a specific Connection Profile.
-
-        '
+      description: Update the details of a specific Connection Profile.
       tags:
-      - connection-profiles
+      - Connection Profiles
       parameters:
       - name: id
         in: path
@@ -311,205 +297,7 @@ components:
           $ref: '#/components/schemas/ConnectionProfileConfig'
         strategy_overrides:
           $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
-    ConnectionProfileStrategyOverrides:
-      type: object
-      description: Strategy-specific overrides for this attribute
-      additionalProperties: false
-      properties:
-        pingfederate:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        ad:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        adfs:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        waad:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        google-apps:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        okta:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        oidc:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-        samlp:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
-    UpdateConnectionProfileRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          $ref: '#/components/schemas/ConnectionProfileName'
-        organization:
-          $ref: '#/components/schemas/ConnectionProfileOrganization'
-        connection_name_prefix_template:
-          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
-        enabled_features:
-          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
-        connection_config:
-          $ref: '#/components/schemas/ConnectionProfileConfig'
-        strategy_overrides:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
-    GetConnectionProfileTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The id of the template.
-        display_name:
-          type: string
-          description: The user-friendly name of the template displayed in the UI.
-        template:
-          $ref: '#/components/schemas/ConnectionProfileTemplate'
     GetConnectionProfileResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          $ref: '#/components/schemas/ConnectionProfileId'
-        name:
-          $ref: '#/components/schemas/ConnectionProfileName'
-        organization:
-          $ref: '#/components/schemas/ConnectionProfileOrganization'
-        connection_name_prefix_template:
-          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
-        enabled_features:
-          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
-        connection_config:
-          $ref: '#/components/schemas/ConnectionProfileConfig'
-        strategy_overrides:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
-    ConnectionProfileEnabledFeatures:
-      type: array
-      description: Enabled features for the connection profile.
-      items:
-        $ref: '#/components/schemas/EnabledFeaturesEnum'
-    ConnectionProfileOrganizationAssignMembershipOnLoginEnum:
-      type: string
-      description: Indicates if membership should be assigned on login.
-      enum:
-      - none
-      - optional
-      - required
-    ConnectionProfileConfig:
-      type: object
-      description: Connection profile configuration.
-      additionalProperties: false
-      properties: {}
-    CreateConnectionProfileRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      properties:
-        name:
-          $ref: '#/components/schemas/ConnectionProfileName'
-        organization:
-          $ref: '#/components/schemas/ConnectionProfileOrganization'
-        connection_name_prefix_template:
-          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
-        enabled_features:
-          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
-        connection_config:
-          $ref: '#/components/schemas/ConnectionProfileConfig'
-        strategy_overrides:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
-    ListConnectionProfileTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        connection_profile_templates:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectionProfileTemplateItem'
-    EnabledFeaturesEnum:
-      type: string
-      description: Enum for enabled features.
-      enum:
-      - scim
-      - universal_logout
-    UpdateConnectionProfileResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          $ref: '#/components/schemas/ConnectionProfileId'
-        name:
-          $ref: '#/components/schemas/ConnectionProfileName'
-        organization:
-          $ref: '#/components/schemas/ConnectionProfileOrganization'
-        connection_name_prefix_template:
-          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
-        enabled_features:
-          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
-        connection_config:
-          $ref: '#/components/schemas/ConnectionProfileConfig'
-        strategy_overrides:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
-    ConnectionNamePrefixTemplate:
-      type: string
-      description: Connection name prefix template.
-      minLength: 0
-      maxLength: 15
-      pattern: ^(?!-)(?!.*--)(?:[a-zA-Z0-9-]|{org_id}|{org_name})*$
-    ConnectionProfileTemplateItem:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: The id of the template.
-        display_name:
-          type: string
-          description: The user-friendly name of the template displayed in the UI.
-        template:
-          $ref: '#/components/schemas/ConnectionProfileTemplate'
-    ConnectionProfileOrganization:
-      type: object
-      description: The organization of the connection profile.
-      additionalProperties: false
-      properties:
-        show_as_button:
-          $ref: '#/components/schemas/ConnectionProfileOrganizationShowAsButtonEnum'
-        assign_membership_on_login:
-          $ref: '#/components/schemas/ConnectionProfileOrganizationAssignMembershipOnLoginEnum'
-    ConnectionProfileStrategyOverride:
-      type: object
-      description: Connection Profile Strategy Override
-      additionalProperties: false
-      properties:
-        enabled_features:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverridesEnabledFeatures'
-        connection_config:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverridesConnectionConfig'
-    ConnectionProfileStrategyOverridesConnectionConfig:
-      type: object
-      description: Connection profile strategy overrides connection configuration.
-      additionalProperties: false
-      properties: {}
-    ConnectionProfileStrategyOverridesEnabledFeatures:
-      type: array
-      description: Enabled features for a connections profile strategy override.
-      items:
-        $ref: '#/components/schemas/EnabledFeaturesEnum'
-    ConnectionProfile:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          $ref: '#/components/schemas/ConnectionProfileId'
-        name:
-          $ref: '#/components/schemas/ConnectionProfileName'
-        organization:
-          $ref: '#/components/schemas/ConnectionProfileOrganization'
-        connection_name_prefix_template:
-          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
-        enabled_features:
-          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
-        connection_config:
-          $ref: '#/components/schemas/ConnectionProfileConfig'
-        strategy_overrides:
-          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
-    CreateConnectionProfileResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -531,6 +319,17 @@ components:
       type: string
       description: Connection Profile identifier.
       format: connection-profile-id
+    ConnectionProfileName:
+      type: string
+      description: The name of the connection profile.
+      minLength: 1
+      maxLength: 50
+    ConnectionNamePrefixTemplate:
+      type: string
+      description: Connection name prefix template.
+      minLength: 0
+      maxLength: 15
+      pattern: ^(?!-)(?!.*--)(?:[a-zA-Z0-9-]|{org_id}|{org_name})*$
     ConnectionProfileOrganizationShowAsButtonEnum:
       type: string
       description: Indicates if the organization should be shown as a button.
@@ -538,6 +337,73 @@ components:
       - none
       - optional
       - required
+    GetConnectionProfileTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the template.
+        display_name:
+          type: string
+          description: The user-friendly name of the template displayed in the UI.
+        template:
+          $ref: '#/components/schemas/ConnectionProfileTemplate'
+    ConnectionProfileStrategyOverridesEnabledFeatures:
+      type: array
+      description: Enabled features for a connections profile strategy override.
+      items:
+        $ref: '#/components/schemas/EnabledFeaturesEnum'
+    CreateConnectionProfileRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          $ref: '#/components/schemas/ConnectionProfileName'
+        organization:
+          $ref: '#/components/schemas/ConnectionProfileOrganization'
+        connection_name_prefix_template:
+          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
+        enabled_features:
+          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
+        connection_config:
+          $ref: '#/components/schemas/ConnectionProfileConfig'
+        strategy_overrides:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
+    ConnectionProfileEnabledFeatures:
+      type: array
+      description: Enabled features for the connection profile.
+      items:
+        $ref: '#/components/schemas/EnabledFeaturesEnum'
+    CreateConnectionProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/ConnectionProfileId'
+        name:
+          $ref: '#/components/schemas/ConnectionProfileName'
+        organization:
+          $ref: '#/components/schemas/ConnectionProfileOrganization'
+        connection_name_prefix_template:
+          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
+        enabled_features:
+          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
+        connection_config:
+          $ref: '#/components/schemas/ConnectionProfileConfig'
+        strategy_overrides:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
+    ConnectionProfileStrategyOverride:
+      type: object
+      description: Connection Profile Strategy Override
+      additionalProperties: false
+      properties:
+        enabled_features:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverridesEnabledFeatures'
+        connection_config:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverridesConnectionConfig'
     ListConnectionProfilesPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -549,11 +415,131 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConnectionProfile'
-    ConnectionProfileName:
+    ConnectionProfileOrganizationAssignMembershipOnLoginEnum:
       type: string
-      description: The name of the connection profile.
-      minLength: 1
-      maxLength: 50
+      description: Indicates if membership should be assigned on login.
+      enum:
+      - none
+      - optional
+      - required
+    ConnectionProfileStrategyOverridesConnectionConfig:
+      type: object
+      description: Connection profile strategy overrides connection configuration.
+      additionalProperties: false
+      properties: {}
+    ConnectionProfileConfig:
+      type: object
+      description: Connection profile configuration.
+      additionalProperties: false
+      properties: {}
+    ConnectionProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/ConnectionProfileId'
+        name:
+          $ref: '#/components/schemas/ConnectionProfileName'
+        organization:
+          $ref: '#/components/schemas/ConnectionProfileOrganization'
+        connection_name_prefix_template:
+          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
+        enabled_features:
+          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
+        connection_config:
+          $ref: '#/components/schemas/ConnectionProfileConfig'
+        strategy_overrides:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
+    ConnectionProfileOrganization:
+      type: object
+      description: The organization of the connection profile.
+      additionalProperties: false
+      properties:
+        show_as_button:
+          $ref: '#/components/schemas/ConnectionProfileOrganizationShowAsButtonEnum'
+        assign_membership_on_login:
+          $ref: '#/components/schemas/ConnectionProfileOrganizationAssignMembershipOnLoginEnum'
+    UpdateConnectionProfileResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/ConnectionProfileId'
+        name:
+          $ref: '#/components/schemas/ConnectionProfileName'
+        organization:
+          $ref: '#/components/schemas/ConnectionProfileOrganization'
+        connection_name_prefix_template:
+          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
+        enabled_features:
+          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
+        connection_config:
+          $ref: '#/components/schemas/ConnectionProfileConfig'
+        strategy_overrides:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
+    UpdateConnectionProfileRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/ConnectionProfileName'
+        organization:
+          $ref: '#/components/schemas/ConnectionProfileOrganization'
+        connection_name_prefix_template:
+          $ref: '#/components/schemas/ConnectionNamePrefixTemplate'
+        enabled_features:
+          $ref: '#/components/schemas/ConnectionProfileEnabledFeatures'
+        connection_config:
+          $ref: '#/components/schemas/ConnectionProfileConfig'
+        strategy_overrides:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverrides'
+    ConnectionProfileStrategyOverrides:
+      type: object
+      description: Strategy-specific overrides for this attribute
+      additionalProperties: false
+      properties:
+        pingfederate:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        ad:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        adfs:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        waad:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        google-apps:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        okta:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        oidc:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+        samlp:
+          $ref: '#/components/schemas/ConnectionProfileStrategyOverride'
+    ConnectionProfileTemplateItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: The id of the template.
+        display_name:
+          type: string
+          description: The user-friendly name of the template displayed in the UI.
+        template:
+          $ref: '#/components/schemas/ConnectionProfileTemplate'
+    ListConnectionProfileTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_profile_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionProfileTemplateItem'
+    EnabledFeaturesEnum:
+      type: string
+      description: Enum for enabled features.
+      enum:
+      - scim
+      - universal_logout
   securitySchemes:
     bearerAuth:
       type: http

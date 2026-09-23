@@ -16,16 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: hooks
+- name: Hooks
 paths:
   /hooks:
     get:
       summary: Get Hooks
-      description: 'Retrieve all <a href="https://auth0.com/docs/hooks">hooks</a>. Accepts a list of fields to include or exclude in the result.
-
-        '
+      description: Retrieve all hooks. Accepts a list of fields to include or exclude in the result.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: page
         in: query
@@ -91,11 +89,9 @@ paths:
         - read:hooks
     post:
       summary: Create a Hook
-      description: 'Create a new hook.
-
-        '
+      description: Create a new hook.
       tags:
-      - hooks
+      - Hooks
       requestBody:
         content:
           application/json:
@@ -135,11 +131,9 @@ paths:
   /hooks/{id}:
     get:
       summary: Get a Hook
-      description: 'Retrieve <a href="https://auth0.com/docs/hooks">a hook</a> by its ID. Accepts a list of fields to include in the result.
-
-        '
+      description: Retrieve a hook by its ID. Accepts a list of fields to include in the result.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -185,11 +179,9 @@ paths:
         - read:hooks
     delete:
       summary: Delete a Hook
-      description: 'Delete a hook.
-
-        '
+      description: Delete a hook.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -220,11 +212,9 @@ paths:
         - delete:hooks
     patch:
       summary: Update a Hook
-      description: 'Update an existing hook.
-
-        '
+      description: Update an existing hook.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -274,9 +264,9 @@ paths:
   /hooks/{id}/secrets:
     get:
       summary: Get Hook Secrets
-      description: "Retrieve a hook's secrets by the ID of the hook. \n"
+      description: Retrieve a hook's secrets by the ID of the hook.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -317,9 +307,9 @@ paths:
         - read:hooks
     delete:
       summary: Delete Hook Secrets
-      description: 'Delete one or more existing secrets for a given hook. Accepts an array of secret names to delete. '
+      description: Delete one or more existing secrets for a given hook. Accepts an array of secret names to delete.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -360,9 +350,9 @@ paths:
         - delete:hooks
     patch:
       summary: Update Hook Secrets
-      description: "Update one or more existing secrets for an existing hook. Accepts an object of key-value pairs, where the key is the name of the existing secret. \n"
+      description: Update one or more existing secrets for an existing hook. Accepts an object of key-value pairs, where the key is the name of the existing secret.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -409,9 +399,9 @@ paths:
         - update:hooks
     post:
       summary: Add Hook Secrets
-      description: "Add one or more secrets to an existing hook. Accepts an object of key-value pairs, where the key is the name of the secret. A hook can have a maximum of 20 secrets. \n"
+      description: Add one or more secrets to an existing hook. Accepts an object of key-value pairs, where the key is the name of the secret. A hook can have a maximum of 20 secrets.
       tags:
-      - hooks
+      - Hooks
       parameters:
       - name: id
         in: path
@@ -456,99 +446,6 @@ paths:
         - update:hooks
 components:
   schemas:
-    HookTriggerIdEnum:
-      type: string
-      enum:
-      - credentials-exchange
-      - pre-user-registration
-      - post-user-registration
-      - post-change-password
-      - send-phone-message
-      description: Retrieves hooks that match the trigger
-    DeleteHookSecretRequestContent:
-      type: array
-      description: Array of secret names to delete.
-      minItems: 1
-      items:
-        type: string
-    UpdateHookRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          type: string
-          description: Name of this hook.
-          default: my-hook
-          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
-        script:
-          type: string
-          description: Code to be executed when this hook runs.
-          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
-          minLength: 1
-        enabled:
-          type: boolean
-          description: Whether this hook will be executed (true) or ignored (false).
-          default: false
-        dependencies:
-          $ref: '#/components/schemas/HookDependencies'
-    CreateHookResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        triggerId:
-          type: string
-          description: Trigger ID
-        id:
-          type: string
-          description: ID of this hook.
-          default: '00001'
-        name:
-          type: string
-          description: Name of this hook.
-          default: hook
-        enabled:
-          type: boolean
-          description: Whether this hook will be executed (true) or ignored (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this hook runs.
-          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
-        dependencies:
-          $ref: '#/components/schemas/HookDependencies'
-    UpdateHookSecretRequestContent:
-      type: object
-      description: Hashmap of key-value pairs where the value must be a string.
-      additionalProperties:
-        type: string
-      minProperties: 1
-      maxProperties: 20
-    GetHookResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        triggerId:
-          type: string
-          description: Trigger ID
-        id:
-          type: string
-          description: ID of this hook.
-          default: '00001'
-        name:
-          type: string
-          description: Name of this hook.
-          default: hook
-        enabled:
-          type: boolean
-          description: Whether this hook will be executed (true) or ignored (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this hook runs.
-          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
-        dependencies:
-          $ref: '#/components/schemas/HookDependencies'
     Hook:
       type: object
       additionalProperties: false
@@ -574,13 +471,12 @@ components:
           default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
         dependencies:
           $ref: '#/components/schemas/HookDependencies'
-    CreateHookSecretRequestContent:
-      type: object
-      description: Hashmap of key-value pairs where the value must be a string.
-      additionalProperties:
-        type: string
-      minProperties: 1
-      maxProperties: 20
+    ListHooksResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Hook'
+      - $ref: '#/components/schemas/ListHooksOffsetPaginatedResponseContent'
     GetHookSecretResponseContent:
       type: object
       description: Hashmap of key-value pairs where the value must be a string.
@@ -588,6 +484,69 @@ components:
         type: string
       minProperties: 1
       maxProperties: 20
+    DeleteHookSecretRequestContent:
+      type: array
+      description: Array of secret names to delete.
+      minItems: 1
+      items:
+        type: string
+    CreateHookSecretRequestContent:
+      type: object
+      description: Hashmap of key-value pairs where the value must be a string.
+      additionalProperties:
+        type: string
+      minProperties: 1
+      maxProperties: 20
+    CreateHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    GetHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
     CreateHookRequestContent:
       type: object
       additionalProperties: false
@@ -615,12 +574,6 @@ components:
         triggerId:
           $ref: '#/components/schemas/HookTriggerIdEnum'
           description: Execution stage of this rule. Can be `credentials-exchange`, `pre-user-registration`, `post-user-registration`, `post-change-password`, or `send-phone-message`.
-    ListHooksResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Hook'
-      - $ref: '#/components/schemas/ListHooksOffsetPaginatedResponseContent'
     ListHooksOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -635,6 +588,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Hook'
+    HookTriggerIdEnum:
+      type: string
+      enum:
+      - credentials-exchange
+      - pre-user-registration
+      - post-user-registration
+      - post-change-password
+      - send-phone-message
+      description: Retrieves hooks that match the trigger
+    UpdateHookSecretRequestContent:
+      type: object
+      description: Hashmap of key-value pairs where the value must be a string.
+      additionalProperties:
+        type: string
+      minProperties: 1
+      maxProperties: 20
     HookDependencies:
       type: object
       description: Dependencies of this hook used by webtask server.
@@ -663,6 +632,27 @@ components:
           type: string
           description: Code to be executed when this hook runs.
           default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    UpdateHookRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: Name of this hook.
+          default: my-hook
+          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+          minLength: 1
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: false
         dependencies:
           $ref: '#/components/schemas/HookDependencies'
   securitySchemes:

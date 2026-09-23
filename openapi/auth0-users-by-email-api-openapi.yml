@@ -21,7 +21,13 @@ paths:
   /users-by-email:
     get:
       summary: Search Users by Email
-      description: "Find users by email. If Auth0 is the identity provider (idP), the email address associated with a user is saved in lower case, regardless of how you initially provided it. \n\nFor example, if you register a user as JohnSmith@example.com, Auth0 saves the user's email as johnsmith@example.com. \n\nTherefore, when using this endpoint, make sure that you are searching for users via email addresses using the correct case.\n"
+      description: 'Find users by email. If Auth0 is the identity provider (idP), the email address associated with a user is saved in lower case, regardless of how you initially provided it.
+
+
+        For example, if you register a user as JohnSmith@example.com, Auth0 saves the user''s email as johnsmith@example.com.
+
+
+        Therefore, when using this endpoint, make sure that you are searching for users via email addresses using the correct case.'
       tags:
       - users-by-email
       parameters:
@@ -74,131 +80,11 @@ paths:
         - read:users
 components:
   schemas:
-    UserIdentityProviderEnum:
-      type: string
-      description: The type of identity provider
-      enum:
-      - ad
-      - adfs
-      - amazon
-      - apple
-      - dropbox
-      - bitbucket
-      - auth0-oidc
-      - auth0
-      - baidu
-      - bitly
-      - box
-      - custom
-      - daccount
-      - dwolla
-      - email
-      - evernote-sandbox
-      - evernote
-      - exact
-      - facebook
-      - fitbit
-      - github
-      - google-apps
-      - google-oauth2
-      - instagram
-      - ip
-      - line
-      - linkedin
-      - oauth1
-      - oauth2
-      - office365
-      - oidc
-      - okta
-      - paypal
-      - paypal-sandbox
-      - pingfederate
-      - planningcenter
-      - salesforce-community
-      - salesforce-sandbox
-      - salesforce
-      - samlp
-      - sharepoint
-      - shopify
-      - shop
-      - sms
-      - soundcloud
-      - thirtysevensignals
-      - twitter
-      - untappd
-      - vkontakte
-      - waad
-      - weibo
-      - windowslive
-      - wordpress
-      - yahoo
-      - yandex
-    UserMetadataSchema:
+    UserAppMetadataSchema:
       type: object
-      description: User metadata to which this user has read/write access.
+      description: User metadata to which this user has read-only access.
       additionalProperties: true
-    UserIdentitySchema:
-      type: object
-      additionalProperties: false
-      properties:
-        connection:
-          type: string
-          description: Name of the connection containing this identity.
-        user_id:
-          type: string
-          description: Unique identifier of the user user for this identity.
-        provider:
-          $ref: '#/components/schemas/UserIdentityProviderEnum'
-        isSocial:
-          type: boolean
-          description: Whether this identity is from a social provider (true) or not (false).
-        access_token:
-          type: string
-          description: IDP access token returned only if scope read:user_idp_tokens is defined.
-        access_token_secret:
-          type: string
-          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
-        refresh_token:
-          type: string
-          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
-        profileData:
-          $ref: '#/components/schemas/UserProfileData'
-    UserDateSchema:
-      oneOf:
-      - type: string
-        description: Date and time when this user was created (ISO_8601 format).
-      - type: object
-        description: Date and time when this user was created (ISO_8601 format).
-        additionalProperties: true
-    UserProfileData:
-      type: object
-      additionalProperties: true
-      properties:
-        email:
-          type: string
-          description: Email address of this user.
-        email_verified:
-          type: boolean
-          description: Whether this email address is verified (true) or unverified (false).
-        name:
-          type: string
-          description: Name of this user.
-        username:
-          type: string
-          description: Username of this user.
-          default: johndoe
-        given_name:
-          type: string
-          description: Given name/first name/forename of this user.
-        phone_number:
-          type: string
-          description: Phone number for this user.
-        phone_verified:
-          type: boolean
-          description: Whether this phone number is verified (true) or unverified (false).
-        family_name:
-          type: string
-          description: Family name/last name/surname of this user.
+      properties: {}
     UserResponseSchema:
       type: object
       additionalProperties: true
@@ -272,11 +158,131 @@ components:
         family_name:
           type: string
           description: Family name/last name/surname of this user.
-    UserAppMetadataSchema:
+    UserProfileData:
       type: object
-      description: User metadata to which this user has read-only access.
       additionalProperties: true
-      properties: {}
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        phone_number:
+          type: string
+          description: Phone number for this user.
+        phone_verified:
+          type: boolean
+          description: Whether this phone number is verified (true) or unverified (false).
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    UserIdentityProviderEnum:
+      type: string
+      description: The type of identity provider
+      enum:
+      - ad
+      - adfs
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - auth0
+      - baidu
+      - bitly
+      - box
+      - custom
+      - daccount
+      - dwolla
+      - email
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-apps
+      - google-oauth2
+      - instagram
+      - ip
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - office365
+      - oidc
+      - okta
+      - paypal
+      - paypal-sandbox
+      - pingfederate
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - samlp
+      - sharepoint
+      - shopify
+      - shop
+      - sms
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untappd
+      - vkontakte
+      - waad
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    UserIdentitySchema:
+      type: object
+      additionalProperties: false
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+        user_id:
+          type: string
+          description: Unique identifier of the user user for this identity.
+        provider:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+        isSocial:
+          type: boolean
+          description: Whether this identity is from a social provider (true) or not (false).
+        access_token:
+          type: string
+          description: IDP access token returned only if scope read:user_idp_tokens is defined.
+        access_token_secret:
+          type: string
+          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
+        refresh_token:
+          type: string
+          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
+        profileData:
+          $ref: '#/components/schemas/UserProfileData'
+    UserDateSchema:
+      oneOf:
+      - type: string
+        description: Date and time when this user was created (ISO_8601 format).
+      - type: object
+        description: Date and time when this user was created (ISO_8601 format).
+        additionalProperties: true
+    UserMetadataSchema:
+      type: object
+      description: User metadata to which this user has read/write access.
+      additionalProperties: true
   securitySchemes:
     bearerAuth:
       type: http

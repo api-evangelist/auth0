@@ -16,7 +16,76 @@ paths:
   /stores/{store_id}/authorization-models:
     get:
       summary: Return all the authorization models for a particular store
-      description: "The ReadAuthorizationModels API will return all the authorization models for a certain store.\nOpenFGA's response will contain an array of all authorization models, sorted in descending order of creation.\n\n## Example\nAssume that a store's authorization model has been configured twice. To get all the authorization models that have been created in this store, call GET authorization-models. The API will return a response that looks like:\n```json\n{\n  \"authorization_models\": [\n    {\n      \"id\": \"01G50QVV17PECNVAHX1GG4Y5NC\",\n      \"type_definitions\": [...]\n    },\n    {\n      \"id\": \"01G4ZW8F4A07AKQ8RHSVG9RW04\",\n      \"type_definitions\": [...]\n    },\n  ],\n  \"continuation_token\": \"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==\"\n}\n```\nIf there are no more authorization models available, the `continuation_token` field will be empty\n```json\n{\n  \"authorization_models\": [\n    {\n      \"id\": \"01G50QVV17PECNVAHX1GG4Y5NC\",\n      \"type_definitions\": [...]\n    },\n    {\n      \"id\": \"01G4ZW8F4A07AKQ8RHSVG9RW04\",\n      \"type_definitions\": [...]\n    },\n  ],\n  \"continuation_token\": \"\"\n}\n```\n"
+      description: 'The ReadAuthorizationModels API will return all the authorization models for a certain store.
+
+        OpenFGA''s response will contain an array of all authorization models, sorted in descending order of creation.
+
+
+        ## Example
+
+        Assume that a store''s authorization model has been configured twice. To get all the authorization models that have been created in this store, call GET authorization-models. The API will return a response that looks like:
+
+        ```json
+
+        {
+
+        "authorization_models": [
+
+        {
+
+        "id": "01G50QVV17PECNVAHX1GG4Y5NC",
+
+        "type_definitions": [...]
+
+        },
+
+        {
+
+        "id": "01G4ZW8F4A07AKQ8RHSVG9RW04",
+
+        "type_definitions": [...]
+
+        },
+
+        ],
+
+        "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+
+        }
+
+        ```
+
+        If there are no more authorization models available, the `continuation_token` field will be empty
+
+        ```json
+
+        {
+
+        "authorization_models": [
+
+        {
+
+        "id": "01G50QVV17PECNVAHX1GG4Y5NC",
+
+        "type_definitions": [...]
+
+        },
+
+        {
+
+        "id": "01G4ZW8F4A07AKQ8RHSVG9RW04",
+
+        "type_definitions": [...]
+
+        },
+
+        ],
+
+        "continuation_token": ""
+
+        }
+
+        ```'
       operationId: ReadAuthorizationModels
       responses:
         '200':
@@ -88,7 +157,88 @@ paths:
       - Authorization Models
     post:
       summary: Create a new authorization model
-      description: "The WriteAuthorizationModel API will add a new authorization model to a store.\nEach item in the `type_definitions` array is a type definition as specified in the field `type_definition`.\nThe response will return the authorization model's ID in the `id` field.\n\n## Example\nTo add an authorization model with `user` and `document` type definitions, call POST authorization-models API with the body: \n```json\n{\n  \"type_definitions\":[\n    {\n      \"type\":\"user\"\n    },\n    {\n      \"type\":\"document\",\n      \"relations\":{\n        \"reader\":{\n          \"union\":{\n            \"child\":[\n              {\n                \"this\":{}\n              },\n              {\n                \"computedUserset\":{\n                  \"object\":\"\",\n                  \"relation\":\"writer\"\n                }\n              }\n            ]\n          }\n        },\n        \"writer\":{\n          \"this\":{}\n        }\n      }\n    }\n  ]\n}\n```\nOpenFGA's response will include the version id for this authorization model, which will look like \n```\n{\"authorization_model_id\": \"01G50QVV17PECNVAHX1GG4Y5NC\"}\n```\n"
+      description: 'The WriteAuthorizationModel API will add a new authorization model to a store.
+
+        Each item in the `type_definitions` array is a type definition as specified in the field `type_definition`.
+
+        The response will return the authorization model''s ID in the `id` field.
+
+
+        ## Example
+
+        To add an authorization model with `user` and `document` type definitions, call POST authorization-models API with the body:
+
+        ```json
+
+        {
+
+        "type_definitions":[
+
+        {
+
+        "type":"user"
+
+        },
+
+        {
+
+        "type":"document",
+
+        "relations":{
+
+        "reader":{
+
+        "union":{
+
+        "child":[
+
+        {
+
+        "this":{}
+
+        },
+
+        {
+
+        "computedUserset":{
+
+        "object":"",
+
+        "relation":"writer"
+
+        }
+
+        }
+
+        ]
+
+        }
+
+        },
+
+        "writer":{
+
+        "this":{}
+
+        }
+
+        }
+
+        }
+
+        ]
+
+        }
+
+        ```
+
+        OpenFGA''s response will include the version id for this authorization model, which will look like
+
+        ```
+
+        {"authorization_model_id": "01G50QVV17PECNVAHX1GG4Y5NC"}
+
+        ```'
       operationId: WriteAuthorizationModel
       responses:
         '201':
@@ -172,7 +322,86 @@ paths:
   /stores/{store_id}/authorization-models/{id}:
     get:
       summary: Return a particular version of an authorization model
-      description: "The ReadAuthorizationModel API returns an authorization model by its identifier.\nThe response will return the authorization model for the particular version.\n\n## Example\nTo retrieve the authorization model with ID `01G5JAVJ41T49E9TT3SKVS7X1J` for the store, call the GET authorization-models by ID API with `01G5JAVJ41T49E9TT3SKVS7X1J` as the `id` path parameter.  The API will return:\n```json\n{\n  \"authorization_model\":{\n    \"id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\",\n    \"type_definitions\":[\n      {\n        \"type\":\"user\"\n      },\n      {\n        \"type\":\"document\",\n        \"relations\":{\n          \"reader\":{\n            \"union\":{\n              \"child\":[\n                {\n                  \"this\":{}\n                },\n                {\n                  \"computedUserset\":{\n                    \"object\":\"\",\n                    \"relation\":\"writer\"\n                  }\n                }\n              ]\n            }\n          },\n          \"writer\":{\n            \"this\":{}\n          }\n        }\n      }\n    ]\n  }\n}\n```\nIn the above example, there are 2 types (`user` and `document`). The `document` type has 2 relations (`writer` and `reader`)."
+      description: 'The ReadAuthorizationModel API returns an authorization model by its identifier.
+
+        The response will return the authorization model for the particular version.
+
+
+        ## Example
+
+        To retrieve the authorization model with ID `01G5JAVJ41T49E9TT3SKVS7X1J` for the store, call the GET authorization-models by ID API with `01G5JAVJ41T49E9TT3SKVS7X1J` as the `id` path parameter. The API will return:
+
+        ```json
+
+        {
+
+        "authorization_model":{
+
+        "id":"01G5JAVJ41T49E9TT3SKVS7X1J",
+
+        "type_definitions":[
+
+        {
+
+        "type":"user"
+
+        },
+
+        {
+
+        "type":"document",
+
+        "relations":{
+
+        "reader":{
+
+        "union":{
+
+        "child":[
+
+        {
+
+        "this":{}
+
+        },
+
+        {
+
+        "computedUserset":{
+
+        "object":"",
+
+        "relation":"writer"
+
+        }
+
+        }
+
+        ]
+
+        }
+
+        },
+
+        "writer":{
+
+        "this":{}
+
+        }
+
+        }
+
+        }
+
+        ]
+
+        }
+
+        }
+
+        ```
+
+        In the above example, there are 2 types (`user` and `document`). The `document` type has 2 relations (`writer` and `reader`).'
       operationId: ReadAuthorizationModel
       responses:
         '200':
@@ -238,45 +467,16 @@ paths:
       - Authorization Models
 components:
   schemas:
-    ConditionParamTypeRef:
+    Usersets:
       type: object
       properties:
-        type_name:
-          $ref: '#/components/schemas/TypeName'
-        generic_types:
+        child:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/ConditionParamTypeRef'
+            $ref: '#/components/schemas/Userset'
       required:
-      - type_name
-    NotFoundErrorCode:
-      type: string
-      enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
-    ReadAuthorizationModelResponse:
-      type: object
-      properties:
-        authorization_model:
-          $ref: '#/components/schemas/AuthorizationModel'
-    Wildcard:
-      type: object
-    RelationMetadata:
-      type: object
-      properties:
-        directly_related_user_types:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/RelationReference'
-        module:
-          type: string
-        source_info:
-          $ref: '#/components/schemas/SourceInfo'
+      - child
     TypeName:
       type: string
       enum:
@@ -293,148 +493,10 @@ components:
       - TYPE_NAME_LIST
       - TYPE_NAME_IPADDRESS
       default: TYPE_NAME_UNSPECIFIED
-    TypeDefinition:
+    SourceInfo:
       type: object
       properties:
-        type:
-          type: string
-          example: document
-        relations:
-          type: object
-          example:
-            reader:
-              union:
-                child:
-                - this: {}
-                - computedUserset:
-                    object: ''
-                    relation: writer
-            writer:
-              this: {}
-          additionalProperties:
-            $ref: '#/components/schemas/Userset'
-        metadata:
-          $ref: '#/components/schemas/Metadata'
-          description: 'A map whose keys are the name of the relation and whose value is the Metadata for that relation.
-
-            It also holds information around the module name and source file if this model was constructed
-
-            from a modular model.'
-      required:
-      - type
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    v1.Difference:
-      type: object
-      properties:
-        base:
-          $ref: '#/components/schemas/Userset'
-        subtract:
-          $ref: '#/components/schemas/Userset'
-      required:
-      - base
-      - subtract
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    Metadata:
-      type: object
-      properties:
-        relations:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/RelationMetadata'
-        module:
-          type: string
-        source_info:
-          $ref: '#/components/schemas/SourceInfo'
-    v1.TupleToUserset:
-      type: object
-      properties:
-        tupleset:
-          $ref: '#/components/schemas/ObjectRelation'
-          title: The target object/relation
-        computedUserset:
-          $ref: '#/components/schemas/ObjectRelation'
-      required:
-      - tupleset
-      - computedUserset
-    Condition:
-      type: object
-      properties:
-        name:
-          type: string
-          title: A unique name for the condition
-        expression:
-          type: string
-          description: A Google CEL expression, expressed as a string.
-        parameters:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ConditionParamTypeRef'
-          description: A map of parameter names to the parameter's defined type reference.
-        metadata:
-          $ref: '#/components/schemas/ConditionMetadata'
-      required:
-      - name
-      - expression
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    ObjectRelation:
-      type: object
-      properties:
-        object:
-          type: string
-        relation:
+        file:
           type: string
     WriteAuthorizationModelResponse:
       type: object
@@ -444,59 +506,12 @@ components:
           example: 01G5JAVJ41T49E9TT3SKVS7X1J
       required:
       - authorization_model_id
-    AuthErrorCode:
+    UnprocessableContentErrorCode:
       type: string
       enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
-    Userset:
-      type: object
-      properties:
-        this:
-          $ref: '#/components/schemas/DirectUserset'
-        computedUserset:
-          $ref: '#/components/schemas/ObjectRelation'
-        tupleToUserset:
-          $ref: '#/components/schemas/v1.TupleToUserset'
-        union:
-          $ref: '#/components/schemas/Usersets'
-        intersection:
-          $ref: '#/components/schemas/Usersets'
-        difference:
-          $ref: '#/components/schemas/v1.Difference'
-    DirectUserset:
-      type: object
-      description: 'A DirectUserset is a sentinel message for referencing
-
-        the direct members specified by an object/relation mapping.'
-    Usersets:
-      type: object
-      properties:
-        child:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Userset'
-      required:
-      - child
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
     ForbiddenResponse:
       type: object
       example:
@@ -507,65 +522,6 @@ components:
           $ref: '#/components/schemas/AuthErrorCode'
         message:
           type: string
-    AuthorizationModel:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 01G5JAVJ41T49E9TT3SKVS7X1J
-        schema_version:
-          type: string
-        type_definitions:
-          type: array
-          example:
-          - type: user
-          - type: document
-            relations:
-              reader:
-                union:
-                  child:
-                  - this: {}
-                  - computedUserset:
-                      object: ''
-                      relation: writer
-              writer:
-                this: {}
-            metadata:
-              relations:
-                reader:
-                  directly_related_user_types:
-                  - type: user
-                writer:
-                  directly_related_user_types:
-                  - type: user
-          items:
-            type: object
-            $ref: '#/components/schemas/TypeDefinition'
-        conditions:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/Condition'
-      required:
-      - id
-      - schema_version
-      - type_definitions
-    RelationReference:
-      type: object
-      properties:
-        type:
-          type: string
-          example: group
-        relation:
-          type: string
-          example: member
-        wildcard:
-          $ref: '#/components/schemas/Wildcard'
-        condition:
-          type: string
-          description: The name of a condition that is enforced over the allowed relation.
-      description: RelationReference represents a relation of a particular object type (e.g. 'document#viewer').
-      required:
-      - type
     ConditionMetadata:
       type: object
       properties:
@@ -587,6 +543,165 @@ components:
       - unavailable
       - data_loss
       default: no_internal_error
+    Condition:
+      type: object
+      properties:
+        name:
+          type: string
+          title: A unique name for the condition
+        expression:
+          type: string
+          description: A Google CEL expression, expressed as a string.
+        parameters:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ConditionParamTypeRef'
+          description: A map of parameter names to the parameter's defined type reference.
+        metadata:
+          $ref: '#/components/schemas/ConditionMetadata'
+      required:
+      - name
+      - expression
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    v1.TupleToUserset:
+      type: object
+      properties:
+        tupleset:
+          $ref: '#/components/schemas/ObjectRelation'
+          title: The target object/relation
+        computedUserset:
+          $ref: '#/components/schemas/ObjectRelation'
+      required:
+      - tupleset
+      - computedUserset
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    ConditionParamTypeRef:
+      type: object
+      properties:
+        type_name:
+          $ref: '#/components/schemas/TypeName'
+        generic_types:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/ConditionParamTypeRef'
+      required:
+      - type_name
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    ReadAuthorizationModelsResponse:
+      type: object
+      properties:
+        authorization_models:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/AuthorizationModel'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be empty if there are no more models.
+      required:
+      - authorization_models
+    Metadata:
+      type: object
+      properties:
+        relations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RelationMetadata'
+        module:
+          type: string
+        source_info:
+          $ref: '#/components/schemas/SourceInfo'
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    v1.Difference:
+      type: object
+      properties:
+        base:
+          $ref: '#/components/schemas/Userset'
+        subtract:
+          $ref: '#/components/schemas/Userset'
+      required:
+      - base
+      - subtract
+    Wildcard:
+      type: object
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    ObjectRelation:
+      type: object
+      properties:
+        object:
+          type: string
+        relation:
+          type: string
+    RelationMetadata:
+      type: object
+      properties:
+        directly_related_user_types:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/RelationReference'
+        module:
+          type: string
+        source_info:
+          $ref: '#/components/schemas/SourceInfo'
     ErrorCode:
       type: string
       enum:
@@ -641,22 +756,136 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    SourceInfo:
+    DirectUserset:
+      type: object
+      description: 'A DirectUserset is a sentinel message for referencing
+
+        the direct members specified by an object/relation mapping.'
+    Userset:
       type: object
       properties:
-        file:
+        this:
+          $ref: '#/components/schemas/DirectUserset'
+        computedUserset:
+          $ref: '#/components/schemas/ObjectRelation'
+        tupleToUserset:
+          $ref: '#/components/schemas/v1.TupleToUserset'
+        union:
+          $ref: '#/components/schemas/Usersets'
+        intersection:
+          $ref: '#/components/schemas/Usersets'
+        difference:
+          $ref: '#/components/schemas/v1.Difference'
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
           type: string
-    ReadAuthorizationModelsResponse:
+    AuthorizationModel:
       type: object
       properties:
-        authorization_models:
+        id:
+          type: string
+          example: 01G5JAVJ41T49E9TT3SKVS7X1J
+        schema_version:
+          type: string
+        type_definitions:
           type: array
+          example:
+          - type: user
+          - type: document
+            relations:
+              reader:
+                union:
+                  child:
+                  - this: {}
+                  - computedUserset:
+                      object: ''
+                      relation: writer
+              writer:
+                this: {}
+            metadata:
+              relations:
+                reader:
+                  directly_related_user_types:
+                  - type: user
+                writer:
+                  directly_related_user_types:
+                  - type: user
           items:
             type: object
-            $ref: '#/components/schemas/AuthorizationModel'
-        continuation_token:
-          type: string
-          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-          description: The continuation token will be empty if there are no more models.
+            $ref: '#/components/schemas/TypeDefinition'
+        conditions:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Condition'
       required:
-      - authorization_models
+      - id
+      - schema_version
+      - type_definitions
+    ReadAuthorizationModelResponse:
+      type: object
+      properties:
+        authorization_model:
+          $ref: '#/components/schemas/AuthorizationModel'
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    RelationReference:
+      type: object
+      properties:
+        type:
+          type: string
+          example: group
+        relation:
+          type: string
+          example: member
+        wildcard:
+          $ref: '#/components/schemas/Wildcard'
+        condition:
+          type: string
+          description: The name of a condition that is enforced over the allowed relation.
+      description: RelationReference represents a relation of a particular object type (e.g. 'document#viewer').
+      required:
+      - type
+    TypeDefinition:
+      type: object
+      properties:
+        type:
+          type: string
+          example: document
+        relations:
+          type: object
+          example:
+            reader:
+              union:
+                child:
+                - this: {}
+                - computedUserset:
+                    object: ''
+                    relation: writer
+            writer:
+              this: {}
+          additionalProperties:
+            $ref: '#/components/schemas/Userset'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+          description: 'A map whose keys are the name of the relation and whose value is the Metadata for that relation.
+
+            It also holds information around the module name and source file if this model was constructed
+
+            from a modular model.'
+      required:
+      - type

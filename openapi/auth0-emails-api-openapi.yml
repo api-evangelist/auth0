@@ -16,16 +16,14 @@ servers:
 security:
 - bearerAuth: []
 tags:
-- name: emails
+- name: Emails
 paths:
   /emails/provider:
     get:
       summary: Get Email Provider
-      description: 'Retrieve details of the <a href="https://auth0.com/docs/customize/email/smtp-email-providers">email provider configuration</a> in your tenant. A list of fields to include or exclude may also be specified.
-
-        '
+      description: Retrieve details of the email provider configuration in your tenant. A list of fields to include or exclude may also be specified.
       tags:
-      - emails
+      - Emails
       parameters:
       - name: fields
         in: query
@@ -70,11 +68,9 @@ paths:
         - read:email_provider
     delete:
       summary: Delete Email Provider
-      description: 'Delete the email provider.
-
-        '
+      description: Delete the email provider.
       tags:
-      - emails
+      - Emails
       responses:
         '204':
           description: The email provider has been deleted.
@@ -102,9 +98,62 @@ paths:
         - delete:email_provider
     patch:
       summary: Update Email Provider
-      description: "Update an <a href=\"https://auth0.com/docs/email/providers\">email provider</a>. The <code>credentials</code> object\nrequires different properties depending on the email provider (which is specified using the <code>name</code> property):\n<ul>\n  <li><code>mandrill</code> requires <code>api_key</code></li>\n  <li><code>sendgrid</code> requires <code>api_key</code></li>\n  <li>\n    <code>sparkpost</code> requires <code>api_key</code>. Optionally, set <code>region</code> to <code>eu</code> to use\n    the SparkPost service hosted in Western Europe; set to <code>null</code> to use the SparkPost service hosted in\n    North America. <code>eu</code> or <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li>\n    <code>mailgun</code> requires <code>api_key</code> and <code>domain</code>. Optionally, set <code>region</code> to\n    <code>eu</code> to use the Mailgun service hosted in Europe; set to <code>null</code> otherwise. <code>eu</code> or\n    <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li><code>ses</code> requires <code>accessKeyId</code>, <code>secretAccessKey</code>, and <code>region</code></li>\n  <li>\n    <code>smtp</code> requires <code>smtp_host</code>, <code>smtp_port</code>, <code>smtp_user</code>, and\n    <code>smtp_pass</code>\n  </li>\n</ul>\nDepending on the type of provider it is possible to specify <code>settings</code> object with different configuration\noptions, which will be used when sending an email:\n<ul>\n  <li>\n    <code>smtp</code> provider, <code>settings</code> may contain <code>headers</code> object.\n    <ul>\n      <li>\n        When using AWS SES SMTP host, you may provide a name of configuration set in\n        <code>X-SES-Configuration-Set</code> header. Value must be a string.\n      </li>\n      <li>\n        When using Sparkpost host, you may provide value for\n        <code>X-MSYS_API</code> header. Value must be an object.\n      </li>\n    </ul>\n    for <code>ses</code> provider, <code>settings</code> may contain <code>message</code> object, where you can provide\n    a name of configuration set in <code>configuration_set_name</code> property. Value must be a string.\n  </li>\n</ul>\n"
+      description: 'Update an email provider. The credentials object
+
+        requires different properties depending on the email provider (which is specified using the name property):
+
+
+        mandrill requires api_key
+
+
+        sendgrid requires api_key
+
+
+        sparkpost requires api_key. Optionally, set region to eu to use
+
+        the SparkPost service hosted in Western Europe; set to null to use the SparkPost service hosted in
+
+        North America. eu or null are the only valid values for region.
+
+
+        mailgun requires api_key and domain. Optionally, set region to
+
+        eu to use the Mailgun service hosted in Europe; set to null otherwise. eu or
+
+        null are the only valid values for region.
+
+
+        ses requires accessKeyId, secretAccessKey, and region
+
+
+        smtp requires smtp_host, smtp_port, smtp_user, and
+
+        smtp_pass
+
+
+        Depending on the type of provider it is possible to specify settings object with different configuration
+
+        options, which will be used when sending an email:
+
+
+        smtp provider, settings may contain headers object.
+
+
+        When using AWS SES SMTP host, you may provide a name of configuration set in
+
+        X-SES-Configuration-Set header. Value must be a string.
+
+
+        When using Sparkpost host, you may provide value for
+
+        X-MSYS_API header. Value must be an object.
+
+
+        for ses provider, settings may contain message object, where you can provide
+
+        a name of configuration set in configuration_set_name property. Value must be a string.'
       tags:
-      - emails
+      - Emails
       requestBody:
         content:
           application/json:
@@ -146,9 +195,62 @@ paths:
         - update:email_provider
     post:
       summary: Configure Email Provider
-      description: "Create an <a href=\"https://auth0.com/docs/email/providers\">email provider</a>. The <code>credentials</code> object\nrequires different properties depending on the email provider (which is specified using the <code>name</code> property):\n<ul>\n  <li><code>mandrill</code> requires <code>api_key</code></li>\n  <li><code>sendgrid</code> requires <code>api_key</code></li>\n  <li>\n    <code>sparkpost</code> requires <code>api_key</code>. Optionally, set <code>region</code> to <code>eu</code> to use\n    the SparkPost service hosted in Western Europe; set to <code>null</code> to use the SparkPost service hosted in\n    North America. <code>eu</code> or <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li>\n    <code>mailgun</code> requires <code>api_key</code> and <code>domain</code>. Optionally, set <code>region</code> to\n    <code>eu</code> to use the Mailgun service hosted in Europe; set to <code>null</code> otherwise. <code>eu</code> or\n    <code>null</code> are the only valid values for <code>region</code>.\n  </li>\n  <li><code>ses</code> requires <code>accessKeyId</code>, <code>secretAccessKey</code>, and <code>region</code></li>\n  <li>\n    <code>smtp</code> requires <code>smtp_host</code>, <code>smtp_port</code>, <code>smtp_user</code>, and\n    <code>smtp_pass</code>\n  </li>\n</ul>\nDepending on the type of provider it is possible to specify <code>settings</code> object with different configuration\noptions, which will be used when sending an email:\n<ul>\n  <li>\n    <code>smtp</code> provider, <code>settings</code> may contain <code>headers</code> object.\n    <ul>\n      <li>\n        When using AWS SES SMTP host, you may provide a name of configuration set in\n        <code>X-SES-Configuration-Set</code> header. Value must be a string.\n      </li>\n      <li>\n        When using Sparkpost host, you may provide value for\n        <code>X-MSYS_API</code> header. Value must be an object.\n      </li>\n    </ul>\n  </li>\n  <li>\n    for <code>ses</code> provider, <code>settings</code> may contain <code>message</code> object, where you can provide\n    a name of configuration set in <code>configuration_set_name</code> property. Value must be a string.\n  </li>\n</ul>\n"
+      description: 'Create an email provider. The credentials object
+
+        requires different properties depending on the email provider (which is specified using the name property):
+
+
+        mandrill requires api_key
+
+
+        sendgrid requires api_key
+
+
+        sparkpost requires api_key. Optionally, set region to eu to use
+
+        the SparkPost service hosted in Western Europe; set to null to use the SparkPost service hosted in
+
+        North America. eu or null are the only valid values for region.
+
+
+        mailgun requires api_key and domain. Optionally, set region to
+
+        eu to use the Mailgun service hosted in Europe; set to null otherwise. eu or
+
+        null are the only valid values for region.
+
+
+        ses requires accessKeyId, secretAccessKey, and region
+
+
+        smtp requires smtp_host, smtp_port, smtp_user, and
+
+        smtp_pass
+
+
+        Depending on the type of provider it is possible to specify settings object with different configuration
+
+        options, which will be used when sending an email:
+
+
+        smtp provider, settings may contain headers object.
+
+
+        When using AWS SES SMTP host, you may provide a name of configuration set in
+
+        X-SES-Configuration-Set header. Value must be a string.
+
+
+        When using Sparkpost host, you may provide value for
+
+        X-MSYS_API header. Value must be an object.
+
+
+        for ses provider, settings may contain message object, where you can provide
+
+        a name of configuration set in configuration_set_name property. Value must be a string.'
       tags:
-      - emails
+      - Emails
       requestBody:
         content:
           application/json:
@@ -189,40 +291,6 @@ paths:
         - create:email_provider
 components:
   schemas:
-    EmailProviderSettings:
-      type: object
-      description: Specific provider setting
-      additionalProperties: true
-    EmailSparkPostRegionEnum:
-      description: Set to <code>eu</code> to use SparkPost service hosted in Western Europe. To use SparkPost hosted in North America, set it to <code>null</code>.
-      enum:
-      - eu
-      - null
-    UpdateEmailProviderResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
-          default: sendgrid
-        enabled:
-          type: boolean
-          description: Whether the provider is enabled (true) or disabled (false).
-          default: true
-        default_from_address:
-          type: string
-          description: Email address to use as "from" when no other address specified.
-        credentials:
-          $ref: '#/components/schemas/EmailProviderCredentials'
-        settings:
-          $ref: '#/components/schemas/EmailProviderSettings'
-    EmailSpecificProviderSettingsWithAdditionalProperties:
-      type:
-      - object
-      - 'null'
-      description: Specific provider setting
-      additionalProperties: true
     GetEmailProviderResponseContent:
       type: object
       additionalProperties: false
@@ -242,7 +310,37 @@ components:
           $ref: '#/components/schemas/EmailProviderCredentials'
         settings:
           $ref: '#/components/schemas/EmailProviderSettings'
-    CreateEmailProviderResponseContent:
+    ExtensibilityEmailProviderCredentials:
+      type: object
+      additionalProperties: false
+      properties: {}
+    EmailProviderCredentials:
+      type: object
+      description: Credentials required to use the provider.
+      additionalProperties: false
+      properties:
+        api_user:
+          type: string
+          description: API User.
+        region:
+          type: string
+          description: AWS or SparkPost region.
+        smtp_host:
+          type: string
+          description: SMTP host.
+        smtp_port:
+          type: integer
+          description: SMTP port.
+        smtp_user:
+          type: string
+          description: SMTP username.
+    EmailSpecificProviderSettingsWithAdditionalProperties:
+      type:
+      - object
+      - 'null'
+      description: Specific provider setting
+      additionalProperties: true
+    UpdateEmailProviderResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -261,6 +359,27 @@ components:
           $ref: '#/components/schemas/EmailProviderCredentials'
         settings:
           $ref: '#/components/schemas/EmailProviderSettings'
+    EmailProviderSettings:
+      type: object
+      description: Specific provider setting
+      additionalProperties: true
+    UpdateEmailProviderRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          $ref: '#/components/schemas/EmailProviderNameEnum'
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentialsSchema'
+        settings:
+          $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
     CreateEmailProviderRequestContent:
       type: object
       additionalProperties: false
@@ -281,29 +400,25 @@ components:
           $ref: '#/components/schemas/EmailProviderCredentialsSchema'
         settings:
           $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
-    EmailMailgunRegionEnum:
-      description: Set to <code>eu</code> if your domain is provisioned to use Mailgun's EU region. Otherwise, set to <code>null</code>.
-      enum:
-      - eu
-      - null
-    ExtensibilityEmailProviderCredentials:
+    CreateEmailProviderResponseContent:
       type: object
       additionalProperties: false
-      properties: {}
-    EmailProviderNameEnum:
-      type: string
-      description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
-      enum:
-      - mailgun
-      - mandrill
-      - sendgrid
-      - resend
-      - ses
-      - sparkpost
-      - smtp
-      - azure_cs
-      - ms365
-      - custom
+      properties:
+        name:
+          type: string
+          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+          default: sendgrid
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+          default: true
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentials'
+        settings:
+          $ref: '#/components/schemas/EmailProviderSettings'
     EmailProviderCredentialsSchema:
       type: object
       description: Credentials required to use the provider.
@@ -399,6 +514,30 @@ components:
             description: Microsoft 365 Client Secret.
             minLength: 1
       - $ref: '#/components/schemas/ExtensibilityEmailProviderCredentials'
+    EmailProviderNameEnum:
+      type: string
+      description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+      enum:
+      - mailgun
+      - mandrill
+      - sendgrid
+      - resend
+      - ses
+      - sparkpost
+      - smtp
+      - azure_cs
+      - ms365
+      - custom
+    EmailMailgunRegionEnum:
+      description: Set to <code>eu</code> if your domain is provisioned to use Mailgun's EU region. Otherwise, set to <code>null</code>.
+      enum:
+      - eu
+      - null
+    EmailSparkPostRegionEnum:
+      description: Set to <code>eu</code> to use SparkPost service hosted in Western Europe. To use SparkPost hosted in North America, set it to <code>null</code>.
+      enum:
+      - eu
+      - null
     EmailSMTPHost:
       type: string
       description: SMTP host.
@@ -409,43 +548,6 @@ components:
         format: ipv4
       - type: string
         format: ipv6
-    EmailProviderCredentials:
-      type: object
-      description: Credentials required to use the provider.
-      additionalProperties: false
-      properties:
-        api_user:
-          type: string
-          description: API User.
-        region:
-          type: string
-          description: AWS or SparkPost region.
-        smtp_host:
-          type: string
-          description: SMTP host.
-        smtp_port:
-          type: integer
-          description: SMTP port.
-        smtp_user:
-          type: string
-          description: SMTP username.
-    UpdateEmailProviderRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          $ref: '#/components/schemas/EmailProviderNameEnum'
-        enabled:
-          type: boolean
-          description: Whether the provider is enabled (true) or disabled (false).
-        default_from_address:
-          type: string
-          description: Email address to use as "from" when no other address specified.
-        credentials:
-          $ref: '#/components/schemas/EmailProviderCredentialsSchema'
-        settings:
-          $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
   securitySchemes:
     bearerAuth:
       type: http
