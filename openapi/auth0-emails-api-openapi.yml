@@ -291,7 +291,7 @@ paths:
         - create:email_provider
 components:
   schemas:
-    GetEmailProviderResponseContent:
+    UpdateEmailProviderResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -310,10 +310,6 @@ components:
           $ref: '#/components/schemas/EmailProviderCredentials'
         settings:
           $ref: '#/components/schemas/EmailProviderSettings'
-    ExtensibilityEmailProviderCredentials:
-      type: object
-      additionalProperties: false
-      properties: {}
     EmailProviderCredentials:
       type: object
       description: Credentials required to use the provider.
@@ -334,52 +330,6 @@ components:
         smtp_user:
           type: string
           description: SMTP username.
-    EmailSpecificProviderSettingsWithAdditionalProperties:
-      type:
-      - object
-      - 'null'
-      description: Specific provider setting
-      additionalProperties: true
-    UpdateEmailProviderResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
-          default: sendgrid
-        enabled:
-          type: boolean
-          description: Whether the provider is enabled (true) or disabled (false).
-          default: true
-        default_from_address:
-          type: string
-          description: Email address to use as "from" when no other address specified.
-        credentials:
-          $ref: '#/components/schemas/EmailProviderCredentials'
-        settings:
-          $ref: '#/components/schemas/EmailProviderSettings'
-    EmailProviderSettings:
-      type: object
-      description: Specific provider setting
-      additionalProperties: true
-    UpdateEmailProviderRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          $ref: '#/components/schemas/EmailProviderNameEnum'
-        enabled:
-          type: boolean
-          description: Whether the provider is enabled (true) or disabled (false).
-        default_from_address:
-          type: string
-          description: Email address to use as "from" when no other address specified.
-        credentials:
-          $ref: '#/components/schemas/EmailProviderCredentialsSchema'
-        settings:
-          $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
     CreateEmailProviderRequestContent:
       type: object
       additionalProperties: false
@@ -400,6 +350,43 @@ components:
           $ref: '#/components/schemas/EmailProviderCredentialsSchema'
         settings:
           $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
+    UpdateEmailProviderRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          $ref: '#/components/schemas/EmailProviderNameEnum'
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentialsSchema'
+        settings:
+          $ref: '#/components/schemas/EmailSpecificProviderSettingsWithAdditionalProperties'
+    EmailSMTPHost:
+      type: string
+      description: SMTP host.
+      anyOf:
+      - type: string
+        format: hostname-rfc2181
+      - type: string
+        format: ipv4
+      - type: string
+        format: ipv6
+    EmailSpecificProviderSettingsWithAdditionalProperties:
+      type:
+      - object
+      - 'null'
+      description: Specific provider setting
+      additionalProperties: true
+    ExtensibilityEmailProviderCredentials:
+      type: object
+      additionalProperties: false
+      properties: {}
     CreateEmailProviderResponseContent:
       type: object
       additionalProperties: false
@@ -419,6 +406,49 @@ components:
           $ref: '#/components/schemas/EmailProviderCredentials'
         settings:
           $ref: '#/components/schemas/EmailProviderSettings'
+    EmailSparkPostRegionEnum:
+      description: Set to <code>eu</code> to use SparkPost service hosted in Western Europe. To use SparkPost hosted in North America, set it to <code>null</code>.
+      enum:
+      - eu
+      - null
+    EmailMailgunRegionEnum:
+      description: Set to <code>eu</code> if your domain is provisioned to use Mailgun's EU region. Otherwise, set to <code>null</code>.
+      enum:
+      - eu
+      - null
+    GetEmailProviderResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+          default: sendgrid
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled (true) or disabled (false).
+          default: true
+        default_from_address:
+          type: string
+          description: Email address to use as "from" when no other address specified.
+        credentials:
+          $ref: '#/components/schemas/EmailProviderCredentials'
+        settings:
+          $ref: '#/components/schemas/EmailProviderSettings'
+    EmailProviderNameEnum:
+      type: string
+      description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
+      enum:
+      - mailgun
+      - mandrill
+      - sendgrid
+      - resend
+      - ses
+      - sparkpost
+      - smtp
+      - azure_cs
+      - ms365
+      - custom
     EmailProviderCredentialsSchema:
       type: object
       description: Credentials required to use the provider.
@@ -514,40 +544,10 @@ components:
             description: Microsoft 365 Client Secret.
             minLength: 1
       - $ref: '#/components/schemas/ExtensibilityEmailProviderCredentials'
-    EmailProviderNameEnum:
-      type: string
-      description: Name of the email provider. Can be `mailgun`, `mandrill`, `sendgrid`, `resend`, `ses`, `sparkpost`, `smtp`, `azure_cs`, `ms365`, or `custom`.
-      enum:
-      - mailgun
-      - mandrill
-      - sendgrid
-      - resend
-      - ses
-      - sparkpost
-      - smtp
-      - azure_cs
-      - ms365
-      - custom
-    EmailMailgunRegionEnum:
-      description: Set to <code>eu</code> if your domain is provisioned to use Mailgun's EU region. Otherwise, set to <code>null</code>.
-      enum:
-      - eu
-      - null
-    EmailSparkPostRegionEnum:
-      description: Set to <code>eu</code> to use SparkPost service hosted in Western Europe. To use SparkPost hosted in North America, set it to <code>null</code>.
-      enum:
-      - eu
-      - null
-    EmailSMTPHost:
-      type: string
-      description: SMTP host.
-      anyOf:
-      - type: string
-        format: hostname-rfc2181
-      - type: string
-        format: ipv4
-      - type: string
-        format: ipv6
+    EmailProviderSettings:
+      type: object
+      description: Specific provider setting
+      additionalProperties: true
   securitySchemes:
     bearerAuth:
       type: http

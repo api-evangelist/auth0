@@ -159,53 +159,29 @@ paths:
         required: true
 components:
   schemas:
-    ReadAssertionsResponse:
+    Assertion:
       type: object
       properties:
-        authorization_model_id:
-          type: string
-          example: 01G5JAVJ41T49E9TT3SKVS7X1J
-        assertions:
+        tuple_key:
+          $ref: '#/components/schemas/AssertionTupleKey'
+        expectation:
+          type: boolean
+        contextual_tuples:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/Assertion'
+            $ref: '#/components/schemas/TupleKey'
+          maxItems: 20
+        context:
+          type: object
+          example:
+            view_count: 100
+          description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
+
+            in the query evaluation.'
       required:
-      - authorization_model_id
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
+      - tuple_key
+      - expectation
     AuthErrorCode:
       type: string
       enum:
@@ -219,45 +195,6 @@ components:
       - unauthenticated
       - forbidden
       default: no_auth_error
-    AssertionTupleKey:
-      type: object
-      properties:
-        object:
-          type: string
-          example: document:2021-budget
-          maxLength: 256
-        relation:
-          type: string
-          example: reader
-          maxLength: 50
-        user:
-          type: string
-          example: user:anne
-          maxLength: 512
-      required:
-      - object
-      - relation
-      - user
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
     RelationshipCondition:
       type: object
       properties:
@@ -275,61 +212,6 @@ components:
             match the parameter type definitions.'
       required:
       - name
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    NotFoundErrorCode:
-      type: string
-      enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
-    TupleKey:
-      type: object
-      properties:
-        user:
-          type: string
-          example: user:anne
-          maxLength: 512
-        relation:
-          type: string
-          example: reader
-          maxLength: 50
-        object:
-          type: string
-          example: document:2021-budget
-          maxLength: 256
-        condition:
-          $ref: '#/components/schemas/RelationshipCondition'
-      required:
-      - user
-      - relation
-      - object
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
-        message:
-          type: string
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
     ErrorCode:
       type: string
       enum:
@@ -384,29 +266,76 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    Assertion:
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    TupleKey:
       type: object
       properties:
-        tuple_key:
-          $ref: '#/components/schemas/AssertionTupleKey'
-        expectation:
-          type: boolean
-        contextual_tuples:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+        condition:
+          $ref: '#/components/schemas/RelationshipCondition'
+      required:
+      - user
+      - relation
+      - object
+    ReadAssertionsResponse:
+      type: object
+      properties:
+        authorization_model_id:
+          type: string
+          example: 01G5JAVJ41T49E9TT3SKVS7X1J
+        assertions:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/TupleKey'
-          maxItems: 20
-        context:
-          type: object
-          example:
-            view_count: 100
-          description: 'Additional request context that will be used to evaluate any ABAC conditions encountered
-
-            in the query evaluation.'
+            $ref: '#/components/schemas/Assertion'
       required:
-      - tuple_key
-      - expectation
+      - authorization_model_id
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
     PathUnknownErrorMessageResponse:
       type: object
       example:
@@ -417,3 +346,74 @@ components:
           $ref: '#/components/schemas/NotFoundErrorCode'
         message:
           type: string
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    AssertionTupleKey:
+      type: object
+      properties:
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+      required:
+      - object
+      - relation
+      - user
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error

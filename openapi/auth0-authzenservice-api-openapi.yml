@@ -1022,13 +1022,133 @@ paths:
         required: true
 components:
   schemas:
-    EvaluationResponse:
+    EvaluationsSemantic:
+      type: string
+      enum:
+      - execute_all
+      - deny_on_first_deny
+      - permit_on_first_permit
+      default: execute_all
+      description: "- execute_all: Execute all evaluations (default behavior)\n - deny_on_first_deny: Stop on first deny decision\n - permit_on_first_permit: Stop on first permit decision"
+      title: Enum for evaluation semantics
+    ResourceSearchResponse:
       type: object
       properties:
-        decision:
-          type: boolean
+        results:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Resource'
+        page:
+          $ref: '#/components/schemas/PageResponse'
+          title: Optional per AuthZEN spec - omit if pagination not supported
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    EvaluationsItemRequest:
+      type: object
+      properties:
+        subject:
+          $ref: '#/components/schemas/Subject'
+        resource:
+          $ref: '#/components/schemas/Resource'
+        action:
+          $ref: '#/components/schemas/Action'
         context:
           type: object
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    ActionSearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Action'
+        page:
+          $ref: '#/components/schemas/PageResponse'
+          title: Optional per AuthZEN spec - omit if pagination not supported
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    EvaluationsResponse:
+      type: object
+      properties:
+        evaluations:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/EvaluationResponse'
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    Action:
+      type: object
+      properties:
+        name:
+          type: string
+          example: can_read
+        properties:
+          type: object
+      required:
+      - name
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    PageResponse:
+      type: object
+      properties:
+        next_token:
+          type: string
+          title: Token to retrieve next page (empty if no more results)
+        count:
+          type: integer
+          format: int64
+          title: Number of results in this page
+        total:
+          type: integer
+          format: int64
+          title: Total number of results (if known, otherwise 0)
+      title: Pagination response parameters
     SubjectFilter:
       type: object
       properties:
@@ -1043,52 +1163,17 @@ components:
       title: SubjectFilter is used for search operations where only type is required
       required:
       - type
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
-        message:
-          type: string
-    EvaluationsOptions:
+    PageRequest:
       type: object
       properties:
-        evaluations_semantic:
-          $ref: '#/components/schemas/EvaluationsSemantic'
-          title: Controls how batch evaluations are processed
-      title: Options for batch evaluations
-    Subject:
-      type: object
-      properties:
-        type:
+        token:
           type: string
-          example: user
-        id:
-          type: string
-          example: anne
-        properties:
-          type: object
-      required:
-      - type
-      - id
-    EvaluationsSemantic:
-      type: string
-      enum:
-      - execute_all
-      - deny_on_first_deny
-      - permit_on_first_permit
-      default: execute_all
-      description: "- execute_all: Execute all evaluations (default behavior)\n - deny_on_first_deny: Stop on first deny decision\n - permit_on_first_permit: Stop on first permit decision"
-      title: Enum for evaluation semantics
+          title: Continuation token from previous response
+        limit:
+          type: integer
+          format: int64
+          title: 'Maximum number of results to return (default: 50, max: 1000)'
+      title: Pagination request parameters for search operations
     GetConfigurationResponse:
       type: object
       properties:
@@ -1122,30 +1207,6 @@ components:
       required:
       - policy_decision_point
       - access_evaluation_endpoint
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
     ResourceFilter:
       type: object
       properties:
@@ -1160,6 +1221,61 @@ components:
       title: ResourceFilter is used for search operations where only type is required
       required:
       - type
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    Subject:
+      type: object
+      properties:
+        type:
+          type: string
+          example: user
+        id:
+          type: string
+          example: anne
+        properties:
+          type: object
+      required:
+      - type
+      - id
+    SubjectSearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Subject'
+        page:
+          $ref: '#/components/schemas/PageResponse'
+          title: Optional per AuthZEN spec - omit if pagination not supported
+    Resource:
+      type: object
+      properties:
+        type:
+          type: string
+          example: document
+        id:
+          type: string
+          example: roadmap
+        properties:
+          type: object
+      required:
+      - type
+      - id
     AuthErrorCode:
       type: string
       enum:
@@ -1173,84 +1289,20 @@ components:
       - unauthenticated
       - forbidden
       default: no_auth_error
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    ActionSearchResponse:
+    EvaluationsOptions:
       type: object
       properties:
-        results:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Action'
-        page:
-          $ref: '#/components/schemas/PageResponse'
-          title: Optional per AuthZEN spec - omit if pagination not supported
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    PageRequest:
+        evaluations_semantic:
+          $ref: '#/components/schemas/EvaluationsSemantic'
+          title: Controls how batch evaluations are processed
+      title: Options for batch evaluations
+    EvaluationResponse:
       type: object
       properties:
-        token:
-          type: string
-          title: Continuation token from previous response
-        limit:
-          type: integer
-          format: int64
-          title: 'Maximum number of results to return (default: 50, max: 1000)'
-      title: Pagination request parameters for search operations
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    Action:
-      type: object
-      properties:
-        name:
-          type: string
-          example: can_read
-        properties:
+        decision:
+          type: boolean
+        context:
           type: object
-      required:
-      - name
-    NotFoundErrorCode:
-      type: string
-      enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
-    EvaluationsResponse:
-      type: object
-      properties:
-        evaluations:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/EvaluationResponse'
     ErrorCode:
       type: string
       enum:
@@ -1305,52 +1357,6 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    Resource:
-      type: object
-      properties:
-        type:
-          type: string
-          example: document
-        id:
-          type: string
-          example: roadmap
-        properties:
-          type: object
-      required:
-      - type
-      - id
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    SubjectSearchResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Subject'
-        page:
-          $ref: '#/components/schemas/PageResponse'
-          title: Optional per AuthZEN spec - omit if pagination not supported
-    ResourceSearchResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Resource'
-        page:
-          $ref: '#/components/schemas/PageResponse'
-          title: Optional per AuthZEN spec - omit if pagination not supported
     ValidationErrorMessageResponse:
       type: object
       example:
@@ -1361,29 +1367,23 @@ components:
           $ref: '#/components/schemas/ErrorCode'
         message:
           type: string
-    PageResponse:
+    AbortedMessageResponse:
       type: object
+      example:
+        code: '10'
+        message: transaction conflict
       properties:
-        next_token:
+        code:
           type: string
-          title: Token to retrieve next page (empty if no more results)
-        count:
-          type: integer
-          format: int64
-          title: Number of results in this page
-        total:
-          type: integer
-          format: int64
-          title: Total number of results (if known, otherwise 0)
-      title: Pagination response parameters
-    EvaluationsItemRequest:
+        message:
+          type: string
+    InternalErrorMessageResponse:
       type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
       properties:
-        subject:
-          $ref: '#/components/schemas/Subject'
-        resource:
-          $ref: '#/components/schemas/Resource'
-        action:
-          $ref: '#/components/schemas/Action'
-        context:
-          type: object
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string

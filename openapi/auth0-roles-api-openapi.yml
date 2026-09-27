@@ -540,6 +540,111 @@ paths:
         - create:role_members
 components:
   schemas:
+    UpdateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    PermissionRequestPayload:
+      type: object
+      additionalProperties: false
+      required:
+      - resource_server_identifier
+      - permission_name
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+    GetRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    UpdateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    ListRolesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'
+    ListRoleUsersPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleUser'
+    PermissionsResponsePayload:
+      type: object
+      additionalProperties: false
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+        resource_server_name:
+          type: string
+          description: Resource server (API) name this permission is for.
+        description:
+          type: string
+          description: Description of this permission.
+    DeleteRolePermissionsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - permissions
+      properties:
+        permissions:
+          type: array
+          description: array of resource_server_identifier, permission_name pairs.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
+    AssignRoleUsersRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - users
+      properties:
+        users:
+          type: array
+          description: user_id's of the users to assign the role to.
+          items:
+            type: string
+            format: user-id-with-max-length
     ListRoleUsersOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -554,31 +659,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RoleUser'
-    CreateRoleRequestContent:
+    ListRolePermissionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsResponsePayload'
+    AddRolePermissionsRequestContent:
       type: object
       additionalProperties: false
       required:
-      - name
+      - permissions
       properties:
-        name:
-          type: string
-          description: Name of the role.
-        description:
-          type: string
-          description: Description of the role.
-    UpdateRoleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
+        permissions:
+          type: array
+          description: array of resource_server_identifier, permission_name pairs.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
     CreateRoleResponseContent:
       type: object
       additionalProperties: false
@@ -592,13 +698,18 @@ components:
         description:
           type: string
           description: Description of this role.
-    ListRoleUsersResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/RoleUser'
-      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
+    CreateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Name of the role.
+        description:
+          type: string
+          description: Description of the role.
     ListRolesOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -613,6 +724,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Role'
+    ListRoleUsersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/RoleUser'
+      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
     ListRolePermissionsResponseContent:
       oneOf:
       - type: array
@@ -626,28 +744,6 @@ components:
         id:
           type: string
           description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    DeleteRolePermissionsRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - permissions
-      properties:
-        permissions:
-          type: array
-          description: array of resource_server_identifier, permission_name pairs.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/PermissionRequestPayload'
-    UpdateRoleRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
         name:
           type: string
           description: Name of this role.
@@ -672,102 +768,6 @@ components:
           description: Email address of this user.
           default: john.doe@gmail.com
           format: email
-    GetRoleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    PermissionsResponsePayload:
-      type: object
-      additionalProperties: false
-      properties:
-        resource_server_identifier:
-          type: string
-          description: Resource server (API) identifier that this permission is for.
-        permission_name:
-          type: string
-          description: Name of this permission.
-        resource_server_name:
-          type: string
-          description: Resource server (API) name this permission is for.
-        description:
-          type: string
-          description: Description of this permission.
-    AssignRoleUsersRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - users
-      properties:
-        users:
-          type: array
-          description: user_id's of the users to assign the role to.
-          items:
-            type: string
-            format: user-id-with-max-length
-    ListRolesResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Role'
-      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'
-    AddRolePermissionsRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - permissions
-      properties:
-        permissions:
-          type: array
-          description: array of resource_server_identifier, permission_name pairs.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/PermissionRequestPayload'
-    PermissionRequestPayload:
-      type: object
-      additionalProperties: false
-      required:
-      - resource_server_identifier
-      - permission_name
-      properties:
-        resource_server_identifier:
-          type: string
-          description: Resource server (API) identifier that this permission is for.
-        permission_name:
-          type: string
-          description: Name of this permission.
-    ListRoleUsersPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoleUser'
-    ListRolePermissionsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        permissions:
-          type: array
-          items:
-            $ref: '#/components/schemas/PermissionsResponsePayload'
   securitySchemes:
     bearerAuth:
       type: http

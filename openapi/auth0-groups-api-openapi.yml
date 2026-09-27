@@ -291,26 +291,6 @@ components:
           type: string
           description: Timestamp of when the membership was created.
           format: date-time
-    GroupTypeEnum:
-      type: string
-      description: Type of the group.
-      enum:
-      - connection
-      - organization
-      - tenant
-    GetGroupMembersResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - members
-      properties:
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupMember'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
     GetGroupResponseContent:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -355,6 +335,12 @@ components:
           type: string
           description: Timestamp of when the group was last updated.
           format: date-time
+    GroupMemberTypeEnum:
+      type: string
+      description: Type of the member.
+      enum:
+      - user
+      - group
     Group:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -399,12 +385,6 @@ components:
         items:
           $ref: '#/components/schemas/Group'
       - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
-    GroupMemberTypeEnum:
-      type: string
-      description: Type of the member.
-      enum:
-      - user
-      - group
     ListGroupsPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -424,6 +404,26 @@ components:
           type: number
         total:
           type: number
+    GroupTypeEnum:
+      type: string
+      description: Type of the group.
+      enum:
+      - connection
+      - organization
+      - tenant
+    GetGroupMembersResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - members
+      properties:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMember'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
   securitySchemes:
     bearerAuth:
       type: http

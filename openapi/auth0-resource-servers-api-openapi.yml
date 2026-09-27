@@ -258,191 +258,7 @@ paths:
         - update:resource_servers
 components:
   schemas:
-    ResourceServerTokenEncryptionFormatEnum:
-      description: Format of the encrypted JWT payload.
-      enum:
-      - compact-nested-jwe
-    ResourceServerScope:
-      type: object
-      additionalProperties: false
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          description: Value of this scope.
-          minLength: 1
-          maxLength: 280
-        description:
-          type: string
-          description: User-friendly description of this scope.
-          maxLength: 500
-    ResourceServerTokenDialectResponseEnum:
-      type: string
-      description: Dialect of access tokens that should be issued. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
-      enum:
-      - access_token
-      - access_token_authz
-      - rfc9068_profile
-      - rfc9068_profile_authz
-    ListResourceServerResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/ResourceServer'
-      - $ref: '#/components/schemas/ListResourceServerOffsetPaginatedResponseContent'
-    GetResourceServerResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID of the API (resource server).
-        name:
-          type: string
-          description: Friendly name for this resource server. Can not contain `<` or `>` characters.
-        is_system:
-          type: boolean
-          description: Whether this is an Auth0 system API (true) or a custom API (false).
-        identifier:
-          type: string
-          description: Unique identifier for the API used as the audience parameter on authorization calls. Can not be changed once set.
-        scopes:
-          type: array
-          description: List of permissions (scopes) that this API uses.
-          items:
-            $ref: '#/components/schemas/ResourceServerScope'
-        signing_alg:
-          $ref: '#/components/schemas/SigningAlgorithmEnum'
-        signing_secret:
-          type: string
-          description: Secret used to sign tokens when using symmetric algorithms (HS256).
-          minLength: 16
-        allow_offline_access:
-          type: boolean
-          description: Whether refresh tokens can be issued for this API (true) or not (false).
-        allow_online_access:
-          type: boolean
-          description: Whether Online Refresh Tokens can be issued for this API (true) or not (false).
-        skip_consent_for_verifiable_first_party_clients:
-          type: boolean
-          description: Whether to skip user consent for applications flagged as first party (true) or not (false).
-        token_lifetime:
-          type: integer
-          description: Expiration value (in seconds) for access tokens issued for this API from the token endpoint.
-        token_lifetime_for_web:
-          type: integer
-          description: Expiration value (in seconds) for access tokens issued for this API via Implicit or Hybrid Flows. Cannot be greater than the `token_lifetime` value.
-        enforce_policies:
-          type: boolean
-          description: Whether authorization polices are enforced (true) or unenforced (false).
-        token_dialect:
-          $ref: '#/components/schemas/ResourceServerTokenDialectResponseEnum'
-        token_encryption:
-          $ref: '#/components/schemas/ResourceServerTokenEncryption'
-        consent_policy:
-          $ref: '#/components/schemas/ResourceServerConsentPolicyEnum'
-        authorization_details:
-          type:
-          - array
-          - 'null'
-          items: {}
-        proof_of_possession:
-          $ref: '#/components/schemas/ResourceServerProofOfPossession'
-        subject_type_authorization:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorization'
-        authorization_policy:
-          $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
-          x-release-lifecycle: EA
-        client_id:
-          type: string
-          description: The client ID of the client that this resource server is linked to
-          format: client-id
-    ResourceServerAuthorizationPolicy:
-      type:
-      - object
-      - 'null'
-      description: Authorization policy for the resource server.
-      additionalProperties: false
-      required:
-      - policy_id
-      x-release-lifecycle: EA
-      properties:
-        policy_id:
-          type: string
-          description: The ID of the authorization policy to apply.
-          minLength: 1
-          maxLength: 1024
-    ResourceServerSubjectTypeAuthorizationClient:
-      type: object
-      description: Access Permissions for client flows
-      additionalProperties: true
-      properties:
-        policy:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClientPolicyEnum'
-    CreateResourceServerRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - identifier
-      properties:
-        name:
-          type: string
-          description: Friendly name for this resource server. Can not contain `<` or `>` characters.
-          maxLength: 200
-          pattern: ^[^<>]+$
-        identifier:
-          type: string
-          description: Unique identifier for the API used as the audience parameter on authorization calls. Can not be changed once set.
-          minLength: 1
-          maxLength: 600
-        scopes:
-          type: array
-          description: List of permissions (scopes) that this API uses.
-          items:
-            $ref: '#/components/schemas/ResourceServerScope'
-        signing_alg:
-          $ref: '#/components/schemas/SigningAlgorithmEnum'
-        signing_secret:
-          type: string
-          description: Secret used to sign tokens when using symmetric algorithms (HS256).
-          minLength: 16
-        allow_offline_access:
-          type: boolean
-          description: Whether refresh tokens can be issued for this API (true) or not (false).
-        allow_online_access:
-          type: boolean
-          description: Whether Online Refresh Tokens can be issued for this API (true) or not (false).
-        token_lifetime:
-          type: integer
-          description: Expiration value (in seconds) for access tokens issued for this API from the token endpoint.
-          minimum: 0
-          maximum: 2592000
-        token_dialect:
-          $ref: '#/components/schemas/ResourceServerTokenDialectSchemaEnum'
-        skip_consent_for_verifiable_first_party_clients:
-          type: boolean
-          description: Whether to skip user consent for applications flagged as first party (true) or not (false).
-        enforce_policies:
-          type: boolean
-          description: Whether to enforce authorization policies (true) or to ignore them (false).
-        token_encryption:
-          $ref: '#/components/schemas/ResourceServerTokenEncryption'
-        consent_policy:
-          $ref: '#/components/schemas/ResourceServerConsentPolicyEnum'
-        authorization_details:
-          type:
-          - array
-          - 'null'
-          items: {}
-        proof_of_possession:
-          $ref: '#/components/schemas/ResourceServerProofOfPossession'
-        subject_type_authorization:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorization'
-        authorization_policy:
-          $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
-          x-release-lifecycle: EA
-    UpdateResourceServerResponseContent:
+    CreateResourceServerResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -523,6 +339,330 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResourceServer'
+    UpdateResourceServerResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the API (resource server).
+        name:
+          type: string
+          description: Friendly name for this resource server. Can not contain `<` or `>` characters.
+        is_system:
+          type: boolean
+          description: Whether this is an Auth0 system API (true) or a custom API (false).
+        identifier:
+          type: string
+          description: Unique identifier for the API used as the audience parameter on authorization calls. Can not be changed once set.
+        scopes:
+          type: array
+          description: List of permissions (scopes) that this API uses.
+          items:
+            $ref: '#/components/schemas/ResourceServerScope'
+        signing_alg:
+          $ref: '#/components/schemas/SigningAlgorithmEnum'
+        signing_secret:
+          type: string
+          description: Secret used to sign tokens when using symmetric algorithms (HS256).
+          minLength: 16
+        allow_offline_access:
+          type: boolean
+          description: Whether refresh tokens can be issued for this API (true) or not (false).
+        allow_online_access:
+          type: boolean
+          description: Whether Online Refresh Tokens can be issued for this API (true) or not (false).
+        skip_consent_for_verifiable_first_party_clients:
+          type: boolean
+          description: Whether to skip user consent for applications flagged as first party (true) or not (false).
+        token_lifetime:
+          type: integer
+          description: Expiration value (in seconds) for access tokens issued for this API from the token endpoint.
+        token_lifetime_for_web:
+          type: integer
+          description: Expiration value (in seconds) for access tokens issued for this API via Implicit or Hybrid Flows. Cannot be greater than the `token_lifetime` value.
+        enforce_policies:
+          type: boolean
+          description: Whether authorization polices are enforced (true) or unenforced (false).
+        token_dialect:
+          $ref: '#/components/schemas/ResourceServerTokenDialectResponseEnum'
+        token_encryption:
+          $ref: '#/components/schemas/ResourceServerTokenEncryption'
+        consent_policy:
+          $ref: '#/components/schemas/ResourceServerConsentPolicyEnum'
+        authorization_details:
+          type:
+          - array
+          - 'null'
+          items: {}
+        proof_of_possession:
+          $ref: '#/components/schemas/ResourceServerProofOfPossession'
+        subject_type_authorization:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorization'
+        authorization_policy:
+          $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
+          x-release-lifecycle: EA
+        client_id:
+          type: string
+          description: The client ID of the client that this resource server is linked to
+          format: client-id
+    ResourceServerTokenEncryption:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - format
+      - encryption_key
+      properties:
+        format:
+          $ref: '#/components/schemas/ResourceServerTokenEncryptionFormatEnum'
+        encryption_key:
+          $ref: '#/components/schemas/ResourceServerTokenEncryptionKey'
+    ListResourceServerResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/ResourceServer'
+      - $ref: '#/components/schemas/ListResourceServerOffsetPaginatedResponseContent'
+    ResourceServerSubjectTypeAuthorizationUser:
+      type: object
+      description: Access Permissions for user flows
+      additionalProperties: true
+      properties:
+        policy:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUserPolicyEnum'
+    ResourceServerSubjectTypeAuthorizationClient:
+      type: object
+      description: Access Permissions for client flows
+      additionalProperties: true
+      properties:
+        policy:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClientPolicyEnum'
+    ResourceServerTokenDialectSchemaEnum:
+      type: string
+      description: Dialect of issued access token. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
+      enum:
+      - access_token
+      - access_token_authz
+      - rfc9068_profile
+      - rfc9068_profile_authz
+    ResourceServerAuthorizationPolicy:
+      type:
+      - object
+      - 'null'
+      description: Authorization policy for the resource server.
+      additionalProperties: false
+      required:
+      - policy_id
+      x-release-lifecycle: EA
+      properties:
+        policy_id:
+          type: string
+          description: The ID of the authorization policy to apply.
+          minLength: 1
+          maxLength: 1024
+    ResourceServerProofOfPossessionMechanismEnum:
+      type: string
+      description: Intended mechanism for Proof-of-Possession
+      enum:
+      - mtls
+      - dpop
+    CreateResourceServerRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - identifier
+      properties:
+        name:
+          type: string
+          description: Friendly name for this resource server. Can not contain `<` or `>` characters.
+          maxLength: 200
+          pattern: ^[^<>]+$
+        identifier:
+          type: string
+          description: Unique identifier for the API used as the audience parameter on authorization calls. Can not be changed once set.
+          minLength: 1
+          maxLength: 600
+        scopes:
+          type: array
+          description: List of permissions (scopes) that this API uses.
+          items:
+            $ref: '#/components/schemas/ResourceServerScope'
+        signing_alg:
+          $ref: '#/components/schemas/SigningAlgorithmEnum'
+        signing_secret:
+          type: string
+          description: Secret used to sign tokens when using symmetric algorithms (HS256).
+          minLength: 16
+        allow_offline_access:
+          type: boolean
+          description: Whether refresh tokens can be issued for this API (true) or not (false).
+        allow_online_access:
+          type: boolean
+          description: Whether Online Refresh Tokens can be issued for this API (true) or not (false).
+        token_lifetime:
+          type: integer
+          description: Expiration value (in seconds) for access tokens issued for this API from the token endpoint.
+          minimum: 0
+          maximum: 2592000
+        token_dialect:
+          $ref: '#/components/schemas/ResourceServerTokenDialectSchemaEnum'
+        skip_consent_for_verifiable_first_party_clients:
+          type: boolean
+          description: Whether to skip user consent for applications flagged as first party (true) or not (false).
+        enforce_policies:
+          type: boolean
+          description: Whether to enforce authorization policies (true) or to ignore them (false).
+        token_encryption:
+          $ref: '#/components/schemas/ResourceServerTokenEncryption'
+        consent_policy:
+          $ref: '#/components/schemas/ResourceServerConsentPolicyEnum'
+        authorization_details:
+          type:
+          - array
+          - 'null'
+          items: {}
+        proof_of_possession:
+          $ref: '#/components/schemas/ResourceServerProofOfPossession'
+        subject_type_authorization:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorization'
+        authorization_policy:
+          $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
+          x-release-lifecycle: EA
+    ResourceServerScope:
+      type: object
+      additionalProperties: false
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: Value of this scope.
+          minLength: 1
+          maxLength: 280
+        description:
+          type: string
+          description: User-friendly description of this scope.
+          maxLength: 500
+    SigningAlgorithmEnum:
+      type: string
+      description: Algorithm used to sign JWTs. Can be `HS256` (default) or `RS256`. `PS256` available via addon.
+      default: HS256
+      enum:
+      - HS256
+      - RS256
+      - RS512
+      - PS256
+    ResourceServerTokenEncryptionKey:
+      type: object
+      additionalProperties: false
+      required:
+      - alg
+      - pem
+      properties:
+        name:
+          type: string
+          description: Name of the encryption key.
+          minLength: 1
+          maxLength: 128
+        alg:
+          $ref: '#/components/schemas/ResourceServerTokenEncryptionAlgorithmEnum'
+        kid:
+          type: string
+          description: Key ID.
+          minLength: 1
+          maxLength: 128
+        pem:
+          type: string
+          description: PEM-formatted public key. Must be JSON escaped.
+          default: '-----BEGIN PUBLIC KEY-----
+
+            MIIBIjANBg...
+
+            -----END PUBLIC KEY-----
+
+            '
+          minLength: 1
+          maxLength: 4096
+    ResourceServerSubjectTypeAuthorization:
+      type: object
+      description: Defines application access permission for a resource server
+      additionalProperties: false
+      properties:
+        user:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUser'
+        client:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClient'
+    UpdateResourceServerRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Friendly name for this resource server. Can not contain `<` or `>` characters.
+          maxLength: 200
+          pattern: ^[^<>]+$
+        scopes:
+          type: array
+          description: List of permissions (scopes) that this API uses.
+          items:
+            $ref: '#/components/schemas/ResourceServerScope'
+        signing_alg:
+          $ref: '#/components/schemas/SigningAlgorithmEnum'
+        signing_secret:
+          type: string
+          description: Secret used to sign tokens when using symmetric algorithms (HS256).
+          minLength: 16
+        skip_consent_for_verifiable_first_party_clients:
+          type: boolean
+          description: Whether to skip user consent for applications flagged as first party (true) or not (false).
+        allow_offline_access:
+          type: boolean
+          description: Whether refresh tokens can be issued for this API (true) or not (false).
+        allow_online_access:
+          type: boolean
+          description: Whether Online Refresh Tokens can be issued for this API (true) or not (false).
+        token_lifetime:
+          type: integer
+          description: Expiration value (in seconds) for access tokens issued for this API from the token endpoint.
+          minimum: 0
+          maximum: 2592000
+        token_dialect:
+          $ref: '#/components/schemas/ResourceServerTokenDialectSchemaEnum'
+        enforce_policies:
+          type: boolean
+          description: Whether authorization policies are enforced (true) or not enforced (false).
+        token_encryption:
+          $ref: '#/components/schemas/ResourceServerTokenEncryption'
+        consent_policy:
+          $ref: '#/components/schemas/ResourceServerConsentPolicyEnum'
+        authorization_details:
+          type:
+          - array
+          - 'null'
+          items: {}
+        proof_of_possession:
+          $ref: '#/components/schemas/ResourceServerProofOfPossession'
+        subject_type_authorization:
+          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorization'
+        authorization_policy:
+          $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
+          x-release-lifecycle: EA
+    ResourceServerTokenEncryptionAlgorithmEnum:
+      type: string
+      description: Algorithm used to encrypt the token.
+      enum:
+      - RSA-OAEP-256
+      - RSA-OAEP-384
+      - RSA-OAEP-512
+    ResourceServerSubjectTypeAuthorizationUserPolicyEnum:
+      type: string
+      description: Defines the user flows policy for the resource server
+      enum:
+      - allow_all
+      - deny_all
+      - require_client_grant
     ResourceServer:
       type: object
       additionalProperties: false
@@ -590,53 +730,37 @@ components:
           type: string
           description: The client ID of the client that this resource server is linked to
           format: client-id
-    SigningAlgorithmEnum:
-      type: string
-      description: Algorithm used to sign JWTs. Can be `HS256` (default) or `RS256`. `PS256` available via addon.
-      default: HS256
-      enum:
-      - HS256
-      - RS256
-      - RS512
-      - PS256
-    ResourceServerTokenEncryptionKey:
-      type: object
+    ResourceServerProofOfPossession:
+      type:
+      - object
+      - 'null'
+      description: Proof-of-Possession configuration for access tokens
       additionalProperties: false
       required:
-      - alg
-      - pem
+      - mechanism
+      - required
       properties:
-        name:
-          type: string
-          description: Name of the encryption key.
-          minLength: 1
-          maxLength: 128
-        alg:
-          $ref: '#/components/schemas/ResourceServerTokenEncryptionAlgorithmEnum'
-        kid:
-          type: string
-          description: Key ID.
-          minLength: 1
-          maxLength: 128
-        pem:
-          type: string
-          description: PEM-formatted public key. Must be JSON escaped.
-          default: '-----BEGIN PUBLIC KEY-----
-
-            MIIBIjANBg...
-
-            -----END PUBLIC KEY-----
-
-            '
-          minLength: 1
-          maxLength: 4096
-    ResourceServerProofOfPossessionMechanismEnum:
+        mechanism:
+          $ref: '#/components/schemas/ResourceServerProofOfPossessionMechanismEnum'
+        required:
+          type: boolean
+          description: Whether the use of Proof-of-Possession is required for the resource server
+        required_for:
+          $ref: '#/components/schemas/ResourceServerProofOfPossessionRequiredForEnum'
+    ResourceServerProofOfPossessionRequiredForEnum:
       type: string
-      description: Intended mechanism for Proof-of-Possession
+      description: Specifies which client types require Proof-of-Possession
       enum:
-      - mtls
-      - dpop
-    CreateResourceServerResponseContent:
+      - public_clients
+      - all_clients
+    ResourceServerConsentPolicyEnum:
+      type:
+      - string
+      - 'null'
+      enum:
+      - transactional-authorization-with-mfa
+      - null
+    GetResourceServerResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -703,148 +827,24 @@ components:
           type: string
           description: The client ID of the client that this resource server is linked to
           format: client-id
-    UpdateResourceServerRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Friendly name for this resource server. Can not contain `<` or `>` characters.
-          maxLength: 200
-          pattern: ^[^<>]+$
-        scopes:
-          type: array
-          description: List of permissions (scopes) that this API uses.
-          items:
-            $ref: '#/components/schemas/ResourceServerScope'
-        signing_alg:
-          $ref: '#/components/schemas/SigningAlgorithmEnum'
-        signing_secret:
-          type: string
-          description: Secret used to sign tokens when using symmetric algorithms (HS256).
-          minLength: 16
-        skip_consent_for_verifiable_first_party_clients:
-          type: boolean
-          description: Whether to skip user consent for applications flagged as first party (true) or not (false).
-        allow_offline_access:
-          type: boolean
-          description: Whether refresh tokens can be issued for this API (true) or not (false).
-        allow_online_access:
-          type: boolean
-          description: Whether Online Refresh Tokens can be issued for this API (true) or not (false).
-        token_lifetime:
-          type: integer
-          description: Expiration value (in seconds) for access tokens issued for this API from the token endpoint.
-          minimum: 0
-          maximum: 2592000
-        token_dialect:
-          $ref: '#/components/schemas/ResourceServerTokenDialectSchemaEnum'
-        enforce_policies:
-          type: boolean
-          description: Whether authorization policies are enforced (true) or not enforced (false).
-        token_encryption:
-          $ref: '#/components/schemas/ResourceServerTokenEncryption'
-        consent_policy:
-          $ref: '#/components/schemas/ResourceServerConsentPolicyEnum'
-        authorization_details:
-          type:
-          - array
-          - 'null'
-          items: {}
-        proof_of_possession:
-          $ref: '#/components/schemas/ResourceServerProofOfPossession'
-        subject_type_authorization:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorization'
-        authorization_policy:
-          $ref: '#/components/schemas/ResourceServerAuthorizationPolicy'
-          x-release-lifecycle: EA
-    ResourceServerSubjectTypeAuthorization:
-      type: object
-      description: Defines application access permission for a resource server
-      additionalProperties: false
-      properties:
-        user:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUser'
-        client:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationClient'
-    ResourceServerSubjectTypeAuthorizationUser:
-      type: object
-      description: Access Permissions for user flows
-      additionalProperties: true
-      properties:
-        policy:
-          $ref: '#/components/schemas/ResourceServerSubjectTypeAuthorizationUserPolicyEnum'
-    ResourceServerConsentPolicyEnum:
-      type:
-      - string
-      - 'null'
+    ResourceServerTokenEncryptionFormatEnum:
+      description: Format of the encrypted JWT payload.
       enum:
-      - transactional-authorization-with-mfa
-      - null
+      - compact-nested-jwe
     ResourceServerSubjectTypeAuthorizationClientPolicyEnum:
       type: string
       description: Defines the client flows policy for the resource server
       enum:
       - deny_all
       - require_client_grant
-    ResourceServerTokenEncryptionAlgorithmEnum:
+    ResourceServerTokenDialectResponseEnum:
       type: string
-      description: Algorithm used to encrypt the token.
-      enum:
-      - RSA-OAEP-256
-      - RSA-OAEP-384
-      - RSA-OAEP-512
-    ResourceServerProofOfPossessionRequiredForEnum:
-      type: string
-      description: Specifies which client types require Proof-of-Possession
-      enum:
-      - public_clients
-      - all_clients
-    ResourceServerProofOfPossession:
-      type:
-      - object
-      - 'null'
-      description: Proof-of-Possession configuration for access tokens
-      additionalProperties: false
-      required:
-      - mechanism
-      - required
-      properties:
-        mechanism:
-          $ref: '#/components/schemas/ResourceServerProofOfPossessionMechanismEnum'
-        required:
-          type: boolean
-          description: Whether the use of Proof-of-Possession is required for the resource server
-        required_for:
-          $ref: '#/components/schemas/ResourceServerProofOfPossessionRequiredForEnum'
-    ResourceServerTokenEncryption:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      required:
-      - format
-      - encryption_key
-      properties:
-        format:
-          $ref: '#/components/schemas/ResourceServerTokenEncryptionFormatEnum'
-        encryption_key:
-          $ref: '#/components/schemas/ResourceServerTokenEncryptionKey'
-    ResourceServerTokenDialectSchemaEnum:
-      type: string
-      description: Dialect of issued access token. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
+      description: Dialect of access tokens that should be issued. `access_token` is a JWT containing standard Auth0 claims; `rfc9068_profile` is a JWT conforming to the IETF JWT Access Token Profile. `access_token_authz` and `rfc9068_profile_authz` additionally include RBAC permissions claims.
       enum:
       - access_token
       - access_token_authz
       - rfc9068_profile
       - rfc9068_profile_authz
-    ResourceServerSubjectTypeAuthorizationUserPolicyEnum:
-      type: string
-      description: Defines the user flows policy for the resource server
-      enum:
-      - allow_all
-      - deny_all
-      - require_client_grant
   securitySchemes:
     bearerAuth:
       type: http

@@ -176,6 +176,20 @@ paths:
         - delete:refresh_tokens
 components:
   schemas:
+    SessionCookieMetadata:
+      type: object
+      description: '[Private Early Access] Session cookie configuration.'
+      additionalProperties: true
+      properties:
+        mode:
+          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
+    SessionMetadata:
+      type:
+      - object
+      - 'null'
+      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties: true
+      maxProperties: 25
     SessionAuthenticationSignal:
       type: object
       description: Authentication signal details
@@ -189,105 +203,7 @@ components:
         type:
           type: string
           description: A specific MFA factor. Only present when "name" is set to "mfa"
-    SessionDeviceMetadata:
-      type: object
-      description: Metadata related to the device used in the session
-      additionalProperties: true
-      properties:
-        initial_user_agent:
-          type: string
-          description: First user agent of the device from which this user logged in
-        initial_ip:
-          $ref: '#/components/schemas/SessionIp'
-        initial_asn:
-          type: string
-          description: First autonomous system number associated with this session
-        last_user_agent:
-          type: string
-          description: Last user agent of the device from which this user logged in
-        last_ip:
-          $ref: '#/components/schemas/SessionIp'
-        last_asn:
-          type: string
-          description: Last autonomous system number from which this user logged in
-    SessionCookieMetadata:
-      type: object
-      description: '[Private Early Access] Session cookie configuration.'
-      additionalProperties: true
-      properties:
-        mode:
-          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
-    SessionAuthenticationSignals:
-      type: object
-      description: Details about authentication signals obtained during the login flow
-      additionalProperties: true
-      properties:
-        methods:
-          type: array
-          description: Contains the authentication methods a user has completed during their session
-          items:
-            $ref: '#/components/schemas/SessionAuthenticationSignal'
-    UpdateSessionRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        session_metadata:
-          $ref: '#/components/schemas/SessionMetadata'
-          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
     GetSessionResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The ID of the session
-        user_id:
-          type: string
-          description: ID of the user which can be used when interacting with other APIs.
-        created_at:
-          $ref: '#/components/schemas/SessionDate'
-        updated_at:
-          $ref: '#/components/schemas/SessionDate'
-        authenticated_at:
-          $ref: '#/components/schemas/SessionDate'
-        idle_expires_at:
-          $ref: '#/components/schemas/SessionDate'
-        expires_at:
-          $ref: '#/components/schemas/SessionDate'
-        last_interacted_at:
-          $ref: '#/components/schemas/SessionDate'
-        device:
-          $ref: '#/components/schemas/SessionDeviceMetadata'
-        clients:
-          type: array
-          description: List of client details for the session
-          items:
-            $ref: '#/components/schemas/SessionClientMetadata'
-        authentication:
-          $ref: '#/components/schemas/SessionAuthenticationSignals'
-        cookie:
-          $ref: '#/components/schemas/SessionCookieMetadata'
-        session_metadata:
-          $ref: '#/components/schemas/SessionMetadata'
-    SessionClientMetadata:
-      type: object
-      description: Client details
-      additionalProperties: true
-      properties:
-        client_id:
-          type: string
-          description: ID of client for the session
-    SessionDate:
-      oneOf:
-      - type: string
-        description: The date and time when the session was created
-        format: date-time
-      - type: object
-        description: The date and time when the session was created
-        additionalProperties: true
-      - type: 'null'
-    UpdateSessionResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -328,18 +244,102 @@ components:
       enum:
       - non-persistent
       - persistent
+    SessionDate:
+      oneOf:
+      - type: string
+        description: The date and time when the session was created
+        format: date-time
+      - type: object
+        description: The date and time when the session was created
+        additionalProperties: true
+      - type: 'null'
+    SessionAuthenticationSignals:
+      type: object
+      description: Details about authentication signals obtained during the login flow
+      additionalProperties: true
+      properties:
+        methods:
+          type: array
+          description: Contains the authentication methods a user has completed during their session
+          items:
+            $ref: '#/components/schemas/SessionAuthenticationSignal'
+    UpdateSessionRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
+    UpdateSessionResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the session
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+        created_at:
+          $ref: '#/components/schemas/SessionDate'
+        updated_at:
+          $ref: '#/components/schemas/SessionDate'
+        authenticated_at:
+          $ref: '#/components/schemas/SessionDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        expires_at:
+          $ref: '#/components/schemas/SessionDate'
+        last_interacted_at:
+          $ref: '#/components/schemas/SessionDate'
+        device:
+          $ref: '#/components/schemas/SessionDeviceMetadata'
+        clients:
+          type: array
+          description: List of client details for the session
+          items:
+            $ref: '#/components/schemas/SessionClientMetadata'
+        authentication:
+          $ref: '#/components/schemas/SessionAuthenticationSignals'
+        cookie:
+          $ref: '#/components/schemas/SessionCookieMetadata'
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
     SessionIp:
       type:
       - string
       - 'null'
       description: First IP address associated with this session
-    SessionMetadata:
-      type:
-      - object
-      - 'null'
-      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+    SessionDeviceMetadata:
+      type: object
+      description: Metadata related to the device used in the session
       additionalProperties: true
-      maxProperties: 25
+      properties:
+        initial_user_agent:
+          type: string
+          description: First user agent of the device from which this user logged in
+        initial_ip:
+          $ref: '#/components/schemas/SessionIp'
+        initial_asn:
+          type: string
+          description: First autonomous system number associated with this session
+        last_user_agent:
+          type: string
+          description: Last user agent of the device from which this user logged in
+        last_ip:
+          $ref: '#/components/schemas/SessionIp'
+        last_asn:
+          type: string
+          description: Last autonomous system number from which this user logged in
+    SessionClientMetadata:
+      type: object
+      description: Client details
+      additionalProperties: true
+      properties:
+        client_id:
+          type: string
+          description: ID of client for the session
   securitySchemes:
     bearerAuth:
       type: http

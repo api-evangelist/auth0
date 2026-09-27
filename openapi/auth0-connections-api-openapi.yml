@@ -1402,29 +1402,716 @@ paths:
         - delete:users
 components:
   schemas:
-    ConnectionAssertionDecryptionSettings:
-      type: object
-      description: Settings for SAML assertion decryption.
+    UpdateDirectoryProvisioningRequestContent:
+      type:
+      - object
+      - 'null'
       additionalProperties: false
-      required:
-      - algorithm_profile
       properties:
-        algorithm_profile:
-          $ref: '#/components/schemas/ConnectionAssertionDecryptionAlgorithmProfileEnum'
-        algorithm_exceptions:
+        mapping:
           type: array
-          description: A list of insecure algorithms to allow for SAML assertion decryption.
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+    ScimTokenItem:
+      type: object
+      additionalProperties: true
+      properties:
+        token_id:
+          type: string
+          description: The token's identifier
+        scopes:
+          type: array
+          description: The scopes of the scim token
           items:
             type: string
-            minLength: 1
-            maxLength: 100
-    PasswordCharacterTypeEnum:
+            description: The token's scope
+        created_at:
+          type: string
+          description: The token's created at timestamp
+        valid_until:
+          type: string
+          description: The token's valid until timestamp
+        last_used_at:
+          type: string
+          description: The token's last used at timestamp
+    ConnectionTokenEndpointJwtcaAudFormatEnumOIDC:
       type: string
+      description: 'Specifies the format of the aud (audience) claim included in the JWT used for client authentication at the token endpoint. Accepted values are: ''issuer'' (the aud claim is set to the OIDC issuer URL) or ''token_endpoint'' (the aud claim is set to the token endpoint URL).'
       enum:
-      - uppercase
-      - lowercase
-      - number
-      - special
+      - issuer
+      - token_endpoint
+      x-merge-priority: -5
+    ConnectionEmailOtpAuthenticationMethod:
+      type: object
+      description: Email OTP authentication enablement
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether email OTP is enabled
+    PasswordCharacterTypeRulePolicyEnum:
+      type: string
+      description: When enabled, passwords must contain at least 3 out of 4 character types. Can only be enabled when all 4 character types are specified
+      enum:
+      - all
+      - three_of_four
+    RotateConnectionKeysRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        signing_alg:
+          $ref: '#/components/schemas/RotateConnectionKeysSigningAlgEnum'
+    ConnectionAuthenticationPurpose:
+      type: object
+      description: Configure the purpose of a connection to be used for authentication during login.
+      additionalProperties: false
+      required:
+      - active
+      x-release-lifecycle: GA
+      properties:
+        active:
+          type: boolean
+    ConnectionTokenEndpointAuthMethodEnum:
+      type:
+      - string
+      - 'null'
+      description: Authentication method used at the identity provider's token endpoint. 'client_secret_post' sends credentials in the request body; 'private_key_jwt' uses a signed JWT assertion for enhanced security.
+      enum:
+      - client_secret_post
+      - private_key_jwt
+      x-merge-priority: -5
+    ConnectionPasswordNoPersonalInfoOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for personal info in passwords policy
+      additionalProperties: false
+      required:
+      - enable
+      properties:
+        enable:
+          type: boolean
+    PostConnectionKeysAlgEnum:
+      type: string
+      description: Selected Signing Algorithm
+      enum:
+      - RS256
+      - RS384
+      - RS512
+      - PS256
+      - PS384
+      - ES256
+      - ES384
+    ConnectionForList:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    RotateConnectionKeysSigningAlgEnum:
+      type: string
+      description: Selected Signing Algorithm
+      enum:
+      - RS256
+      - RS384
+      - RS512
+      - PS256
+      - PS384
+      - ES256
+      - ES384
+    UpdateDirectoryProvisioningResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any
+    UpdateConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        enabled_clients:
+          type: array
+          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client id
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    ConnectionPasswordOptionsComplexity:
+      type: object
+      description: Password complexity requirements configuration
+      additionalProperties: false
+      properties:
+        min_length:
+          type: integer
+          description: Minimum password length required (1-72 characters)
+          minimum: 1
+          maximum: 72
+        character_types:
+          type: array
+          description: 'Required character types that must be present in passwords. Valid options: uppercase, lowercase, number, special'
+          items:
+            $ref: '#/components/schemas/PasswordCharacterTypeEnum'
+        character_type_rule:
+          $ref: '#/components/schemas/PasswordCharacterTypeRulePolicyEnum'
+        identical_characters:
+          $ref: '#/components/schemas/PasswordIdenticalCharactersPolicyEnum'
+        sequential_characters:
+          $ref: '#/components/schemas/PasswordSequentialCharactersPolicyEnum'
+        max_length_exceeded:
+          $ref: '#/components/schemas/PasswordMaxLengthExceededPolicyEnum'
+    GetConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        enabled_clients:
+          type: array
+          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client id
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    ConnectionUpstreamAdditionalProperties:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/ConnectionUpstreamAlias'
+      - $ref: '#/components/schemas/ConnectionUpstreamValue'
+    CreateScimConfigurationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - tenant_name
+      - connection_id
+      - connection_name
+      - strategy
+      - created_at
+      - updated_on
+      - mapping
+      - user_id_attribute
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        tenant_name:
+          type: string
+          description: The tenant's name
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+        created_at:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was created at
+          format: date-time
+        updated_on:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was last updated on
+          format: date-time
+    PasswordIdenticalCharactersPolicyEnum:
+      type: string
+      description: Controls whether identical consecutive characters are allowed in passwords
+      enum:
+      - allow
+      - block
+    ConnectionCustomScripts:
+      type: object
+      description: A map of scripts used to integrate with a custom database.
+      additionalProperties: true
+      properties:
+        login:
+          type: string
+          minLength: 1
+        get_user:
+          type: string
+          minLength: 1
+        delete:
+          type: string
+          minLength: 1
+        change_password:
+          type: string
+          minLength: 1
+        verify:
+          type: string
+          minLength: 1
+        create:
+          type: string
+          minLength: 1
+        change_username:
+          type: string
+          minLength: 1
+        change_email:
+          type: string
+          minLength: 1
+        change_phone_number:
+          type: string
+          minLength: 1
+    ConnectionOptions:
+      type: object
+      description: In order to return options in the response, the `read:connections_options` scope must be present
+      additionalProperties: true
+    ListSynchronizedGroupsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          description: Array of Google Workspace group ids configured for synchronization.
+          items:
+            $ref: '#/components/schemas/SynchronizedGroupPayload'
+        next:
+          type: string
+          description: The cursor to be used as the "from" query parameter for the next page of results.
+    ConnectionSetUserRootAttributesEnum:
+      type: string
+      description: When using an external IdP, this flag determines  whether 'name', 'given_name', 'family_name', 'nickname', and 'picture' attributes are updated. In addition, it also determines whether the user is created when user doesnt exist previously. Possible values are 'on_each_login' (default value, it configures the connection to automatically create the user if necessary and update the root attributes from the external IdP with each user login. When this setting is used, root attributes cannot be independently updated), 'on_first_login' (configures the connection to create the user and set the root attributes on first login only, allowing them to be independently updated thereafter), and 'never_on_login' (configures the connection not to create the user and not to set the root attributes from the external IdP, allowing them to be independently updated).
+      default: on_each_login
+      enum:
+      - on_each_login
+      - on_first_login
+      - never_on_login
+    ConnectionUpstreamValue:
+      type: object
+      additionalProperties: false
+      properties:
+        value:
+          type: string
+    SignupVerification:
+      type: object
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+    UpdateScimConfigurationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - user_id_attribute
+      - mapping
+      properties:
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+    ConnectionPasswordHistoryOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for password history policy
+      additionalProperties: false
+      required:
+      - enable
+      properties:
+        enable:
+          type: boolean
+        size:
+          type: integer
+          minimum: 0
+          maximum: 24
+    GetDirectoryProvisioningResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any
+    DefaultMethodEmailIdentifierEnum:
+      type: string
+      description: Default authentication method for email identifier
+      enum:
+      - password
+      - email_otp
+      x-release-lifecycle: EA
+    UpdateScimConfigurationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - tenant_name
+      - connection_id
+      - connection_name
+      - strategy
+      - created_at
+      - updated_on
+      - mapping
+      - user_id_attribute
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        tenant_name:
+          type: string
+          description: The tenant's name
+        user_id_attribute:
+          type: string
+          description: User ID attribute for generating unique user ids
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+        created_at:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was created at
+          format: date-time
+        updated_on:
+          type: string
+          description: The ISO 8601 date and time the SCIM configuration was last updated on
+          format: date-time
+    CreateDirectoryProvisioningResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - connection_name
+      - strategy
+      - mapping
+      - synchronize_automatically
+      - created_at
+      - updated_at
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        connection_name:
+          type: string
+          description: The connection's name
+        strategy:
+          type: string
+          description: The connection's strategy
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+        created_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was created
+          format: date-time
+        updated_at:
+          type: string
+          description: The timestamp at which the directory provisioning configuration was last updated
+          format: date-time
+        last_synchronization_at:
+          type: string
+          description: The timestamp at which the connection was last synchronized
+          format: date-time
+        last_synchronization_status:
+          type: string
+          description: The status of the last synchronization
+        last_synchronization_error:
+          type: string
+          description: The error message of the last synchronization, if any
+    ConnectionGatewayAuthentication:
+      type:
+      - object
+      - 'null'
+      description: Token-based authentication settings to be applied when connection is using an sms strategy.
+      additionalProperties: true
+      required:
+      - method
+      - audience
+      - secret
+      properties:
+        method:
+          type: string
+          description: The Authorization header type.
+        subject:
+          type: string
+          description: The subject to be added to the JWT payload.
+        audience:
+          type: string
+          description: The audience to be added to the JWT payload.
+        secret:
+          type: string
+          description: The secret to be used for signing tokens.
+        secret_base64_encoded:
+          type: boolean
+          description: Set to true if the provided secret is base64 encoded.
+    CreateScimTokenResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        token_id:
+          type: string
+          description: The token's identifier
+        token:
+          type: string
+          description: The scim client's token
+        scopes:
+          type: array
+          description: The scopes of the scim token
+          items:
+            type: string
+            description: The token's scope
+        created_at:
+          type: string
+          description: The token's created at timestamp
+        valid_until:
+          type: string
+          description: The token's valid until at timestamp
+    ConnectionUpstreamParams:
+      type:
+      - object
+      - 'null'
+      description: Options for adding parameters in the request to the upstream IdP
+      additionalProperties:
+        $ref: '#/components/schemas/ConnectionUpstreamAdditionalProperties'
+    UpdateEnabledClientConnectionsRequestContent:
+      type: array
+      minItems: 1
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - client_id
+        - status
+        properties:
+          client_id:
+            type: string
+            description: The client_id of the client whose status will be changed. Note that the limit per PATCH request is 50 clients.
+            format: client-id
+          status:
+            type: boolean
+            description: Whether the connection is enabled or not for this client_id
     ConnectionKey:
       type: object
       additionalProperties: true
@@ -1486,303 +2173,32 @@ components:
         subject_dn:
           type: string
           maxLength: 132
-    UpdateDirectoryProvisioningRequestContent:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      properties:
-        mapping:
-          type: array
-          description: The mapping between Auth0 and IDP user attributes
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
-        synchronize_automatically:
-          type: boolean
-          description: Whether periodic automatic synchronization is enabled
-        synchronize_groups:
-          $ref: '#/components/schemas/SynchronizeGroupsEnum'
-          x-release-lifecycle: EA
-    ConnectionAssertionDecryptionAlgorithmProfileEnum:
-      type: string
-      description: The algorithm profile to use for decrypting SAML assertions.
-      enum:
-      - v2026-1
-    PasswordMaxLengthExceededPolicyEnum:
-      type: string
-      description: Controls whether passwords that exceed the maximum length are truncated or rejected
-      enum:
-      - truncate
-      - error
-    ReplaceSynchronizedGroupsRequestContent:
+    SynchronizedGroupPayload:
       type: object
       additionalProperties: false
       required:
-      - groups
+      - id
       properties:
-        groups:
-          type: array
-          description: Array of Google Workspace Directory group objects to synchronize.
-          items:
-            $ref: '#/components/schemas/SynchronizedGroupPayload'
-    ScimMappingItem:
-      type: object
-      additionalProperties: true
-      properties:
-        auth0:
+        id:
           type: string
-          description: The field location in the auth0 schema
-        scim:
-          type: string
-          description: The field location in the SCIM schema
-    ConnectionIdTokenSignedResponseAlgEnum:
-      description: Algorithm allowed to verify the ID tokens.
-      type: string
-      enum:
-      - ES256
-      - ES384
-      - PS256
-      - PS384
-      - RS256
-      - RS384
-      - RS512
-      x-merge-priority: -5
-    ConnectionPropertiesOptions:
+          description: Google Workspace Directory group ID.
+          minLength: 1
+          maxLength: 32
+          pattern: ^[A-Za-z0-9]+$
+    UsernameAttribute:
       type: object
-      description: The connection's options (depend on the connection strategy)
-      additionalProperties: true
+      description: Configuration for the username attribute for users.
+      additionalProperties: false
       properties:
+        identifier:
+          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
+        profile_required:
+          type: boolean
+          description: Determines if property should be required for users
+        signup:
+          $ref: '#/components/schemas/SignupSchema'
         validation:
-          $ref: '#/components/schemas/ConnectionValidationOptions'
-        non_persistent_attrs:
-          type:
-          - array
-          - 'null'
-          description: An array of user fields that should not be stored in the Auth0 database (https://auth0.com/docs/security/data-security/denylist)
-          items:
-            type: string
-        precedence:
-          type: array
-          description: Order of precedence for attribute types. If the property is not specified, the default precedence of attributes will be used.
-          minItems: 3
-          items:
-            $ref: '#/components/schemas/ConnectionIdentifierPrecedenceEnum'
-        attributes:
-          $ref: '#/components/schemas/ConnectionAttributes'
-        enable_script_context:
-          type: boolean
-          description: 'Set to true to inject context into custom DB scripts (warning: cannot be disabled once enabled)'
-        enabledDatabaseCustomization:
-          type: boolean
-          description: Set to true to use a legacy user store
-        import_mode:
-          type: boolean
-          description: Enable this if you have a legacy user store and you want to gradually migrate those users to the Auth0 user store
-        configuration:
-          type:
-          - object
-          - 'null'
-          description: Stores encrypted string only configurations for connections
-          additionalProperties:
-            type:
-            - string
-            - 'null'
-        customScripts:
-          $ref: '#/components/schemas/ConnectionCustomScripts'
-        authentication_methods:
-          $ref: '#/components/schemas/ConnectionAuthenticationMethods'
-        passkey_options:
-          $ref: '#/components/schemas/ConnectionPasskeyOptions'
-        passwordPolicy:
-          $ref: '#/components/schemas/ConnectionPasswordPolicyEnum'
-        password_complexity_options:
-          $ref: '#/components/schemas/ConnectionPasswordComplexityOptions'
-        password_history:
-          $ref: '#/components/schemas/ConnectionPasswordHistoryOptions'
-        password_no_personal_info:
-          $ref: '#/components/schemas/ConnectionPasswordNoPersonalInfoOptions'
-        password_dictionary:
-          $ref: '#/components/schemas/ConnectionPasswordDictionaryOptions'
-        api_enable_users:
-          type: boolean
-        api_enable_groups:
-          type: boolean
-          x-release-lifecycle: EA
-        basic_profile:
-          type: boolean
-        ext_admin:
-          type: boolean
-        ext_is_suspended:
-          type: boolean
-        ext_agreed_terms:
-          type: boolean
-        ext_groups:
-          type: boolean
-        ext_assigned_plans:
-          type: boolean
-        ext_profile:
-          type: boolean
-        disable_self_service_change_password:
-          type: boolean
-        upstream_params:
-          $ref: '#/components/schemas/ConnectionUpstreamParams'
-        set_user_root_attributes:
-          $ref: '#/components/schemas/ConnectionSetUserRootAttributesEnum'
-        gateway_authentication:
-          $ref: '#/components/schemas/ConnectionGatewayAuthentication'
-        federated_connections_access_tokens:
-          $ref: '#/components/schemas/ConnectionFederatedConnectionsAccessTokens'
-        password_options:
-          $ref: '#/components/schemas/ConnectionPasswordOptions'
-          x-release-lifecycle: EA
-        assertion_decryption_settings:
-          $ref: '#/components/schemas/ConnectionAssertionDecryptionSettings'
-        id_token_signed_response_algs:
-          $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgs'
-        token_endpoint_auth_method:
-          $ref: '#/components/schemas/ConnectionTokenEndpointAuthMethodEnum'
-        token_endpoint_auth_signing_alg:
-          $ref: '#/components/schemas/ConnectionTokenEndpointAuthSigningAlgEnum'
-        token_endpoint_jwtca_aud_format:
-          $ref: '#/components/schemas/ConnectionTokenEndpointJwtcaAudFormatEnumOIDC'
-    ScimTokenItem:
-      type: object
-      additionalProperties: true
-      properties:
-        token_id:
-          type: string
-          description: The token's identifier
-        scopes:
-          type: array
-          description: The scopes of the scim token
-          items:
-            type: string
-            description: The token's scope
-        created_at:
-          type: string
-          description: The token's created at timestamp
-        valid_until:
-          type: string
-          description: The token's valid until timestamp
-        last_used_at:
-          type: string
-          description: The token's last used at timestamp
-    ConnectionPasswordComplexityOptions:
-      type:
-      - object
-      - 'null'
-      description: Password complexity options
-      additionalProperties: false
-      properties:
-        min_length:
-          type: integer
-          description: Minimum password length
-          minimum: 1
-          maximum: 128
-    UpdateEnabledClientConnectionsRequestContent:
-      type: array
-      minItems: 1
-      items:
-        type: object
-        additionalProperties: false
-        required:
-        - client_id
-        - status
-        properties:
-          client_id:
-            type: string
-            description: The client_id of the client whose status will be changed. Note that the limit per PATCH request is 50 clients.
-            format: client-id
-          status:
-            type: boolean
-            description: Whether the connection is enabled or not for this client_id
-    PasswordCharacterTypeRulePolicyEnum:
-      type: string
-      description: When enabled, passwords must contain at least 3 out of 4 character types. Can only be enabled when all 4 character types are specified
-      enum:
-      - all
-      - three_of_four
-    ConnectionPasswordOptions:
-      type: object
-      description: Password policy options for flexible password policy configuration
-      additionalProperties: false
-      x-release-lifecycle: EA
-      properties:
-        complexity:
-          $ref: '#/components/schemas/ConnectionPasswordOptionsComplexity'
-        dictionary:
-          $ref: '#/components/schemas/ConnectionPasswordOptionsDictionary'
-        history:
-          $ref: '#/components/schemas/ConnectionPasswordOptionsHistory'
-        profile_data:
-          $ref: '#/components/schemas/ConnectionPasswordOptionsProfileData'
-    GetDirectoryProvisioningDefaultMappingResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        mapping:
-          type: array
-          description: The mapping between Auth0 and IDP user attributes
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
-    ConnectionPasswordDictionaryOptions:
-      type:
-      - object
-      - 'null'
-      description: Options for password dictionary policy
-      additionalProperties: false
-      required:
-      - enable
-      properties:
-        enable:
-          type: boolean
-        dictionary:
-          type: array
-          description: Custom Password Dictionary. An array of up to 200 entries.
-          items:
-            type: string
-            description: Custom Password Dictionary entry. 50 characters max.
-            maxLength: 50
-    ConnectionPasskeyOptions:
-      type:
-      - object
-      - 'null'
-      description: Options for the passkey authentication method
-      additionalProperties: false
-      properties:
-        challenge_ui:
-          $ref: '#/components/schemas/ConnectionPasskeyChallengeUIEnum'
-        progressive_enrollment_enabled:
-          type: boolean
-          description: Enables or disables progressive enrollment of passkeys for the connection.
-        local_enrollment_enabled:
-          type: boolean
-          description: Enables or disables enrollment prompt for local passkey when user authenticates using a cross-device passkey for the connection.
-    CreateDirectorySynchronizationResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - connection_id
-      - synchronization_id
-      - status
-      properties:
-        connection_id:
-          type: string
-          description: The connection's identifier
-        synchronization_id:
-          type: string
-          description: The synchronization's identifier
-        status:
-          type: string
-          description: The synchronization status
-    ConnectionUpstreamValue:
-      type: object
-      additionalProperties: false
-      properties:
-        value:
-          type: string
+          $ref: '#/components/schemas/UsernameValidation'
     ConnectionValidationOptions:
       type:
       - object
@@ -1792,146 +2208,81 @@ components:
       properties:
         username:
           $ref: '#/components/schemas/ConnectionUsernameValidationOptions'
-    DefaultMethodEmailIdentifierEnum:
+    ConnectionSignupBehaviorEnum:
       type: string
-      description: Default authentication method for email identifier
+      description: Specifies the signup behavior for password authentication
       enum:
-      - password
-      - email_otp
+      - allow
+      - block
       x-release-lifecycle: EA
-    ConnectionSetUserRootAttributesEnum:
-      type: string
-      description: When using an external IdP, this flag determines  whether 'name', 'given_name', 'family_name', 'nickname', and 'picture' attributes are updated. In addition, it also determines whether the user is created when user doesnt exist previously. Possible values are 'on_each_login' (default value, it configures the connection to automatically create the user if necessary and update the root attributes from the external IdP with each user login. When this setting is used, root attributes cannot be independently updated), 'on_first_login' (configures the connection to create the user and set the root attributes on first login only, allowing them to be independently updated thereafter), and 'never_on_login' (configures the connection not to create the user and not to set the root attributes from the external IdP, allowing them to be independently updated).
-      default: on_each_login
+    ConnectionTokenEndpointAuthSigningAlgEnum:
+      type:
+      - string
+      - 'null'
+      description: Algorithm used to sign client_assertions.
       enum:
-      - on_each_login
-      - on_first_login
-      - never_on_login
-    ConnectionApiBehaviorEnum:
-      type: string
-      description: Specifies the API behavior for password authentication
-      enum:
-      - required
-      - optional
-      x-release-lifecycle: EA
-    UpdateConnectionResponseContent:
+      - ES256
+      - ES384
+      - PS256
+      - PS384
+      - RS256
+      - RS384
+      - RS512
+      x-merge-priority: -5
+    ConnectionAttributes:
+      type: object
+      description: Attribute configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        email:
+          $ref: '#/components/schemas/EmailAttribute'
+        phone_number:
+          $ref: '#/components/schemas/PhoneAttribute'
+        username:
+          $ref: '#/components/schemas/UsernameAttribute'
+    ListConnectionsOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
       properties:
-        name:
-          type: string
-          description: The name of the connection
-          default: My connection
-        display_name:
-          type: string
-          description: Connection name used in login screen
-        options:
-          $ref: '#/components/schemas/ConnectionOptions'
-        id:
-          type: string
-          description: The connection's identifier
-          default: con_0000000000000001
-        strategy:
-          type: string
-          description: The type of the connection, related to the identity provider
-          default: auth0
-        realms:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        connections:
           type: array
-          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
           items:
-            type: string
-            description: The realm where this connection belongs
-            format: connection-realm
-        enabled_clients:
-          type: array
-          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
-          x-release-lifecycle: deprecated
-          items:
-            type: string
-            description: The client id
-        is_domain_connection:
-          type: boolean
-          description: True if the connection is domain level
-        show_as_button:
-          type: boolean
-          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
-        metadata:
-          $ref: '#/components/schemas/ConnectionsMetadata'
-        authentication:
-          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
-          x-release-lifecycle: GA
-        connected_accounts:
-          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
-          x-release-lifecycle: GA
-    ConnectionAuthenticationPurpose:
+            $ref: '#/components/schemas/ConnectionForList'
+    ConnectionPasswordOptionsDictionary:
       type: object
-      description: Configure the purpose of a connection to be used for authentication during login.
+      description: Dictionary-based password restriction policy to prevent common passwords
       additionalProperties: false
-      required:
-      - active
-      x-release-lifecycle: GA
       properties:
         active:
           type: boolean
-    RotateConnectionKeysRequestContent:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      properties:
-        signing_alg:
-          $ref: '#/components/schemas/RotateConnectionKeysSigningAlgEnum'
-    DirectoryProvisioningMappingItem:
-      type: object
-      additionalProperties: false
-      required:
-      - auth0
-      - idp
-      properties:
-        auth0:
-          type: string
-          description: The field location in the Auth0 schema
-        idp:
-          type: string
-          description: The field location in the IDP schema
-    ConnectionUpstreamAliasEnum:
-      type: string
-      enum:
-      - acr_values
-      - audience
-      - client_id
-      - display
-      - id_token_hint
-      - login_hint
-      - max_age
-      - prompt
-      - resource
-      - response_mode
-      - response_type
-      - ui_locales
-    CreateScimTokenResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        token_id:
-          type: string
-          description: The token's identifier
-        token:
-          type: string
-          description: The scim client's token
-        scopes:
+          description: Enables dictionary checking to prevent use of common passwords and custom blocked words
+        custom:
           type: array
-          description: The scopes of the scim token
+          description: Array of custom words to block in passwords. Maximum 200 items, each up to 50 characters
           items:
             type: string
-            description: The token's scope
-        created_at:
+            maxLength: 50
+        default:
+          $ref: '#/components/schemas/PasswordDefaultDictionariesEnum'
+    ListConnectionsCheckpointPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
           type: string
-          description: The token's created at timestamp
-        valid_until:
-          type: string
-          description: The token's valid until at timestamp
-    UpdateScimConfigurationResponseContent:
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionForList'
+    GetScimConfigurationResponseContent:
       type: object
       additionalProperties: false
       required:
@@ -1972,86 +2323,50 @@ components:
           type: string
           description: The ISO 8601 date and time the SCIM configuration was last updated on
           format: date-time
-    UpdateDirectoryProvisioningResponseContent:
+    ReplaceSynchronizedGroupsRequestContent:
       type: object
       additionalProperties: false
       required:
-      - connection_id
-      - connection_name
-      - strategy
-      - mapping
-      - synchronize_automatically
-      - created_at
-      - updated_at
+      - groups
       properties:
-        connection_id:
-          type: string
-          description: The connection's identifier
-        connection_name:
-          type: string
-          description: The connection's name
-        strategy:
-          type: string
-          description: The connection's strategy
-        mapping:
+        groups:
           type: array
-          description: The mapping between Auth0 and IDP user attributes
-          minItems: 1
+          description: Array of Google Workspace Directory group objects to synchronize.
           items:
-            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
-        synchronize_automatically:
-          type: boolean
-          description: Whether periodic automatic synchronization is enabled
-        synchronize_groups:
-          $ref: '#/components/schemas/SynchronizeGroupsEnum'
-          x-release-lifecycle: EA
-        created_at:
-          type: string
-          description: The timestamp at which the directory provisioning configuration was created
-          format: date-time
-        updated_at:
-          type: string
-          description: The timestamp at which the directory provisioning configuration was last updated
-          format: date-time
-        last_synchronization_at:
-          type: string
-          description: The timestamp at which the connection was last synchronized
-          format: date-time
-        last_synchronization_status:
-          type: string
-          description: The status of the last synchronization
-        last_synchronization_error:
-          type: string
-          description: The error message of the last synchronization, if any
-    ConnectionAuthenticationMethods:
+            $ref: '#/components/schemas/SynchronizedGroupPayload'
+    ConnectionPasswordDictionaryOptions:
       type:
       - object
       - 'null'
-      description: Options for enabling authentication methods.
+      description: Options for password dictionary policy
       additionalProperties: false
+      required:
+      - enable
       properties:
-        password:
-          $ref: '#/components/schemas/ConnectionPasswordAuthenticationMethod'
-        passkey:
-          $ref: '#/components/schemas/ConnectionPasskeyAuthenticationMethod'
-        email_otp:
-          $ref: '#/components/schemas/ConnectionEmailOtpAuthenticationMethod'
-          x-release-lifecycle: EA
-        phone_otp:
-          $ref: '#/components/schemas/ConnectionPhoneOtpAuthenticationMethod'
-          x-release-lifecycle: EA
-    ConnectionPasswordPolicyEnum:
+        enable:
+          type: boolean
+        dictionary:
+          type: array
+          description: Custom Password Dictionary. An array of up to 200 entries.
+          items:
+            type: string
+            description: Custom Password Dictionary entry. 50 characters max.
+            maxLength: 50
+    ConnectionIdTokenSignedResponseAlgs:
+      description: List of algorithms allowed to verify the ID tokens.
       type:
-      - string
+      - array
       - 'null'
-      description: Password strength level
+      items:
+        $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgEnum'
+      x-merge-priority: -5
+    ConnectionApiBehaviorEnum:
+      type: string
+      description: Specifies the API behavior for password authentication
       enum:
-      - none
-      - low
-      - fair
-      - good
-      - excellent
-      - null
+      - required
+      - optional
+      x-release-lifecycle: EA
     ConnectionStrategyEnum:
       type: string
       enum:
@@ -2111,55 +2426,29 @@ components:
       - yahoo
       - yandex
       - auth0-adldap
-    CreateConnectionResponseContent:
-      type: object
+    VerificationMethodEnum:
+      type: string
+      enum:
+      - link
+      - otp
+    SignupStatusEnum:
+      type: string
+      enum:
+      - required
+      - optional
+      - inactive
+    ConnectionPasswordComplexityOptions:
+      type:
+      - object
+      - 'null'
+      description: Password complexity options
       additionalProperties: false
       properties:
-        name:
-          type: string
-          description: The name of the connection
-          default: My connection
-        display_name:
-          type: string
-          description: Connection name used in login screen
-        options:
-          $ref: '#/components/schemas/ConnectionOptions'
-        id:
-          type: string
-          description: The connection's identifier
-          default: con_0000000000000001
-        strategy:
-          type: string
-          description: The type of the connection, related to the identity provider
-          default: auth0
-        realms:
-          type: array
-          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
-          items:
-            type: string
-            description: The realm where this connection belongs
-            format: connection-realm
-        enabled_clients:
-          type: array
-          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
-          x-release-lifecycle: deprecated
-          items:
-            type: string
-            description: The client id
-        is_domain_connection:
-          type: boolean
-          description: True if the connection is domain level
-        show_as_button:
-          type: boolean
-          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
-        metadata:
-          $ref: '#/components/schemas/ConnectionsMetadata'
-        authentication:
-          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
-          x-release-lifecycle: GA
-        connected_accounts:
-          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
-          x-release-lifecycle: GA
+        min_length:
+          type: integer
+          description: Minimum password length
+          minimum: 1
+          maximum: 128
     PostConnectionKeysRequestContent:
       type:
       - object
@@ -2168,141 +2457,49 @@ components:
       properties:
         signing_alg:
           $ref: '#/components/schemas/PostConnectionKeysAlgEnum'
-    CreateDirectoryProvisioningResponseContent:
+    ConnectionUpstreamAlias:
       type: object
       additionalProperties: false
-      required:
-      - connection_id
-      - connection_name
-      - strategy
-      - mapping
-      - synchronize_automatically
-      - created_at
-      - updated_at
       properties:
-        connection_id:
-          type: string
-          description: The connection's identifier
-        connection_name:
-          type: string
-          description: The connection's name
-        strategy:
-          type: string
-          description: The connection's strategy
-        mapping:
-          type: array
-          description: The mapping between Auth0 and IDP user attributes
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
-        synchronize_automatically:
+        alias:
+          $ref: '#/components/schemas/ConnectionUpstreamAliasEnum'
+    ConnectionPasswordAuthenticationMethod:
+      type: object
+      description: Password authentication enablement
+      additionalProperties: false
+      properties:
+        enabled:
           type: boolean
-          description: Whether periodic automatic synchronization is enabled
-        synchronize_groups:
-          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          description: Determines whether passwords are enabled
+        api_behavior:
+          $ref: '#/components/schemas/ConnectionApiBehaviorEnum'
           x-release-lifecycle: EA
-        created_at:
-          type: string
-          description: The timestamp at which the directory provisioning configuration was created
-          format: date-time
-        updated_at:
-          type: string
-          description: The timestamp at which the directory provisioning configuration was last updated
-          format: date-time
-        last_synchronization_at:
-          type: string
-          description: The timestamp at which the connection was last synchronized
-          format: date-time
-        last_synchronization_status:
-          type: string
-          description: The status of the last synchronization
-        last_synchronization_error:
-          type: string
-          description: The error message of the last synchronization, if any
-    ListConnectionsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/ConnectionForList'
-      - $ref: '#/components/schemas/ListConnectionsOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListConnectionsCheckpointPaginatedResponseContent'
-    PostConnectionKeysAlgEnum:
-      type: string
-      description: Selected Signing Algorithm
-      enum:
-      - RS256
-      - RS384
-      - RS512
-      - PS256
-      - PS384
-      - ES256
-      - ES384
-    ConnectionPasswordOptionsHistory:
-      type: object
-      description: Password history policy configuration to prevent password reuse
-      additionalProperties: false
-      properties:
-        active:
-          type: boolean
-          description: Enables password history checking to prevent users from reusing recent passwords
-        size:
-          type: integer
-          description: Number of previous passwords to remember and prevent reuse (1-24)
-          minimum: 1
-          maximum: 24
-    GetScimConfigurationResponseContent:
+        signup_behavior:
+          $ref: '#/components/schemas/ConnectionSignupBehaviorEnum'
+          x-release-lifecycle: EA
+    SignupVerified:
       type: object
       additionalProperties: false
-      required:
-      - tenant_name
-      - connection_id
-      - connection_name
-      - strategy
-      - created_at
-      - updated_on
-      - mapping
-      - user_id_attribute
       properties:
-        connection_id:
-          type: string
-          description: The connection's identifier
-        connection_name:
-          type: string
-          description: The connection's name
-        strategy:
-          type: string
-          description: The connection's strategy
-        tenant_name:
-          type: string
-          description: The tenant's name
-        user_id_attribute:
-          type: string
-          description: User ID attribute for generating unique user ids
-        mapping:
-          type: array
-          description: The mapping between auth0 and SCIM
-          items:
-            $ref: '#/components/schemas/ScimMappingItem'
-        created_at:
-          type: string
-          description: The ISO 8601 date and time the SCIM configuration was created at
-          format: date-time
-        updated_on:
-          type: string
-          description: The ISO 8601 date and time the SCIM configuration was last updated on
-          format: date-time
-    ConnectionConnectedAccountsPurpose:
+        status:
+          $ref: '#/components/schemas/SignupStatusEnum'
+        verification:
+          $ref: '#/components/schemas/SignupVerification'
+    ConnectionsMetadata:
       type: object
-      description: Configure the purpose of a connection to be used for connected accounts and Token Vault.
+      description: Metadata associated with the connection in the form of an object with string values (max 255 chars).  Maximum of 10 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
+    SignupSchema:
+      type: object
       additionalProperties: false
-      required:
-      - active
-      x-release-lifecycle: GA
       properties:
-        active:
-          type: boolean
-        cross_app_access:
-          type: boolean
+        status:
+          $ref: '#/components/schemas/SignupStatusEnum'
     CreateConnectionRequestContent:
       type: object
       additionalProperties: false
@@ -2351,142 +2548,52 @@ components:
         connected_accounts:
           $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
           x-release-lifecycle: GA
-    PasswordDefaultDictionariesEnum:
+    ConnectionUpstreamAliasEnum:
       type: string
-      description: 'Default dictionary to use for password validation. Options: "en_10k" (10,000 common words) or "en_100k" (100,000 common words)'
       enum:
-      - en_10k
-      - en_100k
-    ConnectionPhoneOtpAuthenticationMethod:
+      - acr_values
+      - audience
+      - client_id
+      - display
+      - id_token_hint
+      - login_hint
+      - max_age
+      - prompt
+      - resource
+      - response_mode
+      - response_type
+      - ui_locales
+    ConnectionPasswordOptions:
       type: object
-      description: Phone OTP authentication enablement
+      description: Password policy options for flexible password policy configuration
       additionalProperties: false
       x-release-lifecycle: EA
       properties:
-        enabled:
-          type: boolean
-          description: Determines whether phone OTP is enabled
-    SignupVerified:
-      type: object
-      additionalProperties: false
-      properties:
-        status:
-          $ref: '#/components/schemas/SignupStatusEnum'
-        verification:
-          $ref: '#/components/schemas/SignupVerification'
-    GetScimTokensResponseContent:
-      type: array
-      description: The list of scim tokens for scim clients
-      items:
-        $ref: '#/components/schemas/ScimTokenItem'
-    CreateScimTokenRequestContent:
-      type: object
-      description: SCIM Token
-      additionalProperties: false
-      properties:
-        scopes:
-          type: array
-          description: The scopes of the scim token
-          minItems: 1
-          items:
-            type: string
-            description: The token's scope
-        token_lifetime:
-          type:
-          - integer
-          - 'null'
-          description: Lifetime of the token in seconds. Must be greater than 900
-    ConnectionPasswordNoPersonalInfoOptions:
+        complexity:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsComplexity'
+        dictionary:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsDictionary'
+        history:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsHistory'
+        profile_data:
+          $ref: '#/components/schemas/ConnectionPasswordOptionsProfileData'
+    ConnectionAuthenticationMethods:
       type:
       - object
       - 'null'
-      description: Options for personal info in passwords policy
-      additionalProperties: false
-      required:
-      - enable
-      properties:
-        enable:
-          type: boolean
-    RotateConnectionKeysSigningAlgEnum:
-      type: string
-      description: Selected Signing Algorithm
-      enum:
-      - RS256
-      - RS384
-      - RS512
-      - PS256
-      - PS384
-      - ES256
-      - ES384
-    ConnectionFederatedConnectionsAccessTokens:
-      type:
-      - object
-      - 'null'
-      description: Federated Connections Access Tokens
+      description: Options for enabling authentication methods.
       additionalProperties: false
       properties:
-        active:
-          type: boolean
-          description: Enables refresh tokens and access tokens collection for federated connections
-    ConnectionUpstreamParams:
-      type:
-      - object
-      - 'null'
-      description: Options for adding parameters in the request to the upstream IdP
-      additionalProperties:
-        $ref: '#/components/schemas/ConnectionUpstreamAdditionalProperties'
-    CreateScimConfigurationResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - tenant_name
-      - connection_id
-      - connection_name
-      - strategy
-      - created_at
-      - updated_on
-      - mapping
-      - user_id_attribute
-      properties:
-        connection_id:
-          type: string
-          description: The connection's identifier
-        connection_name:
-          type: string
-          description: The connection's name
-        strategy:
-          type: string
-          description: The connection's strategy
-        tenant_name:
-          type: string
-          description: The tenant's name
-        user_id_attribute:
-          type: string
-          description: User ID attribute for generating unique user ids
-        mapping:
-          type: array
-          description: The mapping between auth0 and SCIM
-          items:
-            $ref: '#/components/schemas/ScimMappingItem'
-        created_at:
-          type: string
-          description: The ISO 8601 date and time the SCIM configuration was created at
-          format: date-time
-        updated_on:
-          type: string
-          description: The ISO 8601 date and time the SCIM configuration was last updated on
-          format: date-time
-    SignupStatusEnum:
-      type: string
-      enum:
-      - required
-      - optional
-      - inactive
-    ConnectionUpstreamAdditionalProperties:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/ConnectionUpstreamAlias'
-      - $ref: '#/components/schemas/ConnectionUpstreamValue'
+        password:
+          $ref: '#/components/schemas/ConnectionPasswordAuthenticationMethod'
+        passkey:
+          $ref: '#/components/schemas/ConnectionPasskeyAuthenticationMethod'
+        email_otp:
+          $ref: '#/components/schemas/ConnectionEmailOtpAuthenticationMethod'
+          x-release-lifecycle: EA
+        phone_otp:
+          $ref: '#/components/schemas/ConnectionPhoneOtpAuthenticationMethod'
+          x-release-lifecycle: EA
     ConnectionUsernameValidationOptions:
       type:
       - object
@@ -2502,332 +2609,17 @@ components:
         max:
           type: integer
           maximum: 128
-    UsernameAllowedTypes:
-      type: object
-      additionalProperties: false
-      properties:
-        email:
-          type: boolean
-        phone_number:
-          type: boolean
-    PasswordIdenticalCharactersPolicyEnum:
+    ConnectionAssertionDecryptionAlgorithmProfileEnum:
       type: string
-      description: Controls whether identical consecutive characters are allowed in passwords
+      description: The algorithm profile to use for decrypting SAML assertions.
       enum:
-      - allow
-      - block
-    PostConnectionsKeysResponseContent:
-      type: array
-      items:
-        type: object
-        additionalProperties: true
-        required:
-        - cert
-        - kid
-        - fingerprint
-        - thumbprint
-        properties:
-          kid:
-            type: string
-            description: The key id of the signing key
-            maxLength: 255
-          cert:
-            type: string
-            description: The public certificate of the signing key
-            default: '-----BEGIN CERTIFICATE-----
-
-              MIIDDTCCA...YiA0TQhAt8=
-
-              -----END CERTIFICATE-----'
-            maxLength: 4096
-          pkcs:
-            type: string
-            description: The public certificate of the signing key in pkcs7 format
-            default: '-----BEGIN PKCS7-----
-
-              MIIDPA....t8xAA==
-
-              -----END PKCS7-----'
-            maxLength: 4096
-          current:
-            type: boolean
-            description: True if the key is the current key
-            default: true
-          next:
-            type: boolean
-            description: True if the key is the next key
-          current_since:
-            type: string
-            description: The date and time when the key became the current key
-          fingerprint:
-            type: string
-            description: The cert fingerprint
-            default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
-          thumbprint:
-            type: string
-            description: The cert thumbprint
-            default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
-            maxLength: 255
-          algorithm:
-            type: string
-            description: Signing key algorithm
-          key_use:
-            $ref: '#/components/schemas/ConnectionKeyUseEnum'
-          subject_dn:
-            type: string
-            maxLength: 132
-    ConnectionEnabledClient:
-      type: object
-      additionalProperties: true
-      required:
-      - client_id
-      properties:
-        client_id:
-          type: string
-          description: The client id
-    ConnectionAttributeIdentifier:
-      type: object
-      additionalProperties: false
-      properties:
-        active:
-          type: boolean
-          description: Determines if the attribute is used for identification
-        default_method:
-          $ref: '#/components/schemas/DefaultMethodEmailIdentifierEnum'
-          x-release-lifecycle: EA
-    ConnectionsMetadata:
-      type: object
-      description: Metadata associated with the connection in the form of an object with string values (max 255 chars).  Maximum of 10 metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 10
-    RotateConnectionsKeysResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - cert
-      - kid
-      - fingerprint
-      - thumbprint
-      properties:
-        kid:
-          type: string
-          description: The key id of the signing key
-          maxLength: 255
-        cert:
-          type: string
-          description: The public certificate of the signing key
-          default: '-----BEGIN CERTIFICATE-----
-
-            MIIDDTCCA...YiA0TQhAt8=
-
-            -----END CERTIFICATE-----'
-          maxLength: 4096
-        pkcs:
-          type: string
-          description: The public certificate of the signing key in pkcs7 format
-          default: '-----BEGIN PKCS7-----
-
-            MIIDPA....t8xAA==
-
-            -----END PKCS7-----'
-          maxLength: 4096
-        next:
-          type: boolean
-          description: True if the key is the the next key
-        fingerprint:
-          type: string
-          description: The cert fingerprint
-          default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
-        thumbprint:
-          type: string
-          description: The cert thumbprint
-          default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
-          maxLength: 255
-        algorithm:
-          type: string
-          description: Signing key algorithm
-        key_use:
-          $ref: '#/components/schemas/ConnectionKeyUseEnum'
-        subject_dn:
-          type: string
-          maxLength: 132
-    ConnectionCustomScripts:
-      type: object
-      description: A map of scripts used to integrate with a custom database.
-      additionalProperties: true
-      properties:
-        login:
-          type: string
-          minLength: 1
-        get_user:
-          type: string
-          minLength: 1
-        delete:
-          type: string
-          minLength: 1
-        change_password:
-          type: string
-          minLength: 1
-        verify:
-          type: string
-          minLength: 1
-        create:
-          type: string
-          minLength: 1
-        change_username:
-          type: string
-          minLength: 1
-        change_email:
-          type: string
-          minLength: 1
-        change_phone_number:
-          type: string
-          minLength: 1
-    ConnectionForList:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: The name of the connection
-          default: My connection
-        display_name:
-          type: string
-          description: Connection name used in login screen
-        options:
-          $ref: '#/components/schemas/ConnectionOptions'
-        id:
-          type: string
-          description: The connection's identifier
-          default: con_0000000000000001
-        strategy:
-          type: string
-          description: The type of the connection, related to the identity provider
-          default: auth0
-        realms:
-          type: array
-          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
-          items:
-            type: string
-            description: The realm where this connection belongs
-            format: connection-realm
-        is_domain_connection:
-          type: boolean
-          description: True if the connection is domain level
-        show_as_button:
-          type: boolean
-          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
-        metadata:
-          $ref: '#/components/schemas/ConnectionsMetadata'
-        authentication:
-          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
-          x-release-lifecycle: GA
-        connected_accounts:
-          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
-          x-release-lifecycle: GA
-    ConnectionPasswordOptionsDictionary:
-      type: object
-      description: Dictionary-based password restriction policy to prevent common passwords
-      additionalProperties: false
-      properties:
-        active:
-          type: boolean
-          description: Enables dictionary checking to prevent use of common passwords and custom blocked words
-        custom:
-          type: array
-          description: Array of custom words to block in passwords. Maximum 200 items, each up to 50 characters
-          items:
-            type: string
-            maxLength: 50
-        default:
-          $ref: '#/components/schemas/PasswordDefaultDictionariesEnum'
-    ConnectionAttributes:
-      type: object
-      description: Attribute configuration
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        email:
-          $ref: '#/components/schemas/EmailAttribute'
-        phone_number:
-          $ref: '#/components/schemas/PhoneAttribute'
-        username:
-          $ref: '#/components/schemas/UsernameAttribute'
-    ConnectionPasskeyAuthenticationMethod:
-      type: object
-      description: Passkey authentication enablement
-      additionalProperties: false
-      properties:
-        enabled:
-          type: boolean
-          description: Determines whether passkeys are enabled
-    ConnectionPasswordOptionsProfileData:
-      type: object
-      description: Personal information restriction policy to prevent use of profile data in passwords
-      additionalProperties: false
-      properties:
-        active:
-          type: boolean
-          description: Prevents users from including profile data (like name, email) in their passwords
-        blocked_fields:
-          type: array
-          description: Blocked profile fields. An array of up to 12 entries.
-          items:
-            type: string
-            description: Blocked profile fields entry. 100 characters max.
-            maxLength: 100
-    CreateDirectoryProvisioningRequestContent:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      properties:
-        mapping:
-          type: array
-          description: The mapping between Auth0 and IDP user attributes
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
-        synchronize_automatically:
-          type: boolean
-          description: Whether periodic automatic synchronization is enabled
-        synchronize_groups:
-          $ref: '#/components/schemas/SynchronizeGroupsEnum'
-          x-release-lifecycle: EA
-    PasswordSequentialCharactersPolicyEnum:
+      - v2026-1
+    PasswordDefaultDictionariesEnum:
       type: string
-      description: Controls whether sequential characters are allowed in passwords
+      description: 'Default dictionary to use for password validation. Options: "en_10k" (10,000 common words) or "en_100k" (100,000 common words)'
       enum:
-      - allow
-      - block
-    ListConnectionsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        connections:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectionForList'
-    ConnectionOptions:
-      type: object
-      description: In order to return options in the response, the `read:connections_options` scope must be present
-      additionalProperties: true
-    SignupVerification:
-      type: object
-      additionalProperties: false
-      properties:
-        active:
-          type: boolean
+      - en_10k
+      - en_100k
     SynchronizeGroupsEnum:
       type: string
       description: Group synchronization configuration
@@ -2836,331 +2628,6 @@ components:
       - 'off'
       - selected
       x-release-lifecycle: EA
-    UsernameAttribute:
-      type: object
-      description: Configuration for the username attribute for users.
-      additionalProperties: false
-      properties:
-        identifier:
-          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
-        profile_required:
-          type: boolean
-          description: Determines if property should be required for users
-        signup:
-          $ref: '#/components/schemas/SignupSchema'
-        validation:
-          $ref: '#/components/schemas/UsernameValidation'
-    VerificationMethodEnum:
-      type: string
-      enum:
-      - link
-      - otp
-    GetConnectionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: The name of the connection
-          default: My connection
-        display_name:
-          type: string
-          description: Connection name used in login screen
-        options:
-          $ref: '#/components/schemas/ConnectionOptions'
-        id:
-          type: string
-          description: The connection's identifier
-          default: con_0000000000000001
-        strategy:
-          type: string
-          description: The type of the connection, related to the identity provider
-          default: auth0
-        realms:
-          type: array
-          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
-          items:
-            type: string
-            description: The realm where this connection belongs
-            format: connection-realm
-        enabled_clients:
-          type: array
-          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
-          x-release-lifecycle: deprecated
-          items:
-            type: string
-            description: The client id
-        is_domain_connection:
-          type: boolean
-          description: True if the connection is domain level
-        show_as_button:
-          type: boolean
-          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
-        metadata:
-          $ref: '#/components/schemas/ConnectionsMetadata'
-        authentication:
-          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
-          x-release-lifecycle: GA
-        connected_accounts:
-          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
-          x-release-lifecycle: GA
-    ConnectionTokenEndpointAuthSigningAlgEnum:
-      type:
-      - string
-      - 'null'
-      description: Algorithm used to sign client_assertions.
-      enum:
-      - ES256
-      - ES384
-      - PS256
-      - PS384
-      - RS256
-      - RS384
-      - RS512
-      x-merge-priority: -5
-    PhoneAttribute:
-      type: object
-      description: Configuration for the phone number attribute for users.
-      additionalProperties: false
-      properties:
-        identifier:
-          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
-        profile_required:
-          type: boolean
-          description: Determines if property should be required for users
-        signup:
-          $ref: '#/components/schemas/SignupVerified'
-    UsernameValidation:
-      type: object
-      additionalProperties: false
-      properties:
-        min_length:
-          type: number
-          description: Minimum allowed length
-          minimum: 1
-          maximum: 128
-        max_length:
-          type: number
-          description: Maximum allowed length
-          minimum: 1
-          maximum: 128
-        allowed_types:
-          $ref: '#/components/schemas/UsernameAllowedTypes'
-    ConnectionPasskeyChallengeUIEnum:
-      type: string
-      description: Controls the UI used to challenge the user for their passkey.
-      enum:
-      - both
-      - autofill
-      - button
-    ConnectionTokenEndpointJwtcaAudFormatEnumOIDC:
-      type: string
-      description: 'Specifies the format of the aud (audience) claim included in the JWT used for client authentication at the token endpoint. Accepted values are: ''issuer'' (the aud claim is set to the OIDC issuer URL) or ''token_endpoint'' (the aud claim is set to the token endpoint URL).'
-      enum:
-      - issuer
-      - token_endpoint
-      x-merge-priority: -5
-    ListSynchronizedGroupsResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - groups
-      properties:
-        groups:
-          type: array
-          description: Array of Google Workspace group ids configured for synchronization.
-          items:
-            $ref: '#/components/schemas/SynchronizedGroupPayload'
-        next:
-          type: string
-          description: The cursor to be used as the "from" query parameter for the next page of results.
-    UpdateScimConfigurationRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - user_id_attribute
-      - mapping
-      properties:
-        user_id_attribute:
-          type: string
-          description: User ID attribute for generating unique user ids
-        mapping:
-          type: array
-          description: The mapping between auth0 and SCIM
-          items:
-            $ref: '#/components/schemas/ScimMappingItem'
-    GetScimConfigurationDefaultMappingResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        mapping:
-          type: array
-          description: The mapping between auth0 and SCIM
-          items:
-            $ref: '#/components/schemas/ScimMappingItem'
-    ConnectionTokenEndpointAuthMethodEnum:
-      type:
-      - string
-      - 'null'
-      description: Authentication method used at the identity provider's token endpoint. 'client_secret_post' sends credentials in the request body; 'private_key_jwt' uses a signed JWT assertion for enhanced security.
-      enum:
-      - client_secret_post
-      - private_key_jwt
-      x-merge-priority: -5
-    ConnectionGatewayAuthentication:
-      type:
-      - object
-      - 'null'
-      description: Token-based authentication settings to be applied when connection is using an sms strategy.
-      additionalProperties: true
-      required:
-      - method
-      - audience
-      - secret
-      properties:
-        method:
-          type: string
-          description: The Authorization header type.
-        subject:
-          type: string
-          description: The subject to be added to the JWT payload.
-        audience:
-          type: string
-          description: The audience to be added to the JWT payload.
-        secret:
-          type: string
-          description: The secret to be used for signing tokens.
-        secret_base64_encoded:
-          type: boolean
-          description: Set to true if the provided secret is base64 encoded.
-    ConnectionSignupBehaviorEnum:
-      type: string
-      description: Specifies the signup behavior for password authentication
-      enum:
-      - allow
-      - block
-      x-release-lifecycle: EA
-    ConnectionIdentityProviderEnum:
-      type: string
-      description: The identity provider identifier for the connection
-      enum:
-      - ad
-      - adfs
-      - amazon
-      - apple
-      - dropbox
-      - bitbucket
-      - auth0-oidc
-      - auth0
-      - baidu
-      - bitly
-      - box
-      - custom
-      - daccount
-      - dwolla
-      - email
-      - evernote-sandbox
-      - evernote
-      - exact
-      - facebook
-      - fitbit
-      - github
-      - google-apps
-      - google-oauth2
-      - instagram
-      - ip
-      - line
-      - linkedin
-      - oauth1
-      - oauth2
-      - office365
-      - oidc
-      - okta
-      - paypal
-      - paypal-sandbox
-      - pingfederate
-      - planningcenter
-      - salesforce-community
-      - salesforce-sandbox
-      - salesforce
-      - samlp
-      - sharepoint
-      - shopify
-      - shop
-      - sms
-      - soundcloud
-      - thirtysevensignals
-      - twitter
-      - untappd
-      - vkontakte
-      - waad
-      - weibo
-      - windowslive
-      - wordpress
-      - yahoo
-      - yandex
-    ConnectionPasswordHistoryOptions:
-      type:
-      - object
-      - 'null'
-      description: Options for password history policy
-      additionalProperties: false
-      required:
-      - enable
-      properties:
-        enable:
-          type: boolean
-        size:
-          type: integer
-          minimum: 0
-          maximum: 24
-    ConnectionIdentifierPrecedenceEnum:
-      type: string
-      description: Order of precedence for attribute types
-      enum:
-      - email
-      - phone_number
-      - username
-    ListConnectionsCheckpointPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.
-        connections:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectionForList'
-    EmailAttribute:
-      type: object
-      description: Configuration for the email attribute for users.
-      additionalProperties: false
-      properties:
-        identifier:
-          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
-        unique:
-          type: boolean
-          description: Determines if the attribute is unique in a given connection
-        profile_required:
-          type: boolean
-          description: Determines if property should be required for users
-        verification_method:
-          $ref: '#/components/schemas/VerificationMethodEnum'
-        signup:
-          $ref: '#/components/schemas/SignupVerified'
-    ConnectionUpstreamAlias:
-      type: object
-      additionalProperties: false
-      properties:
-        alias:
-          $ref: '#/components/schemas/ConnectionUpstreamAliasEnum'
-    SignupSchema:
-      type: object
-      additionalProperties: false
-      properties:
-        status:
-          $ref: '#/components/schemas/SignupStatusEnum'
     UpdateConnectionOptions:
       type:
       - object
@@ -3261,115 +2728,155 @@ components:
           $ref: '#/components/schemas/ConnectionTokenEndpointAuthSigningAlgEnum'
         token_endpoint_jwtca_aud_format:
           $ref: '#/components/schemas/ConnectionTokenEndpointJwtcaAudFormatEnumOIDC'
-    ConnectionEmailOtpAuthenticationMethod:
+    UsernameValidation:
       type: object
-      description: Email OTP authentication enablement
-      additionalProperties: false
-      x-release-lifecycle: EA
-      properties:
-        enabled:
-          type: boolean
-          description: Determines whether email OTP is enabled
-    ConnectionPasswordAuthenticationMethod:
-      type: object
-      description: Password authentication enablement
       additionalProperties: false
       properties:
-        enabled:
-          type: boolean
-          description: Determines whether passwords are enabled
-        api_behavior:
-          $ref: '#/components/schemas/ConnectionApiBehaviorEnum'
-          x-release-lifecycle: EA
-        signup_behavior:
-          $ref: '#/components/schemas/ConnectionSignupBehaviorEnum'
-          x-release-lifecycle: EA
-    GetDirectoryProvisioningResponseContent:
+        min_length:
+          type: number
+          description: Minimum allowed length
+          minimum: 1
+          maximum: 128
+        max_length:
+          type: number
+          description: Maximum allowed length
+          minimum: 1
+          maximum: 128
+        allowed_types:
+          $ref: '#/components/schemas/UsernameAllowedTypes'
+    ConnectionIdentifierPrecedenceEnum:
+      type: string
+      description: Order of precedence for attribute types
+      enum:
+      - email
+      - phone_number
+      - username
+    GetScimTokensResponseContent:
+      type: array
+      description: The list of scim tokens for scim clients
+      items:
+        $ref: '#/components/schemas/ScimTokenItem'
+    ConnectionAssertionDecryptionSettings:
       type: object
+      description: Settings for SAML assertion decryption.
       additionalProperties: false
       required:
-      - connection_id
-      - connection_name
-      - strategy
-      - mapping
-      - synchronize_automatically
-      - created_at
-      - updated_at
+      - algorithm_profile
       properties:
-        connection_id:
-          type: string
-          description: The connection's identifier
-        connection_name:
-          type: string
-          description: The connection's name
-        strategy:
-          type: string
-          description: The connection's strategy
+        algorithm_profile:
+          $ref: '#/components/schemas/ConnectionAssertionDecryptionAlgorithmProfileEnum'
+        algorithm_exceptions:
+          type: array
+          description: A list of insecure algorithms to allow for SAML assertion decryption.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+    ConnectionPasskeyOptions:
+      type:
+      - object
+      - 'null'
+      description: Options for the passkey authentication method
+      additionalProperties: false
+      properties:
+        challenge_ui:
+          $ref: '#/components/schemas/ConnectionPasskeyChallengeUIEnum'
+        progressive_enrollment_enabled:
+          type: boolean
+          description: Enables or disables progressive enrollment of passkeys for the connection.
+        local_enrollment_enabled:
+          type: boolean
+          description: Enables or disables enrollment prompt for local passkey when user authenticates using a cross-device passkey for the connection.
+    PasswordSequentialCharactersPolicyEnum:
+      type: string
+      description: Controls whether sequential characters are allowed in passwords
+      enum:
+      - allow
+      - block
+    GetScimConfigurationDefaultMappingResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        mapping:
+          type: array
+          description: The mapping between auth0 and SCIM
+          items:
+            $ref: '#/components/schemas/ScimMappingItem'
+    PasswordMaxLengthExceededPolicyEnum:
+      type: string
+      description: Controls whether passwords that exceed the maximum length are truncated or rejected
+      enum:
+      - truncate
+      - error
+    GetDirectoryProvisioningDefaultMappingResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
         mapping:
           type: array
           description: The mapping between Auth0 and IDP user attributes
           minItems: 1
           items:
             $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
-        synchronize_automatically:
-          type: boolean
-          description: Whether periodic automatic synchronization is enabled
-        synchronize_groups:
-          $ref: '#/components/schemas/SynchronizeGroupsEnum'
-          x-release-lifecycle: EA
-        created_at:
-          type: string
-          description: The timestamp at which the directory provisioning configuration was created
-          format: date-time
-        updated_at:
-          type: string
-          description: The timestamp at which the directory provisioning configuration was last updated
-          format: date-time
-        last_synchronization_at:
-          type: string
-          description: The timestamp at which the connection was last synchronized
-          format: date-time
-        last_synchronization_status:
-          type: string
-          description: The status of the last synchronization
-        last_synchronization_error:
-          type: string
-          description: The error message of the last synchronization, if any
-    SynchronizedGroupPayload:
+    ConnectionEnabledClient:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       required:
-      - id
+      - client_id
       properties:
-        id:
+        client_id:
           type: string
-          description: Google Workspace Directory group ID.
-          minLength: 1
-          maxLength: 32
-          pattern: ^[A-Za-z0-9]+$
-    ConnectionPasswordOptionsComplexity:
+          description: The client id
+    ListConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/ConnectionForList'
+      - $ref: '#/components/schemas/ListConnectionsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListConnectionsCheckpointPaginatedResponseContent'
+    UsernameAllowedTypes:
       type: object
-      description: Password complexity requirements configuration
       additionalProperties: false
       properties:
-        min_length:
-          type: integer
-          description: Minimum password length required (1-72 characters)
-          minimum: 1
-          maximum: 72
-        character_types:
-          type: array
-          description: 'Required character types that must be present in passwords. Valid options: uppercase, lowercase, number, special'
-          items:
-            $ref: '#/components/schemas/PasswordCharacterTypeEnum'
-        character_type_rule:
-          $ref: '#/components/schemas/PasswordCharacterTypeRulePolicyEnum'
-        identical_characters:
-          $ref: '#/components/schemas/PasswordIdenticalCharactersPolicyEnum'
-        sequential_characters:
-          $ref: '#/components/schemas/PasswordSequentialCharactersPolicyEnum'
-        max_length_exceeded:
-          $ref: '#/components/schemas/PasswordMaxLengthExceededPolicyEnum'
+        email:
+          type: boolean
+        phone_number:
+          type: boolean
+    ScimMappingItem:
+      type: object
+      additionalProperties: true
+      properties:
+        auth0:
+          type: string
+          description: The field location in the auth0 schema
+        scim:
+          type: string
+          description: The field location in the SCIM schema
+    ConnectionPasskeyAuthenticationMethod:
+      type: object
+      description: Passkey authentication enablement
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether passkeys are enabled
+    EmailAttribute:
+      type: object
+      description: Configuration for the email attribute for users.
+      additionalProperties: false
+      properties:
+        identifier:
+          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
+        unique:
+          type: boolean
+          description: Determines if the attribute is unique in a given connection
+        profile_required:
+          type: boolean
+          description: Determines if property should be required for users
+        verification_method:
+          $ref: '#/components/schemas/VerificationMethodEnum'
+        signup:
+          $ref: '#/components/schemas/SignupVerified'
     CreateScimConfigurationRequestContent:
       type:
       - object
@@ -3384,6 +2891,21 @@ components:
           description: The mapping between auth0 and SCIM
           items:
             $ref: '#/components/schemas/ScimMappingItem'
+    ConnectionPasswordOptionsProfileData:
+      type: object
+      description: Personal information restriction policy to prevent use of profile data in passwords
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Prevents users from including profile data (like name, email) in their passwords
+        blocked_fields:
+          type: array
+          description: Blocked profile fields. An array of up to 12 entries.
+          items:
+            type: string
+            description: Blocked profile fields entry. 100 characters max.
+            maxLength: 100
     GetConnectionEnabledClientsResponseContent:
       type: object
       additionalProperties: true
@@ -3398,14 +2920,257 @@ components:
         next:
           type: string
           description: Encoded next token
-    ConnectionIdTokenSignedResponseAlgs:
-      description: List of algorithms allowed to verify the ID tokens.
+    CreateConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the connection
+          default: My connection
+        display_name:
+          type: string
+          description: Connection name used in login screen
+        options:
+          $ref: '#/components/schemas/ConnectionOptions'
+        id:
+          type: string
+          description: The connection's identifier
+          default: con_0000000000000001
+        strategy:
+          type: string
+          description: The type of the connection, related to the identity provider
+          default: auth0
+        realms:
+          type: array
+          description: 'Defines the realms for which the connection will be used (ie: email domains). If the array is empty or the property is not specified, the connection name will be added as realm.'
+          items:
+            type: string
+            description: The realm where this connection belongs
+            format: connection-realm
+        enabled_clients:
+          type: array
+          description: DEPRECATED property. Use the GET /connections/:id/clients endpoint to get the ids of the clients for which the connection is enabled
+          x-release-lifecycle: deprecated
+          items:
+            type: string
+            description: The client id
+        is_domain_connection:
+          type: boolean
+          description: True if the connection is domain level
+        show_as_button:
+          type: boolean
+          description: Enables showing a button for the connection in the login page (new experience only). If false, it will be usable only by HRD.
+        metadata:
+          $ref: '#/components/schemas/ConnectionsMetadata'
+        authentication:
+          $ref: '#/components/schemas/ConnectionAuthenticationPurpose'
+          x-release-lifecycle: GA
+        connected_accounts:
+          $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
+          x-release-lifecycle: GA
+    ConnectionPhoneOtpAuthenticationMethod:
+      type: object
+      description: Phone OTP authentication enablement
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        enabled:
+          type: boolean
+          description: Determines whether phone OTP is enabled
+    ConnectionIdentityProviderEnum:
+      type: string
+      description: The identity provider identifier for the connection
+      enum:
+      - ad
+      - adfs
+      - amazon
+      - apple
+      - dropbox
+      - bitbucket
+      - auth0-oidc
+      - auth0
+      - baidu
+      - bitly
+      - box
+      - custom
+      - daccount
+      - dwolla
+      - email
+      - evernote-sandbox
+      - evernote
+      - exact
+      - facebook
+      - fitbit
+      - github
+      - google-apps
+      - google-oauth2
+      - instagram
+      - ip
+      - line
+      - linkedin
+      - oauth1
+      - oauth2
+      - office365
+      - oidc
+      - okta
+      - paypal
+      - paypal-sandbox
+      - pingfederate
+      - planningcenter
+      - salesforce-community
+      - salesforce-sandbox
+      - salesforce
+      - samlp
+      - sharepoint
+      - shopify
+      - shop
+      - sms
+      - soundcloud
+      - thirtysevensignals
+      - twitter
+      - untappd
+      - vkontakte
+      - waad
+      - weibo
+      - windowslive
+      - wordpress
+      - yahoo
+      - yandex
+    PasswordCharacterTypeEnum:
+      type: string
+      enum:
+      - uppercase
+      - lowercase
+      - number
+      - special
+    ConnectionPropertiesOptions:
+      type: object
+      description: The connection's options (depend on the connection strategy)
+      additionalProperties: true
+      properties:
+        validation:
+          $ref: '#/components/schemas/ConnectionValidationOptions'
+        non_persistent_attrs:
+          type:
+          - array
+          - 'null'
+          description: An array of user fields that should not be stored in the Auth0 database (https://auth0.com/docs/security/data-security/denylist)
+          items:
+            type: string
+        precedence:
+          type: array
+          description: Order of precedence for attribute types. If the property is not specified, the default precedence of attributes will be used.
+          minItems: 3
+          items:
+            $ref: '#/components/schemas/ConnectionIdentifierPrecedenceEnum'
+        attributes:
+          $ref: '#/components/schemas/ConnectionAttributes'
+        enable_script_context:
+          type: boolean
+          description: 'Set to true to inject context into custom DB scripts (warning: cannot be disabled once enabled)'
+        enabledDatabaseCustomization:
+          type: boolean
+          description: Set to true to use a legacy user store
+        import_mode:
+          type: boolean
+          description: Enable this if you have a legacy user store and you want to gradually migrate those users to the Auth0 user store
+        configuration:
+          type:
+          - object
+          - 'null'
+          description: Stores encrypted string only configurations for connections
+          additionalProperties:
+            type:
+            - string
+            - 'null'
+        customScripts:
+          $ref: '#/components/schemas/ConnectionCustomScripts'
+        authentication_methods:
+          $ref: '#/components/schemas/ConnectionAuthenticationMethods'
+        passkey_options:
+          $ref: '#/components/schemas/ConnectionPasskeyOptions'
+        passwordPolicy:
+          $ref: '#/components/schemas/ConnectionPasswordPolicyEnum'
+        password_complexity_options:
+          $ref: '#/components/schemas/ConnectionPasswordComplexityOptions'
+        password_history:
+          $ref: '#/components/schemas/ConnectionPasswordHistoryOptions'
+        password_no_personal_info:
+          $ref: '#/components/schemas/ConnectionPasswordNoPersonalInfoOptions'
+        password_dictionary:
+          $ref: '#/components/schemas/ConnectionPasswordDictionaryOptions'
+        api_enable_users:
+          type: boolean
+        api_enable_groups:
+          type: boolean
+          x-release-lifecycle: EA
+        basic_profile:
+          type: boolean
+        ext_admin:
+          type: boolean
+        ext_is_suspended:
+          type: boolean
+        ext_agreed_terms:
+          type: boolean
+        ext_groups:
+          type: boolean
+        ext_assigned_plans:
+          type: boolean
+        ext_profile:
+          type: boolean
+        disable_self_service_change_password:
+          type: boolean
+        upstream_params:
+          $ref: '#/components/schemas/ConnectionUpstreamParams'
+        set_user_root_attributes:
+          $ref: '#/components/schemas/ConnectionSetUserRootAttributesEnum'
+        gateway_authentication:
+          $ref: '#/components/schemas/ConnectionGatewayAuthentication'
+        federated_connections_access_tokens:
+          $ref: '#/components/schemas/ConnectionFederatedConnectionsAccessTokens'
+        password_options:
+          $ref: '#/components/schemas/ConnectionPasswordOptions'
+          x-release-lifecycle: EA
+        assertion_decryption_settings:
+          $ref: '#/components/schemas/ConnectionAssertionDecryptionSettings'
+        id_token_signed_response_algs:
+          $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgs'
+        token_endpoint_auth_method:
+          $ref: '#/components/schemas/ConnectionTokenEndpointAuthMethodEnum'
+        token_endpoint_auth_signing_alg:
+          $ref: '#/components/schemas/ConnectionTokenEndpointAuthSigningAlgEnum'
+        token_endpoint_jwtca_aud_format:
+          $ref: '#/components/schemas/ConnectionTokenEndpointJwtcaAudFormatEnumOIDC'
+    ConnectionPasswordPolicyEnum:
       type:
-      - array
+      - string
       - 'null'
-      items:
-        $ref: '#/components/schemas/ConnectionIdTokenSignedResponseAlgEnum'
-      x-merge-priority: -5
+      description: Password strength level
+      enum:
+      - none
+      - low
+      - fair
+      - good
+      - excellent
+      - null
+    CreateDirectorySynchronizationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      - synchronization_id
+      - status
+      properties:
+        connection_id:
+          type: string
+          description: The connection's identifier
+        synchronization_id:
+          type: string
+          description: The synchronization's identifier
+        status:
+          type: string
+          description: The synchronization status
     ConnectionKeyUseEnum:
       type: string
       description: Signing key use, whether for encryption or signing
@@ -3454,6 +3219,241 @@ components:
         connected_accounts:
           $ref: '#/components/schemas/ConnectionConnectedAccountsPurpose'
           x-release-lifecycle: GA
+    DirectoryProvisioningMappingItem:
+      type: object
+      additionalProperties: false
+      required:
+      - auth0
+      - idp
+      properties:
+        auth0:
+          type: string
+          description: The field location in the Auth0 schema
+        idp:
+          type: string
+          description: The field location in the IDP schema
+    PhoneAttribute:
+      type: object
+      description: Configuration for the phone number attribute for users.
+      additionalProperties: false
+      properties:
+        identifier:
+          $ref: '#/components/schemas/ConnectionAttributeIdentifier'
+        profile_required:
+          type: boolean
+          description: Determines if property should be required for users
+        signup:
+          $ref: '#/components/schemas/SignupVerified'
+    PostConnectionsKeysResponseContent:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+        required:
+        - cert
+        - kid
+        - fingerprint
+        - thumbprint
+        properties:
+          kid:
+            type: string
+            description: The key id of the signing key
+            maxLength: 255
+          cert:
+            type: string
+            description: The public certificate of the signing key
+            default: '-----BEGIN CERTIFICATE-----
+
+              MIIDDTCCA...YiA0TQhAt8=
+
+              -----END CERTIFICATE-----'
+            maxLength: 4096
+          pkcs:
+            type: string
+            description: The public certificate of the signing key in pkcs7 format
+            default: '-----BEGIN PKCS7-----
+
+              MIIDPA....t8xAA==
+
+              -----END PKCS7-----'
+            maxLength: 4096
+          current:
+            type: boolean
+            description: True if the key is the current key
+            default: true
+          next:
+            type: boolean
+            description: True if the key is the next key
+          current_since:
+            type: string
+            description: The date and time when the key became the current key
+          fingerprint:
+            type: string
+            description: The cert fingerprint
+            default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+          thumbprint:
+            type: string
+            description: The cert thumbprint
+            default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+            maxLength: 255
+          algorithm:
+            type: string
+            description: Signing key algorithm
+          key_use:
+            $ref: '#/components/schemas/ConnectionKeyUseEnum'
+          subject_dn:
+            type: string
+            maxLength: 132
+    ConnectionAttributeIdentifier:
+      type: object
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Determines if the attribute is used for identification
+        default_method:
+          $ref: '#/components/schemas/DefaultMethodEmailIdentifierEnum'
+          x-release-lifecycle: EA
+    ConnectionPasskeyChallengeUIEnum:
+      type: string
+      description: Controls the UI used to challenge the user for their passkey.
+      enum:
+      - both
+      - autofill
+      - button
+    ConnectionPasswordOptionsHistory:
+      type: object
+      description: Password history policy configuration to prevent password reuse
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Enables password history checking to prevent users from reusing recent passwords
+        size:
+          type: integer
+          description: Number of previous passwords to remember and prevent reuse (1-24)
+          minimum: 1
+          maximum: 24
+    CreateDirectoryProvisioningRequestContent:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      properties:
+        mapping:
+          type: array
+          description: The mapping between Auth0 and IDP user attributes
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DirectoryProvisioningMappingItem'
+        synchronize_automatically:
+          type: boolean
+          description: Whether periodic automatic synchronization is enabled
+        synchronize_groups:
+          $ref: '#/components/schemas/SynchronizeGroupsEnum'
+          x-release-lifecycle: EA
+    CreateScimTokenRequestContent:
+      type: object
+      description: SCIM Token
+      additionalProperties: false
+      properties:
+        scopes:
+          type: array
+          description: The scopes of the scim token
+          minItems: 1
+          items:
+            type: string
+            description: The token's scope
+        token_lifetime:
+          type:
+          - integer
+          - 'null'
+          description: Lifetime of the token in seconds. Must be greater than 900
+    RotateConnectionsKeysResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      - fingerprint
+      - thumbprint
+      properties:
+        kid:
+          type: string
+          description: The key id of the signing key
+          maxLength: 255
+        cert:
+          type: string
+          description: The public certificate of the signing key
+          default: '-----BEGIN CERTIFICATE-----
+
+            MIIDDTCCA...YiA0TQhAt8=
+
+            -----END CERTIFICATE-----'
+          maxLength: 4096
+        pkcs:
+          type: string
+          description: The public certificate of the signing key in pkcs7 format
+          default: '-----BEGIN PKCS7-----
+
+            MIIDPA....t8xAA==
+
+            -----END PKCS7-----'
+          maxLength: 4096
+        next:
+          type: boolean
+          description: True if the key is the the next key
+        fingerprint:
+          type: string
+          description: The cert fingerprint
+          default: CC:FB:DD:D8:9A:B5:DE:1B:F0:CC:36:D2:99:59:21:12:03:DD:A8:25
+        thumbprint:
+          type: string
+          description: The cert thumbprint
+          default: CCFBDDD89AB5DE1BF0CC36D29959211203DDA825
+          maxLength: 255
+        algorithm:
+          type: string
+          description: Signing key algorithm
+        key_use:
+          $ref: '#/components/schemas/ConnectionKeyUseEnum'
+        subject_dn:
+          type: string
+          maxLength: 132
+    ConnectionFederatedConnectionsAccessTokens:
+      type:
+      - object
+      - 'null'
+      description: Federated Connections Access Tokens
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+          description: Enables refresh tokens and access tokens collection for federated connections
+    ConnectionIdTokenSignedResponseAlgEnum:
+      description: Algorithm allowed to verify the ID tokens.
+      type: string
+      enum:
+      - ES256
+      - ES384
+      - PS256
+      - PS384
+      - RS256
+      - RS384
+      - RS512
+      x-merge-priority: -5
+    ConnectionConnectedAccountsPurpose:
+      type: object
+      description: Configure the purpose of a connection to be used for connected accounts and Token Vault.
+      additionalProperties: false
+      required:
+      - active
+      x-release-lifecycle: GA
+      properties:
+        active:
+          type: boolean
+        cross_app_access:
+          type: boolean
   securitySchemes:
     bearerAuth:
       type: http
