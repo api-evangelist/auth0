@@ -345,15 +345,73 @@ paths:
         - read:organization_client_grants
 components:
   schemas:
-    OrganizationMetadata:
+    ClientGrantDefaultForEnum:
+      type: string
+      enum:
+      - third_party_clients
+      x-release-lifecycle: GA
+      description: Applies this client grant as the default for all clients in the specified group. The only accepted value is <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants#default-permissions-for-third-party-applications">`third_party_clients`</a>, which applies the grant to all third-party clients. Per-client grants for the same audience take precedence. Mutually exclusive with `client_id`.
+    ListClientGrantOrganizationsPaginatedResponseContent:
       type: object
-      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 25
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    ClientGrantOrganizationUsageEnum:
+      type: string
+      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+      enum:
+      - deny
+      - allow
+      - require
+    ClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
     ClientGrantOrganizationNullableUsageEnum:
       type:
       - string
@@ -364,6 +422,94 @@ components:
       - allow
       - require
       - null
+    Organization:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    OrganizationBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      required:
+      - primary
+      - page_background
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+          format: html-color
+        page_background:
+          type: string
+          description: HEX Color for background.
+          format: html-color
+    GetClientGrantResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
     CreateClientGrantRequestContent:
       type: object
       additionalProperties: false
@@ -405,6 +551,31 @@ components:
         allow_all_scopes:
           type: boolean
           description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    ListClientGrantOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        client_grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientGrantResponseContent'
+    ListClientGrantPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        client_grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientGrantResponseContent'
     TokenQuota:
       type: object
       additionalProperties: false
@@ -414,47 +585,12 @@ components:
       properties:
         client_credentials:
           $ref: '#/components/schemas/TokenQuotaClientCredentials'
-    UpdateClientGrantRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        scope:
-          type:
-          - array
-          - 'null'
-          description: Scopes allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-            maxLength: 280
-        organization_usage:
-          $ref: '#/components/schemas/ClientGrantOrganizationNullableUsageEnum'
-        allow_any_organization:
-          type:
-          - boolean
-          - 'null'
-          description: Controls allowing any organization to be used with this grant
-        authorization_details_types:
-          type: array
-          description: Types of authorization_details allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-            maxLength: 255
-        allow_all_scopes:
-          type:
-          - boolean
-          - 'null'
-          description: If enabled, all scopes configured on the resource server are allowed for this grant.
-    ClientGrantOrganizationUsageEnum:
-      type: string
-      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+    ClientGrantAllowAnyOrganizationEnum:
+      type: boolean
       enum:
-      - deny
-      - allow
-      - require
-    ClientGrantResponseContent:
+      - true
+      description: Optional filter on allow_any_organization.
+    CreateClientGrantResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -516,36 +652,33 @@ components:
           description: Maximum number of issued tokens per hour
           minimum: 1
           maximum: 2147483647
-    ListClientGrantOffsetPaginatedResponseContent:
+    OrganizationBranding:
       type: object
+      description: Theme defines how to style the login pages.
       additionalProperties: false
       properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        client_grants:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClientGrantResponseContent'
-    ListClientGrantPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
+        logo_url:
           type: string
-          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
-        client_grants:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClientGrantResponseContent'
-    ClientGrantAllowAnyOrganizationEnum:
-      type: boolean
-      enum:
-      - true
-      description: Optional filter on allow_any_organization.
+          description: URL of logo to display on login page.
+          format: strict-https-uri-or-null
+        colors:
+          $ref: '#/components/schemas/OrganizationBrandingColors'
+    ListClientGrantOrganizationsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Organization'
+      - $ref: '#/components/schemas/ListClientGrantOrganizationsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListClientGrantOrganizationsPaginatedResponseContent'
+    OrganizationMetadata:
+      type: object
+      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 25
     ListClientGrantResponseContent:
       oneOf:
       - type: array
@@ -553,96 +686,12 @@ components:
           $ref: '#/components/schemas/ClientGrantResponseContent'
       - $ref: '#/components/schemas/ListClientGrantOffsetPaginatedResponseContent'
       - $ref: '#/components/schemas/ListClientGrantPaginatedResponseContent'
-    OrganizationBrandingColors:
-      type: object
-      description: Color scheme used to customize the login pages.
-      additionalProperties: false
-      required:
-      - primary
-      - page_background
-      properties:
-        primary:
-          type: string
-          description: HEX Color for primary elements.
-          format: html-color
-        page_background:
-          type: string
-          description: HEX Color for background.
-          format: html-color
-    ListClientGrantOrganizationsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Organization'
-    CreateClientGrantResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID of the client grant.
-        client_id:
-          type: string
-          description: ID of the client.
-        audience:
-          type: string
-          description: The audience (API identifier) of this client grant.
-          minLength: 1
-        scope:
-          type: array
-          description: Scopes allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-        organization_usage:
-          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
-        allow_any_organization:
-          type: boolean
-          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
-        default_for:
-          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
-          x-release-lifecycle: GA
-        is_system:
-          type: boolean
-          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
-        subject_type:
-          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
-        authorization_details_types:
-          type: array
-          description: Types of authorization_details allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-            maxLength: 255
-        allow_all_scopes:
-          type: boolean
-          description: If enabled, all scopes configured on the resource server are allowed for this grant.
     ClientGrantSubjectTypeEnum:
       type: string
       enum:
       - client
       - user
       description: The type of application access the client grant allows.
-    ListClientGrantOrganizationsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
-        organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Organization'
     UpdateClientGrantResponseContent:
       type: object
       additionalProperties: false
@@ -686,39 +735,27 @@ components:
         allow_all_scopes:
           type: boolean
           description: If enabled, all scopes configured on the resource server are allowed for this grant.
-    GetClientGrantResponseContent:
+    UpdateClientGrantRequestContent:
       type: object
       additionalProperties: false
+      minProperties: 1
       properties:
-        id:
-          type: string
-          description: ID of the client grant.
-        client_id:
-          type: string
-          description: ID of the client.
-        audience:
-          type: string
-          description: The audience (API identifier) of this client grant.
-          minLength: 1
         scope:
-          type: array
+          type:
+          - array
+          - 'null'
           description: Scopes allowed for this client grant.
           items:
             type: string
             minLength: 1
+            maxLength: 280
         organization_usage:
-          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+          $ref: '#/components/schemas/ClientGrantOrganizationNullableUsageEnum'
         allow_any_organization:
-          type: boolean
-          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
-        default_for:
-          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
-          x-release-lifecycle: GA
-        is_system:
-          type: boolean
-          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
-        subject_type:
-          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+          type:
+          - boolean
+          - 'null'
+          description: Controls allowing any organization to be used with this grant
         authorization_details_types:
           type: array
           description: Types of authorization_details allowed for this client grant.
@@ -727,61 +764,24 @@ components:
             minLength: 1
             maxLength: 255
         allow_all_scopes:
-          type: boolean
+          type:
+          - boolean
+          - 'null'
           description: If enabled, all scopes configured on the resource server are allowed for this grant.
-    OrganizationBranding:
+    ListClientGrantOrganizationsOffsetPaginatedResponseContent:
       type: object
-      description: Theme defines how to style the login pages.
       additionalProperties: false
       properties:
-        logo_url:
-          type: string
-          description: URL of logo to display on login page.
-          format: strict-https-uri-or-null
-        colors:
-          $ref: '#/components/schemas/OrganizationBrandingColors'
-    ClientGrantDefaultForEnum:
-      type: string
-      enum:
-      - third_party_clients
-      x-release-lifecycle: GA
-      description: Applies this client grant as the default for all clients in the specified group. The only accepted value is <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants#default-permissions-for-third-party-applications">`third_party_clients`</a>, which applies the grant to all third-party clients. Per-client grants for the same audience take precedence. Mutually exclusive with `client_id`.
-    ListClientGrantOrganizationsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Organization'
-      - $ref: '#/components/schemas/ListClientGrantOrganizationsOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListClientGrantOrganizationsPaginatedResponseContent'
-    Organization:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/TokenQuota'
-          x-release-lifecycle: EA
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
   securitySchemes:
     bearerAuth:
       type: http

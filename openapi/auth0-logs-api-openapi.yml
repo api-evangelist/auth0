@@ -195,39 +195,12 @@ paths:
         - read:logs_users
 components:
   schemas:
-    LogLocationInfo:
-      type: object
-      description: Information about the location that triggered this event based on the `ip`.
-      additionalProperties: true
-      properties:
-        country_code:
-          type: string
-          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
-          minLength: 2
-          maxLength: 2
-        country_code3:
-          type: string
-          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
-          minLength: 3
-          maxLength: 3
-        country_name:
-          type: string
-          description: Full country name in English.
-        city_name:
-          type: string
-          description: Full city name in English.
-        latitude:
-          type: number
-          description: Global latitude (horizontal) position.
-        longitude:
-          type: number
-          description: Global longitude (vertical) position.
-        time_zone:
-          type: string
-          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
-        continent_code:
-          type: string
-          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
+    LogDate:
+      oneOf:
+      - type: string
+        description: Date when the event occurred in ISO 8601 format.
+        default: '2016-02-23T19:57:29.532Z'
+      - $ref: '#/components/schemas/LogDateObject'
     ListLogOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -244,11 +217,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Log'
-    LogDetails:
-      type: object
-      description: Additional useful details about this event (structure is dependent upon event type).
-      additionalProperties: true
-    Log:
+    GetLogResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -320,22 +289,53 @@ components:
           $ref: '#/components/schemas/LogSecurityContext'
         location_info:
           $ref: '#/components/schemas/LogLocationInfo'
-    LogDate:
-      oneOf:
-      - type: string
-        description: Date when the event occurred in ISO 8601 format.
-        default: '2016-02-23T19:57:29.532Z'
-      - $ref: '#/components/schemas/LogDateObject'
+    LogLocationInfo:
+      type: object
+      description: Information about the location that triggered this event based on the `ip`.
+      additionalProperties: true
+      properties:
+        country_code:
+          type: string
+          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
+          minLength: 2
+          maxLength: 2
+        country_code3:
+          type: string
+          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
+          minLength: 3
+          maxLength: 3
+        country_name:
+          type: string
+          description: Full country name in English.
+        city_name:
+          type: string
+          description: Full city name in English.
+        latitude:
+          type: number
+          description: Global latitude (horizontal) position.
+        longitude:
+          type: number
+          description: Global longitude (vertical) position.
+        time_zone:
+          type: string
+          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
+        continent_code:
+          type: string
+          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
+    LogDateObject:
+      type: object
+      description: Date when the event occurred in ISO 8601 format.
+      additionalProperties: true
+    LogDetails:
+      type: object
+      description: Additional useful details about this event (structure is dependent upon event type).
+      additionalProperties: true
     ListLogResponseContent:
       oneOf:
       - type: array
         items:
           $ref: '#/components/schemas/Log'
       - $ref: '#/components/schemas/ListLogOffsetPaginatedResponseContent'
-    LogDateObject:
-      type: object
-      description: Date when the event occurred in ISO 8601 format.
-      additionalProperties: true
     LogSecurityContext:
       type: object
       description: Information about security-related signals.
@@ -347,7 +347,7 @@ components:
         ja4:
           type: string
           description: JA4 fingerprint value.
-    GetLogResponseContent:
+    Log:
       type: object
       additionalProperties: true
       properties:

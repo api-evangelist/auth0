@@ -159,6 +159,58 @@ paths:
         required: true
 components:
   schemas:
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    ReadAssertionsResponse:
+      type: object
+      properties:
+        authorization_model_id:
+          type: string
+          example: 01G5JAVJ41T49E9TT3SKVS7X1J
+        assertions:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Assertion'
+      required:
+      - authorization_model_id
+    TupleKey:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+        condition:
+          $ref: '#/components/schemas/RelationshipCondition'
+      required:
+      - user
+      - relation
+      - object
     Assertion:
       type: object
       properties:
@@ -182,36 +234,72 @@ components:
       required:
       - tuple_key
       - expectation
-    AuthErrorCode:
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    UnprocessableContentErrorCode:
       type: string
       enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
-    RelationshipCondition:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    InternalErrorMessageResponse:
       type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
       properties:
-        name:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
           type: string
-          example: condition1
-          description: A reference (by name) of the relationship condition defined in the authorization model.
-          maxLength: 256
-        context:
-          type: object
-          description: 'Additional context/data to persist along with the condition.
-
-            The keys must match the parameters defined by the condition, and the value types must
-
-            match the parameter type definitions.'
-      required:
-      - name
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
     ErrorCode:
       type: string
       enum:
@@ -266,130 +354,6 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    TupleKey:
-      type: object
-      properties:
-        user:
-          type: string
-          example: user:anne
-          maxLength: 512
-        relation:
-          type: string
-          example: reader
-          maxLength: 50
-        object:
-          type: string
-          example: document:2021-budget
-          maxLength: 256
-        condition:
-          $ref: '#/components/schemas/RelationshipCondition'
-      required:
-      - user
-      - relation
-      - object
-    ReadAssertionsResponse:
-      type: object
-      properties:
-        authorization_model_id:
-          type: string
-          example: 01G5JAVJ41T49E9TT3SKVS7X1J
-        assertions:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Assertion'
-      required:
-      - authorization_model_id
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
-        message:
-          type: string
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
     AssertionTupleKey:
       type: object
       properties:
@@ -409,11 +373,47 @@ components:
       - object
       - relation
       - user
-    NotFoundErrorCode:
+    RelationshipCondition:
+      type: object
+      properties:
+        name:
+          type: string
+          example: condition1
+          description: A reference (by name) of the relationship condition defined in the authorization model.
+          maxLength: 256
+        context:
+          type: object
+          description: 'Additional context/data to persist along with the condition.
+
+            The keys must match the parameters defined by the condition, and the value types must
+
+            match the parameter type definitions.'
+      required:
+      - name
+    InternalErrorCode:
       type: string
       enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error

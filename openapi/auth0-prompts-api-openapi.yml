@@ -506,6 +506,122 @@ paths:
         - update:prompts
 components:
   schemas:
+    AculHeadTagContent:
+      type: string
+      description: "Text or markup between the element’s opening and closing tags. \nYou can use <a href=\"https://auth0.com/docs/customize/login-pages/advanced-customizations/getting-started/configure-acul-screens\">context variables</a> to display dynamic values."
+    AculOrganizationFilterByMetadata:
+      type: object
+      additionalProperties: false
+      required:
+      - metadata
+      properties:
+        metadata:
+          $ref: '#/components/schemas/AculOrganizationMetadata'
+    SetsCustomTextsByLanguageRequestContent:
+      type: object
+      description: An object containing custom dictionaries for a group of screens.
+      additionalProperties: true
+    AculOrganizationMetadata:
+      type: object
+      description: Organization metadata key/value pairs
+      additionalProperties: true
+      maxProperties: 1
+    AculClientFilterById:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Client ID
+    PromptGroupNameEnum:
+      type: string
+      description: Name of the prompt
+      enum:
+      - login
+      - login-id
+      - login-password
+      - login-passwordless
+      - login-email-verification
+      - signup
+      - signup-id
+      - signup-password
+      - phone-identifier-enrollment
+      - phone-identifier-challenge
+      - email-identifier-challenge
+      - reset-password
+      - custom-form
+      - consent
+      - customized-consent
+      - logout
+      - mfa-push
+      - mfa-otp
+      - mfa-voice
+      - mfa-phone
+      - mfa-webauthn
+      - mfa-sms
+      - mfa-email
+      - mfa-recovery-code
+      - mfa
+      - status
+      - device-flow
+      - email-verification
+      - email-otp-challenge
+      - organizations
+      - invitation
+      - common
+      - passkeys
+      - captcha
+      - brute-force-protection
+      - async-approval-flow
+    AculClientFilter:
+      type: object
+      description: Client array filter items
+      oneOf:
+      - $ref: '#/components/schemas/AculClientFilterById'
+      - $ref: '#/components/schemas/AculClientFilterByMetadata'
+    AculClientMetadata:
+      type: object
+      description: Client metadata key/value pairs
+      additionalProperties: true
+      maxProperties: 1
+    BulkUpdateAculResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - configs
+      properties:
+        configs:
+          $ref: '#/components/schemas/AculConfigs'
+    AculDomainFilter:
+      type: object
+      description: Domains array filter items
+      oneOf:
+      - $ref: '#/components/schemas/AculDomainFilterById'
+      - $ref: '#/components/schemas/AculDomainFilterByMetadata'
+    AculDomainMetadata:
+      type: object
+      description: Domain metadata key/value pairs
+      additionalProperties: true
+      maxProperties: 1
+    PartialGroupsEnum:
+      type: string
+      enum:
+      - login
+      - login-id
+      - login-password
+      - login-passwordless
+      - signup
+      - signup-id
+      - signup-password
+      - customized-consent
+      - passkeys
+      description: Name of the prompt.
+    SetPartialsRequestContent:
+      type: object
+      description: An object containing template partials for a group of screens.
+      additionalProperties: true
     AculClientFilterByMetadata:
       type: object
       additionalProperties: false
@@ -514,12 +630,126 @@ components:
       properties:
         metadata:
           $ref: '#/components/schemas/AculClientMetadata'
-    AculDomainFilter:
-      type: object
-      description: Domains array filter items
+    ListAculsResponseContent:
       oneOf:
-      - $ref: '#/components/schemas/AculDomainFilterById'
-      - $ref: '#/components/schemas/AculDomainFilterByMetadata'
+      - type: array
+        items:
+          $ref: '#/components/schemas/ListAculsResponseContentItem'
+      - $ref: '#/components/schemas/ListAculsOffsetPaginatedResponseContent'
+    GetAculResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        tenant:
+          type: string
+          description: Tenant ID
+        prompt:
+          type: string
+          description: Name of the prompt
+        screen:
+          type: string
+          description: Name of the screen
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    AculHeadTagAttributes:
+      type: object
+      description: Attributes of the HTML tag. See <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes"> MDN documentation</a> for valid attributes.
+      additionalProperties: true
+      maxProperties: 10
+    GetPartialsResponseContent:
+      type: object
+      description: An object containing template partials for a group of screens.
+      additionalProperties: true
+    AculHeadTag:
+      type: object
+      additionalProperties: true
+      properties:
+        tag:
+          type: string
+          description: Any HTML element valid for use in the head tag
+        attributes:
+          $ref: '#/components/schemas/AculHeadTagAttributes'
+        content:
+          $ref: '#/components/schemas/AculHeadTagContent'
+    UniversalLoginExperienceEnum:
+      type: string
+      description: Which login experience to use. Can be `new` or `classic`.
+      enum:
+      - new
+      - classic
+    AculRenderingModeEnum:
+      type: string
+      enum:
+      - advanced
+      - standard
+      description: Rendering mode to filter by
+    UpdateAculRequestContent:
+      type: object
+      description: Render settings for the given screen
+      additionalProperties: false
+      properties:
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    UpdateSettingsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        universal_login_experience:
+          $ref: '#/components/schemas/UniversalLoginExperienceEnum'
+        identifier_first:
+          type: boolean
+          description: Whether identifier first is enabled or not
+        webauthn_platform_first_factor:
+          type: boolean
+          description: Use WebAuthn with Device Biometrics as the first authentication factor
     AculDomainFilterByMetadata:
       type: object
       additionalProperties: false
@@ -528,11 +758,47 @@ components:
       properties:
         metadata:
           $ref: '#/components/schemas/AculDomainMetadata'
-    AculDomainMetadata:
-      type: object
-      description: Domain metadata key/value pairs
-      additionalProperties: true
-      maxProperties: 1
+    AculConfigs:
+      type: array
+      description: Array of screen configurations to update
+      minItems: 1
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - prompt
+        - screen
+        properties:
+          prompt:
+            $ref: '#/components/schemas/PromptGroupNameEnum'
+          screen:
+            $ref: '#/components/schemas/ScreenGroupNameEnum'
+          rendering_mode:
+            $ref: '#/components/schemas/AculRenderingModeEnum'
+            description: Rendering mode
+          context_configuration:
+            $ref: '#/components/schemas/AculContextConfiguration'
+          default_head_tags_disabled:
+            type:
+            - boolean
+            - 'null'
+            description: Override Universal Login default head tags
+            default: false
+          use_page_template:
+            type:
+            - boolean
+            - 'null'
+            description: Use page template with ACUL
+            default: false
+          head_tags:
+            type:
+            - array
+            - 'null'
+            description: An array of head tags
+            items:
+              $ref: '#/components/schemas/AculHeadTag'
+          filters:
+            $ref: '#/components/schemas/AculFilters'
     UpdateSettingsRequestContent:
       type: object
       description: Prompts settings
@@ -551,6 +817,242 @@ components:
           - boolean
           - 'null'
           description: Use WebAuthn with Device Biometrics as the first authentication factor
+    GetCustomTextsByLanguageResponseContent:
+      type: object
+      description: An object containing custom dictionaries for a group of screens.
+      additionalProperties: true
+    AculFilters:
+      type:
+      - object
+      - 'null'
+      description: Optional filters to apply rendering rules to specific entities
+      additionalProperties: false
+      properties:
+        match_type:
+          $ref: '#/components/schemas/AculMatchTypeEnum'
+        clients:
+          type: array
+          description: Clients filter
+          items:
+            $ref: '#/components/schemas/AculClientFilter'
+        organizations:
+          type: array
+          description: Organizations filter
+          items:
+            $ref: '#/components/schemas/AculOrganizationFilter'
+        domains:
+          type: array
+          description: Domains filter
+          items:
+            $ref: '#/components/schemas/AculDomainFilter'
+    AculOrganizationFilter:
+      type: object
+      description: Organizations array filter items
+      oneOf:
+      - $ref: '#/components/schemas/AculOrganizationFilterById'
+      - $ref: '#/components/schemas/AculOrganizationFilterByMetadata'
+    ListAculsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        configs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListAculsResponseContentItem'
+        start:
+          type: number
+          description: the index of the first configuration in the response (before filtering)
+        limit:
+          type: number
+          description: the maximum number of configurations shown per page (before filtering)
+        total:
+          type: number
+          description: the total number of configurations on this tenant
+    UpdateAculResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    ListAculsResponseContentItem:
+      type: object
+      additionalProperties: true
+      properties:
+        tenant:
+          type: string
+          description: Tenant ID
+        prompt:
+          type: string
+          description: Name of the prompt
+        screen:
+          type: string
+          description: Name of the screen
+        rendering_mode:
+          $ref: '#/components/schemas/AculRenderingModeEnum'
+          description: Rendering mode
+        context_configuration:
+          $ref: '#/components/schemas/AculContextConfiguration'
+        default_head_tags_disabled:
+          type:
+          - boolean
+          - 'null'
+          description: Override Universal Login default head tags
+          default: false
+        use_page_template:
+          type:
+          - boolean
+          - 'null'
+          description: Use page template with ACUL
+          default: false
+        head_tags:
+          type:
+          - array
+          - 'null'
+          description: An array of head tags
+          items:
+            $ref: '#/components/schemas/AculHeadTag'
+        filters:
+          $ref: '#/components/schemas/AculFilters'
+    BulkUpdateAculRequestContent:
+      type: object
+      description: Bulk update render settings for multiple screens
+      additionalProperties: false
+      required:
+      - configs
+      properties:
+        configs:
+          $ref: '#/components/schemas/AculConfigs'
+    PromptLanguageEnum:
+      type: string
+      enum:
+      - am
+      - ar
+      - ar-EG
+      - ar-SA
+      - az
+      - bg
+      - bn
+      - bs
+      - ca-ES
+      - cnr
+      - cs
+      - cy
+      - da
+      - de
+      - el
+      - en
+      - en-CA
+      - es
+      - es-419
+      - es-AR
+      - es-MX
+      - et
+      - eu-ES
+      - fa
+      - fi
+      - fr
+      - fr-CA
+      - fr-FR
+      - gl-ES
+      - gu
+      - he
+      - hi
+      - hr
+      - hu
+      - hy
+      - id
+      - is
+      - it
+      - ja
+      - ka
+      - kk
+      - kn
+      - ko
+      - lt
+      - lv
+      - mk
+      - ml
+      - mn
+      - mr
+      - ms
+      - my
+      - nb
+      - nl
+      - nn
+      - 'no'
+      - pa
+      - pl
+      - pt
+      - pt-BR
+      - pt-PT
+      - ro
+      - ru
+      - sk
+      - sl
+      - so
+      - sq
+      - sr
+      - sv
+      - sw
+      - ta
+      - te
+      - th
+      - tl
+      - tr
+      - uk
+      - ur
+      - vi
+      - zgh
+      - zh-CN
+      - zh-HK
+      - zh-MO
+      - zh-TW
+      description: Language to update.
+    AculContextEnum:
+      type: string
+      description: Static context values
+      enum:
+      - branding.settings
+      - branding.themes.default
+      - client.logo_uri
+      - client.description
+      - organization.display_name
+      - organization.branding
+      - screen.texts
+      - tenant.name
+      - tenant.friendly_name
+      - tenant.logo_url
+      - tenant.enabled_locales
+      - untrusted_data.submitted_form_data
+      - untrusted_data.authorization_params.login_hint
+      - untrusted_data.authorization_params.screen_hint
+      - untrusted_data.authorization_params.ui_locales
+      - user.organizations
+      - transaction.custom_domain.domain
     ScreenGroupNameEnum:
       type: string
       description: Name of the screen
@@ -644,88 +1146,6 @@ components:
       - async-approval-accepted
       - async-approval-denied
       - async-approval-wrong-user
-    AculHeadTag:
-      type: object
-      additionalProperties: true
-      properties:
-        tag:
-          type: string
-          description: Any HTML element valid for use in the head tag
-        attributes:
-          $ref: '#/components/schemas/AculHeadTagAttributes'
-        content:
-          $ref: '#/components/schemas/AculHeadTagContent'
-    PromptGroupNameEnum:
-      type: string
-      description: Name of the prompt
-      enum:
-      - login
-      - login-id
-      - login-password
-      - login-passwordless
-      - login-email-verification
-      - signup
-      - signup-id
-      - signup-password
-      - phone-identifier-enrollment
-      - phone-identifier-challenge
-      - email-identifier-challenge
-      - reset-password
-      - custom-form
-      - consent
-      - customized-consent
-      - logout
-      - mfa-push
-      - mfa-otp
-      - mfa-voice
-      - mfa-phone
-      - mfa-webauthn
-      - mfa-sms
-      - mfa-email
-      - mfa-recovery-code
-      - mfa
-      - status
-      - device-flow
-      - email-verification
-      - email-otp-challenge
-      - organizations
-      - invitation
-      - common
-      - passkeys
-      - captcha
-      - brute-force-protection
-      - async-approval-flow
-    UpdateAculRequestContent:
-      type: object
-      description: Render settings for the given screen
-      additionalProperties: false
-      properties:
-        rendering_mode:
-          $ref: '#/components/schemas/AculRenderingModeEnum'
-          description: Rendering mode
-        context_configuration:
-          $ref: '#/components/schemas/AculContextConfiguration'
-        default_head_tags_disabled:
-          type:
-          - boolean
-          - 'null'
-          description: Override Universal Login default head tags
-          default: false
-        use_page_template:
-          type:
-          - boolean
-          - 'null'
-          description: Use page template with ACUL
-          default: false
-        head_tags:
-          type:
-          - array
-          - 'null'
-          description: An array of head tags
-          items:
-            $ref: '#/components/schemas/AculHeadTag'
-        filters:
-          $ref: '#/components/schemas/AculFilters'
     AculContextConfiguration:
       type:
       - array
@@ -733,408 +1153,6 @@ components:
       description: Context values to make available
       items:
         $ref: '#/components/schemas/AculContextConfigurationItem'
-    AculClientFilterById:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          description: Client ID
-    PromptLanguageEnum:
-      type: string
-      enum:
-      - am
-      - ar
-      - ar-EG
-      - ar-SA
-      - az
-      - bg
-      - bn
-      - bs
-      - ca-ES
-      - cnr
-      - cs
-      - cy
-      - da
-      - de
-      - el
-      - en
-      - en-CA
-      - es
-      - es-419
-      - es-AR
-      - es-MX
-      - et
-      - eu-ES
-      - fa
-      - fi
-      - fr
-      - fr-CA
-      - fr-FR
-      - gl-ES
-      - gu
-      - he
-      - hi
-      - hr
-      - hu
-      - hy
-      - id
-      - is
-      - it
-      - ja
-      - ka
-      - kk
-      - kn
-      - ko
-      - lt
-      - lv
-      - mk
-      - ml
-      - mn
-      - mr
-      - ms
-      - my
-      - nb
-      - nl
-      - nn
-      - 'no'
-      - pa
-      - pl
-      - pt
-      - pt-BR
-      - pt-PT
-      - ro
-      - ru
-      - sk
-      - sl
-      - so
-      - sq
-      - sr
-      - sv
-      - sw
-      - ta
-      - te
-      - th
-      - tl
-      - tr
-      - uk
-      - ur
-      - vi
-      - zgh
-      - zh-CN
-      - zh-HK
-      - zh-MO
-      - zh-TW
-      description: Language to update.
-    GetCustomTextsByLanguageResponseContent:
-      type: object
-      description: An object containing custom dictionaries for a group of screens.
-      additionalProperties: true
-    GetSettingsResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        universal_login_experience:
-          $ref: '#/components/schemas/UniversalLoginExperienceEnum'
-        identifier_first:
-          type: boolean
-          description: Whether identifier first is enabled or not
-        webauthn_platform_first_factor:
-          type: boolean
-          description: Use WebAuthn with Device Biometrics as the first authentication factor
-    AculDomainFilterById:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          description: Domain ID
-    BulkUpdateAculRequestContent:
-      type: object
-      description: Bulk update render settings for multiple screens
-      additionalProperties: false
-      required:
-      - configs
-      properties:
-        configs:
-          $ref: '#/components/schemas/AculConfigs'
-    AculFilters:
-      type:
-      - object
-      - 'null'
-      description: Optional filters to apply rendering rules to specific entities
-      additionalProperties: false
-      properties:
-        match_type:
-          $ref: '#/components/schemas/AculMatchTypeEnum'
-        clients:
-          type: array
-          description: Clients filter
-          items:
-            $ref: '#/components/schemas/AculClientFilter'
-        organizations:
-          type: array
-          description: Organizations filter
-          items:
-            $ref: '#/components/schemas/AculOrganizationFilter'
-        domains:
-          type: array
-          description: Domains filter
-          items:
-            $ref: '#/components/schemas/AculDomainFilter'
-    AculContextEnum:
-      type: string
-      description: Static context values
-      enum:
-      - branding.settings
-      - branding.themes.default
-      - client.logo_uri
-      - client.description
-      - organization.display_name
-      - organization.branding
-      - screen.texts
-      - tenant.name
-      - tenant.friendly_name
-      - tenant.logo_url
-      - tenant.enabled_locales
-      - untrusted_data.submitted_form_data
-      - untrusted_data.authorization_params.login_hint
-      - untrusted_data.authorization_params.screen_hint
-      - untrusted_data.authorization_params.ui_locales
-      - user.organizations
-      - transaction.custom_domain.domain
-    SetPartialsRequestContent:
-      type: object
-      description: An object containing template partials for a group of screens.
-      additionalProperties: true
-    ListAculsResponseContentItem:
-      type: object
-      additionalProperties: true
-      properties:
-        tenant:
-          type: string
-          description: Tenant ID
-        prompt:
-          type: string
-          description: Name of the prompt
-        screen:
-          type: string
-          description: Name of the screen
-        rendering_mode:
-          $ref: '#/components/schemas/AculRenderingModeEnum'
-          description: Rendering mode
-        context_configuration:
-          $ref: '#/components/schemas/AculContextConfiguration'
-        default_head_tags_disabled:
-          type:
-          - boolean
-          - 'null'
-          description: Override Universal Login default head tags
-          default: false
-        use_page_template:
-          type:
-          - boolean
-          - 'null'
-          description: Use page template with ACUL
-          default: false
-        head_tags:
-          type:
-          - array
-          - 'null'
-          description: An array of head tags
-          items:
-            $ref: '#/components/schemas/AculHeadTag'
-        filters:
-          $ref: '#/components/schemas/AculFilters'
-    AculMatchTypeEnum:
-      type: string
-      description: Type of match to apply
-      enum:
-      - includes_any
-      - excludes_any
-    AculOrganizationFilterByMetadata:
-      type: object
-      additionalProperties: false
-      required:
-      - metadata
-      properties:
-        metadata:
-          $ref: '#/components/schemas/AculOrganizationMetadata'
-    ListAculsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        configs:
-          type: array
-          items:
-            $ref: '#/components/schemas/ListAculsResponseContentItem'
-        start:
-          type: number
-          description: the index of the first configuration in the response (before filtering)
-        limit:
-          type: number
-          description: the maximum number of configurations shown per page (before filtering)
-        total:
-          type: number
-          description: the total number of configurations on this tenant
-    AculClientMetadata:
-      type: object
-      description: Client metadata key/value pairs
-      additionalProperties: true
-      maxProperties: 1
-    AculHeadTagContent:
-      type: string
-      description: "Text or markup between the element’s opening and closing tags. \nYou can use <a href=\"https://auth0.com/docs/customize/login-pages/advanced-customizations/getting-started/configure-acul-screens\">context variables</a> to display dynamic values."
-    AculOrganizationMetadata:
-      type: object
-      description: Organization metadata key/value pairs
-      additionalProperties: true
-      maxProperties: 1
-    AculHeadTagAttributes:
-      type: object
-      description: Attributes of the HTML tag. See <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes"> MDN documentation</a> for valid attributes.
-      additionalProperties: true
-      maxProperties: 10
-    ListAculsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/ListAculsResponseContentItem'
-      - $ref: '#/components/schemas/ListAculsOffsetPaginatedResponseContent'
-    GetAculResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        tenant:
-          type: string
-          description: Tenant ID
-        prompt:
-          type: string
-          description: Name of the prompt
-        screen:
-          type: string
-          description: Name of the screen
-        rendering_mode:
-          $ref: '#/components/schemas/AculRenderingModeEnum'
-          description: Rendering mode
-        context_configuration:
-          $ref: '#/components/schemas/AculContextConfiguration'
-        default_head_tags_disabled:
-          type:
-          - boolean
-          - 'null'
-          description: Override Universal Login default head tags
-          default: false
-        use_page_template:
-          type:
-          - boolean
-          - 'null'
-          description: Use page template with ACUL
-          default: false
-        head_tags:
-          type:
-          - array
-          - 'null'
-          description: An array of head tags
-          items:
-            $ref: '#/components/schemas/AculHeadTag'
-        filters:
-          $ref: '#/components/schemas/AculFilters'
-    AculConfigs:
-      type: array
-      description: Array of screen configurations to update
-      minItems: 1
-      items:
-        type: object
-        additionalProperties: false
-        required:
-        - prompt
-        - screen
-        properties:
-          prompt:
-            $ref: '#/components/schemas/PromptGroupNameEnum'
-          screen:
-            $ref: '#/components/schemas/ScreenGroupNameEnum'
-          rendering_mode:
-            $ref: '#/components/schemas/AculRenderingModeEnum'
-            description: Rendering mode
-          context_configuration:
-            $ref: '#/components/schemas/AculContextConfiguration'
-          default_head_tags_disabled:
-            type:
-            - boolean
-            - 'null'
-            description: Override Universal Login default head tags
-            default: false
-          use_page_template:
-            type:
-            - boolean
-            - 'null'
-            description: Use page template with ACUL
-            default: false
-          head_tags:
-            type:
-            - array
-            - 'null'
-            description: An array of head tags
-            items:
-              $ref: '#/components/schemas/AculHeadTag'
-          filters:
-            $ref: '#/components/schemas/AculFilters'
-    AculOrganizationFilter:
-      type: object
-      description: Organizations array filter items
-      oneOf:
-      - $ref: '#/components/schemas/AculOrganizationFilterById'
-      - $ref: '#/components/schemas/AculOrganizationFilterByMetadata'
-    AculClientFilter:
-      type: object
-      description: Client array filter items
-      oneOf:
-      - $ref: '#/components/schemas/AculClientFilterById'
-      - $ref: '#/components/schemas/AculClientFilterByMetadata'
-    UpdateAculResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        rendering_mode:
-          $ref: '#/components/schemas/AculRenderingModeEnum'
-          description: Rendering mode
-        context_configuration:
-          $ref: '#/components/schemas/AculContextConfiguration'
-        default_head_tags_disabled:
-          type:
-          - boolean
-          - 'null'
-          description: Override Universal Login default head tags
-          default: false
-        use_page_template:
-          type:
-          - boolean
-          - 'null'
-          description: Use page template with ACUL
-          default: false
-        head_tags:
-          type:
-          - array
-          - 'null'
-          description: An array of head tags
-          items:
-            $ref: '#/components/schemas/AculHeadTag'
-        filters:
-          $ref: '#/components/schemas/AculFilters'
-    BulkUpdateAculResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - configs
-      properties:
-        configs:
-          $ref: '#/components/schemas/AculConfigs'
     AculOrganizationFilterById:
       type: object
       additionalProperties: false
@@ -1144,12 +1162,21 @@ components:
         id:
           type: string
           description: Organization ID
-    AculRenderingModeEnum:
+    AculDomainFilterById:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Domain ID
+    AculMatchTypeEnum:
       type: string
+      description: Type of match to apply
       enum:
-      - advanced
-      - standard
-      description: Rendering mode to filter by
+      - includes_any
+      - excludes_any
     AculContextConfigurationItem:
       oneOf:
       - $ref: '#/components/schemas/AculContextEnum'
@@ -1171,21 +1198,7 @@ components:
       - type: string
         description: Dynamic authorization param ext key (e.g., `untrusted_data.authorization_params.ext-myKey`)
         pattern: ^untrusted_data\.authorization_params\.ext-[^\.]+$
-    SetsCustomTextsByLanguageRequestContent:
-      type: object
-      description: An object containing custom dictionaries for a group of screens.
-      additionalProperties: true
-    GetPartialsResponseContent:
-      type: object
-      description: An object containing template partials for a group of screens.
-      additionalProperties: true
-    UniversalLoginExperienceEnum:
-      type: string
-      description: Which login experience to use. Can be `new` or `classic`.
-      enum:
-      - new
-      - classic
-    UpdateSettingsResponseContent:
+    GetSettingsResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -1197,19 +1210,6 @@ components:
         webauthn_platform_first_factor:
           type: boolean
           description: Use WebAuthn with Device Biometrics as the first authentication factor
-    PartialGroupsEnum:
-      type: string
-      enum:
-      - login
-      - login-id
-      - login-password
-      - login-passwordless
-      - signup
-      - signup-id
-      - signup-password
-      - customized-consent
-      - passkeys
-      description: Name of the prompt.
   securitySchemes:
     bearerAuth:
       type: http

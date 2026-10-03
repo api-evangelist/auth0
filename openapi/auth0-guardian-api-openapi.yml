@@ -1329,30 +1329,19 @@ paths:
         - update:mfa_policies
 components:
   schemas:
-    SetGuardianFactorsProviderPushNotificationFcmv1RequestContent:
+    CreateGuardianEnrollmentTicketResponseContent:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
-        server_credentials:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 10000
-    SetGuardianFactorPhoneMessageTypesResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        message_types:
-          type: array
-          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
-          items:
-            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
-    GuardianEnrollmentDate:
-      type: string
-      default: '2016-07-12T17:56:26.804Z'
-      description: Enrollment date and time.
-    SetGuardianFactorsProviderPushNotificationApnsResponseContent:
+        ticket_id:
+          type: string
+          description: The ticket_id used to identify the enrollment
+          default: u2x2-u2x2-u2x2-u2x2-u2x2-u2x2
+        ticket_url:
+          type: string
+          description: The url you can use to start enrollment
+          format: url
+    SetGuardianFactorsProviderPushNotificationApnsRequestContent:
       type: object
       additionalProperties: false
       properties:
@@ -1364,15 +1353,32 @@ components:
           - 'null'
           minLength: 1
           maxLength: 1000
-    GetGuardianFactorPhoneMessageTypesResponseContent:
+        p12:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    SetGuardianFactorPhoneMessageTypesRequestContent:
       type: object
       additionalProperties: false
+      required:
+      - message_types
       properties:
         message_types:
           type: array
           description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
           items:
             $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
+    UpdateGuardianFactorsProviderPushNotificationFcmv1ResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    GuardianEnrollmentDate:
+      type: string
+      default: '2016-07-12T17:56:26.804Z'
+      description: Enrollment date and time.
     GetGuardianFactorsProviderApnsResponseContent:
       type: object
       additionalProperties: false
@@ -1387,17 +1393,7 @@ components:
           type: boolean
         enabled:
           type: boolean
-    UpdateGuardianFactorsProviderPushNotificationFcmv1RequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        server_credentials:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 10000
-    SetGuardianFactorsProviderPhoneTwilioResponseContent:
+    SetGuardianFactorsProviderSmsTwilioRequestContent:
       type: object
       additionalProperties: false
       properties:
@@ -1433,12 +1429,122 @@ components:
           default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
           minLength: 1
           maxLength: 1000
-    GuardianFactorsProviderPushNotificationProviderDataEnum:
+    SetGuardianFactorDuoSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    UpdateGuardianFactorDuoSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    SetGuardianFactorRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether this factor is enabled (true) or disabled (false).
+    SetGuardianFactorsProviderPushNotificationResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
+    GuardianEnrollmentFactorEnum:
       type: string
+      description: 'Optional. Specifies which factor the user must enroll with.<br />Note: Parameter can only be used with Universal Login; it cannot be used with Classic Login or custom MFA pages.'
       enum:
-      - guardian
-      - sns
-      - direct
+      - push-notification
+      - phone
+      - email
+      - otp
+      - webauthn-roaming
+      - webauthn-platform
+    SetGuardianFactorResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether this factor is enabled (true) or disabled (false).
+    SetGuardianFactorsProviderSmsTwilioResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    UpdateGuardianFactorsProviderPushNotificationApnsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        sandbox:
+          type: boolean
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        p12:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
     SetGuardianFactorsProviderSmsRequestContent:
       type: object
       additionalProperties: false
@@ -1461,50 +1567,176 @@ components:
       - webauthn-roaming
       - webauthn-platform
       - recovery-code
-    GetGuardianEnrollmentResponseContent:
+    SetGuardianFactorsProviderSmsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    SetGuardianFactorsProviderPushNotificationFcmResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    SetGuardianPoliciesResponseContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/MFAPolicyEnum'
+    GuardianFactor:
       type: object
       additionalProperties: false
       required:
-      - id
+      - enabled
       properties:
-        id:
-          type: string
-          description: ID for this enrollment.
-          default: dev_0000000000000001
-        status:
-          $ref: '#/components/schemas/GuardianEnrollmentStatus'
+        enabled:
+          type: boolean
+          description: Whether this factor is enabled (true) or disabled (false).
+          default: true
+        trial_expired:
+          type: boolean
+          description: Whether trial limits have been exceeded.
+          default: true
         name:
-          type: string
-          description: Device name (only for push notification).
-          default: iPhone 7
+          $ref: '#/components/schemas/GuardianFactorNameEnum'
+    UpdateGuardianFactorsProviderPushNotificationFcmRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_key:
+          type:
+          - string
+          - 'null'
           minLength: 1
-          maxLength: 20
-          pattern: ^\+[0-9]{8, 20}
-        identifier:
+          maxLength: 152
+    SetGuardianFactorSmsTemplatesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
           type: string
-          description: Device identifier. This is usually the phone identifier.
-          default: 76dc-a90c-a88c-a90c-a88c-a88c-a90c
-        phone_number:
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
           type: string
-          description: Phone number.
-          default: +1 999999999999
-        enrolled_at:
-          $ref: '#/components/schemas/GuardianEnrollmentDate'
-        last_auth:
-          $ref: '#/components/schemas/GuardianEnrollmentDate'
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    SetGuardianFactorsProviderPushNotificationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
     GetGuardianFactorsProviderPushNotificationResponseContent:
       type: object
       additionalProperties: false
       properties:
         provider:
           $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
-    SetGuardianFactorsProviderPhoneResponseContent:
+    SetGuardianFactorDuoSettingsRequestContent:
       type: object
       additionalProperties: false
       properties:
-        provider:
-          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
-    UpdateGuardianFactorsProviderPushNotificationSnsRequestContent:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    GetGuardianFactorPhoneTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    SetGuardianFactorSmsTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    GetGuardianFactorsProviderPhoneTwilioResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    GuardianFactorPhoneFactorMessageTypeEnum:
+      type: string
+      enum:
+      - sms
+      - voice
+    UpdateGuardianFactorDuoSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    GetGuardianFactorsProviderSnsResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -1543,28 +1775,94 @@ components:
           default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
           minLength: 1
           maxLength: 1000
-    CreateGuardianEnrollmentTicketResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        ticket_id:
-          type: string
-          description: The ticket_id used to identify the enrollment
-          default: u2x2-u2x2-u2x2-u2x2-u2x2-u2x2
-        ticket_url:
-          type: string
-          description: The url you can use to start enrollment
-          format: url
-    SetGuardianPoliciesRequestContent:
-      type: array
-      items:
-        $ref: '#/components/schemas/MFAPolicyEnum'
-    SetGuardianFactorsProviderSmsResponseContent:
+    GuardianFactorsProviderSmsProviderEnum:
+      type: string
+      enum:
+      - auth0
+      - twilio
+      - phone-message-hook
+    SetGuardianFactorsProviderPushNotificationFcmRequestContent:
       type: object
       additionalProperties: false
       properties:
+        server_key:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 152
+    SetGuardianFactorPhoneTemplatesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    SetGuardianFactorsProviderPhoneRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      properties:
         provider:
           $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    UpdateGuardianFactorsProviderPushNotificationFcmv1RequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_credentials:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    SetGuardianFactorPhoneTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    GetGuardianFactorSmsTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    GetGuardianFactorPhoneMessageTypesResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        message_types:
+          type: array
+          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
+          items:
+            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
     UpdateGuardianFactorsProviderPushNotificationSnsResponseContent:
       type: object
       additionalProperties: false
@@ -1604,23 +1902,50 @@ components:
           default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
           minLength: 1
           maxLength: 1000
-    UpdateGuardianFactorsProviderPushNotificationApnsResponseContent:
+    SetGuardianFactorsProviderPushNotificationFcmv1ResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    SetGuardianFactorsProviderPhoneTwilioResponseContent:
       type: object
       additionalProperties: false
       properties:
-        sandbox:
-          type: boolean
-        bundle_id:
+        from:
           type:
           - string
           - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
           minLength: 1
           maxLength: 1000
-    SetGuardianFactorsProviderPhoneRequestContent:
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    GetGuardianFactorsProviderSmsResponseContent:
       type: object
       additionalProperties: false
-      required:
-      - provider
       properties:
         provider:
           $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
@@ -1638,141 +1963,11 @@ components:
         host:
           type: string
           maxLength: 10000
-    SetGuardianFactorsProviderPushNotificationRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - provider
-      properties:
-        provider:
-          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
-    GuardianFactor:
-      type: object
-      additionalProperties: false
-      required:
-      - enabled
-      properties:
-        enabled:
-          type: boolean
-          description: Whether this factor is enabled (true) or disabled (false).
-          default: true
-        trial_expired:
-          type: boolean
-          description: Whether trial limits have been exceeded.
-          default: true
-        name:
-          $ref: '#/components/schemas/GuardianFactorNameEnum'
-    SetGuardianFactorDuoSettingsRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        ikey:
-          type: string
-          maxLength: 10000
-        skey:
-          type: string
-          maxLength: 10000
-          format: non-empty-string
-        host:
-          type: string
-          maxLength: 10000
-    SetGuardianFactorsProviderSmsTwilioRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        from:
-          type:
-          - string
-          - 'null'
-          description: From number
-          default: '+1223323'
-          minLength: 0
-          maxLength: 64
-        messaging_service_sid:
-          type:
-          - string
-          - 'null'
-          description: Copilot SID
-          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
-          minLength: 1
-          maxLength: 1000
-        auth_token:
-          type:
-          - string
-          - 'null'
-          description: Twilio Authentication token
-          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
-          minLength: 1
-          maxLength: 1000
-        sid:
-          type:
-          - string
-          - 'null'
-          description: Twilio SID
-          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
-          minLength: 1
-          maxLength: 1000
-    UpdateGuardianFactorsProviderPushNotificationFcmv1ResponseContent:
-      type: object
-      additionalProperties: true
-      minProperties: 0
-      maxProperties: 0
-    CreateGuardianEnrollmentTicketRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - user_id
-      properties:
-        user_id:
-          type: string
-          description: user_id for the enrollment ticket
-          format: user-id
-        email:
-          type: string
-          description: alternate email to which the enrollment email will be sent. Optional - by default, the email will be sent to the user's default address
-          format: email
-        send_mail:
-          type: boolean
-          description: Send an email to the user to start the enrollment
-        email_locale:
-          type: string
-          description: Optional. Specify the locale of the enrollment email. Used with send_email.
-        factor:
-          $ref: '#/components/schemas/GuardianEnrollmentFactorEnum'
-        allow_multiple_enrollments:
-          type: boolean
-          description: 'Optional. Allows a user who has previously enrolled in MFA to enroll with additional factors.<br />Note: Parameter can only be used with Universal Login; it cannot be used with Classic Login or custom MFA pages.'
-    SetGuardianFactorSmsTemplatesRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enrollment_message
-      - verification_message
-      properties:
-        enrollment_message:
-          type: string
-          description: Message sent to the user when they are invited to enroll with a phone number.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
-        verification_message:
-          type: string
-          description: Message sent to the user when they are prompted to verify their account.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
-    UpdateGuardianFactorsProviderPushNotificationFcmRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        server_key:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 152
-    SetGuardianFactorsProviderPushNotificationFcmv1ResponseContent:
-      type: object
-      additionalProperties: true
-      minProperties: 0
-      maxProperties: 0
-    SetGuardianFactorsProviderPushNotificationApnsRequestContent:
+    SetGuardianPoliciesRequestContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/MFAPolicyEnum'
+    UpdateGuardianFactorsProviderPushNotificationApnsResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -1784,251 +1979,29 @@ components:
           - 'null'
           minLength: 1
           maxLength: 1000
-        p12:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 10000
-    GetGuardianFactorsProviderPhoneResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        provider:
-          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
-    SetGuardianFactorPhoneMessageTypesRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - message_types
-      properties:
-        message_types:
-          type: array
-          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
-          items:
-            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
-    SetGuardianFactorsProviderPhoneTwilioRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        from:
-          type:
-          - string
-          - 'null'
-          description: From number
-          default: '+1223323'
-          minLength: 0
-          maxLength: 64
-        messaging_service_sid:
-          type:
-          - string
-          - 'null'
-          description: Copilot SID
-          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
-          minLength: 1
-          maxLength: 1000
-        auth_token:
-          type:
-          - string
-          - 'null'
-          description: Twilio Authentication token
-          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
-          minLength: 1
-          maxLength: 1000
-        sid:
-          type:
-          - string
-          - 'null'
-          description: Twilio SID
-          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
-          minLength: 1
-          maxLength: 1000
-    SetGuardianFactorResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enabled
-      properties:
-        enabled:
-          type: boolean
-          description: Whether this factor is enabled (true) or disabled (false).
-    GuardianFactorsProviderSmsProviderEnum:
+    GuardianFactorsProviderPushNotificationProviderDataEnum:
       type: string
       enum:
-      - auth0
-      - twilio
-      - phone-message-hook
-    GetGuardianFactorsProviderPhoneTwilioResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        from:
-          type:
-          - string
-          - 'null'
-          description: From number
-          default: '+1223323'
-          minLength: 0
-          maxLength: 64
-        messaging_service_sid:
-          type:
-          - string
-          - 'null'
-          description: Copilot SID
-          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
-          minLength: 1
-          maxLength: 1000
-        auth_token:
-          type:
-          - string
-          - 'null'
-          description: Twilio Authentication token
-          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
-          minLength: 1
-          maxLength: 1000
-        sid:
-          type:
-          - string
-          - 'null'
-          description: Twilio SID
-          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
-          minLength: 1
-          maxLength: 1000
-    SetGuardianFactorsProviderPushNotificationResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        provider:
-          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
-    GuardianFactorPhoneFactorMessageTypeEnum:
-      type: string
-      enum:
-      - sms
-      - voice
-    SetGuardianFactorRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enabled
-      properties:
-        enabled:
-          type: boolean
-          description: Whether this factor is enabled (true) or disabled (false).
-    GuardianEnrollmentFactorEnum:
-      type: string
-      description: 'Optional. Specifies which factor the user must enroll with.<br />Note: Parameter can only be used with Universal Login; it cannot be used with Classic Login or custom MFA pages.'
-      enum:
-      - push-notification
-      - phone
-      - email
-      - otp
-      - webauthn-roaming
-      - webauthn-platform
-    ListGuardianPoliciesResponseContent:
-      type: array
-      items:
-        $ref: '#/components/schemas/MFAPolicyEnum'
-    GetGuardianFactorPhoneTemplatesResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enrollment_message
-      - verification_message
-      properties:
-        enrollment_message:
-          type: string
-          description: Message sent to the user when they are invited to enroll with a phone number.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
-        verification_message:
-          type: string
-          description: Message sent to the user when they are prompted to verify their account.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
-    GetGuardianFactorsProviderSmsTwilioResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        from:
-          type:
-          - string
-          - 'null'
-          description: From number
-          default: '+1223323'
-          minLength: 0
-          maxLength: 64
-        messaging_service_sid:
-          type:
-          - string
-          - 'null'
-          description: Copilot SID
-          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
-          minLength: 1
-          maxLength: 1000
-        auth_token:
-          type:
-          - string
-          - 'null'
-          description: Twilio Authentication token
-          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
-          minLength: 1
-          maxLength: 1000
-        sid:
-          type:
-          - string
-          - 'null'
-          description: Twilio SID
-          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
-          minLength: 1
-          maxLength: 1000
-    UpdateGuardianFactorDuoSettingsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        ikey:
-          type: string
-          maxLength: 10000
-        skey:
-          type: string
-          maxLength: 10000
-          format: non-empty-string
-        host:
-          type: string
-          maxLength: 10000
-    SetGuardianFactorPhoneTemplatesResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enrollment_message
-      - verification_message
-      properties:
-        enrollment_message:
-          type: string
-          description: Message sent to the user when they are invited to enroll with a phone number.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
-        verification_message:
-          type: string
-          description: Message sent to the user when they are prompted to verify their account.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
-    SetGuardianFactorDuoSettingsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        ikey:
-          type: string
-          maxLength: 10000
-        skey:
-          type: string
-          maxLength: 10000
-          format: non-empty-string
-        host:
-          type: string
-          maxLength: 10000
+      - guardian
+      - sns
+      - direct
     MFAPolicyEnum:
       type: string
       description: The MFA policy
       enum:
       - all-applications
       - confidence-score
-    SetGuardianFactorsProviderPushNotificationSnsResponseContent:
+    SetGuardianFactorsProviderPushNotificationFcmv1RequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_credentials:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    UpdateGuardianFactorsProviderPushNotificationSnsRequestContent:
       type: object
       additionalProperties: false
       properties:
@@ -2065,6 +2038,91 @@ components:
           - string
           - 'null'
           default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
+          minLength: 1
+          maxLength: 1000
+    CreateGuardianEnrollmentTicketRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: user_id for the enrollment ticket
+          format: user-id
+        email:
+          type: string
+          description: alternate email to which the enrollment email will be sent. Optional - by default, the email will be sent to the user's default address
+          format: email
+        send_mail:
+          type: boolean
+          description: Send an email to the user to start the enrollment
+        email_locale:
+          type: string
+          description: Optional. Specify the locale of the enrollment email. Used with send_email.
+        factor:
+          $ref: '#/components/schemas/GuardianEnrollmentFactorEnum'
+        allow_multiple_enrollments:
+          type: boolean
+          description: 'Optional. Allows a user who has previously enrolled in MFA to enroll with additional factors.<br />Note: Parameter can only be used with Universal Login; it cannot be used with Classic Login or custom MFA pages.'
+    UpdateGuardianFactorsProviderPushNotificationFcmResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    SetGuardianFactorsProviderPushNotificationApnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        sandbox:
+          type: boolean
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+    GuardianEnrollmentStatus:
+      type: string
+      description: Status of this enrollment. Can be `pending` or `confirmed`.
+      default: pending
+      enum:
+      - pending
+      - confirmed
+    SetGuardianFactorsProviderPhoneTwilioRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
           minLength: 1
           maxLength: 1000
     SetGuardianFactorsProviderPushNotificationSnsRequestContent:
@@ -2106,88 +2164,7 @@ components:
           default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
           minLength: 1
           maxLength: 1000
-    UpdateGuardianFactorDuoSettingsRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        ikey:
-          type: string
-          maxLength: 10000
-        skey:
-          type: string
-          maxLength: 10000
-          format: non-empty-string
-        host:
-          type: string
-          maxLength: 10000
-    SetGuardianFactorSmsTemplatesResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enrollment_message
-      - verification_message
-      properties:
-        enrollment_message:
-          type: string
-          description: Message sent to the user when they are invited to enroll with a phone number.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
-        verification_message:
-          type: string
-          description: Message sent to the user when they are prompted to verify their account.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
-    SetGuardianPoliciesResponseContent:
-      type: array
-      items:
-        $ref: '#/components/schemas/MFAPolicyEnum'
-    GuardianEnrollmentStatus:
-      type: string
-      description: Status of this enrollment. Can be `pending` or `confirmed`.
-      default: pending
-      enum:
-      - pending
-      - confirmed
-    UpdateGuardianFactorsProviderPushNotificationFcmResponseContent:
-      type: object
-      additionalProperties: true
-      minProperties: 0
-      maxProperties: 0
-    SetGuardianFactorsProviderPushNotificationFcmResponseContent:
-      type: object
-      additionalProperties: true
-      minProperties: 0
-      maxProperties: 0
-    SetGuardianFactorsProviderPushNotificationFcmRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        server_key:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 152
-    SetGuardianFactorPhoneTemplatesRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - enrollment_message
-      - verification_message
-      properties:
-        enrollment_message:
-          type: string
-          description: Message sent to the user when they are invited to enroll with a phone number.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
-        verification_message:
-          type: string
-          description: Message sent to the user when they are prompted to verify their account.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
-    GetGuardianFactorsProviderSmsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        provider:
-          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
-    GetGuardianFactorsProviderSnsResponseContent:
+    SetGuardianFactorsProviderPushNotificationSnsResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -2226,40 +2203,63 @@ components:
           default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
           minLength: 1
           maxLength: 1000
-    UpdateGuardianFactorsProviderPushNotificationApnsRequestContent:
+    SetGuardianFactorPhoneMessageTypesResponseContent:
       type: object
       additionalProperties: false
       properties:
-        sandbox:
-          type: boolean
-        bundle_id:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 1000
-        p12:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 10000
-    GetGuardianFactorSmsTemplatesResponseContent:
+        message_types:
+          type: array
+          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
+          items:
+            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
+    SetGuardianFactorsProviderPhoneResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    GetGuardianFactorsProviderPhoneResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    GetGuardianEnrollmentResponseContent:
       type: object
       additionalProperties: false
       required:
-      - enrollment_message
-      - verification_message
+      - id
       properties:
-        enrollment_message:
+        id:
           type: string
-          description: Message sent to the user when they are invited to enroll with a phone number.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
-        verification_message:
+          description: ID for this enrollment.
+          default: dev_0000000000000001
+        status:
+          $ref: '#/components/schemas/GuardianEnrollmentStatus'
+        name:
           type: string
-          description: Message sent to the user when they are prompted to verify their account.
-          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
-    SetGuardianFactorsProviderSmsTwilioResponseContent:
+          description: Device name (only for push notification).
+          default: iPhone 7
+          minLength: 1
+          maxLength: 20
+          pattern: ^\+[0-9]{8, 20}
+        identifier:
+          type: string
+          description: Device identifier. This is usually the phone identifier.
+          default: 76dc-a90c-a88c-a90c-a88c-a88c-a90c
+        phone_number:
+          type: string
+          description: Phone number.
+          default: +1 999999999999
+        enrolled_at:
+          $ref: '#/components/schemas/GuardianEnrollmentDate'
+        last_auth:
+          $ref: '#/components/schemas/GuardianEnrollmentDate'
+    ListGuardianPoliciesResponseContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/MFAPolicyEnum'
+    GetGuardianFactorsProviderSmsTwilioResponseContent:
       type: object
       additionalProperties: false
       properties:

@@ -271,26 +271,26 @@ paths:
         - read:group_members
 components:
   schemas:
-    GroupMember:
+    GetGroupMembersResponseContent:
       type: object
-      description: Represents the metadata of a group membership.
-      additionalProperties: true
+      additionalProperties: false
+      required:
+      - members
       properties:
-        id:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMember'
+        next:
           type: string
-          description: Unique identifier for the member.
-        member_type:
-          $ref: '#/components/schemas/GroupMemberTypeEnum'
-        type:
-          $ref: '#/components/schemas/GroupTypeEnum'
-        connection_id:
-          type: string
-          description: Identifier for the connection this group belongs to (if a connection group).
-          format: connection-id
-        created_at:
-          type: string
-          description: Timestamp of when the membership was created.
-          format: date-time
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    GroupTypeEnum:
+      type: string
+      description: Type of the group.
+      enum:
+      - connection
+      - organization
+      - tenant
     GetGroupResponseContent:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -335,12 +335,26 @@ components:
           type: string
           description: Timestamp of when the group was last updated.
           format: date-time
-    GroupMemberTypeEnum:
-      type: string
-      description: Type of the member.
-      enum:
-      - user
-      - group
+    GroupMember:
+      type: object
+      description: Represents the metadata of a group membership.
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the member.
+        member_type:
+          $ref: '#/components/schemas/GroupMemberTypeEnum'
+        type:
+          $ref: '#/components/schemas/GroupTypeEnum'
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        created_at:
+          type: string
+          description: Timestamp of when the membership was created.
+          format: date-time
     Group:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -404,26 +418,12 @@ components:
           type: number
         total:
           type: number
-    GroupTypeEnum:
+    GroupMemberTypeEnum:
       type: string
-      description: Type of the group.
+      description: Type of the member.
       enum:
-      - connection
-      - organization
-      - tenant
-    GetGroupMembersResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - members
-      properties:
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupMember'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
+      - user
+      - group
   securitySchemes:
     bearerAuth:
       type: http

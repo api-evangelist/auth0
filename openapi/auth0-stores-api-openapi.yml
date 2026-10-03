@@ -271,19 +271,14 @@ paths:
       - Stores
 components:
   schemas:
-    AuthErrorCode:
+    NotFoundErrorCode:
       type: string
       enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
     Store:
       type: object
       properties:
@@ -305,14 +300,76 @@ components:
       - name
       - created_at
       - updated_at
-    NotFoundErrorCode:
-      type: string
-      enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
+    ForbiddenResponse:
+      type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
+      properties:
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
+        message:
+          type: string
+    GetStoreResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 01YCP46JKYM8FJCQ37NMBYHE5X
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    UnauthenticatedResponse:
+      type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    CreateStoreRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: my-store-name
+      required:
+      - name
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
     CreateStoreResponse:
       type: object
       properties:
@@ -332,6 +389,57 @@ components:
       - name
       - created_at
       - updated_at
+    UnprocessableContentMessageResponse:
+      type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
+      properties:
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    ListStoresResponse:
+      type: object
+      properties:
+        stores:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Store'
+        continuation_token:
+          type: string
+          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+          description: The continuation token will be empty if there are no more stores.
+      required:
+      - stores
+      - continuation_token
     ErrorCode:
       type: string
       enum:
@@ -386,97 +494,6 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    ListStoresResponse:
-      type: object
-      properties:
-        stores:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Store'
-        continuation_token:
-          type: string
-          example: eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
-          description: The continuation token will be empty if there are no more stores.
-      required:
-      - stores
-      - continuation_token
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
-        message:
-          type: string
     InternalErrorCode:
       type: string
       enum:
@@ -491,33 +508,16 @@ components:
       - unavailable
       - data_loss
       default: no_internal_error
-    CreateStoreRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          example: my-store-name
-      required:
-      - name
-    GetStoreResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 01YCP46JKYM8FJCQ37NMBYHE5X
-        name:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        deleted_at:
-          type: string
-          format: date-time
-      required:
-      - id
-      - name
-      - created_at
-      - updated_at
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
