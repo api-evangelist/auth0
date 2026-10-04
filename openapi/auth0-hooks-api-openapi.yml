@@ -446,66 +446,20 @@ paths:
         - update:hooks
 components:
   schemas:
-    HookTriggerIdEnum:
-      type: string
-      enum:
-      - credentials-exchange
-      - pre-user-registration
-      - post-user-registration
-      - post-change-password
-      - send-phone-message
-      description: Retrieves hooks that match the trigger
-    CreateHookResponseContent:
+    GetHookSecretResponseContent:
       type: object
-      additionalProperties: false
-      properties:
-        triggerId:
-          type: string
-          description: Trigger ID
-        id:
-          type: string
-          description: ID of this hook.
-          default: '00001'
-        name:
-          type: string
-          description: Name of this hook.
-          default: hook
-        enabled:
-          type: boolean
-          description: Whether this hook will be executed (true) or ignored (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this hook runs.
-          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
-        dependencies:
-          $ref: '#/components/schemas/HookDependencies'
-    GetHookResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        triggerId:
-          type: string
-          description: Trigger ID
-        id:
-          type: string
-          description: ID of this hook.
-          default: '00001'
-        name:
-          type: string
-          description: Name of this hook.
-          default: hook
-        enabled:
-          type: boolean
-          description: Whether this hook will be executed (true) or ignored (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this hook runs.
-          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
-        dependencies:
-          $ref: '#/components/schemas/HookDependencies'
-    CreateHookSecretRequestContent:
+      description: Hashmap of key-value pairs where the value must be a string.
+      additionalProperties:
+        type: string
+      minProperties: 1
+      maxProperties: 20
+    DeleteHookSecretRequestContent:
+      type: array
+      description: Array of secret names to delete.
+      minItems: 1
+      items:
+        type: string
+    UpdateHookSecretRequestContent:
       type: object
       description: Hashmap of key-value pairs where the value must be a string.
       additionalProperties:
@@ -537,12 +491,59 @@ components:
           default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
         dependencies:
           $ref: '#/components/schemas/HookDependencies'
-    ListHooksResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Hook'
-      - $ref: '#/components/schemas/ListHooksOffsetPaginatedResponseContent'
+    CreateHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    HookTriggerIdEnum:
+      type: string
+      enum:
+      - credentials-exchange
+      - pre-user-registration
+      - post-user-registration
+      - post-change-password
+      - send-phone-message
+      description: Retrieves hooks that match the trigger
+    HookDependencies:
+      type: object
+      description: Dependencies of this hook used by webtask server.
+      additionalProperties:
+        type: string
+    ListHooksOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        hooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hook'
     UpdateHookRequestContent:
       type: object
       additionalProperties: false
@@ -564,19 +565,6 @@ components:
           default: false
         dependencies:
           $ref: '#/components/schemas/HookDependencies'
-    DeleteHookSecretRequestContent:
-      type: array
-      description: Array of secret names to delete.
-      minItems: 1
-      items:
-        type: string
-    UpdateHookSecretRequestContent:
-      type: object
-      description: Hashmap of key-value pairs where the value must be a string.
-      additionalProperties:
-        type: string
-      minProperties: 1
-      maxProperties: 20
     CreateHookRequestContent:
       type: object
       additionalProperties: false
@@ -604,27 +592,6 @@ components:
         triggerId:
           $ref: '#/components/schemas/HookTriggerIdEnum'
           description: Execution stage of this rule. Can be `credentials-exchange`, `pre-user-registration`, `post-user-registration`, `post-change-password`, or `send-phone-message`.
-    ListHooksOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        hooks:
-          type: array
-          items:
-            $ref: '#/components/schemas/Hook'
-    GetHookSecretResponseContent:
-      type: object
-      description: Hashmap of key-value pairs where the value must be a string.
-      additionalProperties:
-        type: string
-      minProperties: 1
-      maxProperties: 20
     Hook:
       type: object
       additionalProperties: false
@@ -650,11 +617,44 @@ components:
           default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
         dependencies:
           $ref: '#/components/schemas/HookDependencies'
-    HookDependencies:
+    CreateHookSecretRequestContent:
       type: object
-      description: Dependencies of this hook used by webtask server.
+      description: Hashmap of key-value pairs where the value must be a string.
       additionalProperties:
         type: string
+      minProperties: 1
+      maxProperties: 20
+    GetHookResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        triggerId:
+          type: string
+          description: Trigger ID
+        id:
+          type: string
+          description: ID of this hook.
+          default: '00001'
+        name:
+          type: string
+          description: Name of this hook.
+          default: hook
+        enabled:
+          type: boolean
+          description: Whether this hook will be executed (true) or ignored (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this hook runs.
+          default: module.exports = function(client, scope, audience, context, cb) cb(null, access_token); };
+        dependencies:
+          $ref: '#/components/schemas/HookDependencies'
+    ListHooksResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Hook'
+      - $ref: '#/components/schemas/ListHooksOffsetPaginatedResponseContent'
   securitySchemes:
     bearerAuth:
       type: http

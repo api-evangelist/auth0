@@ -1017,15 +1017,172 @@ paths:
         required: true
 components:
   schemas:
-    CheckError:
+    ForbiddenResponse:
       type: object
+      example:
+        code: forbidden
+        message: the principal is not authorized to perform the action
       properties:
-        input_error:
-          $ref: '#/components/schemas/ErrorCode'
-        internal_error:
-          $ref: '#/components/schemas/InternalErrorCode'
+        code:
+          $ref: '#/components/schemas/AuthErrorCode'
         message:
           type: string
+    Status:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Any'
+    BatchCheckResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          example:
+            1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc:
+              allowed: true
+              error:
+                message: ''
+          additionalProperties:
+            $ref: '#/components/schemas/BatchCheckSingleResult'
+          description: map keys are the correlation_id values from the BatchCheckItems in the request
+    Users:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: string
+      required:
+      - users
+    ContextualTupleKeys:
+      type: object
+      properties:
+        tuple_keys:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/TupleKey'
+          maxItems: 100
+      required:
+      - tuple_keys
+    TypedWildcard:
+      type: object
+      properties:
+        type:
+          type: string
+          example: employee
+      description: 'Type bound public access.
+
+
+        Normally represented using the `<type>:*` syntax
+
+
+        `employee:*` represents every object of type `employee`, including those not currently present in the system
+
+
+        See https://openfga.dev/docs/concepts#what-is-type-bound-public-access'
+      required:
+      - type
+    CheckResponse:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+          example: true
+        resolution:
+          type: string
+          description: For internal use only.
+    ExpandResponse:
+      type: object
+      properties:
+        tree:
+          $ref: '#/components/schemas/UsersetTree'
+    UsersetTree.Difference:
+      type: object
+      properties:
+        base:
+          $ref: '#/components/schemas/Node'
+        subtract:
+          $ref: '#/components/schemas/Node'
+      required:
+      - base
+      - subtract
+    User:
+      type: object
+      properties:
+        object:
+          $ref: '#/components/schemas/Object'
+        userset:
+          $ref: '#/components/schemas/UsersetUser'
+        wildcard:
+          $ref: '#/components/schemas/TypedWildcard'
+      description: 'User.
+
+
+        Represents any possible value for a user (subject or principal). Can be a:
+
+        - Specific user object e.g.: ''user:will'', ''folder:marketing'', ''org:contoso'', ...)
+
+        - Specific userset (e.g. ''group:engineering#member'')
+
+        - Public-typed wildcard (e.g. ''user:*'')
+
+
+        See https://openfga.dev/docs/concepts#what-is-a-user'
+    Node:
+      type: object
+      properties:
+        name:
+          type: string
+        leaf:
+          $ref: '#/components/schemas/Leaf'
+        difference:
+          $ref: '#/components/schemas/UsersetTree.Difference'
+        union:
+          $ref: '#/components/schemas/Nodes'
+        intersection:
+          $ref: '#/components/schemas/Nodes'
+      required:
+      - name
+    UserTypeFilter:
+      type: object
+      properties:
+        type:
+          type: string
+          example: group
+        relation:
+          type: string
+          example: member
+      required:
+      - type
+    InternalErrorCode:
+      type: string
+      enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+      default: no_internal_error
+    Any:
+      type: object
+      properties:
+        '@type':
+          type: string
+      additionalProperties: {}
     TupleKey:
       type: object
       properties:
@@ -1047,12 +1204,173 @@ components:
       - user
       - relation
       - object
-    Any:
+    ListUsersResponse:
       type: object
       properties:
-        '@type':
+        users:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/User'
+      required:
+      - users
+    StreamedListObjectsResponse:
+      type: object
+      properties:
+        object:
           type: string
-      additionalProperties: {}
+          example: document:roadmap
+      description: The response for a StreamedListObjects RPC.
+      required:
+      - object
+    CheckRequestTupleKey:
+      type: object
+      properties:
+        user:
+          type: string
+          example: user:anne
+          maxLength: 512
+        relation:
+          type: string
+          example: reader
+          maxLength: 50
+        object:
+          type: string
+          example: document:2021-budget
+          maxLength: 256
+      required:
+      - user
+      - relation
+      - object
+    UsersetTree.TupleToUserset:
+      type: object
+      properties:
+        tupleset:
+          type: string
+        computed:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Computed'
+      required:
+      - tupleset
+      - computed
+    Object:
+      type: object
+      properties:
+        type:
+          type: string
+          example: document
+        id:
+          type: string
+          example: 0bcdf6fa-a6aa-4730-a8eb-9cf172ff16d9
+      description: 'Object represents an OpenFGA Object.
+
+
+        An Object is composed of a type and identifier (e.g. ''document:1'')
+
+
+        See https://openfga.dev/docs/concepts#what-is-an-object'
+      required:
+      - type
+      - id
+    PathUnknownErrorMessageResponse:
+      type: object
+      example:
+        code: undefined_endpoint
+        message: Endpoint not enabled
+      properties:
+        code:
+          $ref: '#/components/schemas/NotFoundErrorCode'
+        message:
+          type: string
+    AuthErrorCode:
+      type: string
+      enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+      default: no_auth_error
+    UnprocessableContentErrorCode:
+      type: string
+      enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+      default: no_throttled_error_code
+    Nodes:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Node'
+      required:
+      - nodes
+    AbortedMessageResponse:
+      type: object
+      example:
+        code: '10'
+        message: transaction conflict
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    ValidationErrorMessageResponse:
+      type: object
+      example:
+        code: validation_error
+        message: Generic validation error
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    ListObjectsResponse:
+      type: object
+      properties:
+        objects:
+          type: array
+          example:
+          - document:roadmap
+          - document:planning
+          items:
+            type: string
+      required:
+      - objects
+    InternalErrorMessageResponse:
+      type: object
+      example:
+        code: internal_error
+        message: Internal Server Error
+      properties:
+        code:
+          $ref: '#/components/schemas/InternalErrorCode'
+        message:
+          type: string
+    BatchCheckItem:
+      type: object
+      properties:
+        tuple_key:
+          $ref: '#/components/schemas/CheckRequestTupleKey'
+        contextual_tuples:
+          $ref: '#/components/schemas/ContextualTupleKeys'
+        context:
+          type: object
+        correlation_id:
+          type: string
+          example: 1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc
+          description: correlation_id must be a string containing only letters, numbers, or hyphens, with length ≤ 36 characters.
+      required:
+      - tuple_key
+      - correlation_id
     UsersetUser:
       type: object
       properties:
@@ -1079,33 +1397,17 @@ components:
       - type
       - id
       - relation
-    UnauthenticatedResponse:
-      type: object
-      example:
-        code: unauthenticated
-        message: unauthenticated
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    Leaf:
+    NotFoundErrorCode:
+      type: string
+      enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+      default: no_not_found_error
+    ExpandRequestTupleKey:
       type: object
       properties:
-        users:
-          $ref: '#/components/schemas/Users'
-        computed:
-          $ref: '#/components/schemas/Computed'
-        tupleToUserset:
-          $ref: '#/components/schemas/UsersetTree.TupleToUserset'
-      description: "A leaf node contains either\n- a set of users (which may be individual users, or usersets\n  referencing other relations)\n- a computed node, which is the result of a computed userset\n  value in the authorization model\n- a tupleToUserset nodes, containing the result of expanding\n  a tupleToUserset value in a authorization model."
-    CheckRequestTupleKey:
-      type: object
-      properties:
-        user:
-          type: string
-          example: user:anne
-          maxLength: 512
         relation:
           type: string
           example: reader
@@ -1115,49 +1417,14 @@ components:
           example: document:2021-budget
           maxLength: 256
       required:
-      - user
       - relation
       - object
-    BatchCheckResponse:
+    UsersetTree:
       type: object
       properties:
-        result:
-          type: object
-          example:
-            1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc:
-              allowed: true
-              error:
-                message: ''
-          additionalProperties:
-            $ref: '#/components/schemas/BatchCheckSingleResult'
-          description: map keys are the correlation_id values from the BatchCheckItems in the request
-    ConsistencyPreference:
-      type: string
-      enum:
-      - UNSPECIFIED
-      - MINIMIZE_LATENCY
-      - HIGHER_CONSISTENCY
-      default: UNSPECIFIED
-      description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
-      example: MINIMIZE_LATENCY
-    Users:
-      type: object
-      properties:
-        users:
-          type: array
-          items:
-            type: string
-      required:
-      - users
-    StreamedListObjectsResponse:
-      type: object
-      properties:
-        object:
-          type: string
-          example: document:roadmap
-      description: The response for a StreamedListObjects RPC.
-      required:
-      - object
+        root:
+          $ref: '#/components/schemas/Node'
+      description: A UsersetTree contains the result of an Expansion.
     ErrorCode:
       type: string
       enum:
@@ -1212,128 +1479,23 @@ components:
       - cancelled
       - invalid_start_time
       default: no_error
-    BatchCheckItem:
-      type: object
-      properties:
-        tuple_key:
-          $ref: '#/components/schemas/CheckRequestTupleKey'
-        contextual_tuples:
-          $ref: '#/components/schemas/ContextualTupleKeys'
-        context:
-          type: object
-        correlation_id:
-          type: string
-          example: 1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc
-          description: correlation_id must be a string containing only letters, numbers, or hyphens, with length ≤ 36 characters.
-      required:
-      - tuple_key
-      - correlation_id
-    Node:
-      type: object
-      properties:
-        name:
-          type: string
-        leaf:
-          $ref: '#/components/schemas/Leaf'
-        difference:
-          $ref: '#/components/schemas/UsersetTree.Difference'
-        union:
-          $ref: '#/components/schemas/Nodes'
-        intersection:
-          $ref: '#/components/schemas/Nodes'
-      required:
-      - name
-    InternalErrorMessageResponse:
-      type: object
-      example:
-        code: internal_error
-        message: Internal Server Error
-      properties:
-        code:
-          $ref: '#/components/schemas/InternalErrorCode'
-        message:
-          type: string
-    UsersetTree.TupleToUserset:
-      type: object
-      properties:
-        tupleset:
-          type: string
-        computed:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Computed'
-      required:
-      - tupleset
-      - computed
-    Object:
-      type: object
-      properties:
-        type:
-          type: string
-          example: document
-        id:
-          type: string
-          example: 0bcdf6fa-a6aa-4730-a8eb-9cf172ff16d9
-      description: 'Object represents an OpenFGA Object.
-
-
-        An Object is composed of a type and identifier (e.g. ''document:1'')
-
-
-        See https://openfga.dev/docs/concepts#what-is-an-object'
-      required:
-      - type
-      - id
-    UsersetTree:
-      type: object
-      properties:
-        root:
-          $ref: '#/components/schemas/Node'
-      description: A UsersetTree contains the result of an Expansion.
-    InternalErrorCode:
-      type: string
-      enum:
-      - no_internal_error
-      - internal_error
-      - deadline_exceeded
-      - already_exists
-      - resource_exhausted
-      - failed_precondition
-      - aborted
-      - out_of_range
-      - unavailable
-      - data_loss
-      default: no_internal_error
-    ListUsersResponse:
+    Leaf:
       type: object
       properties:
         users:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/User'
-      required:
-      - users
-    ContextualTupleKeys:
+          $ref: '#/components/schemas/Users'
+        computed:
+          $ref: '#/components/schemas/Computed'
+        tupleToUserset:
+          $ref: '#/components/schemas/UsersetTree.TupleToUserset'
+      description: "A leaf node contains either\n- a set of users (which may be individual users, or usersets\n  referencing other relations)\n- a computed node, which is the result of a computed userset\n  value in the authorization model\n- a tupleToUserset nodes, containing the result of expanding\n  a tupleToUserset value in a authorization model."
+    CheckError:
       type: object
       properties:
-        tuple_keys:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/TupleKey'
-          maxItems: 100
-      required:
-      - tuple_keys
-    ForbiddenResponse:
-      type: object
-      example:
-        code: forbidden
-        message: the principal is not authorized to perform the action
-      properties:
-        code:
-          $ref: '#/components/schemas/AuthErrorCode'
+        input_error:
+          $ref: '#/components/schemas/ErrorCode'
+        internal_error:
+          $ref: '#/components/schemas/InternalErrorCode'
         message:
           type: string
     Computed:
@@ -1343,102 +1505,6 @@ components:
           type: string
       required:
       - userset
-    ExpandRequestTupleKey:
-      type: object
-      properties:
-        relation:
-          type: string
-          example: reader
-          maxLength: 50
-        object:
-          type: string
-          example: document:2021-budget
-          maxLength: 256
-      required:
-      - relation
-      - object
-    UserTypeFilter:
-      type: object
-      properties:
-        type:
-          type: string
-          example: group
-        relation:
-          type: string
-          example: member
-      required:
-      - type
-    AbortedMessageResponse:
-      type: object
-      example:
-        code: '10'
-        message: transaction conflict
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    ValidationErrorMessageResponse:
-      type: object
-      example:
-        code: validation_error
-        message: Generic validation error
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          type: string
-    UnprocessableContentMessageResponse:
-      type: object
-      example:
-        code: throttled_timeout_error
-        message: timeout due to throttling on complex request
-      properties:
-        code:
-          $ref: '#/components/schemas/UnprocessableContentErrorCode'
-        message:
-          type: string
-    UnprocessableContentErrorCode:
-      type: string
-      enum:
-      - no_throttled_error_code
-      - throttled_timeout_error
-      default: no_throttled_error_code
-    Status:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
-        details:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Any'
-    User:
-      type: object
-      properties:
-        object:
-          $ref: '#/components/schemas/Object'
-        userset:
-          $ref: '#/components/schemas/UsersetUser'
-        wildcard:
-          $ref: '#/components/schemas/TypedWildcard'
-      description: 'User.
-
-
-        Represents any possible value for a user (subject or principal). Can be a:
-
-        - Specific user object e.g.: ''user:will'', ''folder:marketing'', ''org:contoso'', ...)
-
-        - Specific userset (e.g. ''group:engineering#member'')
-
-        - Public-typed wildcard (e.g. ''user:*'')
-
-
-        See https://openfga.dev/docs/concepts#what-is-a-user'
     RelationshipCondition:
       type: object
       properties:
@@ -1456,65 +1522,35 @@ components:
             match the parameter type definitions.'
       required:
       - name
-    AuthErrorCode:
+    ConsistencyPreference:
       type: string
       enum:
-      - no_auth_error
-      - auth_failed_invalid_subject
-      - auth_failed_invalid_audience
-      - auth_failed_invalid_issuer
-      - invalid_claims
-      - auth_failed_invalid_bearer_token
-      - bearer_token_missing
-      - unauthenticated
-      - forbidden
-      default: no_auth_error
-    UsersetTree.Difference:
+      - UNSPECIFIED
+      - MINIMIZE_LATENCY
+      - HIGHER_CONSISTENCY
+      default: UNSPECIFIED
+      description: "Controls the consistency preferences when calling the query APIs.\n\n - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.\n - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.\n - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency."
+      example: MINIMIZE_LATENCY
+    UnauthenticatedResponse:
       type: object
+      example:
+        code: unauthenticated
+        message: unauthenticated
       properties:
-        base:
-          $ref: '#/components/schemas/Node'
-        subtract:
-          $ref: '#/components/schemas/Node'
-      required:
-      - base
-      - subtract
-    NotFoundErrorCode:
-      type: string
-      enum:
-      - no_not_found_error
-      - undefined_endpoint
-      - store_id_not_found
-      - unimplemented
-      default: no_not_found_error
-    TypedWildcard:
-      type: object
-      properties:
-        type:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
           type: string
-          example: employee
-      description: 'Type bound public access.
-
-
-        Normally represented using the `<type>:*` syntax
-
-
-        `employee:*` represents every object of type `employee`, including those not currently present in the system
-
-
-        See https://openfga.dev/docs/concepts#what-is-type-bound-public-access'
-      required:
-      - type
-    Nodes:
+    UnprocessableContentMessageResponse:
       type: object
+      example:
+        code: throttled_timeout_error
+        message: timeout due to throttling on complex request
       properties:
-        nodes:
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Node'
-      required:
-      - nodes
+        code:
+          $ref: '#/components/schemas/UnprocessableContentErrorCode'
+        message:
+          type: string
     BatchCheckSingleResult:
       type: object
       properties:
@@ -1522,39 +1558,3 @@ components:
           type: boolean
         error:
           $ref: '#/components/schemas/CheckError'
-    CheckResponse:
-      type: object
-      properties:
-        allowed:
-          type: boolean
-          example: true
-        resolution:
-          type: string
-          description: For internal use only.
-    ListObjectsResponse:
-      type: object
-      properties:
-        objects:
-          type: array
-          example:
-          - document:roadmap
-          - document:planning
-          items:
-            type: string
-      required:
-      - objects
-    PathUnknownErrorMessageResponse:
-      type: object
-      example:
-        code: undefined_endpoint
-        message: Endpoint not enabled
-      properties:
-        code:
-          $ref: '#/components/schemas/NotFoundErrorCode'
-        message:
-          type: string
-    ExpandResponse:
-      type: object
-      properties:
-        tree:
-          $ref: '#/components/schemas/UsersetTree'

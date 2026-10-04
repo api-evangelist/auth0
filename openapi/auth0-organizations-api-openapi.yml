@@ -1949,13 +1949,93 @@ paths:
         - create:organization_member_roles
 components:
   schemas:
-    OrganizationEnabledConnection:
+    ListOrganizationMembersPaginatedResponseContent:
       type: object
       additionalProperties: true
       properties:
-        connection_id:
+        next:
           type: string
-          description: ID of the connection.
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMember'
+    OrganizationClientGrant:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/OrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+    UpdateOrganizationRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/UpdateTokenQuota'
+          x-release-lifecycle: EA
+    OrganizationBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      required:
+      - primary
+      - page_background
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+          format: html-color
+        page_background:
+          type: string
+          description: HEX Color for background.
+          format: html-color
+    CreateOrganizationAllConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: ^[^]*$
         assign_membership_on_login:
           type: boolean
           description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
@@ -1965,80 +2045,19 @@ components:
         is_signup_enabled:
           type: boolean
           description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
         connection:
           $ref: '#/components/schemas/OrganizationConnectionInformation'
-    ListOrganizationConnectionsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/OrganizationConnection'
-      - $ref: '#/components/schemas/ListOrganizationConnectionsOffsetPaginatedResponseContent'
-    ListOrganizationInvitationsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/OrganizationInvitation'
-      - $ref: '#/components/schemas/ListOrganizationInvitationsOffsetPaginatedResponseContent'
-    CreateOrganizationRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        enabled_connections:
-          type: array
-          description: Connections that will be enabled for this organization. See POST enabled_connections endpoint for the object format. (Max of 10 connections allowed)
-          items:
-            $ref: '#/components/schemas/ConnectionForOrganization'
-        token_quota:
-          $ref: '#/components/schemas/CreateTokenQuota'
-          x-release-lifecycle: EA
-    Organization:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/TokenQuota'
-          x-release-lifecycle: EA
     CreateOrganizationInvitationRequestContent:
       type: object
       additionalProperties: false
@@ -2081,67 +2100,20 @@ components:
           type: boolean
           description: Whether the user will receive an invitation email (true) or no email (false), true by default
           default: true
-    OrganizationUsageEnum:
-      type: string
-      description: Defines whether organizations can be used with client credentials exchanges for this grant.
-      enum:
-      - deny
-      - allow
-      - require
-    OrganizationBrandingColors:
+    CreateOrganizationMemberRequestContent:
       type: object
-      description: Color scheme used to customize the login pages.
-      additionalProperties: false
+      additionalProperties: true
       required:
-      - primary
-      - page_background
+      - members
       properties:
-        primary:
-          type: string
-          description: HEX Color for primary elements.
-          format: html-color
-        page_background:
-          type: string
-          description: HEX Color for background.
-          format: html-color
-    GetOrganizationDiscoveryDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - domain
-      - status
-      - verification_txt
-      - verification_host
-      properties:
-        id:
-          type: string
-          description: Organization discovery domain identifier.
-          format: organization-discovery-domain-id
-        domain:
-          type: string
-          description: The domain name to associate with the organization e.g. acme.com.
-          minLength: 3
-          maxLength: 255
-          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
-        status:
-          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
-        use_for_organization_discovery:
-          type: boolean
-          description: Indicates whether this domain should be used for organization discovery.
-        verification_txt:
-          type: string
-          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
-        verification_host:
-          type: string
-          description: The full domain where the TXT record should be added.
-    ListOrganizationAllConnectionsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/OrganizationAllConnectionPost'
-      - $ref: '#/components/schemas/ListOrganizationAllConnectionsOffsetPaginatedResponseContent'
-    OrganizationInvitation:
+        members:
+          type: array
+          description: List of user IDs to add to the organization as members.
+          minItems: 1
+          items:
+            type: string
+            format: user-id-with-max-length
+    GetOrganizationInvitationResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -2199,170 +2171,25 @@ components:
           type: string
           description: The id of the invitation ticket
           format: ticket-id
-    ListOrganizationMemberRolesResponseContent:
+    ListOrganizationInvitationsResponseContent:
       oneOf:
       - type: array
         items:
-          $ref: '#/components/schemas/Role'
-      - $ref: '#/components/schemas/ListOrganizationMemberRolesOffsetPaginatedResponseContent'
-    ListOrganizationAllConnectionsOffsetPaginatedResponseContent:
+          $ref: '#/components/schemas/OrganizationInvitation'
+      - $ref: '#/components/schemas/ListOrganizationInvitationsOffsetPaginatedResponseContent'
+    UpdateOrganizationConnectionRequestContent:
       type: object
       additionalProperties: false
       properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        connections:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationAllConnectionPost'
-    DeleteOrganizationMembersRequestContent:
-      type: object
-      additionalProperties: true
-      required:
-      - members
-      properties:
-        members:
-          type: array
-          description: List of user IDs to remove from the organization.
-          minItems: 1
-          items:
-            type: string
-            format: user-id-with-max-length
-    ListOrganizationMembersOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationMember'
-    OrganizationAccessLevelEnumWithNull:
-      type:
-      - string
-      - 'null'
-      description: Access level for the organization (e.g., "none", "full").
-      enum:
-      - none
-      - readonly
-      - limited
-      - full
-      - null
-    ListOrganizationMembersPaginatedResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        next:
-          type: string
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationMember'
-    OrganizationAccessLevelEnum:
-      type: string
-      description: Access level for the organization (e.g., "none", "full").
-      enum:
-      - none
-      - readonly
-      - limited
-      - full
-    AssignOrganizationMemberRolesRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - roles
-      properties:
-        roles:
-          type: array
-          description: List of roles IDs to associated with the user.
-          minItems: 1
-          items:
-            type: string
-            format: role-id
-    CreateOrganizationDiscoveryDomainRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - domain
-      properties:
-        domain:
-          type: string
-          description: The domain name to associate with the organization e.g. acme.com.
-          minLength: 3
-          maxLength: 255
-        status:
-          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
-        use_for_organization_discovery:
-          type: boolean
-          description: Indicates whether this domain should be used for organization discovery.
-    UpdateOrganizationDiscoveryDomainRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        status:
-          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
-        use_for_organization_discovery:
-          type: boolean
-          description: Indicates whether this domain should be used for organization discovery.
-    ConnectionForOrganization:
-      type: object
-      description: Connection to be added to the organization.
-      additionalProperties: false
-      required:
-      - connection_id
-      properties:
-        connection_id:
-          type: string
-          description: ID of the connection.
         assign_membership_on_login:
           type: boolean
           description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
         is_signup_enabled:
           type: boolean
           description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-    CreateOrganizationDiscoveryDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - domain
-      - status
-      - verification_host
-      - verification_txt
-      properties:
-        id:
-          type: string
-          description: Organization discovery domain identifier.
-          format: organization-discovery-domain-id
-        domain:
-          type: string
-          description: The domain name to associate with the organization e.g. acme.com.
-          minLength: 3
-          maxLength: 255
-          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
-        status:
-          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
-        use_for_organization_discovery:
+        show_as_button:
           type: boolean
-          description: Indicates whether this domain should be used for organization discovery.
-        verification_txt:
-          type: string
-          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
-        verification_host:
-          type: string
-          description: The full domain where the TXT record should be added.
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
     ListOrganizationsPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -2373,194 +2200,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Organization'
-    GetOrganizationDiscoveryDomainByNameResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - domain
-      - status
-      - verification_txt
-      - verification_host
-      properties:
-        id:
-          type: string
-          description: Organization discovery domain identifier.
-          format: organization-discovery-domain-id
-        domain:
-          type: string
-          description: The domain name to associate with the organization e.g. acme.com.
-          minLength: 3
-          maxLength: 255
-          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
-        status:
-          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
-        use_for_organization_discovery:
-          type: boolean
-          description: Indicates whether this domain should be used for organization discovery.
-        verification_txt:
-          type: string
-          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
-        verification_host:
-          type: string
-          description: The full domain where the TXT record should be added.
-    ListOrganizationConnectionsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        enabled_connections:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationConnection'
-    OrganizationConnectionInformation:
+    ListOrganizationMembersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationMember'
+      - $ref: '#/components/schemas/ListOrganizationMembersOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListOrganizationMembersPaginatedResponseContent'
+    OrganizationEnabledConnection:
       type: object
       additionalProperties: true
-      properties:
-        name:
-          type: string
-          description: The name of the enabled connection.
-        strategy:
-          type: string
-          description: The strategy of the enabled connection.
-    TokenQuota:
-      type: object
-      additionalProperties: false
-      required:
-      - client_credentials
-      x-release-lifecycle: EA
-      properties:
-        client_credentials:
-          $ref: '#/components/schemas/TokenQuotaClientCredentials'
-    UpdateOrganizationResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/TokenQuota'
-          x-release-lifecycle: EA
-    GetOrganizationAllConnectionResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - connection_id
-      properties:
-        organization_connection_name:
-          type: string
-          description: Name of the connection in the scope of this organization.
-          minLength: 1
-          maxLength: 50
-          pattern: ^[^]*$
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        organization_access_level:
-          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
-        is_enabled:
-          type: boolean
-          description: Whether the connection is enabled for the organization.
-        connection_id:
-          type: string
-          description: Connection identifier.
-          minLength: 1
-          maxLength: 50
-          format: connection-id
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
-    CreateOrganizationAllConnectionResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - connection_id
-      properties:
-        organization_connection_name:
-          type: string
-          description: Name of the connection in the scope of this organization.
-          minLength: 1
-          maxLength: 50
-          pattern: ^[^]*$
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        organization_access_level:
-          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
-        is_enabled:
-          type: boolean
-          description: Whether the connection is enabled for the organization.
-        connection_id:
-          type: string
-          description: Connection identifier.
-          minLength: 1
-          maxLength: 50
-          format: connection-id
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
-    AppMetadata:
-      type: object
-      description: Data related to the user that does affect the application's core functionality.
-      additionalProperties: true
-      properties: {}
-    TokenQuotaClientCredentials:
-      type: object
-      description: The token quota configuration
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        enforce:
-          type: boolean
-          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
-        per_day:
-          type: integer
-          description: Maximum number of issued tokens per day
-          minimum: 1
-          maximum: 2147483647
-        per_hour:
-          type: integer
-          description: Maximum number of issued tokens per hour
-          minimum: 1
-          maximum: 2147483647
-    UpdateOrganizationConnectionResponseContent:
-      type: object
-      additionalProperties: false
       properties:
         connection_id:
           type: string
@@ -2634,7 +2283,254 @@ components:
           type: string
           description: The id of the invitation ticket
           format: ticket-id
-    DeleteOrganizationMemberRolesRequestContent:
+    UserMetadata:
+      type: object
+      description: Data related to the user that does not affect the application's core functionality.
+      additionalProperties: true
+    OrganizationMember:
+      type: object
+      additionalProperties: false
+      properties:
+        user_id:
+          type: string
+          description: ID of this user.
+        picture:
+          type: string
+          description: URL to a picture for this user.
+        name:
+          type: string
+          description: Name of this user.
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMemberRole'
+    UpdateOrganizationDiscoveryDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_host
+      - verification_txt
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    ListOrganizationsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Organization'
+      - $ref: '#/components/schemas/ListOrganizationsOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListOrganizationsPaginatedResponseContent'
+    ListOrganizationsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    UpdateOrganizationConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    UpdateOrganizationAllConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: ^[^]*$
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    GetOrganizationConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    UpdateTokenQuota:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    OrganizationBranding:
+      type: object
+      description: Theme defines how to style the login pages.
+      additionalProperties: false
+      properties:
+        logo_url:
+          type: string
+          description: URL of logo to display on login page.
+          format: strict-https-uri-or-null
+        colors:
+          $ref: '#/components/schemas/OrganizationBrandingColors'
+    OrganizationUsageEnum:
+      type: string
+      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+      enum:
+      - deny
+      - allow
+      - require
+    AssociateOrganizationClientGrantRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - grant_id
+      properties:
+        grant_id:
+          type: string
+          description: A Client Grant ID to add to the organization.
+          format: client-grant-id
+    UpdateOrganizationResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    CreateOrganizationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        enabled_connections:
+          type: array
+          description: Connections that will be enabled for this organization. See POST enabled_connections endpoint for the object format. (Max of 10 connections allowed)
+          items:
+            $ref: '#/components/schemas/ConnectionForOrganization'
+        token_quota:
+          $ref: '#/components/schemas/CreateTokenQuota'
+          x-release-lifecycle: EA
+    AssignOrganizationMemberRolesRequestContent:
       type: object
       additionalProperties: false
       required:
@@ -2642,11 +2538,71 @@ components:
       properties:
         roles:
           type: array
-          description: List of roles IDs associated with the organization member to remove.
+          description: List of roles IDs to associated with the user.
           minItems: 1
           items:
             type: string
             format: role-id
+    OrganizationAllConnectionPost:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: ^[^]*$
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    ListOrganizationClientGrantsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationClientGrant'
+      - $ref: '#/components/schemas/ListOrganizationClientGrantsOffsetPaginatedResponseContent'
+    ListOrganizationMemberRolesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    OrganizationDiscoveryDomainStatus:
+      type: string
+      description: The verification status of the discovery domain.
+      enum:
+      - pending
+      - verified
     ListOrganizationClientGrantsOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -2661,15 +2617,65 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrganizationClientGrant'
-    CreateTokenQuota:
+    OrganizationDiscoveryDomain:
       type: object
       additionalProperties: false
       required:
-      - client_credentials
-      x-release-lifecycle: EA
+      - id
+      - domain
+      - status
+      - verification_txt
+      - verification_host
       properties:
-        client_credentials:
-          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    OrganizationInvitationInviter:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The inviter's name.
+          default: Jane Doe
+          minLength: 1
+          maxLength: 300
+    OrganizationMemberRole:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+    ListOrganizationConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationConnection'
+      - $ref: '#/components/schemas/ListOrganizationConnectionsOffsetPaginatedResponseContent'
     AddOrganizationConnectionRequestContent:
       type: object
       additionalProperties: false
@@ -2689,20 +2695,279 @@ components:
         show_as_button:
           type: boolean
           description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-    Role:
+    UpdateOrganizationDiscoveryDomainRequestContent:
       type: object
       additionalProperties: false
       properties:
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+    CreateOrganizationDiscoveryDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_host
+      - verification_txt
+      properties:
         id:
           type: string
-          description: ID for this role.
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    GetOrganizationDiscoveryDomainByNameResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - domain
+      - status
+      - verification_txt
+      - verification_host
+      properties:
+        id:
+          type: string
+          description: Organization discovery domain identifier.
+          format: organization-discovery-domain-id
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+        verification_txt:
+          type: string
+          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
+        verification_host:
+          type: string
+          description: The full domain where the TXT record should be added.
+    GetOrganizationAllConnectionResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        organization_connection_name:
+          type: string
+          description: Name of the connection in the scope of this organization.
+          minLength: 1
+          maxLength: 50
+          pattern: ^[^]*$
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        organization_access_level:
+          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
+        is_enabled:
+          type: boolean
+          description: Whether the connection is enabled for the organization.
+        connection_id:
+          type: string
+          description: Connection identifier.
+          minLength: 1
+          maxLength: 50
+          format: connection-id
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    GetOrganizationResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
         name:
           type: string
-          description: Name of this role.
-        description:
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
           type: string
-          description: Description of this role.
-    GetOrganizationInvitationResponseContent:
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    OrganizationConnection:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    ListOrganizationAllConnectionsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/OrganizationAllConnectionPost'
+      - $ref: '#/components/schemas/ListOrganizationAllConnectionsOffsetPaginatedResponseContent'
+    OrganizationAccessLevelEnum:
+      type: string
+      description: Access level for the organization (e.g., "none", "full").
+      enum:
+      - none
+      - readonly
+      - limited
+      - full
+    OrganizationMetadata:
+      type: object
+      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 25
+    OrganizationAccessLevelEnumWithNull:
+      type:
+      - string
+      - 'null'
+      description: Access level for the organization (e.g., "none", "full").
+      enum:
+      - none
+      - readonly
+      - limited
+      - full
+      - null
+    ListOrganizationMemberRolesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListOrganizationMemberRolesOffsetPaginatedResponseContent'
+    OrganizationConnectionInformation:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: The name of the enabled connection.
+        strategy:
+          type: string
+          description: The strategy of the enabled connection.
+    CreateOrganizationDiscoveryDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: The domain name to associate with the organization e.g. acme.com.
+          minLength: 3
+          maxLength: 255
+        status:
+          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
+        use_for_organization_discovery:
+          type: boolean
+          description: Indicates whether this domain should be used for organization discovery.
+    OrganizationInvitationInvitee:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          description: The invitee's email.
+          default: john.doe@gmail.com
+          format: email
+    ListOrganizationMembersOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMember'
+    GetOrganizationByNameResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    OrganizationInvitation:
       type: object
       additionalProperties: false
       properties:
@@ -2760,73 +3025,15 @@ components:
           type: string
           description: The id of the invitation ticket
           format: ticket-id
-    GetOrganizationByNameResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/TokenQuota'
-          x-release-lifecycle: EA
-    OrganizationBranding:
-      type: object
-      description: Theme defines how to style the login pages.
-      additionalProperties: false
-      properties:
-        logo_url:
-          type: string
-          description: URL of logo to display on login page.
-          format: strict-https-uri-or-null
-        colors:
-          $ref: '#/components/schemas/OrganizationBrandingColors'
-    GetOrganizationConnectionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        connection_id:
-          type: string
-          description: ID of the connection.
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
-    UpdateOrganizationDiscoveryDomainResponseContent:
+    GetOrganizationDiscoveryDomainResponseContent:
       type: object
       additionalProperties: false
       required:
       - id
       - domain
       - status
-      - verification_host
       - verification_txt
+      - verification_host
       properties:
         id:
           type: string
@@ -2849,80 +3056,28 @@ components:
         verification_host:
           type: string
           description: The full domain where the TXT record should be added.
-    AssociateOrganizationClientGrantRequestContent:
+    DeleteOrganizationMembersRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - members
+      properties:
+        members:
+          type: array
+          description: List of user IDs to remove from the organization.
+          minItems: 1
+          items:
+            type: string
+            format: user-id-with-max-length
+    CreateTokenQuota:
       type: object
       additionalProperties: false
       required:
-      - grant_id
+      - client_credentials
+      x-release-lifecycle: EA
       properties:
-        grant_id:
-          type: string
-          description: A Client Grant ID to add to the organization.
-          format: client-grant-id
-    OrganizationMetadata:
-      type: object
-      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 25
-    UpdateOrganizationConnectionRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-    AddOrganizationConnectionResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        connection_id:
-          type: string
-          description: ID of the connection.
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
-    UpdateOrganizationRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/UpdateTokenQuota'
-          x-release-lifecycle: EA
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
     CreateOrganizationAllConnectionRequestContent:
       type: object
       additionalProperties: false
@@ -2955,33 +3110,65 @@ components:
           minLength: 1
           maxLength: 50
           format: connection-id
-    OrganizationDiscoveryDomainStatus:
-      type: string
-      description: The verification status of the discovery domain.
-      enum:
-      - pending
-      - verified
-    ListOrganizationsOffsetPaginatedResponseContent:
+    AssociateOrganizationClientGrantResponseContent:
       type: object
       additionalProperties: false
       properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        organizations:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant
+          minLength: 1
+        scope:
           type: array
+          description: Scopes allowed for this client grant.
           items:
-            $ref: '#/components/schemas/Organization'
-    ListOrganizationMembersResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/OrganizationMember'
-      - $ref: '#/components/schemas/ListOrganizationMembersOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListOrganizationMembersPaginatedResponseContent'
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/OrganizationUsageEnum'
+        allow_any_organization:
+          type: boolean
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+    Organization:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+    AppMetadata:
+      type: object
+      description: Data related to the user that does affect the application's core functionality.
+      additionalProperties: true
+      properties: {}
     CreateOrganizationResponseContent:
       type: object
       additionalProperties: true
@@ -3015,32 +3202,81 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrganizationEnabledConnection'
-    OrganizationClientGrant:
+    TokenQuota:
+      type: object
+      additionalProperties: false
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
+      properties:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    AddOrganizationConnectionResponseContent:
       type: object
       additionalProperties: false
       properties:
-        id:
+        connection_id:
           type: string
-          description: ID of the client grant.
-        client_id:
-          type: string
-          description: ID of the client.
-        audience:
-          type: string
-          description: The audience (API identifier) of this client grant
-          minLength: 1
-        scope:
-          type: array
-          description: Scopes allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-        organization_usage:
-          $ref: '#/components/schemas/OrganizationUsageEnum'
-        allow_any_organization:
+          description: ID of the connection.
+        assign_membership_on_login:
           type: boolean
-          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
-    OrganizationMemberRole:
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+        connection:
+          $ref: '#/components/schemas/OrganizationConnectionInformation'
+    ConnectionForOrganization:
+      type: object
+      description: Connection to be added to the organization.
+      additionalProperties: false
+      required:
+      - connection_id
+      properties:
+        connection_id:
+          type: string
+          description: ID of the connection.
+        assign_membership_on_login:
+          type: boolean
+          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
+        show_as_button:
+          type: boolean
+          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
+        is_signup_enabled:
+          type: boolean
+          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
+    ListOrganizationAllConnectionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationAllConnectionPost'
+    ListOrganizationConnectionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        enabled_connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationConnection'
+    Role:
       type: object
       additionalProperties: false
       properties:
@@ -3050,12 +3286,9 @@ components:
         name:
           type: string
           description: Name of this role.
-    ListOrganizationClientGrantsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/OrganizationClientGrant'
-      - $ref: '#/components/schemas/ListOrganizationClientGrantsOffsetPaginatedResponseContent'
+        description:
+          type: string
+          description: Description of this role.
     UpdateOrganizationAllConnectionRequestContent:
       type: object
       additionalProperties: false
@@ -3084,265 +3317,6 @@ components:
           - boolean
           - 'null'
           description: Whether the connection is enabled for the organization.
-    AssociateOrganizationClientGrantResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID of the client grant.
-        client_id:
-          type: string
-          description: ID of the client.
-        audience:
-          type: string
-          description: The audience (API identifier) of this client grant
-          minLength: 1
-        scope:
-          type: array
-          description: Scopes allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-        organization_usage:
-          $ref: '#/components/schemas/OrganizationUsageEnum'
-        allow_any_organization:
-          type: boolean
-          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
-    OrganizationInvitationInvitee:
-      type: object
-      additionalProperties: false
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          description: The invitee's email.
-          default: john.doe@gmail.com
-          format: email
-    UserMetadata:
-      type: object
-      description: Data related to the user that does not affect the application's core functionality.
-      additionalProperties: true
-    ListOrganizationMemberRolesOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-    GetOrganizationResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/TokenQuota'
-          x-release-lifecycle: EA
-    ListOrganizationsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Organization'
-      - $ref: '#/components/schemas/ListOrganizationsOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListOrganizationsPaginatedResponseContent'
-    CreateOrganizationMemberRequestContent:
-      type: object
-      additionalProperties: true
-      required:
-      - members
-      properties:
-        members:
-          type: array
-          description: List of user IDs to add to the organization as members.
-          minItems: 1
-          items:
-            type: string
-            format: user-id-with-max-length
-    OrganizationMember:
-      type: object
-      additionalProperties: false
-      properties:
-        user_id:
-          type: string
-          description: ID of this user.
-        picture:
-          type: string
-          description: URL to a picture for this user.
-        name:
-          type: string
-          description: Name of this user.
-        email:
-          type: string
-          description: Email address of this user.
-          default: john.doe@gmail.com
-          format: email
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationMemberRole'
-    UpdateTokenQuota:
-      type:
-      - object
-      - 'null'
-      additionalProperties: false
-      required:
-      - client_credentials
-      x-release-lifecycle: EA
-      properties:
-        client_credentials:
-          $ref: '#/components/schemas/TokenQuotaClientCredentials'
-    ListOrganizationInvitationsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        invitations:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationInvitation'
-    OrganizationDiscoveryDomain:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - domain
-      - status
-      - verification_txt
-      - verification_host
-      properties:
-        id:
-          type: string
-          description: Organization discovery domain identifier.
-          format: organization-discovery-domain-id
-        domain:
-          type: string
-          description: The domain name to associate with the organization e.g. acme.com.
-          minLength: 3
-          maxLength: 255
-          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$
-        status:
-          $ref: '#/components/schemas/OrganizationDiscoveryDomainStatus'
-        use_for_organization_discovery:
-          type: boolean
-          description: Indicates whether this domain should be used for organization discovery.
-        verification_txt:
-          type: string
-          description: A unique token generated for the discovery domain. This must be placed in a DNS TXT record at the location specified by the verification_host field to prove domain ownership.
-        verification_host:
-          type: string
-          description: The full domain where the TXT record should be added.
-    UpdateOrganizationAllConnectionResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - connection_id
-      properties:
-        organization_connection_name:
-          type: string
-          description: Name of the connection in the scope of this organization.
-          minLength: 1
-          maxLength: 50
-          pattern: ^[^]*$
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        organization_access_level:
-          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
-        is_enabled:
-          type: boolean
-          description: Whether the connection is enabled for the organization.
-        connection_id:
-          type: string
-          description: Connection identifier.
-          minLength: 1
-          maxLength: 50
-          format: connection-id
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
-    OrganizationAllConnectionPost:
-      type: object
-      additionalProperties: false
-      required:
-      - connection_id
-      properties:
-        organization_connection_name:
-          type: string
-          description: Name of the connection in the scope of this organization.
-          minLength: 1
-          maxLength: 50
-          pattern: ^[^]*$
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        organization_access_level:
-          $ref: '#/components/schemas/OrganizationAccessLevelEnum'
-        is_enabled:
-          type: boolean
-          description: Whether the connection is enabled for the organization.
-        connection_id:
-          type: string
-          description: Connection identifier.
-          minLength: 1
-          maxLength: 50
-          format: connection-id
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
-    OrganizationInvitationInviter:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: The inviter's name.
-          default: Jane Doe
-          minLength: 1
-          maxLength: 300
     ListOrganizationDiscoveryDomainsResponseContent:
       type: object
       additionalProperties: false
@@ -3355,24 +3329,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrganizationDiscoveryDomain'
-    OrganizationConnection:
+    DeleteOrganizationMemberRolesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          description: List of roles IDs associated with the organization member to remove.
+          minItems: 1
+          items:
+            type: string
+            format: role-id
+    TokenQuotaClientCredentials:
+      type: object
+      description: The token quota configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        enforce:
+          type: boolean
+          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
+        per_day:
+          type: integer
+          description: Maximum number of issued tokens per day
+          minimum: 1
+          maximum: 2147483647
+        per_hour:
+          type: integer
+          description: Maximum number of issued tokens per hour
+          minimum: 1
+          maximum: 2147483647
+    ListOrganizationInvitationsOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
       properties:
-        connection_id:
-          type: string
-          description: ID of the connection.
-        assign_membership_on_login:
-          type: boolean
-          description: When true, all users that log in with this connection will be automatically granted membership in the organization. When false, users must be granted membership in the organization before logging in with this connection.
-        show_as_button:
-          type: boolean
-          description: 'Determines whether a connection should be displayed on this organization’s login prompt. Only applicable for enterprise connections. Default: true.'
-        is_signup_enabled:
-          type: boolean
-          description: 'Determines whether organization signup should be enabled for this organization connection. Only applicable for database connections. Default: false.'
-        connection:
-          $ref: '#/components/schemas/OrganizationConnectionInformation'
+        start:
+          type: number
+        limit:
+          type: number
+        invitations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationInvitation'
   securitySchemes:
     bearerAuth:
       type: http

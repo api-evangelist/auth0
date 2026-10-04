@@ -245,18 +245,37 @@ paths:
         - update:forms
 components:
   schemas:
-    FormFieldPaymentConfigChargeOneOffCurrencyEnum:
+    FormNodeTypeStepConst:
       type: string
       enum:
-      - AUD
-      - CAD
-      - CHF
-      - EUR
-      - GBP
-      - INR
-      - MXN
-      - SEK
-      - USD
+      - STEP
+    FormWidgetTypeRecaptchaConst:
+      type: string
+      enum:
+      - RECAPTCHA
+    FormBlockHtml:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypeHtmlConst'
+        config:
+          $ref: '#/components/schemas/FormBlockHtmlConfig'
+    FormFieldPaymentConfigChargeOneOffOneOffAmount:
+      oneOf:
+      - type: string
+        minLength: 1
+      - type: number
+        minimum: 0.01
     CreateFormRequestContent:
       type: object
       additionalProperties: false
@@ -281,438 +300,6 @@ components:
           $ref: '#/components/schemas/FormEndingNode'
         style:
           $ref: '#/components/schemas/FormStyle'
-    FormFieldTypeChoiceConst:
-      type: string
-      enum:
-      - CHOICE
-    FormFieldTypePaymentConst:
-      type: string
-      enum:
-      - PAYMENT
-    FormWidgetTypeRecaptchaConst:
-      type: string
-      enum:
-      - RECAPTCHA
-    FormMessages:
-      type: object
-      additionalProperties: false
-      properties:
-        errors:
-          $ref: '#/components/schemas/FormMessagesError'
-        custom:
-          $ref: '#/components/schemas/FormMessagesCustom'
-    FormBlockResendButton:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
-        type:
-          $ref: '#/components/schemas/FormBlockTypeResendButtonConst'
-        config:
-          $ref: '#/components/schemas/FormBlockResendButtonConfig'
-    FormStep:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        type:
-          $ref: '#/components/schemas/FormNodeTypeStepConst'
-        coordinates:
-          $ref: '#/components/schemas/FormNodeCoordinates'
-        alias:
-          type: string
-          minLength: 1
-          maxLength: 150
-        config:
-          $ref: '#/components/schemas/FormStepConfig'
-    FormFieldTelConfigStrings:
-      type: object
-      additionalProperties: false
-      properties:
-        filter_placeholder:
-          type: string
-          minLength: 1
-    FormNode:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/FormFlow'
-      - $ref: '#/components/schemas/FormRouter'
-      - $ref: '#/components/schemas/FormStep'
-    FormFieldTypeDropdownConst:
-      type: string
-      enum:
-      - DROPDOWN
-    FormWidgetGMapsAddress:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryWidgetConst'
-        type:
-          $ref: '#/components/schemas/FormWidgetTypeGMapsAddressConst'
-        config:
-          $ref: '#/components/schemas/FormWidgetGMapsAddressConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormFieldPaymentConfigCharge:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOff'
-      - type: object
-        additionalProperties: false
-        required:
-        - type
-        - subscription
-        properties:
-          type:
-            $ref: '#/components/schemas/FormFieldPaymentConfigChargeTypeSubscriptionConst'
-          subscription:
-            $ref: '#/components/schemas/FormFieldPaymentConfigSubscription'
-    FormFieldCustomConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - schema
-      - code
-      properties:
-        schema:
-          $ref: '#/components/schemas/FormFieldCustomConfigSchema'
-        code:
-          type: string
-          minLength: 1
-        css:
-          type: string
-          minLength: 1
-        params:
-          $ref: '#/components/schemas/FormFieldCustomConfigParams'
-    FormBlockImageConfigPositionEnum:
-      type: string
-      enum:
-      - LEFT
-      - CENTER
-      - RIGHT
-    FormFieldText:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeTextConst'
-        config:
-          $ref: '#/components/schemas/FormFieldTextConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormFieldFileConfigCategoryEnum:
-      type: string
-      enum:
-      - AUDIO
-      - VIDEO
-      - IMAGE
-      - DOCUMENT
-      - ARCHIVE
-    FormWidget:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/FormWidgetAuth0VerifiableCredentials'
-      - $ref: '#/components/schemas/FormWidgetGMapsAddress'
-      - $ref: '#/components/schemas/FormWidgetRecaptcha'
-    FormBlockJumpButtonConfigStyle:
-      type: object
-      additionalProperties: false
-      properties:
-        background_color:
-          type: string
-          format: forms-hex-color
-    FormBlockTypePreviousButtonConst:
-      type: string
-      enum:
-      - PREVIOUS_BUTTON
-    FormFieldDate:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeDateConst'
-        config:
-          $ref: '#/components/schemas/FormFieldDateConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    ListFormsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        forms:
-          type: array
-          items:
-            $ref: '#/components/schemas/FormSummary'
-    FormFieldPaymentConfigFields:
-      type: object
-      additionalProperties: false
-      properties:
-        card_number:
-          $ref: '#/components/schemas/FormFieldPaymentConfigFieldProperties'
-        expiration_date:
-          $ref: '#/components/schemas/FormFieldPaymentConfigFieldProperties'
-        security_code:
-          $ref: '#/components/schemas/FormFieldPaymentConfigFieldProperties'
-        trustmarks:
-          type: boolean
-    FormBlockNextButtonConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - text
-      properties:
-        text:
-          type: string
-          maxLength: 150
-    UpdateFormRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 150
-        messages:
-          $ref: '#/components/schemas/FormMessagesNullable'
-        languages:
-          $ref: '#/components/schemas/FormLanguagesNullable'
-        translations:
-          $ref: '#/components/schemas/FormTranslationsNullable'
-        nodes:
-          $ref: '#/components/schemas/FormNodeListNullable'
-        start:
-          $ref: '#/components/schemas/FormStartNodeNullable'
-        ending:
-          $ref: '#/components/schemas/FormEndingNodeNullable'
-        style:
-          $ref: '#/components/schemas/FormStyleNullable'
-    FormFieldCustom:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeCustomConst'
-        config:
-          $ref: '#/components/schemas/FormFieldCustomConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormFieldTypeCardsConst:
-      type: string
-      enum:
-      - CARDS
-    FormFieldTelConfig:
-      type: object
-      allOf:
-      - type: object
-        additionalProperties: true
-      - type: object
-        additionalProperties: true
-      - type: object
-        additionalProperties: true
-      additionalProperties: false
-      properties:
-        default_value:
-          type: string
-        placeholder:
-          type: string
-          maxLength: 500
-        min_length:
-          type: integer
-          minimum: 1
-        max_length:
-          type: integer
-          minimum: 1
-        country_picker:
-          type: boolean
-        strings:
-          $ref: '#/components/schemas/FormFieldTelConfigStrings'
-    FormFieldLegal:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeLegalConst'
-        config:
-          $ref: '#/components/schemas/FormFieldLegalConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormFieldLegalConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        text:
-          type: string
-          minLength: 1
-          maxLength: 10000
-    FormFieldFile:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeFileConst'
-        config:
-          $ref: '#/components/schemas/FormFieldFileConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormWidgetRecaptchaConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - site_key
-      - secret_key
-      properties:
-        site_key:
-          type: string
-          minLength: 1
-        secret_key:
-          type: string
-          minLength: 1
-    FormLanguages:
-      type: object
-      additionalProperties: false
-      properties:
-        primary:
-          type: string
-          minLength: 1
-          maxLength: 55
-        default:
-          type: string
-          minLength: 1
-          maxLength: 55
-    FormWidgetTypeGMapsAddressConst:
-      type: string
-      enum:
-      - GMAPS_ADDRESS
     FormFieldUrl:
       type: object
       additionalProperties: false
@@ -741,6 +328,36 @@ components:
           type: boolean
         sensitive:
           type: boolean
+    FormFieldTypeCardsConst:
+      type: string
+      enum:
+      - CARDS
+    FormFlow:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        type:
+          $ref: '#/components/schemas/FormNodeTypeFlowConst'
+        coordinates:
+          $ref: '#/components/schemas/FormNodeCoordinates'
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 150
+        config:
+          $ref: '#/components/schemas/FormFlowConfig'
+    FormNodeList:
+      type: array
+      minItems: 0
+      items:
+        $ref: '#/components/schemas/FormNode'
     FormWidgetAuth0VerifiableCredentials:
       type: object
       additionalProperties: false
@@ -770,137 +387,52 @@ components:
           type: boolean
         sensitive:
           type: boolean
-    FormBlockPreviousButton:
+    FormBlockDividerConfig:
       type: object
       additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
       properties:
-        id:
+        text:
           type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
-        type:
-          $ref: '#/components/schemas/FormBlockTypePreviousButtonConst'
-        config:
-          $ref: '#/components/schemas/FormBlockPreviousButtonConfig'
-    FormStyleNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormStyle'
-      - type: 'null'
-    FormFieldSocialConfig:
+          maxLength: 50
+    FormFieldPaymentConfigFields:
       type: object
       additionalProperties: false
-      properties: {}
-    FormBlockHtml:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
       properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
-        type:
-          $ref: '#/components/schemas/FormBlockTypeHtmlConst'
-        config:
-          $ref: '#/components/schemas/FormBlockHtmlConfig'
-    FormFieldNumber:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeNumberConst'
-        config:
-          $ref: '#/components/schemas/FormFieldNumberConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
+        card_number:
+          $ref: '#/components/schemas/FormFieldPaymentConfigFieldProperties'
+        expiration_date:
+          $ref: '#/components/schemas/FormFieldPaymentConfigFieldProperties'
+        security_code:
+          $ref: '#/components/schemas/FormFieldPaymentConfigFieldProperties'
+        trustmarks:
           type: boolean
-        sensitive:
-          type: boolean
-    FormLanguagesNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormLanguages'
-      - type: 'null'
-    FormBlock:
+    FormBlockJumpButtonConfig:
       type: object
-      oneOf:
-      - $ref: '#/components/schemas/FormBlockDivider'
-      - $ref: '#/components/schemas/FormBlockHtml'
-      - $ref: '#/components/schemas/FormBlockImage'
-      - $ref: '#/components/schemas/FormBlockJumpButton'
-      - $ref: '#/components/schemas/FormBlockResendButton'
-      - $ref: '#/components/schemas/FormBlockNextButton'
-      - $ref: '#/components/schemas/FormBlockPreviousButton'
-      - $ref: '#/components/schemas/FormBlockRichText'
-    FormFieldFileConfigStorageTypeEnum:
+      additionalProperties: false
+      required:
+      - text
+      - next_node
+      properties:
+        text:
+          type: string
+          maxLength: 150
+        next_node:
+          $ref: '#/components/schemas/FormNodePointer'
+        style:
+          $ref: '#/components/schemas/FormBlockJumpButtonConfigStyle'
+    FormFieldTypePaymentConst:
       type: string
       enum:
-      - MANAGED
-      - CUSTOM
-    FormFieldTypeTelConst:
-      type: string
-      enum:
-      - TEL
-    FormFieldCustomConfigParams:
-      type: object
-      additionalProperties:
-        type: string
-    FormFieldSocial:
+      - PAYMENT
+    FormBlockNextButtonConfig:
       type: object
       additionalProperties: false
       required:
-      - id
-      - category
-      - type
+      - text
       properties:
-        id:
+        text:
           type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeSocialConst'
-        config:
-          $ref: '#/components/schemas/FormFieldSocialConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormFieldTypeNumberConst:
-      type: string
-      enum:
-      - NUMBER
+          maxLength: 150
     FormFieldFileConfig:
       type: object
       additionalProperties: false
@@ -925,365 +457,6 @@ components:
         maxFiles:
           type: integer
           minimum: 1
-    FormFieldPasswordConfigHashEnum:
-      type: string
-      enum:
-      - NONE
-      - MD5
-      - SHA1
-      - SHA256
-      - SHA512
-    FormFieldDateConfigFormatEnum:
-      type: string
-      enum:
-      - DATE
-      - TIME
-    FormFieldUrlConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        default_value:
-          type: string
-          minLength: 1
-        placeholder:
-          type: string
-          minLength: 1
-          maxLength: 500
-    FormFieldTypeLegalConst:
-      type: string
-      enum:
-      - LEGAL
-    FormFieldTextConfig:
-      type: object
-      allOf:
-      - type: object
-        additionalProperties: true
-      - type: object
-        additionalProperties: true
-      - type: object
-        additionalProperties: true
-      additionalProperties: false
-      properties:
-        multiline:
-          type: boolean
-        default_value:
-          type: string
-          minLength: 1
-        placeholder:
-          type: string
-          minLength: 1
-          maxLength: 500
-        min_length:
-          type: integer
-          minimum: 1
-        max_length:
-          type: integer
-          minimum: 1
-    FormNodeListNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormNodeList'
-      - type: 'null'
-    FormFieldChoiceConfigOption:
-      type: object
-      additionalProperties: false
-      required:
-      - value
-      - label
-      properties:
-        value:
-          type: string
-          minLength: 1
-        label:
-          type: string
-          minLength: 1
-    FormFieldPaymentConfigProviderEnum:
-      type: string
-      enum:
-      - STRIPE
-    FormStepComponentList:
-      type: array
-      items:
-        $ref: '#/components/schemas/FormComponent'
-    FormBlockPreviousButtonConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - text
-      properties:
-        text:
-          type: string
-          maxLength: 150
-    FormNodeTypeStepConst:
-      type: string
-      enum:
-      - STEP
-    FormFieldDropdownConfigOption:
-      type: object
-      additionalProperties: false
-      required:
-      - value
-      - label
-      properties:
-        value:
-          type: string
-          minLength: 1
-        label:
-          type: string
-          minLength: 1
-    ListFormsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/FormSummary'
-      - $ref: '#/components/schemas/ListFormsOffsetPaginatedResponseContent'
-    FormFieldTypeDateConst:
-      type: string
-      enum:
-      - DATE
-    FormFieldTypeTextConst:
-      type: string
-      enum:
-      - TEXT
-    CreateFormResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - name
-      - created_at
-      - updated_at
-      properties:
-        id:
-          type: string
-          maxLength: 30
-          format: form-id
-        name:
-          type: string
-          minLength: 1
-          maxLength: 150
-        messages:
-          $ref: '#/components/schemas/FormMessages'
-        languages:
-          $ref: '#/components/schemas/FormLanguages'
-        translations:
-          $ref: '#/components/schemas/FormTranslations'
-        nodes:
-          $ref: '#/components/schemas/FormNodeList'
-        start:
-          $ref: '#/components/schemas/FormStartNode'
-        ending:
-          $ref: '#/components/schemas/FormEndingNode'
-        style:
-          $ref: '#/components/schemas/FormStyle'
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        embedded_at:
-          type: string
-          format: date
-        submitted_at:
-          type: string
-          format: date
-    FormFieldPaymentConfigChargeTypeOneOffConst:
-      type: string
-      enum:
-      - ONE_OFF
-    FormFieldTypeFileConst:
-      type: string
-      enum:
-      - FILE
-    FormFieldTypeBooleanConst:
-      type: string
-      enum:
-      - BOOLEAN
-    FormField:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/FormFieldBoolean'
-      - $ref: '#/components/schemas/FormFieldCards'
-      - $ref: '#/components/schemas/FormFieldChoice'
-      - $ref: '#/components/schemas/FormFieldCustom'
-      - $ref: '#/components/schemas/FormFieldDate'
-      - $ref: '#/components/schemas/FormFieldDropdown'
-      - $ref: '#/components/schemas/FormFieldEmail'
-      - $ref: '#/components/schemas/FormFieldFile'
-      - $ref: '#/components/schemas/FormFieldLegal'
-      - $ref: '#/components/schemas/FormFieldNumber'
-      - $ref: '#/components/schemas/FormFieldPassword'
-      - $ref: '#/components/schemas/FormFieldPayment'
-      - $ref: '#/components/schemas/FormFieldSocial'
-      - $ref: '#/components/schemas/FormFieldTel'
-      - $ref: '#/components/schemas/FormFieldText'
-      - $ref: '#/components/schemas/FormFieldUrl'
-    FormFieldChoiceConfigAllowOtherEnabledTrueEnum:
-      type: boolean
-      enum:
-      - true
-    FormFieldPaymentConfigChargeTypeSubscriptionConst:
-      type: string
-      enum:
-      - SUBSCRIPTION
-    FormEndingNodeId:
-      type: string
-      enum:
-      - $ending
-    FormsRequestParametersHydrateEnum:
-      type: string
-      maxLength: 50
-      enum:
-      - flow_count
-      - links
-    FormBlockDividerConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        text:
-          type: string
-          maxLength: 50
-    FormFieldNumberConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        default_value:
-          type: number
-        placeholder:
-          type: string
-          minLength: 1
-          maxLength: 500
-        min_value:
-          type: number
-        max_value:
-          type: number
-    FormWidgetRecaptcha:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryWidgetConst'
-        type:
-          $ref: '#/components/schemas/FormWidgetTypeRecaptchaConst'
-        config:
-          $ref: '#/components/schemas/FormWidgetRecaptchaConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormWidgetGMapsAddressConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - api_key
-      properties:
-        api_key:
-          type: string
-          minLength: 1
-    FormComponentCategoryFieldConst:
-      type: string
-      enum:
-      - FIELD
-    FormFieldCardsConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        hide_labels:
-          type: boolean
-        multiple:
-          type: boolean
-        options:
-          type: array
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/FormFieldCardsConfigOption'
-        default_value: {}
-    FormEndingNodeResumeFlowTrueConst:
-      type: boolean
-      enum:
-      - true
-    FormEndingNodeRedirection:
-      type: object
-      additionalProperties: false
-      required:
-      - target
-      properties:
-        delay:
-          type: integer
-          minimum: 0
-          maximum: 10
-        target:
-          type: string
-          minLength: 1
-          maxLength: 1024
-    FormFieldPasswordConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        hash:
-          $ref: '#/components/schemas/FormFieldPasswordConfigHashEnum'
-        placeholder:
-          type: string
-          maxLength: 500
-        min_length:
-          type: integer
-          minimum: 1
-        max_length:
-          type: integer
-          minimum: 1
-        complexity:
-          type: boolean
-        nist:
-          type: boolean
-        strength_meter:
-          type: boolean
-    FormFieldPaymentConfigChargeOneOff:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - one_off
-      properties:
-        type:
-          $ref: '#/components/schemas/FormFieldPaymentConfigChargeTypeOneOffConst'
-        one_off:
-          $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOffOneOff'
-    FormNodePointer:
-      oneOf:
-      - type: string
-        format: forms-custom-identifier
-      - $ref: '#/components/schemas/FormEndingNodeId'
-    FormEndingNode:
-      type: object
-      additionalProperties: false
-      properties:
-        redirection:
-          $ref: '#/components/schemas/FormEndingNodeRedirection'
-        after_submit:
-          $ref: '#/components/schemas/FormEndingNodeAfterSubmit'
-        coordinates:
-          $ref: '#/components/schemas/FormNodeCoordinates'
-        resume_flow:
-          $ref: '#/components/schemas/FormEndingNodeResumeFlowTrueConst'
-    FormBlockTypeJumpButtonConst:
-      type: string
-      enum:
-      - JUMP_BUTTON
     FormFieldEmail:
       type: object
       additionalProperties: false
@@ -1312,43 +485,61 @@ components:
           type: boolean
         sensitive:
           type: boolean
-    FormBlockTypeRichTextConst:
+    FormFieldTypePasswordConst:
       type: string
       enum:
-      - RICH_TEXT
-    FormNodeTypeRouterConst:
-      type: string
-      enum:
-      - ROUTER
-    FormStyle:
+      - PASSWORD
+    FormFieldBooleanConfig:
       type: object
       additionalProperties: false
       properties:
-        css:
-          type: string
-          minLength: 1
-          maxLength: 5000
-    FormFlow:
+        default_value:
+          type: boolean
+        options:
+          $ref: '#/components/schemas/FormFieldBooleanConfigOptions'
+    FormFieldTypeCustomConst:
+      type: string
+      enum:
+      - CUSTOM
+    FormFieldText:
       type: object
       additionalProperties: false
       required:
       - id
+      - category
       - type
-      - config
       properties:
         id:
           type: string
           format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
         type:
-          $ref: '#/components/schemas/FormNodeTypeFlowConst'
-        coordinates:
-          $ref: '#/components/schemas/FormNodeCoordinates'
-        alias:
+          $ref: '#/components/schemas/FormFieldTypeTextConst'
+        config:
+          $ref: '#/components/schemas/FormFieldTextConfig'
+        label:
           type: string
           minLength: 1
-          maxLength: 150
-        config:
-          $ref: '#/components/schemas/FormFlowConfig'
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormFieldPaymentConfigChargeOneOffOneOff:
+      type: object
+      additionalProperties: true
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOffOneOffAmount'
+        currency:
+          $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOffCurrencyEnum'
     FormFieldPassword:
       type: object
       additionalProperties: false
@@ -1378,87 +569,76 @@ components:
           type: boolean
         sensitive:
           type: boolean
-    FormEndingNodeNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormEndingNode'
-      - type: 'null'
-    FormFieldTypeSocialConst:
-      type: string
+    FormEndingNodeResumeFlowTrueConst:
+      type: boolean
       enum:
-      - SOCIAL
-    FormFieldChoiceConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        multiple:
-          type: boolean
-        options:
-          type: array
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/FormFieldChoiceConfigOption'
-        allow_other:
-          $ref: '#/components/schemas/FormFieldChoiceConfigAllowOther'
-        default_value: {}
-    FormRouter:
+      - true
+    FormWidgetRecaptchaConfig:
       type: object
       additionalProperties: false
       required:
-      - id
-      - type
+      - site_key
+      - secret_key
       properties:
-        id:
+        site_key:
+          type: string
+          minLength: 1
+        secret_key:
+          type: string
+          minLength: 1
+    FormFieldDateConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        format:
+          $ref: '#/components/schemas/FormFieldDateConfigFormatEnum'
+        default_value:
+          type: string
+    FormFieldChoiceConfigAllowOther:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          $ref: '#/components/schemas/FormFieldChoiceConfigAllowOtherEnabledTrueEnum'
+        label:
+          type: string
+          minLength: 1
+        placeholder:
+          type: string
+          minLength: 1
+    FormMessages:
+      type: object
+      additionalProperties: false
+      properties:
+        errors:
+          $ref: '#/components/schemas/FormMessagesError'
+        custom:
+          $ref: '#/components/schemas/FormMessagesCustom'
+    FormHiddenField:
+      type: object
+      additionalProperties: false
+      required:
+      - key
+      properties:
+        key:
           type: string
           format: forms-custom-identifier
-        type:
-          $ref: '#/components/schemas/FormNodeTypeRouterConst'
-        coordinates:
-          $ref: '#/components/schemas/FormNodeCoordinates'
-        alias:
+        value:
           type: string
           minLength: 1
-          maxLength: 150
-        config:
-          $ref: '#/components/schemas/FormRouterConfig'
-    FormWidgetAuth0VerifiableCredentialsConfig:
+          maxLength: 500
+    FormMessagesCustom:
       type: object
-      additionalProperties: false
-      required:
-      - url
-      - alternate_text
-      - access_token
-      - verification_id
-      properties:
-        url:
-          type: string
-          maxLength: 2000
-        size:
-          type: number
-          minimum: 1
-          maximum: 500
-        alternate_text:
-          type: string
-          minLength: 1
-          maxLength: 255
-        access_token:
-          type: string
-          minLength: 1
-          maxLength: 5000
-        verification_id:
-          type: string
-          minLength: 1
-          maxLength: 255
-        max_wait:
-          type: number
-          minimum: 60
-          maximum: 600
-    FormFieldCardsConfigOption:
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 255
+    FormFieldChoiceConfigOption:
       type: object
       additionalProperties: false
       required:
       - value
       - label
-      - image_url
       properties:
         value:
           type: string
@@ -1466,260 +646,6 @@ components:
         label:
           type: string
           minLength: 1
-        image_url:
-          type: string
-          format: forms-url-https
-    FormFieldTypeEmailConst:
-      type: string
-      enum:
-      - EMAIL
-    FormStartNode:
-      type: object
-      additionalProperties: false
-      properties:
-        hidden_fields:
-          type: array
-          items:
-            $ref: '#/components/schemas/FormHiddenField'
-        next_node:
-          $ref: '#/components/schemas/FormNodePointer'
-        coordinates:
-          $ref: '#/components/schemas/FormNodeCoordinates'
-    FormBlockTypeResendButtonConst:
-      type: string
-      enum:
-      - RESEND_BUTTON
-    FormRouterRule:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - condition
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        alias:
-          type: string
-          minLength: 1
-          maxLength: 150
-        condition: {}
-        next_node:
-          $ref: '#/components/schemas/FormNodePointer'
-    FormNodeCoordinates:
-      type: object
-      additionalProperties: false
-      required:
-      - x
-      - y
-      properties:
-        x:
-          type: integer
-          minimum: -999999
-          maximum: 999999
-        y:
-          type: integer
-          minimum: -999999
-          maximum: 999999
-    FormMessagesNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormMessages'
-      - type: 'null'
-    FormFieldDropdown:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypeDropdownConst'
-        config:
-          $ref: '#/components/schemas/FormFieldDropdownConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormStartNodeNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormStartNode'
-      - type: 'null'
-    FormComponentCategoryWidgetConst:
-      type: string
-      enum:
-      - WIDGET
-    FormBlockTypeNextButtonConst:
-      type: string
-      enum:
-      - NEXT_BUTTON
-    FormFieldPayment:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
-        type:
-          $ref: '#/components/schemas/FormFieldTypePaymentConst'
-        config:
-          $ref: '#/components/schemas/FormFieldPaymentConfig'
-        label:
-          type: string
-          minLength: 1
-        hint:
-          type: string
-          minLength: 1
-          maxLength: 500
-        required:
-          type: boolean
-        sensitive:
-          type: boolean
-    FormBlockImage:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
-        type:
-          $ref: '#/components/schemas/FormBlockTypeImageConst'
-        config:
-          $ref: '#/components/schemas/FormBlockImageConfig'
-    FormBlockNextButton:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      - config
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
-        type:
-          $ref: '#/components/schemas/FormBlockTypeNextButtonConst'
-        config:
-          $ref: '#/components/schemas/FormBlockNextButtonConfig'
-    FormBlockDivider:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - category
-      - type
-      properties:
-        id:
-          type: string
-          format: forms-custom-identifier
-        category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
-        type:
-          $ref: '#/components/schemas/FormBlockTypeDividerConst'
-        config:
-          $ref: '#/components/schemas/FormBlockDividerConfig'
-    FormBlockImageConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - src
-      properties:
-        src:
-          type: string
-          maxLength: 500
-        position:
-          $ref: '#/components/schemas/FormBlockImageConfigPositionEnum'
-        height:
-          type: number
-          minimum: 1
-          maximum: 500
-    FormNodeTypeFlowConst:
-      type: string
-      enum:
-      - FLOW
-    GetFormResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - name
-      - created_at
-      - updated_at
-      properties:
-        id:
-          type: string
-          maxLength: 30
-          format: form-id
-        name:
-          type: string
-          minLength: 1
-          maxLength: 150
-        messages:
-          $ref: '#/components/schemas/FormMessages'
-        languages:
-          $ref: '#/components/schemas/FormLanguages'
-        translations:
-          $ref: '#/components/schemas/FormTranslations'
-        nodes:
-          $ref: '#/components/schemas/FormNodeList'
-        start:
-          $ref: '#/components/schemas/FormStartNode'
-        ending:
-          $ref: '#/components/schemas/FormEndingNode'
-        style:
-          $ref: '#/components/schemas/FormStyle'
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        embedded_at:
-          type: string
-          format: date
-        submitted_at:
-          type: string
-          format: date
-    FormFieldBooleanConfigOptions:
-      type: object
-      additionalProperties: false
-      properties:
-        'true':
-          type: string
-          minLength: 1
-          maxLength: 50
-        'false':
-          type: string
-          minLength: 1
-          maxLength: 50
     FormBlockResendButtonConfig:
       type: object
       additionalProperties: false
@@ -1755,6 +681,153 @@ components:
           type: number
           minimum: 1
           maximum: 60
+    FormFieldPasswordConfigHashEnum:
+      type: string
+      enum:
+      - NONE
+      - MD5
+      - SHA1
+      - SHA256
+      - SHA512
+    FormFieldDropdown:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypeDropdownConst'
+        config:
+          $ref: '#/components/schemas/FormFieldDropdownConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormNodeCoordinates:
+      type: object
+      additionalProperties: false
+      required:
+      - x
+      - y
+      properties:
+        x:
+          type: integer
+          minimum: -999999
+          maximum: 999999
+        y:
+          type: integer
+          minimum: -999999
+          maximum: 999999
+    FormBlockTypeImageConst:
+      type: string
+      enum:
+      - IMAGE
+    FormFieldPaymentConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - charge
+      - credentials
+      properties:
+        provider:
+          $ref: '#/components/schemas/FormFieldPaymentConfigProviderEnum'
+        charge:
+          $ref: '#/components/schemas/FormFieldPaymentConfigCharge'
+        credentials:
+          $ref: '#/components/schemas/FormFieldPaymentConfigCredentials'
+        customer:
+          $ref: '#/components/schemas/FormFieldPaymentConfigCustomer'
+        fields:
+          $ref: '#/components/schemas/FormFieldPaymentConfigFields'
+    FormFieldTypeNumberConst:
+      type: string
+      enum:
+      - NUMBER
+    FormFieldLegalConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 10000
+    FormMessagesNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormMessages'
+      - type: 'null'
+    FormStepConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        components:
+          $ref: '#/components/schemas/FormStepComponentList'
+        next_node:
+          $ref: '#/components/schemas/FormNodePointer'
+    FormFieldTypeUrlConst:
+      type: string
+      enum:
+      - URL
+    FormBlockDivider:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypeDividerConst'
+        config:
+          $ref: '#/components/schemas/FormBlockDividerConfig'
+    FormFieldSocialConfig:
+      type: object
+      additionalProperties: false
+      properties: {}
+    ListFormsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/FormSummary'
+      - $ref: '#/components/schemas/ListFormsOffsetPaginatedResponseContent'
+    FormFieldFileConfigStorage:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      properties:
+        type:
+          $ref: '#/components/schemas/FormFieldFileConfigStorageTypeEnum'
+    FormFlowConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - flow_id
+      properties:
+        flow_id:
+          type: string
+          maxLength: 30
+          format: flow-id
+        next_node:
+          $ref: '#/components/schemas/FormNodePointer'
     FormBlockJumpButton:
       type: object
       additionalProperties: false
@@ -1773,134 +846,434 @@ components:
           $ref: '#/components/schemas/FormBlockTypeJumpButtonConst'
         config:
           $ref: '#/components/schemas/FormBlockJumpButtonConfig'
-    FormComponent:
+    FormFieldTypeDropdownConst:
+      type: string
+      enum:
+      - DROPDOWN
+    FormFieldTypeTelConst:
+      type: string
+      enum:
+      - TEL
+    FormWidgetAuth0VerifiableCredentialsConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - url
+      - alternate_text
+      - access_token
+      - verification_id
+      properties:
+        url:
+          type: string
+          maxLength: 2000
+        size:
+          type: number
+          minimum: 1
+          maximum: 500
+        alternate_text:
+          type: string
+          minLength: 1
+          maxLength: 255
+        access_token:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        verification_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        max_wait:
+          type: number
+          minimum: 60
+          maximum: 600
+    FormRouterRule:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - condition
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 150
+        condition: {}
+        next_node:
+          $ref: '#/components/schemas/FormNodePointer'
+    FormRouter:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        type:
+          $ref: '#/components/schemas/FormNodeTypeRouterConst'
+        coordinates:
+          $ref: '#/components/schemas/FormNodeCoordinates'
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 150
+        config:
+          $ref: '#/components/schemas/FormRouterConfig'
+    FormField:
       type: object
       oneOf:
-      - $ref: '#/components/schemas/FormBlock'
-      - $ref: '#/components/schemas/FormWidget'
-      - $ref: '#/components/schemas/FormField'
+      - $ref: '#/components/schemas/FormFieldBoolean'
+      - $ref: '#/components/schemas/FormFieldCards'
+      - $ref: '#/components/schemas/FormFieldChoice'
+      - $ref: '#/components/schemas/FormFieldCustom'
+      - $ref: '#/components/schemas/FormFieldDate'
+      - $ref: '#/components/schemas/FormFieldDropdown'
+      - $ref: '#/components/schemas/FormFieldEmail'
+      - $ref: '#/components/schemas/FormFieldFile'
+      - $ref: '#/components/schemas/FormFieldLegal'
+      - $ref: '#/components/schemas/FormFieldNumber'
+      - $ref: '#/components/schemas/FormFieldPassword'
+      - $ref: '#/components/schemas/FormFieldPayment'
+      - $ref: '#/components/schemas/FormFieldSocial'
+      - $ref: '#/components/schemas/FormFieldTel'
+      - $ref: '#/components/schemas/FormFieldText'
+      - $ref: '#/components/schemas/FormFieldUrl'
+    FormFieldDropdownConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        multiple:
+          type: boolean
+        options:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FormFieldDropdownConfigOption'
+        default_value: {}
+        placeholder:
+          type: string
+          minLength: 1
+          maxLength: 500
+    ListFormsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        forms:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormSummary'
+    FormWidgetGMapsAddress:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryWidgetConst'
+        type:
+          $ref: '#/components/schemas/FormWidgetTypeGMapsAddressConst'
+        config:
+          $ref: '#/components/schemas/FormWidgetGMapsAddressConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormFieldDateConfigFormatEnum:
+      type: string
+      enum:
+      - DATE
+      - TIME
+    FormNodeTypeRouterConst:
+      type: string
+      enum:
+      - ROUTER
+    FormFieldPaymentConfigCharge:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOff'
+      - type: object
+        additionalProperties: false
+        required:
+        - type
+        - subscription
+        properties:
+          type:
+            $ref: '#/components/schemas/FormFieldPaymentConfigChargeTypeSubscriptionConst'
+          subscription:
+            $ref: '#/components/schemas/FormFieldPaymentConfigSubscription'
+    FormEndingNodeRedirection:
+      type: object
+      additionalProperties: false
+      required:
+      - target
+      properties:
+        delay:
+          type: integer
+          minimum: 0
+          maximum: 10
+        target:
+          type: string
+          minLength: 1
+          maxLength: 1024
+    FormBlockResendButton:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypeResendButtonConst'
+        config:
+          $ref: '#/components/schemas/FormBlockResendButtonConfig'
+    FormEndingNodeId:
+      type: string
+      enum:
+      - $ending
+    FormFieldPaymentConfigChargeTypeOneOffConst:
+      type: string
+      enum:
+      - ONE_OFF
+    FormFieldChoiceConfigAllowOtherEnabledTrueEnum:
+      type: boolean
+      enum:
+      - true
+    FormBlockTypeNextButtonConst:
+      type: string
+      enum:
+      - NEXT_BUTTON
+    FormNodeTypeFlowConst:
+      type: string
+      enum:
+      - FLOW
+    FormBlockTypeJumpButtonConst:
+      type: string
+      enum:
+      - JUMP_BUTTON
+    FormComponentCategoryWidgetConst:
+      type: string
+      enum:
+      - WIDGET
+    FormFieldCustomConfigParams:
+      type: object
+      additionalProperties:
+        type: string
+    FormStep:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        type:
+          $ref: '#/components/schemas/FormNodeTypeStepConst'
+        coordinates:
+          $ref: '#/components/schemas/FormNodeCoordinates'
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 150
+        config:
+          $ref: '#/components/schemas/FormStepConfig'
+    FormFieldPaymentConfigChargeOneOffCurrencyEnum:
+      type: string
+      enum:
+      - AUD
+      - CAD
+      - CHF
+      - EUR
+      - GBP
+      - INR
+      - MXN
+      - SEK
+      - USD
+    FormFieldFileConfigCategoryEnum:
+      type: string
+      enum:
+      - AUDIO
+      - VIDEO
+      - IMAGE
+      - DOCUMENT
+      - ARCHIVE
+    FormBlockImageConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - src
+      properties:
+        src:
+          type: string
+          maxLength: 500
+        position:
+          $ref: '#/components/schemas/FormBlockImageConfigPositionEnum'
+        height:
+          type: number
+          minimum: 1
+          maximum: 500
+    FormFieldPaymentConfigProviderEnum:
+      type: string
+      enum:
+      - STRIPE
+    FormFieldCustomConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - schema
+      - code
+      properties:
+        schema:
+          $ref: '#/components/schemas/FormFieldCustomConfigSchema'
+        code:
+          type: string
+          minLength: 1
+        css:
+          type: string
+          minLength: 1
+        params:
+          $ref: '#/components/schemas/FormFieldCustomConfigParams'
+    FormFieldTypeBooleanConst:
+      type: string
+      enum:
+      - BOOLEAN
+    FormComponentCategoryBlockConst:
+      type: string
+      enum:
+      - BLOCK
+    FormFieldCardsConfigOption:
+      type: object
+      additionalProperties: false
+      required:
+      - value
+      - label
+      - image_url
+      properties:
+        value:
+          type: string
+          minLength: 1
+        label:
+          type: string
+          minLength: 1
+        image_url:
+          type: string
+          format: forms-url-https
+    FormStyle:
+      type: object
+      additionalProperties: false
+      properties:
+        css:
+          type: string
+          minLength: 1
+          maxLength: 5000
+    FormFieldPaymentConfigChargeOneOff:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - one_off
+      properties:
+        type:
+          $ref: '#/components/schemas/FormFieldPaymentConfigChargeTypeOneOffConst'
+        one_off:
+          $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOffOneOff'
+    FormFieldChoiceConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        multiple:
+          type: boolean
+        options:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FormFieldChoiceConfigOption'
+        allow_other:
+          $ref: '#/components/schemas/FormFieldChoiceConfigAllowOther'
+        default_value: {}
+    FormFieldFileConfigStorageTypeEnum:
+      type: string
+      enum:
+      - MANAGED
+      - CUSTOM
+    FormFieldTelConfigStrings:
+      type: object
+      additionalProperties: false
+      properties:
+        filter_placeholder:
+          type: string
+          minLength: 1
+    FormLanguagesNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormLanguages'
+      - type: 'null'
+    FormFieldLegal:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypeLegalConst'
+        config:
+          $ref: '#/components/schemas/FormFieldLegalConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormBlockTypeResendButtonConst:
+      type: string
+      enum:
+      - RESEND_BUTTON
     FormWidgetTypeAuth0VerifiableCredentialsConst:
       type: string
       enum:
       - AUTH0_VERIFIABLE_CREDENTIALS
-    FormTranslations:
-      type: object
-      additionalProperties:
-        type: object
-        additionalProperties: true
-    FormBlockHtmlConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        content:
-          type: string
-          maxLength: 10000
-    FormHiddenField:
-      type: object
-      additionalProperties: false
-      required:
-      - key
-      properties:
-        key:
-          type: string
-          format: forms-custom-identifier
-        value:
-          type: string
-          minLength: 1
-          maxLength: 500
-    FormFieldPaymentConfigChargeOneOffOneOffAmount:
-      oneOf:
-      - type: string
-        minLength: 1
-      - type: number
-        minimum: 0.01
-    FormMessagesError:
-      type: object
-      additionalProperties:
-        type: string
-        minLength: 1
-        maxLength: 255
-    FormFieldPaymentConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - charge
-      - credentials
-      properties:
-        provider:
-          $ref: '#/components/schemas/FormFieldPaymentConfigProviderEnum'
-        charge:
-          $ref: '#/components/schemas/FormFieldPaymentConfigCharge'
-        credentials:
-          $ref: '#/components/schemas/FormFieldPaymentConfigCredentials'
-        customer:
-          $ref: '#/components/schemas/FormFieldPaymentConfigCustomer'
-        fields:
-          $ref: '#/components/schemas/FormFieldPaymentConfigFields'
-    FormBlockRichTextConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        content:
-          type: string
-          maxLength: 10000
-    FormEndingNodeAfterSubmit:
-      type: object
-      additionalProperties: false
-      properties:
-        flow_id:
-          type: string
-          maxLength: 30
-          format: flow-id
-    FormFieldPaymentConfigSubscription:
-      type: object
-      additionalProperties: true
-    FormFieldPaymentConfigChargeOneOffOneOff:
-      type: object
-      additionalProperties: true
-      required:
-      - amount
-      - currency
-      properties:
-        amount:
-          $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOffOneOffAmount'
-        currency:
-          $ref: '#/components/schemas/FormFieldPaymentConfigChargeOneOffCurrencyEnum'
-    FormNodeList:
-      type: array
-      minItems: 0
-      items:
-        $ref: '#/components/schemas/FormNode'
-    FormBlockTypeDividerConst:
-      type: string
-      enum:
-      - DIVIDER
-    FormMessagesCustom:
-      type: object
-      additionalProperties:
-        type: string
-        minLength: 1
-        maxLength: 255
-    FormFieldTypeUrlConst:
-      type: string
-      enum:
-      - URL
-    FormFlowConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - flow_id
-      properties:
-        flow_id:
-          type: string
-          maxLength: 30
-          format: flow-id
-        next_node:
-          $ref: '#/components/schemas/FormNodePointer'
-    FormFieldTypePasswordConst:
-      type: string
-      enum:
-      - PASSWORD
     FormFieldTel:
       type: object
       additionalProperties: false
@@ -1929,7 +1302,19 @@ components:
           type: boolean
         sensitive:
           type: boolean
-    FormBlockRichText:
+    FormLanguages:
+      type: object
+      additionalProperties: false
+      properties:
+        primary:
+          type: string
+          minLength: 1
+          maxLength: 55
+        default:
+          type: string
+          minLength: 1
+          maxLength: 55
+    FormFieldSocial:
       type: object
       additionalProperties: false
       required:
@@ -1941,88 +1326,85 @@ components:
           type: string
           format: forms-custom-identifier
         category:
-          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
         type:
-          $ref: '#/components/schemas/FormBlockTypeRichTextConst'
+          $ref: '#/components/schemas/FormFieldTypeSocialConst'
         config:
-          $ref: '#/components/schemas/FormBlockRichTextConfig'
-    FormBlockJumpButtonConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - text
-      - next_node
-      properties:
-        text:
-          type: string
-          maxLength: 150
-        next_node:
-          $ref: '#/components/schemas/FormNodePointer'
-        style:
-          $ref: '#/components/schemas/FormBlockJumpButtonConfigStyle'
-    FormFieldPaymentConfigCredentials:
-      type: object
-      additionalProperties: false
-      required:
-      - public_key
-      - private_key
-      properties:
-        public_key:
+          $ref: '#/components/schemas/FormFieldSocialConfig'
+        label:
           type: string
           minLength: 1
-          maxLength: 250
-        private_key:
+        hint:
           type: string
           minLength: 1
-          maxLength: 250
-    FormRouterConfig:
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormFieldCardsConfig:
       type: object
       additionalProperties: false
       properties:
-        rules:
+        hide_labels:
+          type: boolean
+        multiple:
+          type: boolean
+        options:
           type: array
           minItems: 0
           items:
-            $ref: '#/components/schemas/FormRouterRule'
-        fallback:
-          $ref: '#/components/schemas/FormNodePointer'
-    FormSummary:
+            $ref: '#/components/schemas/FormFieldCardsConfigOption'
+        default_value: {}
+    FormEndingNode:
+      type: object
+      additionalProperties: false
+      properties:
+        redirection:
+          $ref: '#/components/schemas/FormEndingNodeRedirection'
+        after_submit:
+          $ref: '#/components/schemas/FormEndingNodeAfterSubmit'
+        coordinates:
+          $ref: '#/components/schemas/FormNodeCoordinates'
+        resume_flow:
+          $ref: '#/components/schemas/FormEndingNodeResumeFlowTrueConst'
+    FormFieldCards:
       type: object
       additionalProperties: false
       required:
       - id
-      - name
-      - created_at
-      - updated_at
+      - category
+      - type
       properties:
         id:
           type: string
-          maxLength: 30
-          format: form-id
-        name:
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypeCardsConst'
+        config:
+          $ref: '#/components/schemas/FormFieldCardsConfig'
+        label:
           type: string
           minLength: 1
-          maxLength: 150
-        created_at:
+        hint:
           type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        embedded_at:
-          type: string
-          format: date
-        submitted_at:
-          type: string
-          format: date
-    FormTranslationsNullable:
-      oneOf:
-      - $ref: '#/components/schemas/FormTranslations'
-      - type: 'null'
-    FormFieldPaymentConfigCustomer:
-      type: object
-      additionalProperties: true
-    FormBlockResendButtonConfigTextAlignmentEnum:
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormFieldPaymentConfigChargeTypeSubscriptionConst:
+      type: string
+      enum:
+      - SUBSCRIPTION
+    FormBlockTypeDividerConst:
+      type: string
+      enum:
+      - DIVIDER
+    FormBlockImageConfigPositionEnum:
       type: string
       enum:
       - LEFT
@@ -2071,7 +1453,239 @@ components:
         submitted_at:
           type: string
           format: date
-    FormFieldCards:
+    FormBlockRichText:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypeRichTextConst'
+        config:
+          $ref: '#/components/schemas/FormBlockRichTextConfig'
+    FormWidget:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FormWidgetAuth0VerifiableCredentials'
+      - $ref: '#/components/schemas/FormWidgetGMapsAddress'
+      - $ref: '#/components/schemas/FormWidgetRecaptcha'
+    FormTranslations:
+      type: object
+      additionalProperties:
+        type: object
+        additionalProperties: true
+    FormBlockTypePreviousButtonConst:
+      type: string
+      enum:
+      - PREVIOUS_BUTTON
+    FormFieldUrlConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        default_value:
+          type: string
+          minLength: 1
+        placeholder:
+          type: string
+          minLength: 1
+          maxLength: 500
+    FormBlockTypeRichTextConst:
+      type: string
+      enum:
+      - RICH_TEXT
+    FormFieldTypeSocialConst:
+      type: string
+      enum:
+      - SOCIAL
+    FormBlockJumpButtonConfigStyle:
+      type: object
+      additionalProperties: false
+      properties:
+        background_color:
+          type: string
+          format: forms-hex-color
+    FormMessagesError:
+      type: object
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 255
+    FormFieldPaymentConfigFieldProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 250
+        placeholder:
+          type: string
+          minLength: 1
+          maxLength: 250
+    FormComponentCategoryFieldConst:
+      type: string
+      enum:
+      - FIELD
+    FormStartNodeNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormStartNode'
+      - type: 'null'
+    FormFieldNumberConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        default_value:
+          type: number
+        placeholder:
+          type: string
+          minLength: 1
+          maxLength: 500
+        min_value:
+          type: number
+        max_value:
+          type: number
+    FormStartNode:
+      type: object
+      additionalProperties: false
+      properties:
+        hidden_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormHiddenField'
+        next_node:
+          $ref: '#/components/schemas/FormNodePointer'
+        coordinates:
+          $ref: '#/components/schemas/FormNodeCoordinates'
+    GetFormResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          format: form-id
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        messages:
+          $ref: '#/components/schemas/FormMessages'
+        languages:
+          $ref: '#/components/schemas/FormLanguages'
+        translations:
+          $ref: '#/components/schemas/FormTranslations'
+        nodes:
+          $ref: '#/components/schemas/FormNodeList'
+        start:
+          $ref: '#/components/schemas/FormStartNode'
+        ending:
+          $ref: '#/components/schemas/FormEndingNode'
+        style:
+          $ref: '#/components/schemas/FormStyle'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        embedded_at:
+          type: string
+          format: date
+        submitted_at:
+          type: string
+          format: date
+    FormFieldTypeFileConst:
+      type: string
+      enum:
+      - FILE
+    FormBlockPreviousButton:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypePreviousButtonConst'
+        config:
+          $ref: '#/components/schemas/FormBlockPreviousButtonConfig'
+    FormFieldPayment:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypePaymentConst'
+        config:
+          $ref: '#/components/schemas/FormFieldPaymentConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormWidgetTypeGMapsAddressConst:
+      type: string
+      enum:
+      - GMAPS_ADDRESS
+    FormFieldPaymentConfigSubscription:
+      type: object
+      additionalProperties: true
+    FormNode:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FormFlow'
+      - $ref: '#/components/schemas/FormRouter'
+      - $ref: '#/components/schemas/FormStep'
+    FormFieldEmailConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        default_value:
+          type: string
+          minLength: 1
+        placeholder:
+          type: string
+          minLength: 1
+          maxLength: 500
+    FormFieldTypeChoiceConst:
+      type: string
+      enum:
+      - CHOICE
+    FormFieldFile:
       type: object
       additionalProperties: false
       required:
@@ -2085,9 +1699,9 @@ components:
         category:
           $ref: '#/components/schemas/FormComponentCategoryFieldConst'
         type:
-          $ref: '#/components/schemas/FormFieldTypeCardsConst'
+          $ref: '#/components/schemas/FormFieldTypeFileConst'
         config:
-          $ref: '#/components/schemas/FormFieldCardsConfig'
+          $ref: '#/components/schemas/FormFieldFileConfig'
         label:
           type: string
           minLength: 1
@@ -2099,48 +1713,56 @@ components:
           type: boolean
         sensitive:
           type: boolean
-    FormFieldEmailConfig:
+    CreateFormResponseContent:
       type: object
       additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
       properties:
-        default_value:
+        id:
+          type: string
+          maxLength: 30
+          format: form-id
+        name:
           type: string
           minLength: 1
-        placeholder:
+          maxLength: 150
+        messages:
+          $ref: '#/components/schemas/FormMessages'
+        languages:
+          $ref: '#/components/schemas/FormLanguages'
+        translations:
+          $ref: '#/components/schemas/FormTranslations'
+        nodes:
+          $ref: '#/components/schemas/FormNodeList'
+        start:
+          $ref: '#/components/schemas/FormStartNode'
+        ending:
+          $ref: '#/components/schemas/FormEndingNode'
+        style:
+          $ref: '#/components/schemas/FormStyle'
+        created_at:
           type: string
-          minLength: 1
-          maxLength: 500
-    FormFieldCustomConfigSchema:
-      type: object
-      additionalProperties: true
-    FormBlockTypeImageConst:
-      type: string
-      enum:
-      - IMAGE
-    FormFieldTypeCustomConst:
-      type: string
-      enum:
-      - CUSTOM
-    FormFieldDateConfig:
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        embedded_at:
+          type: string
+          format: date
+        submitted_at:
+          type: string
+          format: date
+    FormBlockHtmlConfig:
       type: object
       additionalProperties: false
       properties:
-        format:
-          $ref: '#/components/schemas/FormFieldDateConfigFormatEnum'
-        default_value:
+        content:
           type: string
-    FormFieldBooleanConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        default_value:
-          type: boolean
-        options:
-          $ref: '#/components/schemas/FormFieldBooleanConfigOptions'
-    FormBlockTypeHtmlConst:
-      type: string
-      enum:
-      - HTML
+          maxLength: 10000
     FormFieldChoice:
       type: object
       additionalProperties: false
@@ -2169,6 +1791,10 @@ components:
           type: boolean
         sensitive:
           type: boolean
+    FormFieldTypeTextConst:
+      type: string
+      enum:
+      - TEXT
     FormFieldBoolean:
       type: object
       additionalProperties: false
@@ -2198,66 +1824,440 @@ components:
           type: boolean
         sensitive:
           type: boolean
-    FormStepConfig:
-      type: object
-      additionalProperties: false
-      properties:
-        components:
-          $ref: '#/components/schemas/FormStepComponentList'
-        next_node:
-          $ref: '#/components/schemas/FormNodePointer'
-    FormComponentCategoryBlockConst:
+    FormBlockResendButtonConfigTextAlignmentEnum:
       type: string
       enum:
-      - BLOCK
-    FormFieldChoiceConfigAllowOther:
+      - LEFT
+      - CENTER
+      - RIGHT
+    FormTranslationsNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormTranslations'
+      - type: 'null'
+    FormBlockTypeHtmlConst:
+      type: string
+      enum:
+      - HTML
+    FormNodePointer:
+      oneOf:
+      - type: string
+        format: forms-custom-identifier
+      - $ref: '#/components/schemas/FormEndingNodeId'
+    FormFieldBooleanConfigOptions:
       type: object
       additionalProperties: false
       properties:
-        enabled:
-          $ref: '#/components/schemas/FormFieldChoiceConfigAllowOtherEnabledTrueEnum'
-        label:
+        'true':
           type: string
           minLength: 1
-        placeholder:
+          maxLength: 50
+        'false':
           type: string
           minLength: 1
-    FormFieldPaymentConfigFieldProperties:
+          maxLength: 50
+    FormBlockRichTextConfig:
       type: object
       additionalProperties: false
       properties:
+        content:
+          type: string
+          maxLength: 10000
+    FormFieldDate:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypeDateConst'
+        config:
+          $ref: '#/components/schemas/FormFieldDateConfig'
         label:
           type: string
           minLength: 1
-          maxLength: 250
-        placeholder:
+        hint:
           type: string
           minLength: 1
-          maxLength: 250
-    FormFieldFileConfigStorage:
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormFieldCustom:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypeCustomConst'
+        config:
+          $ref: '#/components/schemas/FormFieldCustomConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          format: form-id
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        embedded_at:
+          type: string
+          format: date
+        submitted_at:
+          type: string
+          format: date
+    FormNodeListNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormNodeList'
+      - type: 'null'
+    FormFieldCustomConfigSchema:
       type: object
       additionalProperties: true
-      required:
-      - type
-      properties:
-        type:
-          $ref: '#/components/schemas/FormFieldFileConfigStorageTypeEnum'
-    FormFieldDropdownConfig:
+    FormWidgetRecaptcha:
       type: object
       additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
       properties:
-        multiple:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryWidgetConst'
+        type:
+          $ref: '#/components/schemas/FormWidgetTypeRecaptchaConst'
+        config:
+          $ref: '#/components/schemas/FormWidgetRecaptchaConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
           type: boolean
-        options:
-          type: array
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/FormFieldDropdownConfigOption'
-        default_value: {}
+        sensitive:
+          type: boolean
+    FormBlock:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FormBlockDivider'
+      - $ref: '#/components/schemas/FormBlockHtml'
+      - $ref: '#/components/schemas/FormBlockImage'
+      - $ref: '#/components/schemas/FormBlockJumpButton'
+      - $ref: '#/components/schemas/FormBlockResendButton'
+      - $ref: '#/components/schemas/FormBlockNextButton'
+      - $ref: '#/components/schemas/FormBlockPreviousButton'
+      - $ref: '#/components/schemas/FormBlockRichText'
+    FormFieldNumber:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryFieldConst'
+        type:
+          $ref: '#/components/schemas/FormFieldTypeNumberConst'
+        config:
+          $ref: '#/components/schemas/FormFieldNumberConfig'
+        label:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required:
+          type: boolean
+        sensitive:
+          type: boolean
+    FormStepComponentList:
+      type: array
+      items:
+        $ref: '#/components/schemas/FormComponent'
+    FormEndingNodeNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormEndingNode'
+      - type: 'null'
+    FormFieldTelConfig:
+      type: object
+      allOf:
+      - type: object
+        additionalProperties: true
+      - type: object
+        additionalProperties: true
+      - type: object
+        additionalProperties: true
+      additionalProperties: false
+      properties:
+        default_value:
+          type: string
+        placeholder:
+          type: string
+          maxLength: 500
+        min_length:
+          type: integer
+          minimum: 1
+        max_length:
+          type: integer
+          minimum: 1
+        country_picker:
+          type: boolean
+        strings:
+          $ref: '#/components/schemas/FormFieldTelConfigStrings'
+    FormFieldTextConfig:
+      type: object
+      allOf:
+      - type: object
+        additionalProperties: true
+      - type: object
+        additionalProperties: true
+      - type: object
+        additionalProperties: true
+      additionalProperties: false
+      properties:
+        multiline:
+          type: boolean
+        default_value:
+          type: string
+          minLength: 1
         placeholder:
           type: string
           minLength: 1
           maxLength: 500
+        min_length:
+          type: integer
+          minimum: 1
+        max_length:
+          type: integer
+          minimum: 1
+    FormStyleNullable:
+      oneOf:
+      - $ref: '#/components/schemas/FormStyle'
+      - type: 'null'
+    FormEndingNodeAfterSubmit:
+      type: object
+      additionalProperties: false
+      properties:
+        flow_id:
+          type: string
+          maxLength: 30
+          format: flow-id
+    FormBlockNextButton:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      - config
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypeNextButtonConst'
+        config:
+          $ref: '#/components/schemas/FormBlockNextButtonConfig'
+    FormWidgetGMapsAddressConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - api_key
+      properties:
+        api_key:
+          type: string
+          minLength: 1
+    FormFieldTypeDateConst:
+      type: string
+      enum:
+      - DATE
+    FormBlockImage:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - category
+      - type
+      properties:
+        id:
+          type: string
+          format: forms-custom-identifier
+        category:
+          $ref: '#/components/schemas/FormComponentCategoryBlockConst'
+        type:
+          $ref: '#/components/schemas/FormBlockTypeImageConst'
+        config:
+          $ref: '#/components/schemas/FormBlockImageConfig'
+    FormFieldPaymentConfigCustomer:
+      type: object
+      additionalProperties: true
+    UpdateFormRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        messages:
+          $ref: '#/components/schemas/FormMessagesNullable'
+        languages:
+          $ref: '#/components/schemas/FormLanguagesNullable'
+        translations:
+          $ref: '#/components/schemas/FormTranslationsNullable'
+        nodes:
+          $ref: '#/components/schemas/FormNodeListNullable'
+        start:
+          $ref: '#/components/schemas/FormStartNodeNullable'
+        ending:
+          $ref: '#/components/schemas/FormEndingNodeNullable'
+        style:
+          $ref: '#/components/schemas/FormStyleNullable'
+    FormComponent:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/FormBlock'
+      - $ref: '#/components/schemas/FormWidget'
+      - $ref: '#/components/schemas/FormField'
+    FormFieldTypeLegalConst:
+      type: string
+      enum:
+      - LEGAL
+    FormsRequestParametersHydrateEnum:
+      type: string
+      maxLength: 50
+      enum:
+      - flow_count
+      - links
+    FormFieldPaymentConfigCredentials:
+      type: object
+      additionalProperties: false
+      required:
+      - public_key
+      - private_key
+      properties:
+        public_key:
+          type: string
+          minLength: 1
+          maxLength: 250
+        private_key:
+          type: string
+          minLength: 1
+          maxLength: 250
+    FormBlockPreviousButtonConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - text
+      properties:
+        text:
+          type: string
+          maxLength: 150
+    FormFieldPasswordConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        hash:
+          $ref: '#/components/schemas/FormFieldPasswordConfigHashEnum'
+        placeholder:
+          type: string
+          maxLength: 500
+        min_length:
+          type: integer
+          minimum: 1
+        max_length:
+          type: integer
+          minimum: 1
+        complexity:
+          type: boolean
+        nist:
+          type: boolean
+        strength_meter:
+          type: boolean
+    FormFieldTypeEmailConst:
+      type: string
+      enum:
+      - EMAIL
+    FormFieldDropdownConfigOption:
+      type: object
+      additionalProperties: false
+      required:
+      - value
+      - label
+      properties:
+        value:
+          type: string
+          minLength: 1
+        label:
+          type: string
+          minLength: 1
+    FormRouterConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        rules:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/FormRouterRule'
+        fallback:
+          $ref: '#/components/schemas/FormNodePointer'
   securitySchemes:
     bearerAuth:
       type: http

@@ -555,7 +555,143 @@ paths:
         - update:signing_keys
 components:
   schemas:
-    SetCustomSigningKeysResponseContent:
+    EncryptionKeyPublicWrappingAlgorithm:
+      type: string
+      description: Encryption algorithm that shall be used to wrap your key material
+      enum:
+      - CKM_RSA_AES_KEY_WRAP
+    EncryptionKeyType:
+      type: string
+      description: Key type
+      enum:
+      - customer-provided-root-key
+      - environment-root-key
+      - tenant-master-key
+      - tenant-encryption-key
+    RotateSigningKeysResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      properties:
+        cert:
+          type: string
+          description: Next key certificate
+          default: '-----BEGIN CERTIFICATE-----
+
+            MIIDDTCCA...YiA0TQhAt8=
+
+            -----END CERTIFICATE-----'
+        kid:
+          type: string
+          description: Next key id
+          default: 21hi274Rp02112mgkUGma
+    ListEncryptionKeysResponseContent:
+      oneOf:
+      - type: array
+        description: Encryption keys.
+        items:
+          $ref: '#/components/schemas/EncryptionKey'
+      - $ref: '#/components/schemas/ListEncryptionKeyOffsetPaginatedResponseContent'
+    GetEncryptionKeyResponseContent:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    CustomSigningKeyTypeEnum:
+      type: string
+      description: Key type
+      enum:
+      - EC
+      - RSA
+    CreateEncryptionKeyPublicWrappingResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - public_key
+      - algorithm
+      properties:
+        public_key:
+          type: string
+          description: Public wrapping key in PEM format
+        algorithm:
+          $ref: '#/components/schemas/EncryptionKeyPublicWrappingAlgorithm'
+    CreateEncryptionKeyResponseContent:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    CustomSigningKeyCurveEnum:
+      type: string
+      description: Curve
+      enum:
+      - P-256
+      - P-384
+      - P-521
+    GetCustomSigningKeysResponseContent:
       type: object
       description: JWKS representing an array of custom public signing keys.
       additionalProperties: false
@@ -565,6 +701,11 @@ components:
           description: An array of custom public signing keys.
           items:
             $ref: '#/components/schemas/CustomSigningKeyJWK'
+    CustomSigningKeyUseEnum:
+      type: string
+      description: Key use
+      enum:
+      - sig
     EncryptionKey:
       type: object
       description: Encryption key
@@ -601,36 +742,15 @@ components:
           - string
           - 'null'
           description: Public key in PEM format
-    RevokedSigningKeysResponseContent:
+    ImportEncryptionKeyRequestContent:
       type: object
       additionalProperties: true
       required:
-      - cert
-      - kid
+      - wrapped_key
       properties:
-        cert:
+        wrapped_key:
           type: string
-          description: Revoked key certificate
-          default: '-----BEGIN CERTIFICATE-----
-
-            MIIDDTCCA...YiA0TQhAt8=
-
-            -----END CERTIFICATE-----'
-        kid:
-          type: string
-          description: Revoked key id
-          default: 21hi274Rp02112mgkUGma
-    CustomSigningKeyTypeEnum:
-      type: string
-      description: Key type
-      enum:
-      - EC
-      - RSA
-    CustomSigningKeyUseEnum:
-      type: string
-      description: Key use
-      enum:
-      - sig
+          description: Base64 encoded ciphertext of key material wrapped by public wrapping key.
     SigningKeys:
       type: object
       additionalProperties: false
@@ -695,99 +815,23 @@ components:
       properties:
         type:
           $ref: '#/components/schemas/CreateEncryptionKeyType'
-    CustomSigningKeyJWK:
+    SigningKeysDate:
+      oneOf:
+      - type: string
+        description: The date and time when the key became the current key
+      - type: object
+        description: The date and time when the key became the current key
+        additionalProperties: true
+    SetCustomSigningKeysResponseContent:
       type: object
-      description: JWK representing a custom public signing key.
+      description: JWKS representing an array of custom public signing keys.
       additionalProperties: false
-      required:
-      - kty
       properties:
-        kty:
-          $ref: '#/components/schemas/CustomSigningKeyTypeEnum'
-        kid:
-          type: string
-          description: Key identifier
-        use:
-          $ref: '#/components/schemas/CustomSigningKeyUseEnum'
-        key_ops:
+        keys:
           type: array
-          description: Key operations
-          minItems: 1
+          description: An array of custom public signing keys.
           items:
-            $ref: '#/components/schemas/CustomSigningKeyOperationEnum'
-        alg:
-          $ref: '#/components/schemas/CustomSigningKeyAlgorithmEnum'
-        n:
-          type: string
-          description: Key modulus
-        e:
-          type: string
-          description: Key exponent
-        crv:
-          $ref: '#/components/schemas/CustomSigningKeyCurveEnum'
-        x:
-          type: string
-          description: X coordinate
-        y:
-          type: string
-          description: Y coordinate
-        x5u:
-          type: string
-          description: X.509 URL
-        x5c:
-          type: array
-          description: X.509 certificate chain
-          minItems: 1
-          items:
-            type: string
-        x5t:
-          type: string
-          description: X.509 certificate SHA-1 thumbprint
-        x5t#S256:
-          type: string
-          description: X.509 certificate SHA-256 thumbprint
-    GetEncryptionKeyResponseContent:
-      type: object
-      description: Encryption key
-      additionalProperties: false
-      required:
-      - kid
-      - type
-      - state
-      - created_at
-      - updated_at
-      properties:
-        kid:
-          type: string
-          description: Key ID
-        type:
-          $ref: '#/components/schemas/EncryptionKeyType'
-        state:
-          $ref: '#/components/schemas/EncryptionKeyState'
-        created_at:
-          type: string
-          description: Key creation timestamp
-          format: date-time
-        updated_at:
-          type: string
-          description: Key update timestamp
-          format: date-time
-        parent_kid:
-          type:
-          - string
-          - 'null'
-          description: ID of parent wrapping key
-        public_key:
-          type:
-          - string
-          - 'null'
-          description: Public key in PEM format
-    CreateEncryptionKeyType:
-      type: string
-      description: Type of the encryption key to be created.
-      enum:
-      - customer-provided-root-key
-      - tenant-encryption-key
+            $ref: '#/components/schemas/CustomSigningKeyJWK'
     ListEncryptionKeyOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -806,180 +850,6 @@ components:
           description: Encryption keys.
           items:
             $ref: '#/components/schemas/EncryptionKey'
-    GetCustomSigningKeysResponseContent:
-      type: object
-      description: JWKS representing an array of custom public signing keys.
-      additionalProperties: false
-      properties:
-        keys:
-          type: array
-          description: An array of custom public signing keys.
-          items:
-            $ref: '#/components/schemas/CustomSigningKeyJWK'
-    RotateSigningKeysResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - cert
-      - kid
-      properties:
-        cert:
-          type: string
-          description: Next key certificate
-          default: '-----BEGIN CERTIFICATE-----
-
-            MIIDDTCCA...YiA0TQhAt8=
-
-            -----END CERTIFICATE-----'
-        kid:
-          type: string
-          description: Next key id
-          default: 21hi274Rp02112mgkUGma
-    CreateEncryptionKeyPublicWrappingResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - public_key
-      - algorithm
-      properties:
-        public_key:
-          type: string
-          description: Public wrapping key in PEM format
-        algorithm:
-          $ref: '#/components/schemas/EncryptionKeyPublicWrappingAlgorithm'
-    ImportEncryptionKeyRequestContent:
-      type: object
-      additionalProperties: true
-      required:
-      - wrapped_key
-      properties:
-        wrapped_key:
-          type: string
-          description: Base64 encoded ciphertext of key material wrapped by public wrapping key.
-    SigningKeysDate:
-      oneOf:
-      - type: string
-        description: The date and time when the key became the current key
-      - type: object
-        description: The date and time when the key became the current key
-        additionalProperties: true
-    CustomSigningKeyCurveEnum:
-      type: string
-      description: Curve
-      enum:
-      - P-256
-      - P-384
-      - P-521
-    EncryptionKeyState:
-      type: string
-      description: Key state
-      enum:
-      - pre-activation
-      - active
-      - deactivated
-      - destroyed
-    CreateEncryptionKeyResponseContent:
-      type: object
-      description: Encryption key
-      additionalProperties: false
-      required:
-      - kid
-      - type
-      - state
-      - created_at
-      - updated_at
-      properties:
-        kid:
-          type: string
-          description: Key ID
-        type:
-          $ref: '#/components/schemas/EncryptionKeyType'
-        state:
-          $ref: '#/components/schemas/EncryptionKeyState'
-        created_at:
-          type: string
-          description: Key creation timestamp
-          format: date-time
-        updated_at:
-          type: string
-          description: Key update timestamp
-          format: date-time
-        parent_kid:
-          type:
-          - string
-          - 'null'
-          description: ID of parent wrapping key
-        public_key:
-          type:
-          - string
-          - 'null'
-          description: Public key in PEM format
-    ImportEncryptionKeyResponseContent:
-      type: object
-      description: Encryption key
-      additionalProperties: false
-      required:
-      - kid
-      - type
-      - state
-      - created_at
-      - updated_at
-      properties:
-        kid:
-          type: string
-          description: Key ID
-        type:
-          $ref: '#/components/schemas/EncryptionKeyType'
-        state:
-          $ref: '#/components/schemas/EncryptionKeyState'
-        created_at:
-          type: string
-          description: Key creation timestamp
-          format: date-time
-        updated_at:
-          type: string
-          description: Key update timestamp
-          format: date-time
-        parent_kid:
-          type:
-          - string
-          - 'null'
-          description: ID of parent wrapping key
-        public_key:
-          type:
-          - string
-          - 'null'
-          description: Public key in PEM format
-    EncryptionKeyType:
-      type: string
-      description: Key type
-      enum:
-      - customer-provided-root-key
-      - environment-root-key
-      - tenant-master-key
-      - tenant-encryption-key
-    CustomSigningKeyOperationEnum:
-      type: string
-      enum:
-      - verify
-    EncryptionKeyPublicWrappingAlgorithm:
-      type: string
-      description: Encryption algorithm that shall be used to wrap your key material
-      enum:
-      - CKM_RSA_AES_KEY_WRAP
-    CustomSigningKeyAlgorithmEnum:
-      type: string
-      description: Key algorithm
-      enum:
-      - RS256
-      - RS384
-      - RS512
-      - ES256
-      - ES384
-      - ES512
-      - PS256
-      - PS384
-      - PS512
     GetSigningKeysResponseContent:
       type: object
       additionalProperties: false
@@ -1036,13 +906,6 @@ components:
           description: True if the key is revoked
         revoked_at:
           $ref: '#/components/schemas/SigningKeysDate'
-    ListEncryptionKeysResponseContent:
-      oneOf:
-      - type: array
-        description: Encryption keys.
-        items:
-          $ref: '#/components/schemas/EncryptionKey'
-      - $ref: '#/components/schemas/ListEncryptionKeyOffsetPaginatedResponseContent'
     SetCustomSigningKeysRequestContent:
       type: object
       description: JWKS representing an array of custom public signing keys.
@@ -1056,6 +919,143 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/CustomSigningKeyJWK'
+    ImportEncryptionKeyResponseContent:
+      type: object
+      description: Encryption key
+      additionalProperties: false
+      required:
+      - kid
+      - type
+      - state
+      - created_at
+      - updated_at
+      properties:
+        kid:
+          type: string
+          description: Key ID
+        type:
+          $ref: '#/components/schemas/EncryptionKeyType'
+        state:
+          $ref: '#/components/schemas/EncryptionKeyState'
+        created_at:
+          type: string
+          description: Key creation timestamp
+          format: date-time
+        updated_at:
+          type: string
+          description: Key update timestamp
+          format: date-time
+        parent_kid:
+          type:
+          - string
+          - 'null'
+          description: ID of parent wrapping key
+        public_key:
+          type:
+          - string
+          - 'null'
+          description: Public key in PEM format
+    EncryptionKeyState:
+      type: string
+      description: Key state
+      enum:
+      - pre-activation
+      - active
+      - deactivated
+      - destroyed
+    CreateEncryptionKeyType:
+      type: string
+      description: Type of the encryption key to be created.
+      enum:
+      - customer-provided-root-key
+      - tenant-encryption-key
+    RevokedSigningKeysResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - cert
+      - kid
+      properties:
+        cert:
+          type: string
+          description: Revoked key certificate
+          default: '-----BEGIN CERTIFICATE-----
+
+            MIIDDTCCA...YiA0TQhAt8=
+
+            -----END CERTIFICATE-----'
+        kid:
+          type: string
+          description: Revoked key id
+          default: 21hi274Rp02112mgkUGma
+    CustomSigningKeyJWK:
+      type: object
+      description: JWK representing a custom public signing key.
+      additionalProperties: false
+      required:
+      - kty
+      properties:
+        kty:
+          $ref: '#/components/schemas/CustomSigningKeyTypeEnum'
+        kid:
+          type: string
+          description: Key identifier
+        use:
+          $ref: '#/components/schemas/CustomSigningKeyUseEnum'
+        key_ops:
+          type: array
+          description: Key operations
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CustomSigningKeyOperationEnum'
+        alg:
+          $ref: '#/components/schemas/CustomSigningKeyAlgorithmEnum'
+        n:
+          type: string
+          description: Key modulus
+        e:
+          type: string
+          description: Key exponent
+        crv:
+          $ref: '#/components/schemas/CustomSigningKeyCurveEnum'
+        x:
+          type: string
+          description: X coordinate
+        y:
+          type: string
+          description: Y coordinate
+        x5u:
+          type: string
+          description: X.509 URL
+        x5c:
+          type: array
+          description: X.509 certificate chain
+          minItems: 1
+          items:
+            type: string
+        x5t:
+          type: string
+          description: X.509 certificate SHA-1 thumbprint
+        x5t#S256:
+          type: string
+          description: X.509 certificate SHA-256 thumbprint
+    CustomSigningKeyOperationEnum:
+      type: string
+      enum:
+      - verify
+    CustomSigningKeyAlgorithmEnum:
+      type: string
+      description: Key algorithm
+      enum:
+      - RS256
+      - RS384
+      - RS512
+      - ES256
+      - ES384
+      - ES512
+      - PS256
+      - PS384
+      - PS512
   securitySchemes:
     bearerAuth:
       type: http

@@ -385,64 +385,6 @@ paths:
         - update:attack_protection
 components:
   schemas:
-    BotDetectionIPv4:
-      type: string
-      description: IPv4 address
-      format: ipv4
-    BreachedPasswordDetectionPreUserRegistrationStage:
-      type: object
-      additionalProperties: false
-      properties:
-        shields:
-          type: array
-          description: "Action to take when a breached password is detected during a signup.\n              Possible values: <code>block</code>, <code>admin_notification</code>."
-          items:
-            $ref: '#/components/schemas/BreachedPasswordDetectionPreUserRegistrationShieldsEnum'
-    UpdateBreachedPasswordDetectionSettingsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        enabled:
-          type: boolean
-          description: Whether or not breached password detection is active.
-          default: true
-        shields:
-          type: array
-          description: "Action to take when a breached password is detected during a login.\n      Possible values: <code>block</code>, <code>user_notification</code>, <code>admin_notification</code>."
-          items:
-            $ref: '#/components/schemas/BreachedPasswordDetectionShieldsEnum'
-        admin_notification_frequency:
-          type: array
-          description: "When \"admin_notification\" is enabled, determines how often email notifications are sent.\n        Possible values: <code>immediately</code>, <code>daily</code>, <code>weekly</code>, <code>monthly</code>."
-          items:
-            $ref: '#/components/schemas/BreachedPasswordDetectionAdminNotificationFrequencyEnum'
-        method:
-          $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
-        stage:
-          $ref: '#/components/schemas/BreachedPasswordDetectionStage'
-    BotDetectionIPAddressOrCidrBlock:
-      type: string
-      description: IP address (IPv4 or IPv6) or CIDR block
-      oneOf:
-      - $ref: '#/components/schemas/BotDetectionIPv4'
-      - $ref: '#/components/schemas/BotDetectionIPv6'
-      - $ref: '#/components/schemas/BotDetectionCidrBlock'
-      - $ref: '#/components/schemas/BotDetectionIPv6CidrBlock'
-    AttackProtectionUpdateCaptchaFriendlyCaptcha:
-      type: object
-      additionalProperties: false
-      required:
-      - site_key
-      - secret
-      properties:
-        site_key:
-          type: string
-          description: The site key for the Friendly Captcha provider.
-          maxLength: 100
-        secret:
-          type: string
-          description: The secret key for the Friendly Captcha provider.
-          maxLength: 100
     AttackProtectionCaptchaFriendlyCaptchaResponseContent:
       type: object
       additionalProperties: true
@@ -450,95 +392,35 @@ components:
         site_key:
           type: string
           description: The site key for the Friendly Captcha provider.
-    BruteForceProtectionShieldsEnum:
+    BreachedPasswordDetectionShieldsEnum:
       type: string
       enum:
       - block
       - user_notification
-    SuspiciousIPThrottlingAllowlist:
-      type: array
-      description: List of trusted IP addresses that will not have attack protection enforced against them.
-      items:
-        $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlistItem'
-    GetSuspiciousIPThrottlingSettingsResponseContent:
+      - admin_notification
+    GetBotDetectionSettingsResponseContent:
       type: object
       additionalProperties: false
+      required:
+      - bot_detection_level
+      - challenge_password_policy
+      - challenge_passwordless_policy
+      - challenge_password_reset_policy
+      - allowlist
+      - monitoring_mode_enabled
       properties:
-        enabled:
-          type: boolean
-          description: Whether or not suspicious IP throttling attack protections are active.
-        shields:
-          type: array
-          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
-          items:
-            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
+        bot_detection_level:
+          $ref: '#/components/schemas/BotDetectionLevelEnum'
+        challenge_password_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
+        challenge_passwordless_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
+        challenge_password_reset_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
         allowlist:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
-        stage:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
-    SuspiciousIPThrottlingPreUserRegistrationStage:
-      type: object
-      description: Configuration options that apply before every user registration attempt.
-      additionalProperties: false
-      properties:
-        max_attempts:
-          type: integer
-          description: Total number of attempts allowed.
-          default: 50
-          minimum: 1
-          maximum: 72000
-        rate:
-          type: integer
-          description: Interval of time, given in milliseconds, at which new attempts are granted.
-          default: 1728000
-          minimum: 1200
-          maximum: 86400000
-    AttackProtectionCaptchaProviderId:
-      type: string
-      description: The id of the active provider for the CAPTCHA.
-      maxLength: 36
-      enum:
-      - arkose
-      - auth_challenge
-      - friendly_captcha
-      - hcaptcha
-      - recaptcha_v2
-      - recaptcha_enterprise
-      - simple_captcha
-    UpdateBruteForceSettingsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        enabled:
-          type: boolean
-          description: Whether or not brute force attack protections are active.
-        shields:
-          type: array
-          description: "Action to take when a brute force protection threshold is violated.\n        Possible values: <code>block</code>, <code>user_notification</code>."
-          items:
-            $ref: '#/components/schemas/BruteForceProtectionShieldsEnum'
-        allowlist:
-          type: array
-          description: List of trusted IP addresses that will not have attack protection enforced against them.
-          items:
-            type: string
-            anyOf:
-            - type: string
-              format: ipv4
-            - type: string
-              format: cidr
-            - type: string
-              format: ipv6
-            - type: string
-              format: ipv6_cidr
-        mode:
-          $ref: '#/components/schemas/BruteForceProtectionModeEnum'
-        max_attempts:
-          type: integer
-          description: Maximum number of unsuccessful attempts.
-          default: 10
-          minimum: 1
-          maximum: 100
+          $ref: '#/components/schemas/BotDetectionAllowlist'
+        monitoring_mode_enabled:
+          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
     BotDetectionLevelEnum:
       type: string
       description: The level of bot detection sensitivity
@@ -546,15 +428,73 @@ components:
       - low
       - medium
       - high
-    BreachedPasswordDetectionPreChangePasswordStage:
+    AttackProtectionCaptchaArkoseResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the Arkose captcha provider.
+        fail_open:
+          type: boolean
+          description: Whether the captcha should fail open.
+        client_subdomain:
+          type: string
+          description: The subdomain used for client requests to the Arkose captcha provider.
+        verify_subdomain:
+          type: string
+          description: The subdomain used for server-side verification requests to the Arkose captcha provider.
+    BotDetectionChallengePolicyPasswordlessFlowEnum:
+      type: string
+      description: The policy that defines how often to show CAPTCHA
+      enum:
+      - never
+      - when_risky
+      - always
+    BotDetectionIPv6:
+      type: string
+      description: IPv6 address
+      format: ipv6
+    UpdateAttackProtectionCaptchaRequestContent:
       type: object
       additionalProperties: false
       properties:
-        shields:
-          type: array
-          description: "Action to take when a breached password is detected during a password reset.\n              Possible values: <code>block</code>, <code>admin_notification</code>."
-          items:
-            $ref: '#/components/schemas/BreachedPasswordDetectionPreChangePasswordShieldsEnum'
+        active_provider_id:
+          $ref: '#/components/schemas/AttackProtectionCaptchaProviderId'
+        arkose:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaArkose'
+        auth_challenge:
+          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeRequest'
+        hcaptcha:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaHcaptcha'
+        friendly_captcha:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaFriendlyCaptcha'
+        recaptcha_enterprise:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaRecaptchaEnterprise'
+        recaptcha_v2:
+          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaRecaptchaV2'
+        simple_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
+    GetAttackProtectionCaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        active_provider_id:
+          type: string
+        arkose:
+          $ref: '#/components/schemas/AttackProtectionCaptchaArkoseResponseContent'
+        auth_challenge:
+          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeResponseContent'
+        hcaptcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaHcaptchaResponseContent'
+        friendly_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaFriendlyCaptchaResponseContent'
+        recaptcha_enterprise:
+          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaEnterpriseResponseContent'
+        recaptcha_v2:
+          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaV2ResponseContent'
+        simple_captcha:
+          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
     UpdateBruteForceSettingsRequestContent:
       type: object
       additionalProperties: false
@@ -589,44 +529,75 @@ components:
           default: 10
           minimum: 1
           maximum: 100
-    AttackProtectionCaptchaRecaptchaEnterpriseResponseContent:
+    UpdateBruteForceSettingsResponseContent:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
-        site_key:
-          type: string
-          description: The site key for the reCAPTCHA Enterprise provider.
-        project_id:
-          type: string
-          description: The project ID for the reCAPTCHA Enterprise provider.
-    BruteForceProtectionModeEnum:
-      type: string
-      description: "Account Lockout: Determines whether or not IP address is used when counting failed attempts.\n          Possible values: <code>count_per_identifier_and_ip</code>, <code>count_per_identifier</code>."
-      default: count_per_identifier_and_ip
-      enum:
-      - count_per_identifier_and_ip
-      - count_per_identifier
-    AttackProtectionCaptchaArkoseResponseContent:
+        enabled:
+          type: boolean
+          description: Whether or not brute force attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a brute force protection threshold is violated.\n        Possible values: <code>block</code>, <code>user_notification</code>."
+          items:
+            $ref: '#/components/schemas/BruteForceProtectionShieldsEnum'
+        allowlist:
+          type: array
+          description: List of trusted IP addresses that will not have attack protection enforced against them.
+          items:
+            type: string
+            anyOf:
+            - type: string
+              format: ipv4
+            - type: string
+              format: cidr
+            - type: string
+              format: ipv6
+            - type: string
+              format: ipv6_cidr
+        mode:
+          $ref: '#/components/schemas/BruteForceProtectionModeEnum'
+        max_attempts:
+          type: integer
+          description: Maximum number of unsuccessful attempts.
+          default: 10
+          minimum: 1
+          maximum: 100
+    BreachedPasswordDetectionPreUserRegistrationStage:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
-        site_key:
-          type: string
-          description: The site key for the Arkose captcha provider.
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a signup.\n              Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionPreUserRegistrationShieldsEnum'
+    AttackProtectionCaptchaAuthChallengeRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - fail_open
+      properties:
         fail_open:
           type: boolean
-          description: Whether the captcha should fail open.
-        client_subdomain:
-          type: string
-          description: The subdomain used for client requests to the Arkose captcha provider.
-        verify_subdomain:
-          type: string
-          description: The subdomain used for server-side verification requests to the Arkose captcha provider.
-    BreachedPasswordDetectionPreUserRegistrationShieldsEnum:
+          description: Whether the auth challenge should fail open.
+    SuspiciousIPThrottlingAllowlist:
+      type: array
+      description: List of trusted IP addresses that will not have attack protection enforced against them.
+      items:
+        $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlistItem'
+    BotDetectionIPv4:
       type: string
-      enum:
-      - block
-      - admin_notification
+      description: IPv4 address
+      format: ipv4
+    BotDetectionIPAddressOrCidrBlock:
+      type: string
+      description: IP address (IPv4 or IPv6) or CIDR block
+      oneOf:
+      - $ref: '#/components/schemas/BotDetectionIPv4'
+      - $ref: '#/components/schemas/BotDetectionIPv6'
+      - $ref: '#/components/schemas/BotDetectionCidrBlock'
+      - $ref: '#/components/schemas/BotDetectionIPv6CidrBlock'
     SuspiciousIPThrottlingAllowlistItem:
       type: string
       anyOf:
@@ -638,40 +609,42 @@ components:
         format: ipv6
       - type: string
         format: ipv6_cidr
-    AttackProtectionCaptchaHcaptchaResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        site_key:
-          type: string
-          description: The site key for the hCaptcha provider.
-    AttackProtectionCaptchaSimpleCaptchaResponseContent:
-      type: object
-      additionalProperties: true
-      properties: {}
-    GetBotDetectionSettingsResponseContent:
+    BruteForceProtectionShieldsEnum:
+      type: string
+      enum:
+      - block
+      - user_notification
+    AttackProtectionUpdateCaptchaFriendlyCaptcha:
       type: object
       additionalProperties: false
       required:
-      - bot_detection_level
-      - challenge_password_policy
-      - challenge_passwordless_policy
-      - challenge_password_reset_policy
-      - allowlist
-      - monitoring_mode_enabled
+      - site_key
+      - secret
       properties:
-        bot_detection_level:
-          $ref: '#/components/schemas/BotDetectionLevelEnum'
-        challenge_password_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
-        challenge_passwordless_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
-        challenge_password_reset_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
+        site_key:
+          type: string
+          description: The site key for the Friendly Captcha provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the Friendly Captcha provider.
+          maxLength: 100
+    GetSuspiciousIPThrottlingSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not suspicious IP throttling attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
         allowlist:
-          $ref: '#/components/schemas/BotDetectionAllowlist'
-        monitoring_mode_enabled:
-          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
+          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
+        stage:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
     GetBreachedPasswordDetectionSettingsResponseContent:
       type: object
       additionalProperties: false
@@ -694,44 +667,67 @@ components:
           $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
         stage:
           $ref: '#/components/schemas/BreachedPasswordDetectionStage'
-    BotDetectionIPv6CidrBlock:
+    BreachedPasswordDetectionStage:
+      type: object
+      additionalProperties: false
+      properties:
+        pre-user-registration:
+          $ref: '#/components/schemas/BreachedPasswordDetectionPreUserRegistrationStage'
+        pre-change-password:
+          $ref: '#/components/schemas/BreachedPasswordDetectionPreChangePasswordStage'
+    AttackProtectionCaptchaSimpleCaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties: {}
+    BruteForceProtectionModeEnum:
       type: string
-      description: IPv6 CIDR block
-      format: ipv6_cidr
+      description: "Account Lockout: Determines whether or not IP address is used when counting failed attempts.\n          Possible values: <code>count_per_identifier_and_ip</code>, <code>count_per_identifier</code>."
+      default: count_per_identifier_and_ip
+      enum:
+      - count_per_identifier_and_ip
+      - count_per_identifier
+    BotDetectionChallengePolicyPasswordFlowEnum:
+      type: string
+      description: The policy that defines how often to show CAPTCHA
+      enum:
+      - never
+      - when_risky
+      - always
+    BreachedPasswordDetectionPreUserRegistrationShieldsEnum:
+      type: string
+      enum:
+      - block
+      - admin_notification
     BotDetectionCidrBlock:
       type: string
       description: CIDR block
       format: cidr
-    UpdateSuspiciousIPThrottlingSettingsResponseContent:
+    AttackProtectionUpdateCaptchaArkose:
       type: object
       additionalProperties: false
+      required:
+      - site_key
+      - secret
       properties:
-        enabled:
+        site_key:
+          type: string
+          description: The site key for the Arkose captcha provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the Arkose captcha provider.
+          maxLength: 100
+        client_subdomain:
+          type: string
+          description: The subdomain used for client requests to the Arkose captcha provider.
+          maxLength: 100
+        verify_subdomain:
+          type: string
+          description: The subdomain used for server-side verification requests to the Arkose captcha provider.
+          maxLength: 100
+        fail_open:
           type: boolean
-          description: Whether or not suspicious IP throttling attack protections are active.
-        shields:
-          type: array
-          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
-          items:
-            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
-        allowlist:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
-        stage:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
-    BotDetectionChallengePolicyPasswordResetFlowEnum:
-      type: string
-      description: The policy that defines how often to show CAPTCHA
-      enum:
-      - never
-      - when_risky
-      - always
-    BotDetectionChallengePolicyPasswordlessFlowEnum:
-      type: string
-      description: The policy that defines how often to show CAPTCHA
-      enum:
-      - never
-      - when_risky
-      - always
+          description: Whether the captcha should fail open.
     GetBruteForceSettingsResponseContent:
       type: object
       additionalProperties: false
@@ -766,18 +762,11 @@ components:
           default: 10
           minimum: 1
           maximum: 100
-    BotDetectionIPv6:
+    BotDetectionIPv6CidrBlock:
       type: string
-      description: IPv6 address
-      format: ipv6
-    BreachedPasswordDetectionAdminNotificationFrequencyEnum:
-      type: string
-      enum:
-      - immediately
-      - daily
-      - weekly
-      - monthly
-    AttackProtectionUpdateCaptchaHcaptcha:
+      description: IPv6 CIDR block
+      format: ipv6_cidr
+    AttackProtectionUpdateCaptchaRecaptchaV2:
       type: object
       additionalProperties: false
       required:
@@ -786,79 +775,12 @@ components:
       properties:
         site_key:
           type: string
-          description: The site key for the hCaptcha provider.
+          description: The site key for the reCAPTCHA v2 provider.
           maxLength: 100
         secret:
           type: string
-          description: The secret key for the hCaptcha provider.
+          description: The secret key for the reCAPTCHA v2 provider.
           maxLength: 100
-    SuspiciousIPThrottlingShieldsEnum:
-      type: string
-      enum:
-      - block
-      - admin_notification
-    SuspiciousIPThrottlingStage:
-      type: object
-      description: Holds per-stage configuration options (max_attempts and rate).
-      additionalProperties: false
-      properties:
-        pre-login:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingPreLoginStage'
-        pre-user-registration:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingPreUserRegistrationStage'
-    BreachedPasswordDetectionMethodEnum:
-      type: string
-      description: "The subscription level for breached password detection methods. Use \"enhanced\" to enable Credential Guard.\n        Possible values: <code>standard</code>, <code>enhanced</code>."
-      default: standard
-      enum:
-      - standard
-      - enhanced
-    BreachedPasswordDetectionShieldsEnum:
-      type: string
-      enum:
-      - block
-      - user_notification
-      - admin_notification
-    SuspiciousIPThrottlingPreLoginStage:
-      type: object
-      description: Configuration options that apply before every login attempt.
-      additionalProperties: false
-      properties:
-        max_attempts:
-          type: integer
-          description: Total number of attempts allowed per day.
-          default: 100
-          minimum: 1
-          maximum: 2500
-        rate:
-          type: integer
-          description: Interval of time, given in milliseconds, at which new attempts are granted.
-          default: 864000
-          minimum: 34560
-          maximum: 86400000
-    UpdateBotDetectionSettingsResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        bot_detection_level:
-          $ref: '#/components/schemas/BotDetectionLevelEnum'
-        challenge_password_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
-        challenge_passwordless_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
-        challenge_password_reset_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
-        allowlist:
-          $ref: '#/components/schemas/BotDetectionAllowlist'
-        monitoring_mode_enabled:
-          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
-    AttackProtectionCaptchaRecaptchaV2ResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        site_key:
-          type: string
-          description: The site key for the reCAPTCHA v2 provider.
     UpdateAttackProtectionCaptchaResponseContent:
       type: object
       additionalProperties: true
@@ -879,6 +801,251 @@ components:
           $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaV2ResponseContent'
         simple_captcha:
           $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
+    SuspiciousIPThrottlingShieldsEnum:
+      type: string
+      enum:
+      - block
+      - admin_notification
+    BreachedPasswordDetectionAdminNotificationFrequencyEnum:
+      type: string
+      enum:
+      - immediately
+      - daily
+      - weekly
+      - monthly
+    SuspiciousIPThrottlingStage:
+      type: object
+      description: Holds per-stage configuration options (max_attempts and rate).
+      additionalProperties: false
+      properties:
+        pre-login:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingPreLoginStage'
+        pre-user-registration:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingPreUserRegistrationStage'
+    AttackProtectionUpdateCaptchaHcaptcha:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - secret
+      properties:
+        site_key:
+          type: string
+          description: The site key for the hCaptcha provider.
+          maxLength: 100
+        secret:
+          type: string
+          description: The secret key for the hCaptcha provider.
+          maxLength: 100
+    UpdateBotDetectionSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bot_detection_level:
+          $ref: '#/components/schemas/BotDetectionLevelEnum'
+        challenge_password_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
+        challenge_passwordless_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
+        challenge_password_reset_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
+        allowlist:
+          $ref: '#/components/schemas/BotDetectionAllowlist'
+        monitoring_mode_enabled:
+          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
+    AttackProtectionCaptchaProviderId:
+      type: string
+      description: The id of the active provider for the CAPTCHA.
+      maxLength: 36
+      enum:
+      - arkose
+      - auth_challenge
+      - friendly_captcha
+      - hcaptcha
+      - recaptcha_v2
+      - recaptcha_enterprise
+      - simple_captcha
+    AttackProtectionCaptchaAuthChallengeResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        fail_open:
+          type: boolean
+          description: Whether the auth challenge should fail open.
+    SuspiciousIPThrottlingPreUserRegistrationStage:
+      type: object
+      description: Configuration options that apply before every user registration attempt.
+      additionalProperties: false
+      properties:
+        max_attempts:
+          type: integer
+          description: Total number of attempts allowed.
+          default: 50
+          minimum: 1
+          maximum: 72000
+        rate:
+          type: integer
+          description: Interval of time, given in milliseconds, at which new attempts are granted.
+          default: 1728000
+          minimum: 1200
+          maximum: 86400000
+    AttackProtectionCaptchaRecaptchaEnterpriseResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the reCAPTCHA Enterprise provider.
+        project_id:
+          type: string
+          description: The project ID for the reCAPTCHA Enterprise provider.
+    SuspiciousIPThrottlingPreLoginStage:
+      type: object
+      description: Configuration options that apply before every login attempt.
+      additionalProperties: false
+      properties:
+        max_attempts:
+          type: integer
+          description: Total number of attempts allowed per day.
+          default: 100
+          minimum: 1
+          maximum: 2500
+        rate:
+          type: integer
+          description: Interval of time, given in milliseconds, at which new attempts are granted.
+          default: 864000
+          minimum: 34560
+          maximum: 86400000
+    UpdateSuspiciousIPThrottlingSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not suspicious IP throttling attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
+        allowlist:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
+        stage:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
+    UpdateBotDetectionSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bot_detection_level:
+          $ref: '#/components/schemas/BotDetectionLevelEnum'
+        challenge_password_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
+        challenge_passwordless_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
+        challenge_password_reset_policy:
+          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
+        allowlist:
+          $ref: '#/components/schemas/BotDetectionAllowlist'
+        monitoring_mode_enabled:
+          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
+    UpdateSuspiciousIPThrottlingSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not suspicious IP throttling attack protections are active.
+        shields:
+          type: array
+          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
+        allowlist:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
+        stage:
+          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
+    AttackProtectionCaptchaHcaptchaResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        site_key:
+          type: string
+          description: The site key for the hCaptcha provider.
+    BreachedPasswordDetectionMethodEnum:
+      type: string
+      description: "The subscription level for breached password detection methods. Use \"enhanced\" to enable Credential Guard.\n        Possible values: <code>standard</code>, <code>enhanced</code>."
+      default: standard
+      enum:
+      - standard
+      - enhanced
+    BreachedPasswordDetectionPreChangePasswordShieldsEnum:
+      type: string
+      enum:
+      - block
+      - admin_notification
+    BreachedPasswordDetectionPreChangePasswordStage:
+      type: object
+      additionalProperties: false
+      properties:
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a password reset.\n              Possible values: <code>block</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionPreChangePasswordShieldsEnum'
+    UpdateBreachedPasswordDetectionSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+          description: Whether or not breached password detection is active.
+          default: true
+        shields:
+          type: array
+          description: "Action to take when a breached password is detected during a login.\n      Possible values: <code>block</code>, <code>user_notification</code>, <code>admin_notification</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionShieldsEnum'
+        admin_notification_frequency:
+          type: array
+          description: "When \"admin_notification\" is enabled, determines how often email notifications are sent.\n        Possible values: <code>immediately</code>, <code>daily</code>, <code>weekly</code>, <code>monthly</code>."
+          items:
+            $ref: '#/components/schemas/BreachedPasswordDetectionAdminNotificationFrequencyEnum'
+        method:
+          $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
+        stage:
+          $ref: '#/components/schemas/BreachedPasswordDetectionStage'
+    BotDetectionChallengePolicyPasswordResetFlowEnum:
+      type: string
+      description: The policy that defines how often to show CAPTCHA
+      enum:
+      - never
+      - when_risky
+      - always
+    AttackProtectionUpdateCaptchaRecaptchaEnterprise:
+      type: object
+      additionalProperties: false
+      required:
+      - site_key
+      - api_key
+      - project_id
+      properties:
+        site_key:
+          type: string
+          description: The site key for the reCAPTCHA Enterprise provider.
+          maxLength: 100
+        api_key:
+          type: string
+          description: The API key for the reCAPTCHA Enterprise provider.
+          maxLength: 100
+        project_id:
+          type: string
+          description: The project ID for the reCAPTCHA Enterprise provider.
+          maxLength: 100
+    BotDetectionAllowlist:
+      type: array
+      description: List of IP addresses or CIDR blocks to allowlist
+      items:
+        $ref: '#/components/schemas/BotDetectionIPAddressOrCidrBlock'
     UpdateBreachedPasswordDetectionSettingsRequestContent:
       type: object
       additionalProperties: false
@@ -901,183 +1068,16 @@ components:
           $ref: '#/components/schemas/BreachedPasswordDetectionMethodEnum'
         stage:
           $ref: '#/components/schemas/BreachedPasswordDetectionStage'
-    AttackProtectionCaptchaAuthChallengeRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - fail_open
-      properties:
-        fail_open:
-          type: boolean
-          description: Whether the auth challenge should fail open.
     BotDetectionMonitoringModeEnabled:
       type: boolean
       description: Whether monitoring mode is enabled (logs but does not block)
-    BreachedPasswordDetectionStage:
+    AttackProtectionCaptchaRecaptchaV2ResponseContent:
       type: object
-      additionalProperties: false
-      properties:
-        pre-user-registration:
-          $ref: '#/components/schemas/BreachedPasswordDetectionPreUserRegistrationStage'
-        pre-change-password:
-          $ref: '#/components/schemas/BreachedPasswordDetectionPreChangePasswordStage'
-    AttackProtectionUpdateCaptchaRecaptchaV2:
-      type: object
-      additionalProperties: false
-      required:
-      - site_key
-      - secret
+      additionalProperties: true
       properties:
         site_key:
           type: string
           description: The site key for the reCAPTCHA v2 provider.
-          maxLength: 100
-        secret:
-          type: string
-          description: The secret key for the reCAPTCHA v2 provider.
-          maxLength: 100
-    UpdateAttackProtectionCaptchaRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        active_provider_id:
-          $ref: '#/components/schemas/AttackProtectionCaptchaProviderId'
-        arkose:
-          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaArkose'
-        auth_challenge:
-          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeRequest'
-        hcaptcha:
-          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaHcaptcha'
-        friendly_captcha:
-          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaFriendlyCaptcha'
-        recaptcha_enterprise:
-          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaRecaptchaEnterprise'
-        recaptcha_v2:
-          $ref: '#/components/schemas/AttackProtectionUpdateCaptchaRecaptchaV2'
-        simple_captcha:
-          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
-    UpdateBotDetectionSettingsRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        bot_detection_level:
-          $ref: '#/components/schemas/BotDetectionLevelEnum'
-        challenge_password_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordFlowEnum'
-        challenge_passwordless_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordlessFlowEnum'
-        challenge_password_reset_policy:
-          $ref: '#/components/schemas/BotDetectionChallengePolicyPasswordResetFlowEnum'
-        allowlist:
-          $ref: '#/components/schemas/BotDetectionAllowlist'
-        monitoring_mode_enabled:
-          $ref: '#/components/schemas/BotDetectionMonitoringModeEnabled'
-    AttackProtectionCaptchaAuthChallengeResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        fail_open:
-          type: boolean
-          description: Whether the auth challenge should fail open.
-    AttackProtectionUpdateCaptchaArkose:
-      type: object
-      additionalProperties: false
-      required:
-      - site_key
-      - secret
-      properties:
-        site_key:
-          type: string
-          description: The site key for the Arkose captcha provider.
-          maxLength: 100
-        secret:
-          type: string
-          description: The secret key for the Arkose captcha provider.
-          maxLength: 100
-        client_subdomain:
-          type: string
-          description: The subdomain used for client requests to the Arkose captcha provider.
-          maxLength: 100
-        verify_subdomain:
-          type: string
-          description: The subdomain used for server-side verification requests to the Arkose captcha provider.
-          maxLength: 100
-        fail_open:
-          type: boolean
-          description: Whether the captcha should fail open.
-    BotDetectionChallengePolicyPasswordFlowEnum:
-      type: string
-      description: The policy that defines how often to show CAPTCHA
-      enum:
-      - never
-      - when_risky
-      - always
-    BreachedPasswordDetectionPreChangePasswordShieldsEnum:
-      type: string
-      enum:
-      - block
-      - admin_notification
-    BotDetectionAllowlist:
-      type: array
-      description: List of IP addresses or CIDR blocks to allowlist
-      items:
-        $ref: '#/components/schemas/BotDetectionIPAddressOrCidrBlock'
-    AttackProtectionUpdateCaptchaRecaptchaEnterprise:
-      type: object
-      additionalProperties: false
-      required:
-      - site_key
-      - api_key
-      - project_id
-      properties:
-        site_key:
-          type: string
-          description: The site key for the reCAPTCHA Enterprise provider.
-          maxLength: 100
-        api_key:
-          type: string
-          description: The API key for the reCAPTCHA Enterprise provider.
-          maxLength: 100
-        project_id:
-          type: string
-          description: The project ID for the reCAPTCHA Enterprise provider.
-          maxLength: 100
-    UpdateSuspiciousIPThrottlingSettingsRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        enabled:
-          type: boolean
-          description: Whether or not suspicious IP throttling attack protections are active.
-        shields:
-          type: array
-          description: "Action to take when a suspicious IP throttling threshold is violated.\n          Possible values: <code>block</code>, <code>admin_notification</code>."
-          items:
-            $ref: '#/components/schemas/SuspiciousIPThrottlingShieldsEnum'
-        allowlist:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingAllowlist'
-        stage:
-          $ref: '#/components/schemas/SuspiciousIPThrottlingStage'
-    GetAttackProtectionCaptchaResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        active_provider_id:
-          type: string
-        arkose:
-          $ref: '#/components/schemas/AttackProtectionCaptchaArkoseResponseContent'
-        auth_challenge:
-          $ref: '#/components/schemas/AttackProtectionCaptchaAuthChallengeResponseContent'
-        hcaptcha:
-          $ref: '#/components/schemas/AttackProtectionCaptchaHcaptchaResponseContent'
-        friendly_captcha:
-          $ref: '#/components/schemas/AttackProtectionCaptchaFriendlyCaptchaResponseContent'
-        recaptcha_enterprise:
-          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaEnterpriseResponseContent'
-        recaptcha_v2:
-          $ref: '#/components/schemas/AttackProtectionCaptchaRecaptchaV2ResponseContent'
-        simple_captcha:
-          $ref: '#/components/schemas/AttackProtectionCaptchaSimpleCaptchaResponseContent'
   securitySchemes:
     bearerAuth:
       type: http

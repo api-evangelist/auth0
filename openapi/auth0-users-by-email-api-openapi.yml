@@ -80,32 +80,6 @@ paths:
         - read:users
 components:
   schemas:
-    UserIdentitySchema:
-      type: object
-      additionalProperties: false
-      properties:
-        connection:
-          type: string
-          description: Name of the connection containing this identity.
-        user_id:
-          type: string
-          description: Unique identifier of the user user for this identity.
-        provider:
-          $ref: '#/components/schemas/UserIdentityProviderEnum'
-        isSocial:
-          type: boolean
-          description: Whether this identity is from a social provider (true) or not (false).
-        access_token:
-          type: string
-          description: IDP access token returned only if scope read:user_idp_tokens is defined.
-        access_token_secret:
-          type: string
-          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
-        refresh_token:
-          type: string
-          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
-        profileData:
-          $ref: '#/components/schemas/UserProfileData'
     UserIdentityProviderEnum:
       type: string
       description: The type of identity provider
@@ -165,11 +139,43 @@ components:
       - wordpress
       - yahoo
       - yandex
-    UserAppMetadataSchema:
+    UserMetadataSchema:
       type: object
-      description: User metadata to which this user has read-only access.
+      description: User metadata to which this user has read/write access.
       additionalProperties: true
-      properties: {}
+    UserDateSchema:
+      oneOf:
+      - type: string
+        description: Date and time when this user was created (ISO_8601 format).
+      - type: object
+        description: Date and time when this user was created (ISO_8601 format).
+        additionalProperties: true
+    UserIdentitySchema:
+      type: object
+      additionalProperties: false
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+        user_id:
+          type: string
+          description: Unique identifier of the user user for this identity.
+        provider:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+        isSocial:
+          type: boolean
+          description: Whether this identity is from a social provider (true) or not (false).
+        access_token:
+          type: string
+          description: IDP access token returned only if scope read:user_idp_tokens is defined.
+        access_token_secret:
+          type: string
+          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
+        refresh_token:
+          type: string
+          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
+        profileData:
+          $ref: '#/components/schemas/UserProfileData'
     UserResponseSchema:
       type: object
       additionalProperties: true
@@ -243,17 +249,6 @@ components:
         family_name:
           type: string
           description: Family name/last name/surname of this user.
-    UserMetadataSchema:
-      type: object
-      description: User metadata to which this user has read/write access.
-      additionalProperties: true
-    UserDateSchema:
-      oneOf:
-      - type: string
-        description: Date and time when this user was created (ISO_8601 format).
-      - type: object
-        description: Date and time when this user was created (ISO_8601 format).
-        additionalProperties: true
     UserProfileData:
       type: object
       additionalProperties: true
@@ -283,6 +278,11 @@ components:
         family_name:
           type: string
           description: Family name/last name/surname of this user.
+    UserAppMetadataSchema:
+      type: object
+      description: User metadata to which this user has read-only access.
+      additionalProperties: true
+      properties: {}
   securitySchemes:
     bearerAuth:
       type: http
