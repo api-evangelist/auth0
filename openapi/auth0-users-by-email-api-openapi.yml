@@ -80,6 +80,43 @@ paths:
         - read:users
 components:
   schemas:
+    UserMetadataSchema:
+      type: object
+      description: User metadata to which this user has read/write access.
+      additionalProperties: true
+    UserIdentitySchema:
+      type: object
+      additionalProperties: false
+      properties:
+        connection:
+          type: string
+          description: Name of the connection containing this identity.
+        user_id:
+          type: string
+          description: Unique identifier of the user user for this identity.
+        provider:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+        isSocial:
+          type: boolean
+          description: Whether this identity is from a social provider (true) or not (false).
+        access_token:
+          type: string
+          description: IDP access token returned only if scope read:user_idp_tokens is defined.
+        access_token_secret:
+          type: string
+          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
+        refresh_token:
+          type: string
+          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
+        profileData:
+          $ref: '#/components/schemas/UserProfileData'
+    UserDateSchema:
+      oneOf:
+      - type: string
+        description: Date and time when this user was created (ISO_8601 format).
+      - type: object
+        description: Date and time when this user was created (ISO_8601 format).
+        additionalProperties: true
     UserIdentityProviderEnum:
       type: string
       description: The type of identity provider
@@ -139,43 +176,35 @@ components:
       - wordpress
       - yahoo
       - yandex
-    UserMetadataSchema:
+    UserProfileData:
       type: object
-      description: User metadata to which this user has read/write access.
       additionalProperties: true
-    UserDateSchema:
-      oneOf:
-      - type: string
-        description: Date and time when this user was created (ISO_8601 format).
-      - type: object
-        description: Date and time when this user was created (ISO_8601 format).
-        additionalProperties: true
-    UserIdentitySchema:
-      type: object
-      additionalProperties: false
       properties:
-        connection:
+        email:
           type: string
-          description: Name of the connection containing this identity.
-        user_id:
-          type: string
-          description: Unique identifier of the user user for this identity.
-        provider:
-          $ref: '#/components/schemas/UserIdentityProviderEnum'
-        isSocial:
+          description: Email address of this user.
+        email_verified:
           type: boolean
-          description: Whether this identity is from a social provider (true) or not (false).
-        access_token:
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
           type: string
-          description: IDP access token returned only if scope read:user_idp_tokens is defined.
-        access_token_secret:
+          description: Name of this user.
+        username:
           type: string
-          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
-        refresh_token:
+          description: Username of this user.
+          default: johndoe
+        given_name:
           type: string
-          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
-        profileData:
-          $ref: '#/components/schemas/UserProfileData'
+          description: Given name/first name/forename of this user.
+        phone_number:
+          type: string
+          description: Phone number for this user.
+        phone_verified:
+          type: boolean
+          description: Whether this phone number is verified (true) or unverified (false).
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
     UserResponseSchema:
       type: object
       additionalProperties: true
@@ -246,35 +275,6 @@ components:
         given_name:
           type: string
           description: Given name/first name/forename of this user.
-        family_name:
-          type: string
-          description: Family name/last name/surname of this user.
-    UserProfileData:
-      type: object
-      additionalProperties: true
-      properties:
-        email:
-          type: string
-          description: Email address of this user.
-        email_verified:
-          type: boolean
-          description: Whether this email address is verified (true) or unverified (false).
-        name:
-          type: string
-          description: Name of this user.
-        username:
-          type: string
-          description: Username of this user.
-          default: johndoe
-        given_name:
-          type: string
-          description: Given name/first name/forename of this user.
-        phone_number:
-          type: string
-          description: Phone number for this user.
-        phone_verified:
-          type: boolean
-          description: Whether this phone number is verified (true) or unverified (false).
         family_name:
           type: string
           description: Family name/last name/surname of this user.

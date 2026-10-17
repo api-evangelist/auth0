@@ -176,40 +176,23 @@ paths:
         - delete:refresh_tokens
 components:
   schemas:
-    SessionIp:
+    SessionAuthenticationSignals:
+      type: object
+      description: Details about authentication signals obtained during the login flow
+      additionalProperties: true
+      properties:
+        methods:
+          type: array
+          description: Contains the authentication methods a user has completed during their session
+          items:
+            $ref: '#/components/schemas/SessionAuthenticationSignal'
+    SessionMetadata:
       type:
-      - string
+      - object
       - 'null'
-      description: First IP address associated with this session
-    SessionDate:
-      oneOf:
-      - type: string
-        description: The date and time when the session was created
-        format: date-time
-      - type: object
-        description: The date and time when the session was created
-        additionalProperties: true
-      - type: 'null'
-    SessionCookieMetadata:
-      type: object
-      description: '[Private Early Access] Session cookie configuration.'
+      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
       additionalProperties: true
-      properties:
-        mode:
-          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
-    SessionAuthenticationSignal:
-      type: object
-      description: Authentication signal details
-      additionalProperties: true
-      properties:
-        name:
-          type: string
-          description: 'One of: "federated", "passkey", "pwd", "sms", "email", "mfa", "mock" or a custom method denoted by a URL'
-        timestamp:
-          $ref: '#/components/schemas/SessionDate'
-        type:
-          type: string
-          description: A specific MFA factor. Only present when "name" is set to "mfa"
+      maxProperties: 25
     GetSessionResponseContent:
       type: object
       additionalProperties: true
@@ -245,31 +228,6 @@ components:
           $ref: '#/components/schemas/SessionCookieMetadata'
         session_metadata:
           $ref: '#/components/schemas/SessionMetadata'
-    SessionAuthenticationSignals:
-      type: object
-      description: Details about authentication signals obtained during the login flow
-      additionalProperties: true
-      properties:
-        methods:
-          type: array
-          description: Contains the authentication methods a user has completed during their session
-          items:
-            $ref: '#/components/schemas/SessionAuthenticationSignal'
-    SessionMetadata:
-      type:
-      - object
-      - 'null'
-      description: Metadata associated with the session, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
-      additionalProperties: true
-      maxProperties: 25
-    SessionClientMetadata:
-      type: object
-      description: Client details
-      additionalProperties: true
-      properties:
-        client_id:
-          type: string
-          description: ID of client for the session
     SessionDeviceMetadata:
       type: object
       description: Metadata related to the device used in the session
@@ -291,12 +249,42 @@ components:
         last_asn:
           type: string
           description: Last autonomous system number from which this user logged in
-    SessionCookieMetadataModeEnum:
-      type: string
-      description: '[Private Early Access] The persistence mode of the session cookie. When set to "non-persistent" (ephemeral), the cookie will be deleted when the browser is closed. When set to "persistent", the cookie will be stored until it expires or is deleted by the user.'
-      enum:
-      - non-persistent
-      - persistent
+    UpdateSessionRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        session_metadata:
+          $ref: '#/components/schemas/SessionMetadata'
+          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
+    SessionAuthenticationSignal:
+      type: object
+      description: Authentication signal details
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          description: 'One of: "federated", "passkey", "pwd", "sms", "email", "mfa", "mock" or a custom method denoted by a URL'
+        timestamp:
+          $ref: '#/components/schemas/SessionDate'
+        type:
+          type: string
+          description: A specific MFA factor. Only present when "name" is set to "mfa"
+    SessionClientMetadata:
+      type: object
+      description: Client details
+      additionalProperties: true
+      properties:
+        client_id:
+          type: string
+          description: ID of client for the session
+    SessionCookieMetadata:
+      type: object
+      description: '[Private Early Access] Session cookie configuration.'
+      additionalProperties: true
+      properties:
+        mode:
+          $ref: '#/components/schemas/SessionCookieMetadataModeEnum'
     UpdateSessionResponseContent:
       type: object
       additionalProperties: true
@@ -332,14 +320,26 @@ components:
           $ref: '#/components/schemas/SessionCookieMetadata'
         session_metadata:
           $ref: '#/components/schemas/SessionMetadata'
-    UpdateSessionRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        session_metadata:
-          $ref: '#/components/schemas/SessionMetadata'
-          description: Metadata associated with the session. Pass null or {} to remove all session_metadata.
+    SessionIp:
+      type:
+      - string
+      - 'null'
+      description: First IP address associated with this session
+    SessionCookieMetadataModeEnum:
+      type: string
+      description: '[Private Early Access] The persistence mode of the session cookie. When set to "non-persistent" (ephemeral), the cookie will be deleted when the browser is closed. When set to "persistent", the cookie will be stored until it expires or is deleted by the user.'
+      enum:
+      - non-persistent
+      - persistent
+    SessionDate:
+      oneOf:
+      - type: string
+        description: The date and time when the session was created
+        format: date-time
+      - type: object
+        description: The date and time when the session was created
+        additionalProperties: true
+      - type: 'null'
   securitySchemes:
     bearerAuth:
       type: http

@@ -476,83 +476,6 @@ paths:
         - create:custom_domains
 components:
   schemas:
-    CreateCustomDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - custom_domain_id
-      - domain
-      - primary
-      - status
-      - type
-      - verification
-      properties:
-        custom_domain_id:
-          type: string
-          description: ID of the custom domain.
-          default: cd_0000000000000001
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-        primary:
-          type: boolean
-          description: Whether this is a primary domain (true) or not (false).
-          default: false
-        is_default:
-          type: boolean
-          description: Whether this is the default custom domain (true) or not (false).
-          default: false
-        status:
-          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
-        type:
-          $ref: '#/components/schemas/CustomDomainTypeEnum'
-        verification:
-          $ref: '#/components/schemas/DomainVerification'
-        custom_client_ip_header:
-          type:
-          - string
-          - 'null'
-          description: The HTTP header to fetch the client's IP address
-        tls_policy:
-          type: string
-          description: The TLS version policy
-          default: recommended
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        certificate:
-          $ref: '#/components/schemas/DomainCertificate'
-        relying_party_identifier:
-          type: string
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
-          format: hostname
-    DomainMetadata:
-      type: object
-      description: Domain metadata associated with the custom domain, in the form of an object with string values (max 255 chars). Maximum of 10 domain metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 10
-    UpdateCustomDomainRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        tls_policy:
-          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
-          description: recommended includes TLS 1.2
-        custom_client_ip_header:
-          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        relying_party_identifier:
-          type:
-          - string
-          - 'null'
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. Set to null to remove the rpId and fall back to using the full domain.
-          maxLength: 255
-          format: hostname
     CustomDomain:
       type: object
       additionalProperties: false
@@ -606,60 +529,32 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    GetDefaultDomainResponseContent:
+    ListCustomDomainsResponseContent:
       oneOf:
-      - $ref: '#/components/schemas/GetDefaultCustomDomainResponseContent'
-      - $ref: '#/components/schemas/GetDefaultCanonicalDomainResponseContent'
-    VerifyCustomDomainResponseContent:
+      - type: array
+        items:
+          $ref: '#/components/schemas/CustomDomain'
+      - $ref: '#/components/schemas/ListCustomDomainsPaginatedResponseContent'
+    DomainVerification:
       type: object
+      description: Domain verification settings.
       additionalProperties: false
-      required:
-      - custom_domain_id
-      - domain
-      - primary
-      - status
-      - type
       properties:
-        custom_domain_id:
-          type: string
-          description: ID of the custom domain.
-          default: cd_0000000000000001
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-        primary:
-          type: boolean
-          description: Whether this is a primary domain (true) or not (false).
-          default: false
+        methods:
+          type: array
+          description: Domain verification methods.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DomainVerificationMethod'
         status:
-          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
-        type:
-          $ref: '#/components/schemas/CustomDomainTypeEnum'
-        cname_api_key:
+          $ref: '#/components/schemas/DomainVerificationStatusEnum'
+        error_msg:
           type: string
-          description: CNAME API key header.
-          default: d4feca...
-        origin_domain_name:
+          description: The user0-friendly error message in case of failed verification. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
+        last_verified_at:
           type: string
-          description: Intermediate address.
-          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
-        verification:
-          $ref: '#/components/schemas/DomainVerification'
-        custom_client_ip_header:
-          type:
-          - string
-          - 'null'
-          description: The HTTP header to fetch the client's IP address
-        tls_policy:
-          type: string
-          description: The TLS version policy
-          default: recommended
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        certificate:
-          $ref: '#/components/schemas/DomainCertificate'
-    GetCustomDomainResponseContent:
+          description: The date and time when the custom domain was last verified. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
+    GetDefaultCustomDomainResponseContent:
       type: object
       additionalProperties: false
       required:
@@ -718,107 +613,16 @@ components:
       default: txt
       enum:
       - txt
-    GetDefaultCustomDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - custom_domain_id
-      - domain
-      - primary
-      - status
-      - type
-      properties:
-        custom_domain_id:
-          type: string
-          description: ID of the custom domain.
-          default: cd_0000000000000001
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-        primary:
-          type: boolean
-          description: Whether this is a primary domain (true) or not (false).
-          default: false
-        is_default:
-          type: boolean
-          description: Whether this is the default custom domain (true) or not (false).
-          default: false
-        status:
-          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
-        type:
-          $ref: '#/components/schemas/CustomDomainTypeEnum'
-        origin_domain_name:
-          type: string
-          description: Intermediate address.
-          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
-        verification:
-          $ref: '#/components/schemas/DomainVerification'
-        custom_client_ip_header:
-          type:
-          - string
-          - 'null'
-          description: The HTTP header to fetch the client's IP address
-        tls_policy:
-          type: string
-          description: The TLS version policy
-          default: recommended
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        certificate:
-          $ref: '#/components/schemas/DomainCertificate'
-        relying_party_identifier:
-          type: string
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
-          format: hostname
-    DomainVerificationMethodNameEnum:
-      type: string
-      description: Domain verification method.
-      default: txt
-      enum:
-      - cname
-      - txt
-    CustomDomainTlsPolicyEnum:
-      type: string
-      description: Custom domain TLS policy. Must be `recommended`, includes TLS 1.2.
-      default: recommended
-      enum:
-      - recommended
-    GetDefaultCanonicalDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - domain
-      properties:
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-    DomainVerification:
-      type: object
-      description: Domain verification settings.
-      additionalProperties: false
-      properties:
-        methods:
-          type: array
-          description: Domain verification methods.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/DomainVerificationMethod'
-        status:
-          $ref: '#/components/schemas/DomainVerificationStatusEnum'
-        error_msg:
-          type: string
-          description: The user0-friendly error message in case of failed verification. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
-        last_verified_at:
-          type: string
-          description: The date and time when the custom domain was last verified. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
     CustomDomainProvisioningTypeEnum:
       type: string
       description: Custom domain provisioning type. Must be `auth0_managed_certs` or `self_managed_certs`.
       enum:
       - auth0_managed_certs
       - self_managed_certs
+    CustomDomainCustomClientIpHeader:
+      oneOf:
+      - $ref: '#/components/schemas/CustomDomainCustomClientIpHeaderEnum'
+      - type: 'null'
     UpdateDefaultCustomDomainResponseContent:
       type: object
       additionalProperties: false
@@ -872,22 +676,6 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    CustomDomainStatusFilterEnum:
-      type: string
-      description: Custom domain configuration status. Can be `failed`, `pending_verification`, or `ready`.
-      default: ready
-      enum:
-      - pending_verification
-      - ready
-      - failed
-    DomainCertificateStatusEnum:
-      type: string
-      description: The provisioning status of the certificate.
-      enum:
-      - provisioning
-      - provisioning_failed
-      - provisioned
-      - renewing_failed
     ListCustomDomainsPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -901,40 +689,6 @@ components:
         next:
           type: string
           description: A cursor to be used as the "from" query parameter for the next page of results.
-    DomainVerificationMethod:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - record
-      properties:
-        name:
-          $ref: '#/components/schemas/DomainVerificationMethodNameEnum'
-        record:
-          type: string
-          description: Value used to verify the domain.
-          default: auth0-domain-verification=...
-        domain:
-          type: string
-          description: The name of the txt record for verification
-          default: _cf-custom-hostname.login.mycompany.com
-    CustomDomainTypeEnum:
-      type: string
-      description: Custom domain provisioning type. Can be `auth0_managed_certs` or `self_managed_certs`.
-      default: self_managed_certs
-      enum:
-      - auth0_managed_certs
-      - self_managed_certs
-    UpdateDefaultDomainResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/UpdateDefaultCustomDomainResponseContent'
-      - $ref: '#/components/schemas/UpdateDefaultCanonicalDomainResponseContent'
-    DomainCertificateAuthorityEnum:
-      type: string
-      description: The Certificate Authority issued the certificate.
-      enum:
-      - letsencrypt
-      - googletrust
     DomainVerificationStatusEnum:
       type: string
       description: The DNS record verification status. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
@@ -942,48 +696,81 @@ components:
       - verified
       - pending
       - failed
-    DomainCertificate:
-      type: object
-      description: Certificate information. This object is relevant only for Custom Domains with Auth0-Managed Certificates.
-      additionalProperties: false
-      properties:
-        status:
-          $ref: '#/components/schemas/DomainCertificateStatusEnum'
-        error_msg:
-          type: string
-          description: A user-friendly error message will be presented if the certificate status is provisioning_failed or renewing_failed.
-        certificate_authority:
-          $ref: '#/components/schemas/DomainCertificateAuthorityEnum'
-        renews_before:
-          type: string
-          description: The certificate will be renewed prior to this date.
-    CreateCustomDomainRequestContent:
+    GetDefaultCanonicalDomainResponseContent:
       type: object
       additionalProperties: false
       required:
       - domain
-      - type
       properties:
         domain:
           type: string
           description: Domain name.
-          minLength: 3
-          maxLength: 255
-          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])$
+          default: login.mycompany.com
+    CustomDomainTlsPolicyEnum:
+      type: string
+      description: Custom domain TLS policy. Must be `recommended`, includes TLS 1.2.
+      default: recommended
+      enum:
+      - recommended
+    UpdateDefaultCanonicalDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+    CreateCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      - verification
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
         type:
-          $ref: '#/components/schemas/CustomDomainProvisioningTypeEnum'
-        verification_method:
-          $ref: '#/components/schemas/CustomDomainVerificationMethodEnum'
-        tls_policy:
-          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
         custom_client_ip_header:
-          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
         domain_metadata:
           $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
         relying_party_identifier:
           type: string
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not provided, the full domain will be used.
-          maxLength: 255
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
     CustomDomainCustomClientIpHeaderEnum:
       type: string
@@ -995,6 +782,128 @@ components:
       - x-forwarded-for
       - x-azure-clientip
       - ''
+    UpdateCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        tls_policy:
+          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+          description: recommended includes TLS 1.2
+        custom_client_ip_header:
+          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        relying_party_identifier:
+          type:
+          - string
+          - 'null'
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. Set to null to remove the rpId and fall back to using the full domain.
+          maxLength: 255
+          format: hostname
+    DomainVerificationMethodNameEnum:
+      type: string
+      description: Domain verification method.
+      default: txt
+      enum:
+      - cname
+      - txt
+    GetDefaultDomainResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/GetDefaultCustomDomainResponseContent'
+      - $ref: '#/components/schemas/GetDefaultCanonicalDomainResponseContent'
+    UpdateDefaultDomainResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/UpdateDefaultCustomDomainResponseContent'
+      - $ref: '#/components/schemas/UpdateDefaultCanonicalDomainResponseContent'
+    CustomDomainTypeEnum:
+      type: string
+      description: Custom domain provisioning type. Can be `auth0_managed_certs` or `self_managed_certs`.
+      default: self_managed_certs
+      enum:
+      - auth0_managed_certs
+      - self_managed_certs
+    GetCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    DomainCertificateAuthorityEnum:
+      type: string
+      description: The Certificate Authority issued the certificate.
+      enum:
+      - letsencrypt
+      - googletrust
+    TestCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - success
+      properties:
+        success:
+          type: boolean
+          description: Result of the operation.
+        message:
+          type: string
+          description: Message describing the operation status.
+    SetDefaultCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: The domain to set as the default custom domain. Must be a verified custom domain or the canonical domain.
+          minLength: 3
+          maxLength: 255
     UpdateCustomDomainResponseContent:
       type: object
       additionalProperties: false
@@ -1045,49 +954,140 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    TestCustomDomainResponseContent:
+    DomainVerificationMethod:
       type: object
       additionalProperties: false
       required:
-      - success
+      - name
+      - record
       properties:
-        success:
-          type: boolean
-          description: Result of the operation.
-        message:
+        name:
+          $ref: '#/components/schemas/DomainVerificationMethodNameEnum'
+        record:
           type: string
-          description: Message describing the operation status.
-    UpdateDefaultCanonicalDomainResponseContent:
+          description: Value used to verify the domain.
+          default: auth0-domain-verification=...
+        domain:
+          type: string
+          description: The name of the txt record for verification
+          default: _cf-custom-hostname.login.mycompany.com
+    VerifyCustomDomainResponseContent:
       type: object
       additionalProperties: false
       required:
+      - custom_domain_id
       - domain
+      - primary
+      - status
+      - type
       properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
         domain:
           type: string
           description: Domain name.
           default: login.mycompany.com
-    CustomDomainCustomClientIpHeader:
-      oneOf:
-      - $ref: '#/components/schemas/CustomDomainCustomClientIpHeaderEnum'
-      - type: 'null'
-    ListCustomDomainsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/CustomDomain'
-      - $ref: '#/components/schemas/ListCustomDomainsPaginatedResponseContent'
-    SetDefaultCustomDomainRequestContent:
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        cname_api_key:
+          type: string
+          description: CNAME API key header.
+          default: d4feca...
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+    CreateCustomDomainRequestContent:
       type: object
       additionalProperties: false
       required:
       - domain
+      - type
       properties:
         domain:
           type: string
-          description: The domain to set as the default custom domain. Must be a verified custom domain or the canonical domain.
+          description: Domain name.
           minLength: 3
           maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])$
+        type:
+          $ref: '#/components/schemas/CustomDomainProvisioningTypeEnum'
+        verification_method:
+          $ref: '#/components/schemas/CustomDomainVerificationMethodEnum'
+        tls_policy:
+          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+        custom_client_ip_header:
+          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not provided, the full domain will be used.
+          maxLength: 255
+          format: hostname
+    DomainMetadata:
+      type: object
+      description: Domain metadata associated with the custom domain, in the form of an object with string values (max 255 chars). Maximum of 10 domain metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
+    CustomDomainStatusFilterEnum:
+      type: string
+      description: Custom domain configuration status. Can be `failed`, `pending_verification`, or `ready`.
+      default: ready
+      enum:
+      - pending_verification
+      - ready
+      - failed
+    DomainCertificateStatusEnum:
+      type: string
+      description: The provisioning status of the certificate.
+      enum:
+      - provisioning
+      - provisioning_failed
+      - provisioned
+      - renewing_failed
+    DomainCertificate:
+      type: object
+      description: Certificate information. This object is relevant only for Custom Domains with Auth0-Managed Certificates.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/DomainCertificateStatusEnum'
+        error_msg:
+          type: string
+          description: A user-friendly error message will be presented if the certificate status is provisioning_failed or renewing_failed.
+        certificate_authority:
+          $ref: '#/components/schemas/DomainCertificateAuthorityEnum'
+        renews_before:
+          type: string
+          description: The certificate will be renewed prior to this date.
   securitySchemes:
     bearerAuth:
       type: http

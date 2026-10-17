@@ -195,147 +195,6 @@ paths:
         - read:logs_users
 components:
   schemas:
-    LogDateObject:
-      type: object
-      description: Date when the event occurred in ISO 8601 format.
-      additionalProperties: true
-    ListLogOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        length:
-          type: number
-        total:
-          type: number
-        logs:
-          type: array
-          items:
-            $ref: '#/components/schemas/Log'
-    LogDetails:
-      type: object
-      description: Additional useful details about this event (structure is dependent upon event type).
-      additionalProperties: true
-    LogLocationInfo:
-      type: object
-      description: Information about the location that triggered this event based on the `ip`.
-      additionalProperties: true
-      properties:
-        country_code:
-          type: string
-          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
-          minLength: 2
-          maxLength: 2
-        country_code3:
-          type: string
-          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
-          minLength: 3
-          maxLength: 3
-        country_name:
-          type: string
-          description: Full country name in English.
-        city_name:
-          type: string
-          description: Full city name in English.
-        latitude:
-          type: number
-          description: Global latitude (horizontal) position.
-        longitude:
-          type: number
-          description: Global longitude (vertical) position.
-        time_zone:
-          type: string
-          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
-        continent_code:
-          type: string
-          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
-    ListLogResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Log'
-      - $ref: '#/components/schemas/ListLogOffsetPaginatedResponseContent'
-    GetLogResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        date:
-          $ref: '#/components/schemas/LogDate'
-        type:
-          type: string
-          description: Type of event.
-          default: sapi
-        description:
-          type:
-          - string
-          - 'null'
-          description: Description of this event.
-        connection:
-          type: string
-          description: Name of the connection the event relates to.
-        connection_id:
-          type: string
-          description: ID of the connection the event relates to.
-        client_id:
-          type: string
-          description: ID of the client (application).
-          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
-        client_name:
-          type: string
-          description: Name of the client (application).
-          default: My application Name
-        ip:
-          type: string
-          description: IP address of the log event source.
-          default: 190.257.209.19
-        hostname:
-          type: string
-          description: Hostname the event applies to.
-          default: 190.257.209.19
-        user_id:
-          type: string
-          description: ID of the user involved in the event.
-          default: auth0|56c75c4e42b6359e98374bc2
-        user_name:
-          type: string
-          description: Name of the user involved in the event.
-        audience:
-          type: string
-          description: API audience the event applies to.
-        scope:
-          type: string
-          description: Scope permissions applied to the event.
-          default: ''
-        strategy:
-          type: string
-          description: Name of the strategy involved in the event.
-        strategy_type:
-          type: string
-          description: Type of strategy involved in the event.
-        log_id:
-          type: string
-          description: Unique ID of the event.
-        isMobile:
-          type: boolean
-          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
-        details:
-          $ref: '#/components/schemas/LogDetails'
-        user_agent:
-          type: string
-          description: User agent string from the client device that caused the event.
-        security_context:
-          $ref: '#/components/schemas/LogSecurityContext'
-        location_info:
-          $ref: '#/components/schemas/LogLocationInfo'
-    LogDate:
-      oneOf:
-      - type: string
-        description: Date when the event occurred in ISO 8601 format.
-        default: '2016-02-23T19:57:29.532Z'
-      - $ref: '#/components/schemas/LogDateObject'
     Log:
       type: object
       additionalProperties: true
@@ -408,6 +267,43 @@ components:
           $ref: '#/components/schemas/LogSecurityContext'
         location_info:
           $ref: '#/components/schemas/LogLocationInfo'
+    LogDetails:
+      type: object
+      description: Additional useful details about this event (structure is dependent upon event type).
+      additionalProperties: true
+    LogLocationInfo:
+      type: object
+      description: Information about the location that triggered this event based on the `ip`.
+      additionalProperties: true
+      properties:
+        country_code:
+          type: string
+          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
+          minLength: 2
+          maxLength: 2
+        country_code3:
+          type: string
+          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
+          minLength: 3
+          maxLength: 3
+        country_name:
+          type: string
+          description: Full country name in English.
+        city_name:
+          type: string
+          description: Full city name in English.
+        latitude:
+          type: number
+          description: Global latitude (horizontal) position.
+        longitude:
+          type: number
+          description: Global longitude (vertical) position.
+        time_zone:
+          type: string
+          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
+        continent_code:
+          type: string
+          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
     LogSecurityContext:
       type: object
       description: Information about security-related signals.
@@ -419,6 +315,110 @@ components:
         ja4:
           type: string
           description: JA4 fingerprint value.
+    ListLogResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Log'
+      - $ref: '#/components/schemas/ListLogOffsetPaginatedResponseContent'
+    ListLogOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        length:
+          type: number
+        total:
+          type: number
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Log'
+    LogDate:
+      oneOf:
+      - type: string
+        description: Date when the event occurred in ISO 8601 format.
+        default: '2016-02-23T19:57:29.532Z'
+      - $ref: '#/components/schemas/LogDateObject'
+    GetLogResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        date:
+          $ref: '#/components/schemas/LogDate'
+        type:
+          type: string
+          description: Type of event.
+          default: sapi
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description of this event.
+        connection:
+          type: string
+          description: Name of the connection the event relates to.
+        connection_id:
+          type: string
+          description: ID of the connection the event relates to.
+        client_id:
+          type: string
+          description: ID of the client (application).
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+        client_name:
+          type: string
+          description: Name of the client (application).
+          default: My application Name
+        ip:
+          type: string
+          description: IP address of the log event source.
+          default: 190.257.209.19
+        hostname:
+          type: string
+          description: Hostname the event applies to.
+          default: 190.257.209.19
+        user_id:
+          type: string
+          description: ID of the user involved in the event.
+          default: auth0|56c75c4e42b6359e98374bc2
+        user_name:
+          type: string
+          description: Name of the user involved in the event.
+        audience:
+          type: string
+          description: API audience the event applies to.
+        scope:
+          type: string
+          description: Scope permissions applied to the event.
+          default: ''
+        strategy:
+          type: string
+          description: Name of the strategy involved in the event.
+        strategy_type:
+          type: string
+          description: Type of strategy involved in the event.
+        log_id:
+          type: string
+          description: Unique ID of the event.
+        isMobile:
+          type: boolean
+          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
+        details:
+          $ref: '#/components/schemas/LogDetails'
+        user_agent:
+          type: string
+          description: User agent string from the client device that caused the event.
+        security_context:
+          $ref: '#/components/schemas/LogSecurityContext'
+        location_info:
+          $ref: '#/components/schemas/LogLocationInfo'
+    LogDateObject:
+      type: object
+      description: Date when the event occurred in ISO 8601 format.
+      additionalProperties: true
   securitySchemes:
     bearerAuth:
       type: http

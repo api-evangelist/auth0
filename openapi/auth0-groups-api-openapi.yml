@@ -271,44 +271,44 @@ paths:
         - read:group_members
 components:
   schemas:
-    Group:
+    GetGroupMembersResponseContent:
       type: object
-      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
-      additionalProperties: true
+      additionalProperties: false
+      required:
+      - members
       properties:
-        id:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMember'
+        next:
           type: string
-          description: Unique identifier for the group (service-generated).
-          minLength: 18
-          maxLength: 26
-          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
-        name:
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    ListGroupsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Group'
+      - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
+    ListGroupsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        next:
           type: string
-          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
-          minLength: 1
-          maxLength: 128
-          pattern: ^[\x20-\x7E]+$
-        external_id:
-          type: string
-          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
-          maxLength: 256
-        connection_id:
-          type: string
-          description: Identifier for the connection this group belongs to (if a connection group).
-          format: connection-id
-        tenant_name:
-          type: string
-          description: Identifier for the tenant this group belongs to.
-          minLength: 3
-          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
-        created_at:
-          type: string
-          description: Timestamp of when the group was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp of when the group was last updated.
-          format: date-time
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
     GroupMember:
       type: object
       description: Represents the metadata of a group membership.
@@ -336,19 +336,6 @@ components:
       - connection
       - organization
       - tenant
-    GetGroupMembersResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - members
-      properties:
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupMember'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
     GetGroupResponseContent:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -393,31 +380,44 @@ components:
           type: string
           description: Timestamp of when the group was last updated.
           format: date-time
-    ListGroupsPaginatedResponseContent:
+    Group:
       type: object
-      additionalProperties: false
-      required:
-      - groups
+      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
+      additionalProperties: true
       properties:
-        groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/Group'
-        next:
+        id:
           type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-    ListGroupsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Group'
-      - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
+          description: Unique identifier for the group (service-generated).
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+        name:
+          type: string
+          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+        external_id:
+          type: string
+          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
+          maxLength: 256
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        tenant_name:
+          type: string
+          description: Identifier for the tenant this group belongs to.
+          minLength: 3
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+        created_at:
+          type: string
+          description: Timestamp of when the group was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp of when the group was last updated.
+          format: date-time
     GroupMemberTypeEnum:
       type: string
       description: Type of the member.

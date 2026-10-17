@@ -540,6 +540,38 @@ paths:
         - create:role_members
 components:
   schemas:
+    AssignRoleUsersRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - users
+      properties:
+        users:
+          type: array
+          description: user_id's of the users to assign the role to.
+          items:
+            type: string
+            format: user-id-with-max-length
+    ListRolesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'
+    ListRolesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
     ListRoleUsersOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -554,6 +586,109 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RoleUser'
+    PermissionRequestPayload:
+      type: object
+      additionalProperties: false
+      required:
+      - resource_server_identifier
+      - permission_name
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
+    UpdateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    UpdateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    CreateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Name of the role.
+        description:
+          type: string
+          description: Description of the role.
+    CreateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    ListRolePermissionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsResponsePayload'
+    ListRoleUsersPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleUser'
+    RoleUser:
+      type: object
+      additionalProperties: false
+      properties:
+        user_id:
+          type: string
+          description: ID of this user.
+        picture:
+          type: string
+          description: URL to a picture for this user.
+        name:
+          type: string
+          description: Name of this user.
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
     AddRolePermissionsRequestContent:
       type: object
       additionalProperties: false
@@ -582,115 +717,12 @@ components:
         description:
           type: string
           description: Description of this permission.
-    ListRolesOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-    CreateRoleRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: Name of the role.
-        description:
-          type: string
-          description: Description of the role.
-    ListRoleUsersResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/RoleUser'
-      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
-    ListRoleUsersPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoleUser'
     ListRolePermissionsResponseContent:
       oneOf:
       - type: array
         items:
           $ref: '#/components/schemas/PermissionsResponsePayload'
       - $ref: '#/components/schemas/ListRolePermissionsOffsetPaginatedResponseContent'
-    ListRolePermissionsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        permissions:
-          type: array
-          items:
-            $ref: '#/components/schemas/PermissionsResponsePayload'
-    UpdateRoleRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    AssignRoleUsersRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - users
-      properties:
-        users:
-          type: array
-          description: user_id's of the users to assign the role to.
-          items:
-            type: string
-            format: user-id-with-max-length
-    RoleUser:
-      type: object
-      additionalProperties: false
-      properties:
-        user_id:
-          type: string
-          description: ID of this user.
-        picture:
-          type: string
-          description: URL to a picture for this user.
-        name:
-          type: string
-          description: Name of this user.
-        email:
-          type: string
-          description: Email address of this user.
-          default: john.doe@gmail.com
-          format: email
-    ListRolesResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Role'
-      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'
     DeleteRolePermissionsRequestContent:
       type: object
       additionalProperties: false
@@ -703,7 +735,14 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/PermissionRequestPayload'
-    UpdateRoleResponseContent:
+    ListRoleUsersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/RoleUser'
+      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
+    Role:
       type: object
       additionalProperties: false
       properties:
@@ -729,45 +768,6 @@ components:
         description:
           type: string
           description: Description of this role.
-    CreateRoleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    Role:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    PermissionRequestPayload:
-      type: object
-      additionalProperties: false
-      required:
-      - resource_server_identifier
-      - permission_name
-      properties:
-        resource_server_identifier:
-          type: string
-          description: Resource server (API) identifier that this permission is for.
-        permission_name:
-          type: string
-          description: Name of this permission.
   securitySchemes:
     bearerAuth:
       type: http

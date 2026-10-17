@@ -148,6 +148,26 @@ paths:
         - delete:grants
 components:
   schemas:
+    ListUserGrantsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/UserGrant'
+      - $ref: '#/components/schemas/ListUserGrantsOffsetPaginatedResponseContent'
+    ListUserGrantsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGrant'
     UserGrant:
       type: object
       additionalProperties: false
@@ -170,26 +190,6 @@ components:
           items:
             type: string
             minLength: 1
-    ListUserGrantsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/UserGrant'
-      - $ref: '#/components/schemas/ListUserGrantsOffsetPaginatedResponseContent'
-    ListUserGrantsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        grants:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserGrant'
   securitySchemes:
     bearerAuth:
       type: http
