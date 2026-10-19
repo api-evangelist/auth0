@@ -1,0 +1,890 @@
+openapi: 3.2.0
+info:
+  title: Auth0 Management Rate Limit Policies API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
+servers:
+- url: https://{tenantDomain}/api/v2
+  variables:
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
+tags:
+- name: rate-limit-policies
+paths:
+  /rate-limit-policies:
+    get:
+      summary: Get rate limit policies
+      tags:
+      - rate-limit-policies
+      parameters:
+      - name: resource
+        in: query
+        description: The API protected by the Rate Limit Policy.
+        schema:
+          $ref: '#/components/schemas/RateLimitPolicyResourceEnum'
+      - name: consumer
+        in: query
+        description: The consumer to which the rate limit policy applies.
+        schema:
+          $ref: '#/components/schemas/RateLimitPolicyConsumerEnum'
+      - name: consumer_selector
+        in: query
+        description: 'Identifier or category within the consumer to which the policy applies. Supported values: `client_id:<client_id>` to target a specific client by ID, `client_id:<cimd_uri>` to target a CIMD client by URI, `cimd_clients` to target all CIMD clients, `third_party_clients` to target all third-party clients, or `default` to apply the policy to any consumer identifier not otherwise explicitly targeted.'
+        schema:
+          type: string
+          maxLength: 255
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: from
+        in: query
+        description: Cursor for pagination.
+        schema:
+          type: string
+          maxLength: 1000
+      responses:
+        '200':
+          description: Rate limit policies retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRateLimitPoliciesPaginatedResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:rate_limit_policies.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_rate-limit-policies
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListRateLimitPoliciesRequestParameters
+      x-operation-group: rateLimitPolicies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:rate_limit_policies
+      x-codeSamples:
+      - lang: csharp
+        label: Get rate limit policies
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RateLimitPolicies.ListAsync(\n            new ListRateLimitPoliciesRequestParameters {\n                Resource = RateLimitPolicyResourceEnum.OauthAuthenticationApi,\n                Consumer = RateLimitPolicyConsumerEnum.Client,\n                ConsumerSelector = \"consumer_selector\",\n                Take = 1,\n                From = \"from\"\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get rate limit policies
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListRateLimitPoliciesRequestParameters;\nimport com.auth0.client.mgmt.types.RateLimitPolicyConsumerEnum;\nimport com.auth0.client.mgmt.types.RateLimitPolicyResourceEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rateLimitPolicies().list(\n            ListRateLimitPoliciesRequestParameters\n                .builder()\n                .resource(RateLimitPolicyResourceEnum.OAUTH_AUTHENTICATION_API)\n                .consumer(RateLimitPolicyConsumerEnum.CLIENT)\n                .consumerSelector(\"consumer_selector\")\n                .take(1)\n                .from(\"from\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get rate limit policies
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\RateLimitPolicies\\Requests\\ListRateLimitPoliciesRequestParameters;\nuse Auth0\\SDK\\API\\Management\\Types\\RateLimitPolicyResourceEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\RateLimitPolicyConsumerEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rateLimitPolicies->list(\n    new ListRateLimitPoliciesRequestParameters([\n        'resource' => RateLimitPolicyResourceEnum::OauthAuthenticationApi->value,\n        'consumer' => RateLimitPolicyConsumerEnum::Client->value,\n        'consumerSelector' => 'consumer_selector',\n        'take' => 1,\n        'from' => 'from',\n    ]),\n);\n"
+      - lang: python
+        label: Get rate limit policies
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rate_limit_policies.list(\n    resource=\"oauth_authentication_api\",\n    consumer=\"client\",\n    consumer_selector=\"consumer_selector\",\n    take=1,\n    from=\"from\",\n)\n"
+      - lang: ruby
+        label: Get rate limit policies
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.rate_limit_policies.list(\n  resource: \"oauth_authentication_api\",\n  consumer: \"client\",\n  consumer_selector: \"consumer_selector\",\n  take: 1,\n  from: \"from\"\n)\n"
+    post:
+      summary: Create a rate limit policy
+      tags:
+      - rate-limit-policies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRateLimitPolicyRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateRateLimitPolicyRequestContent'
+      responses:
+        '201':
+          description: Rate limit policy successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRateLimitPolicyResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:rate_limit_policies.'
+        '409':
+          description: A rate limit policy with the same resource, consumer, and consumer_selector already exists.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_rate-limit-policies
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group: rateLimitPolicies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:rate_limit_policies
+      x-codeSamples:
+      - lang: csharp
+        label: Create a rate limit policy
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RateLimitPolicies.CreateAsync(\n            new CreateRateLimitPolicyRequestContent {\n                Resource = RateLimitPolicyResourceEnum.OauthAuthenticationApi,\n                Consumer = RateLimitPolicyConsumerEnum.Client,\n                ConsumerSelector = \"consumer_selector\",\n                Configuration = new RateLimitPolicyConfigurationZero {\n                    Action = RateLimitPolicyConfigurationZeroAction.Allow\n                }\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Create a rate limit policy
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateRateLimitPolicyRequestContent;\nimport com.auth0.client.mgmt.types.RateLimitPolicyConfiguration;\nimport com.auth0.client.mgmt.types.RateLimitPolicyConfigurationZero;\nimport com.auth0.client.mgmt.types.RateLimitPolicyConfigurationZeroAction;\nimport com.auth0.client.mgmt.types.RateLimitPolicyConsumerEnum;\nimport com.auth0.client.mgmt.types.RateLimitPolicyResourceEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rateLimitPolicies().create(\n            CreateRateLimitPolicyRequestContent\n                .builder()\n                .resource(RateLimitPolicyResourceEnum.OAUTH_AUTHENTICATION_API)\n                .consumer(RateLimitPolicyConsumerEnum.CLIENT)\n                .consumerSelector(\"consumer_selector\")\n                .configuration(\n                    RateLimitPolicyConfiguration.of(\n                        RateLimitPolicyConfigurationZero\n                            .builder()\n                            .action(RateLimitPolicyConfigurationZeroAction.ALLOW)\n                            .build()\n                    )\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create a rate limit policy
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\RateLimitPolicies\\Requests\\CreateRateLimitPolicyRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\RateLimitPolicyResourceEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\RateLimitPolicyConsumerEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\RateLimitPolicyConfigurationZero;\nuse Auth0\\SDK\\API\\Management\\Types\\RateLimitPolicyConfigurationZeroAction;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rateLimitPolicies->create(\n    new CreateRateLimitPolicyRequestContent([\n        'resource' => RateLimitPolicyResourceEnum::OauthAuthenticationApi->value,\n        'consumer' => RateLimitPolicyConsumerEnum::Client->value,\n        'consumerSelector' => 'consumer_selector',\n        'configuration' => new RateLimitPolicyConfigurationZero([\n            'action' => RateLimitPolicyConfigurationZeroAction::Allow->value,\n        ]),\n    ]),\n);\n"
+      - lang: python
+        label: Create a rate limit policy
+        source: "from auth0.management import ManagementClient, RateLimitPolicyConfigurationZero\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rate_limit_policies.create(\n    resource=\"oauth_authentication_api\",\n    consumer=\"client\",\n    consumer_selector=\"consumer_selector\",\n    configuration=RateLimitPolicyConfigurationZero(\n        action=\"allow\",\n    ),\n)\n"
+      - lang: ruby
+        label: Create a rate limit policy
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.rate_limit_policies.create(\n  resource: \"oauth_authentication_api\",\n  consumer: \"client\",\n  consumer_selector: \"consumer_selector\",\n  configuration: {\n    action: \"allow\"\n  }\n)\n"
+  /rate-limit-policies/{id}:
+    get:
+      summary: Get a rate limit policy
+      tags:
+      - rate-limit-policies
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the Rate Limit Policy.
+        required: true
+        schema:
+          type: string
+          maxLength: 26
+      responses:
+        '200':
+          description: Rate limit policy retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRateLimitPolicyResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:rate_limit_policies.'
+        '404':
+          description: The rate limit policy does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_rate-limit-policies_by_id
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group: rateLimitPolicies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:rate_limit_policies
+      x-codeSamples:
+      - lang: csharp
+        label: Get a rate limit policy
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RateLimitPolicies.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a rate limit policy
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rateLimitPolicies().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a rate limit policy
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rateLimitPolicies->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a rate limit policy
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rate_limit_policies.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a rate limit policy
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.rate_limit_policies.get(id: "id")
+
+          '
+    delete:
+      summary: Delete a rate limit policy
+      tags:
+      - rate-limit-policies
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the Rate Limit Policy.
+        required: true
+        schema:
+          type: string
+          maxLength: 26
+      responses:
+        '204':
+          description: Rate limit policy successfully deleted.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:rate_limit_policies.'
+        '404':
+          description: The rate limit policy does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_rate-limit-policies_by_id
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-group: rateLimitPolicies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:rate_limit_policies
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a rate limit policy
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RateLimitPolicies.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Delete a rate limit policy
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rateLimitPolicies().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a rate limit policy
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rateLimitPolicies->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a rate limit policy
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rate_limit_policies.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a rate limit policy
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.rate_limit_policies.delete(id: "id")
+
+          '
+    patch:
+      summary: Update a rate limit policy
+      tags:
+      - rate-limit-policies
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the Rate Limit Policy.
+        required: true
+        schema:
+          type: string
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRateLimitPolicyRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchRateLimitPolicyRequestContent'
+      responses:
+        '200':
+          description: Rate limit policy successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRateLimitPolicyResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:rate_limit_policies.'
+        '404':
+          description: The rate limit policy does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_rate-limit-policies_by_id
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-group: rateLimitPolicies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:rate_limit_policies
+      x-codeSamples:
+      - lang: csharp
+        label: Update a rate limit policy
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RateLimitPolicies.UpdateAsync(\n            id: \"id\",\n            request: new PatchRateLimitPolicyRequestContent {\n                Configuration = new PatchRateLimitPolicyConfigurationRequestContentZero {\n                    Action = PatchRateLimitPolicyConfigurationRequestContentZeroAction.Allow\n                }\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update a rate limit policy
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.PatchRateLimitPolicyConfigurationRequestContent;\nimport com.auth0.client.mgmt.types.PatchRateLimitPolicyConfigurationRequestContentZero;\nimport com.auth0.client.mgmt.types.PatchRateLimitPolicyConfigurationRequestContentZeroAction;\nimport com.auth0.client.mgmt.types.PatchRateLimitPolicyRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rateLimitPolicies().update(\n            \"id\",\n            PatchRateLimitPolicyRequestContent\n                .builder()\n                .configuration(\n                    PatchRateLimitPolicyConfigurationRequestContent.of(\n                        PatchRateLimitPolicyConfigurationRequestContentZero\n                            .builder()\n                            .action(PatchRateLimitPolicyConfigurationRequestContentZeroAction.ALLOW)\n                            .build()\n                    )\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a rate limit policy
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\RateLimitPolicies\\Requests\\PatchRateLimitPolicyRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\PatchRateLimitPolicyConfigurationRequestContentZero;\nuse Auth0\\SDK\\API\\Management\\Types\\PatchRateLimitPolicyConfigurationRequestContentZeroAction;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rateLimitPolicies->update(\n    'id',\n    new PatchRateLimitPolicyRequestContent([\n        'configuration' => new PatchRateLimitPolicyConfigurationRequestContentZero([\n            'action' => PatchRateLimitPolicyConfigurationRequestContentZeroAction::Allow->value,\n        ]),\n    ]),\n);\n"
+      - lang: python
+        label: Update a rate limit policy
+        source: "from auth0.management import ManagementClient, PatchRateLimitPolicyConfigurationRequestContentZero\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rate_limit_policies.update(\n    id=\"id\",\n    configuration=PatchRateLimitPolicyConfigurationRequestContentZero(\n        action=\"allow\",\n    ),\n)\n"
+      - lang: ruby
+        label: Update a rate limit policy
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.rate_limit_policies.update(\n  id: \"id\",\n  configuration: {\n    action: \"allow\"\n  }\n)\n"
+components:
+  schemas:
+    UpdateRateLimitPolicyResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - resource
+      - consumer
+      - consumer_selector
+      - configuration
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Rate Limit Policy.
+          maxLength: 26
+          format: rate-limit-policy-id
+        resource:
+          $ref: '#/components/schemas/RateLimitPolicyResourceEnum'
+        consumer:
+          $ref: '#/components/schemas/RateLimitPolicyConsumerEnum'
+        consumer_selector:
+          type: string
+          description: 'Identifier or category within the consumer to which the policy applies. Supported values: `client_id:<client_id>` to target a specific client by ID, `client_id:<cimd_uri>` to target a CIMD client by URI, `cimd_clients` to target all CIMD clients, `third_party_clients` to target all third-party clients, or `default` to apply the policy to any consumer identifier not otherwise explicitly targeted.'
+          maxLength: 255
+        configuration:
+          $ref: '#/components/schemas/RateLimitPolicyConfiguration'
+        created_at:
+          type: string
+          description: The date and time when the rate limit policy was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time when the rate limit policy was last updated.
+          format: date-time
+    CreateRateLimitPolicyRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - resource
+      - consumer
+      - consumer_selector
+      - configuration
+      properties:
+        resource:
+          $ref: '#/components/schemas/RateLimitPolicyResourceEnum'
+        consumer:
+          $ref: '#/components/schemas/RateLimitPolicyConsumerEnum'
+        consumer_selector:
+          type: string
+          description: 'Identifier or category within the consumer to which the policy applies. Supported values: `client_id:<client_id>` to target a specific client by ID, `client_id:<cimd_uri>` to target a CIMD client by URI, `cimd_clients` to target all CIMD clients, `third_party_clients` to target all third-party clients, or `default` to apply the policy to any consumer identifier not otherwise explicitly targeted.'
+          maxLength: 255
+        configuration:
+          $ref: '#/components/schemas/RateLimitPolicyConfiguration'
+    RateLimitPolicyConfiguration:
+      type: object
+      description: The configuration of the rate limit policy.
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - action
+        properties:
+          action:
+            type: string
+            description: Determines the action to take when the rate limit is exceeded.
+            enum:
+            - allow
+      - type: object
+        additionalProperties: false
+        required:
+        - action
+        - limit
+        properties:
+          action:
+            type: string
+            description: Determines the action to take when the rate limit is exceeded.
+            enum:
+            - block
+            - log
+          limit:
+            type: integer
+            description: The maximum number of requests allowed per second.
+            minimum: 0
+            maximum: 10000
+      - type: object
+        additionalProperties: false
+        required:
+        - action
+        - limit
+        - redirect_uri
+        properties:
+          action:
+            type: string
+            description: Determines the action to take when the rate limit is exceeded.
+            enum:
+            - redirect
+          limit:
+            type: integer
+            description: The maximum number of requests allowed per second.
+            minimum: 0
+            maximum: 10000
+          redirect_uri:
+            type: string
+            description: The HTTPS URI to redirect to when the rate limit is exceeded.
+            format: strict-https-uri
+    CreateRateLimitPolicyResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - resource
+      - consumer
+      - consumer_selector
+      - configuration
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Rate Limit Policy.
+          maxLength: 26
+          format: rate-limit-policy-id
+        resource:
+          $ref: '#/components/schemas/RateLimitPolicyResourceEnum'
+        consumer:
+          $ref: '#/components/schemas/RateLimitPolicyConsumerEnum'
+        consumer_selector:
+          type: string
+          description: 'Identifier or category within the consumer to which the policy applies. Supported values: `client_id:<client_id>` to target a specific client by ID, `client_id:<cimd_uri>` to target a CIMD client by URI, `cimd_clients` to target all CIMD clients, `third_party_clients` to target all third-party clients, or `default` to apply the policy to any consumer identifier not otherwise explicitly targeted.'
+          maxLength: 255
+        configuration:
+          $ref: '#/components/schemas/RateLimitPolicyConfiguration'
+        created_at:
+          type: string
+          description: The date and time when the rate limit policy was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time when the rate limit policy was last updated.
+          format: date-time
+    GetRateLimitPolicyResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - resource
+      - consumer
+      - consumer_selector
+      - configuration
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Rate Limit Policy.
+          maxLength: 26
+          format: rate-limit-policy-id
+        resource:
+          $ref: '#/components/schemas/RateLimitPolicyResourceEnum'
+        consumer:
+          $ref: '#/components/schemas/RateLimitPolicyConsumerEnum'
+        consumer_selector:
+          type: string
+          description: 'Identifier or category within the consumer to which the policy applies. Supported values: `client_id:<client_id>` to target a specific client by ID, `client_id:<cimd_uri>` to target a CIMD client by URI, `cimd_clients` to target all CIMD clients, `third_party_clients` to target all third-party clients, or `default` to apply the policy to any consumer identifier not otherwise explicitly targeted.'
+          maxLength: 255
+        configuration:
+          $ref: '#/components/schemas/RateLimitPolicyConfiguration'
+        created_at:
+          type: string
+          description: The date and time when the rate limit policy was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time when the rate limit policy was last updated.
+          format: date-time
+    RateLimitPolicy:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - resource
+      - consumer
+      - consumer_selector
+      - configuration
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Rate Limit Policy.
+          maxLength: 26
+          format: rate-limit-policy-id
+        resource:
+          $ref: '#/components/schemas/RateLimitPolicyResourceEnum'
+        consumer:
+          $ref: '#/components/schemas/RateLimitPolicyConsumerEnum'
+        consumer_selector:
+          type: string
+          description: 'Identifier or category within the consumer to which the policy applies. Supported values: `client_id:<client_id>` to target a specific client by ID, `client_id:<cimd_uri>` to target a CIMD client by URI, `cimd_clients` to target all CIMD clients, `third_party_clients` to target all third-party clients, or `default` to apply the policy to any consumer identifier not otherwise explicitly targeted.'
+          maxLength: 255
+        configuration:
+          $ref: '#/components/schemas/RateLimitPolicyConfiguration'
+        created_at:
+          type: string
+          description: The date and time when the rate limit policy was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: The date and time when the rate limit policy was last updated.
+          format: date-time
+    PatchRateLimitPolicyRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - configuration
+      properties:
+        configuration:
+          $ref: '#/components/schemas/PatchRateLimitPolicyConfigurationRequestContent'
+    RateLimitPolicyResourceEnum:
+      type: string
+      enum:
+      - oauth_authentication_api
+      description: The API protected by the Rate Limit Policy.
+    RateLimitPolicyConsumerEnum:
+      type: string
+      enum:
+      - client
+      description: The consumer to which the rate limit policy applies.
+    PatchRateLimitPolicyConfigurationRequestContent:
+      type: object
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - action
+        properties:
+          action:
+            type: string
+            description: Determines the action to take when the rate limit is exceeded.
+            enum:
+            - allow
+      - type: object
+        additionalProperties: false
+        required:
+        - action
+        - limit
+        properties:
+          action:
+            type: string
+            description: Determines the action to take when the rate limit is exceeded.
+            enum:
+            - block
+            - log
+          limit:
+            type: integer
+            description: The maximum number of requests allowed per second.
+            minimum: 0
+            maximum: 10000
+      - type: object
+        additionalProperties: false
+        required:
+        - action
+        - limit
+        - redirect_uri
+        properties:
+          action:
+            type: string
+            description: Determines the action to take when the rate limit is exceeded.
+            enum:
+            - redirect
+          limit:
+            type: integer
+            description: The maximum number of requests allowed per second.
+            minimum: 0
+            maximum: 10000
+          redirect_uri:
+            type: string
+            description: The HTTPS URI to redirect to when the rate limit is exceeded.
+            format: strict-https-uri
+    ListRateLimitPoliciesPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        rate_limit_policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/RateLimitPolicy'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
+            read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

@@ -1,0 +1,3127 @@
+openapi: 3.2.0
+info:
+  title: Auth0 Management Experimentation API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
+servers:
+- url: https://{tenantDomain}/api/v2
+  variables:
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
+tags:
+- name: experimentation
+paths:
+  /experimentation/experiments:
+    get:
+      summary: List experiments for the tenant
+      description: Retrieve a paginated list of experiments for the tenant, with optional filters.
+      tags:
+      - experimentation
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of experiments to return per page. Defaults to 25, maximum 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: status
+        in: query
+        description: Filter by status. Exact match.
+        schema:
+          $ref: '#/components/schemas/ExperimentStatusEnum'
+      - name: authentication_flow
+        in: query
+        description: Filter by authentication flow. Exact match.
+        schema:
+          type: string
+      - name: feature_flag_id
+        in: query
+        description: Filter by feature flag ID. Exact match.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Experiments successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListExperimentsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_experiments
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListExperimentsRequestParameters
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: List experiments for the tenant.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Experiments.ListAsync(\n            new ListExperimentsRequestParameters {\n                From = \"from\",\n                Take = 1,\n                Status = ExperimentStatusEnum.Draft,\n                AuthenticationFlow = \"authentication_flow\",\n                FeatureFlagId = \"feature_flag_id\"\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: List experiments for the tenant.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.ListExperimentsRequestParameters;\nimport com.auth0.client.mgmt.types.ExperimentStatusEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().experiments().list(\n            ListExperimentsRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .status(ExperimentStatusEnum.DRAFT)\n                .authenticationFlow(\"authentication_flow\")\n                .featureFlagId(\"feature_flag_id\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: List experiments for the tenant.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\Experiments\\Requests\\ListExperimentsRequestParameters;\nuse Auth0\\SDK\\API\\Management\\Types\\ExperimentStatusEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->experiments->list(\n    new ListExperimentsRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n        'status' => ExperimentStatusEnum::Draft->value,\n        'authenticationFlow' => 'authentication_flow',\n        'featureFlagId' => 'feature_flag_id',\n    ]),\n);\n"
+      - lang: python
+        label: List experiments for the tenant.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.experiments.list(\n    from=\"from\",\n    take=1,\n    status=\"draft\",\n    authentication_flow=\"authentication_flow\",\n    feature_flag_id=\"feature_flag_id\",\n)\n"
+      - lang: ruby
+        label: List experiments for the tenant.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.experiments.list(\n  from: \"from\",\n  take: 1,\n  status: \"draft\",\n  authentication_flow: \"authentication_flow\",\n  feature_flag_id: \"feature_flag_id\"\n)\n"
+    post:
+      summary: Create an experiment for the Experiment Center
+      description: Create a new experiment for A/B testing.
+      tags:
+      - experimentation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExperimentRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateExperimentRequestContent'
+      responses:
+        '201':
+          description: Experiment successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateExperimentResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Variation does not belong to the referenced feature flag.
+          x-description-2: Segment not found.
+          x-description-3: allocations are required.
+          x-description-4: Experiment draft limit exceeded. A tenant may hold at most 100 experiments in draft status; archive or activate an existing draft to create another.
+          x-description-5: 'Ramp experiments require allocation_strategy: "percentage". Other strategies are incompatible with the levels schedule.'
+          x-description-6: 'Payload validation error: ''Additional properties not allowed: levels''.'
+        '401':
+          description: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: create:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+        '404':
+          description: Feature flag not found.
+        '409':
+          description: An experiment with this name already exists.
+          x-description-1: Segment is archived and cannot be modified.
+        '422':
+          description: Exactly one allocation must be designated as the control.
+          x-description-1: is_fallback is only used by the segment strategy; remove it from percentage allocations.
+          x-description-2: segment_id and priority are only used by the segment strategy; remove them from percentage allocations.
+          x-description-3: Allocation weights are only used by the percentage strategy; remove the weight field from segment allocations.
+          x-description-4: Allocation weights must sum to 100.
+          x-description-5: 'Exactly one allocation must be designated as the default (is_fallback: true).'
+          x-description-6: Each non-fallback allocation must specify a segment_id.
+          x-description-7: default_config can only be set on an Auth0-managed feature flag. Omit it for customer-defined flags.
+        '429':
+          description: Too many requests.
+      operationId: create_experiment
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Create an experiment for the Experiment Center.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Experiments.CreateAsync(\n            new CreateExperimentRequestContent {\n                Name = \"name\",\n                FeatureFlagId = \"feature_flag_id\",\n                AuthenticationFlow = \"authentication_flow\",\n                AllocationStrategy = AllocationStrategyEnum.Percentage,\n                AssignmentConfig = new AssignmentConfig {\n                    Subject = SubjectEnum.Device\n                },\n                Allocations = new List<AllocationRequestItem>(){\n                    new AllocationRequestItem {\n                        VariationId = \"variation_id\",\n                        IsControl = true\n                    },\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Create an experiment for the Experiment Center.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.CreateExperimentRequestContent;\nimport com.auth0.client.mgmt.types.AllocationRequestItem;\nimport com.auth0.client.mgmt.types.AllocationStrategyEnum;\nimport com.auth0.client.mgmt.types.AssignmentConfig;\nimport com.auth0.client.mgmt.types.SubjectEnum;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().experiments().create(\n            CreateExperimentRequestContent\n                .builder()\n                .name(\"name\")\n                .featureFlagId(\"feature_flag_id\")\n                .authenticationFlow(\"authentication_flow\")\n                .allocationStrategy(AllocationStrategyEnum.PERCENTAGE)\n                .assignmentConfig(\n                    AssignmentConfig\n                        .builder()\n                        .subject(SubjectEnum.DEVICE)\n                        .build()\n                )\n                .allocations(\n                    Arrays.asList(\n                        AllocationRequestItem\n                            .builder()\n                            .variationId(\"variation_id\")\n                            .isControl(true)\n                            .build()\n                    )\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create an experiment for the Experiment Center.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\Experiments\\Requests\\CreateExperimentRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\AllocationStrategyEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\AssignmentConfig;\nuse Auth0\\SDK\\API\\Management\\Types\\SubjectEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\AllocationRequestItem;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->experiments->create(\n    new CreateExperimentRequestContent([\n        'name' => 'name',\n        'featureFlagId' => 'feature_flag_id',\n        'authenticationFlow' => 'authentication_flow',\n        'allocationStrategy' => AllocationStrategyEnum::Percentage->value,\n        'assignmentConfig' => new AssignmentConfig([\n            'subject' => SubjectEnum::Device->value,\n        ]),\n        'allocations' => [\n            new AllocationRequestItem([\n                'variationId' => 'variation_id',\n                'isControl' => true,\n            ]),\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Create an experiment for the Experiment Center.
+        source: "from auth0.management import ManagementClient, AssignmentConfig, AllocationRequestItem\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.experiments.create(\n    name=\"name\",\n    feature_flag_id=\"feature_flag_id\",\n    authentication_flow=\"authentication_flow\",\n    allocation_strategy=\"percentage\",\n    assignment_config=AssignmentConfig(\n        subject=\"device\",\n    ),\n    allocations=[\n        AllocationRequestItem(\n            variation_id=\"variation_id\",\n            is_control=True,\n        )\n    ],\n)\n"
+      - lang: ruby
+        label: Create an experiment for the Experiment Center.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.experiments.create(\n  name: \"name\",\n  feature_flag_id: \"feature_flag_id\",\n  authentication_flow: \"authentication_flow\",\n  allocation_strategy: \"percentage\",\n  assignment_config: {\n    subject: \"device\"\n  },\n  allocations: [{\n    variation_id: \"variation_id\",\n    is_control: true\n  }]\n)\n"
+  /experimentation/experiments/{id}:
+    get:
+      summary: Get an experiment by ID
+      description: Retrieve a single experiment with its allocations by ID.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the experiment to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Experiment successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetExperimentResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '404':
+          description: Experiment not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_experiment
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Get an experiment by ID.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Experiments.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get an experiment by ID.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().experiments().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get an experiment by ID.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->experiments->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get an experiment by ID.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.experiments.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get an experiment by ID.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.experiments.get(id: "id")
+
+          '
+    delete:
+      summary: Delete an experiment
+      description: 'Permanently delete an experiment and its allocations by ID. Active experiments cannot be deleted; pause or complete first. Idempotent: returns 204 even if the experiment does not exist.'
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the experiment to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Experiment successfully deleted.
+        '400':
+          description: Active experiments cannot be deleted. Pause or complete the experiment first.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+        '429':
+          description: Too many requests.
+      operationId: delete_experiment
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Delete an experiment.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Experiments.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Delete an experiment.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().experiments().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete an experiment.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->experiments->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete an experiment.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.experiments.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete an experiment.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.experiments.delete(id: "id")
+
+          '
+    patch:
+      summary: Update an experiment
+      description: Partially update an experiment by ID. Only provided fields are updated. Providing allocations replaces the entire allocations set.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the experiment to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExperimentRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateExperimentRequestContent'
+      responses:
+        '200':
+          description: Experiment successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateExperimentResponseContent'
+        '400':
+          description: Allocations cannot be modified while the experiment is active.
+          x-description-1: Allocations require an allocation_strategy.
+          x-description-2: Authentication flow cannot be modified once an experiment has been activated.
+          x-description-3: Levels can only be modified on draft experiments.
+          x-description-4: default_config can only be modified on draft experiments.
+          x-description-5: Name and description cannot be modified on completed or archived experiments.
+          x-description-6: Variation does not belong to the referenced feature flag.
+          x-description-7: Segment not found.
+          x-description-8: Status transition is not allowed.
+          x-description-9: Completed experiments cannot be reactivated.
+          x-description-10: Per-status experiment limit exceeded.
+          x-description-11: 'Experiment cannot be activated: validation failed.'
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: update:experimentation.'
+        '404':
+          description: Experiment not found.
+        '409':
+          description: An experiment with this name already exists.
+          x-description-1: Another experiment is already active on this authentication flow.
+          x-description-2: This experiment already has a frozen configuration snapshot and cannot be modified; create a new experiment to make changes.
+          x-description-3: Segment is archived and cannot be modified.
+        '422':
+          description: Exactly one allocation must be designated as the control.
+          x-description-1: 'Exactly one allocation must be designated as the default (is_fallback: true).'
+          x-description-2: is_fallback is only used by the segment strategy; remove it from percentage allocations.
+          x-description-3: segment_id and priority are only used by the segment strategy; remove them from percentage allocations.
+          x-description-4: Allocation weights are only used by the percentage strategy; remove the weight field from segment allocations.
+          x-description-5: default_config can only be set on an Auth0-managed feature flag. Omit it for customer-defined flags.
+          x-description-6: Experiment configuration exceeds the maximum size of 256KB.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: update_experiment
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-request-parameters-name: UpdateExperimentRequestParameters
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Update an experiment.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Experiments.UpdateAsync(\n            id: \"id\",\n            request: new UpdateExperimentRequestParameters()\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update an experiment.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.UpdateExperimentRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().experiments().update(\n            \"id\",\n            UpdateExperimentRequestParameters\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update an experiment.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\Experiments\\Requests\\UpdateExperimentRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->experiments->update(\n    'id',\n    new UpdateExperimentRequestParameters([]),\n);\n"
+      - lang: python
+        label: Update an experiment.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.experiments.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update an experiment.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.experiments.update(id: "id")
+
+          '
+  /experimentation/experiments/{id}/advance-ramp:
+    post:
+      summary: Advance the rollout level of a ramp experiment
+      description: 'Increments the current ramp index to the requested target level. Up-only: the target must be the immediate next level in the schedule. Idempotent: calling with the current level returns success without writing anything.'
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the experiment to advance.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvanceRampRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdvanceRampRequestContent'
+      responses:
+        '201':
+          description: Ramp advanced successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvanceRampResponseContent'
+        '400':
+          description: Experiment has no rollout schedule.
+          x-description-1: Target level is not in the schedule.
+          x-description-2: Target level skips one or more levels in the schedule.
+          x-description-3: Ramp experiments can only advance upward.
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: update:experimentation.'
+        '404':
+          description: Experiment not found.
+        '409':
+          description: Experiment is not active.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: advance_experiment_ramp
+      x-release-lifecycle: EA
+      x-operation-name: advanceRamp
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:experimentation
+      x-codeSamples: []
+  /experimentation/experiments/{id}/validate:
+    post:
+      summary: Validate an experiment
+      description: Checks whether an experiment is ready to be activated. Returns is_valid boolean and an errors array describing any blockers. Read-only; no state is modified.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the experiment to validate.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Experiment validation result returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateExperimentResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '404':
+          description: Experiment not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: validate_experiment
+      x-release-lifecycle: EA
+      x-operation-name: validate
+      x-operation-group:
+      - experimentation
+      - experiments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Validate an experiment.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Experiments.ValidateAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Validate an experiment.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().experiments().validate(\"id\");\n    }\n}"
+      - lang: php
+        label: Validate an experiment.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->experiments->validate(\n    'id',\n);\n"
+      - lang: python
+        label: Validate an experiment.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.experiments.validate(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Validate an experiment.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.experiments.validate(id: "id")
+
+          '
+  /experimentation/feature-flags:
+    get:
+      summary: List feature flags for the tenant
+      description: Retrieve a paginated list of feature flags for the tenant.
+      tags:
+      - experimentation
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of feature flags to return per page. Defaults to 25, maximum 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: type
+        in: query
+        description: Filter by type. Exact match.
+        schema:
+          $ref: '#/components/schemas/FeatureFlagTypeEnum'
+      - name: status
+        in: query
+        description: Filter by status. Exact match.
+        schema:
+          $ref: '#/components/schemas/FeatureFlagStatusEnum'
+      responses:
+        '200':
+          description: Feature flags successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFeatureFlagsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_feature_flags
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListFeatureFlagsRequestParameters
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: List feature flags for the tenant.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.ListAsync(\n            new ListFeatureFlagsRequestParameters {\n                From = \"from\",\n                Take = 1,\n                Type = FeatureFlagTypeEnum.Auth0,\n                Status = FeatureFlagStatusEnum.Draft\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: List feature flags for the tenant.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.ListFeatureFlagsRequestParameters;\nimport com.auth0.client.mgmt.types.FeatureFlagStatusEnum;\nimport com.auth0.client.mgmt.types.FeatureFlagTypeEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().list(\n            ListFeatureFlagsRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .type(FeatureFlagTypeEnum.AUTH_0)\n                .status(FeatureFlagStatusEnum.DRAFT)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: List feature flags for the tenant.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\FeatureFlags\\Requests\\ListFeatureFlagsRequestParameters;\nuse Auth0\\SDK\\API\\Management\\Types\\FeatureFlagTypeEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\FeatureFlagStatusEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->list(\n    new ListFeatureFlagsRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n        'type' => FeatureFlagTypeEnum::Auth0->value,\n        'status' => FeatureFlagStatusEnum::Draft->value,\n    ]),\n);\n"
+      - lang: python
+        label: List feature flags for the tenant.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.list(\n    from=\"from\",\n    take=1,\n    type=\"auth0\",\n    status=\"draft\",\n)\n"
+      - lang: ruby
+        label: List feature flags for the tenant.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.feature_flags.list(\n  from: \"from\",\n  take: 1,\n  type: \"auth0\",\n  status: \"draft\"\n)\n"
+    post:
+      summary: Create a feature flag for the Experiment Center
+      description: Create a new feature flag with parameters for use in experiments.
+      tags:
+      - experimentation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeatureFlagRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateFeatureFlagRequestContent'
+      responses:
+        '201':
+          description: Feature flag successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFeatureFlagResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Parameter value does not match the declared type.
+          x-description-2: Per-status feature flag limit exceeded.
+        '401':
+          description: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: create:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+        '409':
+          description: A feature flag with this name already exists.
+        '429':
+          description: Too many requests.
+      operationId: create_feature_flag
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Create a feature flag for the Experiment Center.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.CreateAsync(\n            new CreateFeatureFlagRequestContent {\n                Name = \"name\",\n                Parameters = new Dictionary<string, FeatureFlagConfigParam>()\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Create a feature flag for the Experiment Center.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.CreateFeatureFlagRequestContent;\nimport com.auth0.client.mgmt.types.FeatureFlagConfigParam;\nimport java.util.HashMap;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().create(\n            CreateFeatureFlagRequestContent\n                .builder()\n                .name(\"name\")\n                .parameters(\n                    new HashMap<String, FeatureFlagConfigParam>()\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create a feature flag for the Experiment Center.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\FeatureFlags\\Requests\\CreateFeatureFlagRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->create(\n    new CreateFeatureFlagRequestContent([\n        'name' => 'name',\n        'parameters' => [],\n    ]),\n);\n"
+      - lang: python
+        label: Create a feature flag for the Experiment Center.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.create(\n    name=\"name\",\n    parameters={},\n)\n"
+      - lang: ruby
+        label: Create a feature flag for the Experiment Center.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.feature_flags.create(\n  name: \"name\",\n  parameters: {}\n)\n"
+  /experimentation/feature-flags/{id}:
+    get:
+      summary: Get a feature flag by ID
+      description: Retrieve a single feature flag by its ID.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the feature flag to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Feature flag successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFeatureFlagResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '404':
+          description: Feature flag not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_feature_flag
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Get a feature flag by ID.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a feature flag by ID.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a feature flag by ID.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a feature flag by ID.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a feature flag by ID.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.feature_flags.get(id: "id")
+
+          '
+    delete:
+      summary: Delete a feature flag
+      description: 'Delete a feature flag by ID. Idempotent: returns 204 even if flag does not exist.'
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the feature flag to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Feature flag successfully deleted.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+          x-description-2: Feature flag cannot be modified.
+        '409':
+          description: Feature flag is in use by one or more non-archived experiments and cannot be deleted.
+        '429':
+          description: Too many requests.
+      operationId: delete_feature_flag
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a feature flag.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Delete a feature flag.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a feature flag.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a feature flag.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a feature flag.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.feature_flags.delete(id: "id")
+
+          '
+    patch:
+      summary: Update a feature flag
+      description: Partially update a feature flag by ID. Only provided fields are updated.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the feature flag to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeatureFlagRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateFeatureFlagRequestContent'
+      responses:
+        '200':
+          description: Feature flag successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFeatureFlagResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Parameter value does not match the declared type.
+          x-description-2: Parameter value exceeds maximum size of 1KB.
+          x-description-3: Status transition is not allowed.
+          x-description-4: Feature flag must have at least 2 variations to be activated.
+          x-description-5: Per-status feature flag limit exceeded.
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-1: Feature flag cannot be modified.
+          x-description-0: 'Insufficient scope; expected any of: update:experimentation.'
+        '404':
+          description: Feature flag not found.
+        '409':
+          description: A feature flag with this name already exists.
+          x-description-1: Feature flag is archived and cannot be modified.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: update_feature_flag
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Update a feature flag.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.UpdateAsync(\n            id: \"id\",\n            request: new UpdateFeatureFlagRequestContent()\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update a feature flag.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.UpdateFeatureFlagRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().update(\n            \"id\",\n            UpdateFeatureFlagRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a feature flag.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\FeatureFlags\\Requests\\UpdateFeatureFlagRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->update(\n    'id',\n    new UpdateFeatureFlagRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a feature flag.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update a feature flag.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.feature_flags.update(id: "id")
+
+          '
+  /experimentation/feature-flags/{id}/variations:
+    get:
+      summary: List all variations for a feature flag
+      description: Retrieve all variations defined for a specific feature flag.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the parent feature flag.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Variations successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVariationsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '404':
+          description: Feature flag not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_variations
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      - variations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: List all variations for a feature flag.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.Variations.ListAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: List all variations for a feature flag.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().variations().list(\"id\");\n    }\n}"
+      - lang: php
+        label: List all variations for a feature flag.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->variations->list(\n    'id',\n);\n"
+      - lang: python
+        label: List all variations for a feature flag.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.variations.list(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: List all variations for a feature flag.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.feature_flags.variations.list(id: "id")
+
+          '
+    post:
+      summary: Create a variation for a feature flag
+      description: Create a new variation with parameter overrides for a specific feature flag.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the parent feature flag.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVariationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateVariationRequestContent'
+      responses:
+        '201':
+          description: Variation successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVariationResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Override value must differ from the feature flag parameter default value.
+          x-description-2: Feature flag variation limit exceeded.
+          x-description-3: Invalid override key.
+          x-description-4: Override value type does not match the parameter type.
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: create:experimentation.'
+        '404':
+          description: Feature flag not found.
+        '409':
+          description: A variation with this name already exists on this feature flag.
+          x-description-1: Feature flag is archived and cannot be modified.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: create_variation
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      - variations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Create a variation for a feature flag.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation.FeatureFlags;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.Variations.CreateAsync(\n            id: \"id\",\n            request: new CreateVariationRequestContent {\n                Name = \"name\",\n                Overrides = new Dictionary<string, VariationOverrideValue>()\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Create a variation for a feature flag.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.featureflags.types.CreateVariationRequestContent;\nimport com.auth0.client.mgmt.types.VariationOverrideValue;\nimport java.util.HashMap;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().variations().create(\n            \"id\",\n            CreateVariationRequestContent\n                .builder()\n                .name(\"name\")\n                .overrides(\n                    new HashMap<String, VariationOverrideValue>()\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create a variation for a feature flag.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\FeatureFlags\\Variations\\Requests\\CreateVariationRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->variations->create(\n    'id',\n    new CreateVariationRequestContent([\n        'name' => 'name',\n        'overrides' => [],\n    ]),\n);\n"
+      - lang: python
+        label: Create a variation for a feature flag.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.variations.create(\n    id=\"id\",\n    name=\"name\",\n    overrides={},\n)\n"
+      - lang: ruby
+        label: Create a variation for a feature flag.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.feature_flags.variations.create(\n  id: \"id\",\n  name: \"name\",\n  overrides: {}\n)\n"
+  /experimentation/feature-flags/{id}/variations/{vid}:
+    get:
+      summary: Get a variation by ID
+      description: Retrieve a single variation by its ID.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the parent feature flag.
+        required: true
+        schema:
+          type: string
+      - name: vid
+        in: path
+        description: The ID of the variation to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Variation successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetVariationResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '404':
+          description: Feature flag not found.
+          x-description-1: Variation not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_variation
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      - variations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Get a variation by ID.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.Variations.GetAsync(\n            \"id\",\n            \"vid\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a variation by ID.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().variations().get(\"id\", \"vid\");\n    }\n}"
+      - lang: php
+        label: Get a variation by ID.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->variations->get(\n    'id',\n    'vid',\n);\n"
+      - lang: python
+        label: Get a variation by ID.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.variations.get(\n    id=\"id\",\n    vid=\"vid\",\n)\n"
+      - lang: ruby
+        label: Get a variation by ID.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.feature_flags.variations.get(\n  id: \"id\",\n  vid: \"vid\"\n)\n"
+    delete:
+      summary: Delete a variation
+      description: Delete a variation by ID. Returns 204 if the variation does not exist. Returns 404 if the parent feature flag does not exist.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the parent feature flag.
+        required: true
+        schema:
+          type: string
+      - name: vid
+        in: path
+        description: The ID of the variation to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Variation successfully deleted.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+        '404':
+          description: Feature flag not found.
+        '409':
+          description: Variation is in use by one or more non-archived allocations and cannot be deleted.
+        '429':
+          description: Too many requests.
+      operationId: delete_variation
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      - variations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a variation.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.Variations.DeleteAsync(\n            \"id\",\n            \"vid\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Delete a variation.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().variations().delete(\"id\", \"vid\");\n    }\n}"
+      - lang: php
+        label: Delete a variation.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->variations->delete(\n    'id',\n    'vid',\n);\n"
+      - lang: python
+        label: Delete a variation.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.variations.delete(\n    id=\"id\",\n    vid=\"vid\",\n)\n"
+      - lang: ruby
+        label: Delete a variation.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.feature_flags.variations.delete(\n  id: \"id\",\n  vid: \"vid\"\n)\n"
+    patch:
+      summary: Update a variation
+      description: Partially update a variation by ID. Only provided fields are updated.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the parent feature flag.
+        required: true
+        schema:
+          type: string
+      - name: vid
+        in: path
+        description: The ID of the variation to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVariationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateVariationRequestContent'
+      responses:
+        '200':
+          description: Variation successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateVariationResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Invalid override key.
+          x-description-2: Override value type does not match the parameter type.
+          x-description-3: Override value must differ from the feature flag parameter default value.
+          x-description-4: Override value exceeds maximum size of 1KB.
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: update:experimentation.'
+        '404':
+          description: Feature flag not found.
+          x-description-1: Variation not found.
+        '409':
+          description: A variation with this name already exists on this feature flag.
+          x-description-1: Feature flag is archived and cannot be modified.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: update_variation
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-group:
+      - experimentation
+      - featureFlags
+      - variations
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Update a variation.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation.FeatureFlags;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.FeatureFlags.Variations.UpdateAsync(\n            id: \"id\",\n            vid: \"vid\",\n            request: new UpdateVariationRequestContent()\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update a variation.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.featureflags.types.UpdateVariationRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().featureFlags().variations().update(\n            \"id\",\n            \"vid\",\n            UpdateVariationRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a variation.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\FeatureFlags\\Variations\\Requests\\UpdateVariationRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->featureFlags->variations->update(\n    'id',\n    'vid',\n    new UpdateVariationRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a variation.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.feature_flags.variations.update(\n    id=\"id\",\n    vid=\"vid\",\n)\n"
+      - lang: ruby
+        label: Update a variation.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.feature_flags.variations.update(\n  id: \"id\",\n  vid: \"vid\"\n)\n"
+  /experimentation/segments:
+    get:
+      summary: List segments for the tenant
+      description: Retrieve a paginated list of segments for the tenant.
+      tags:
+      - experimentation
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of segments to return per page. Defaults to 25, maximum 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: type
+        in: query
+        description: Filter by type. Exact match.
+        schema:
+          $ref: '#/components/schemas/SegmentTypeFilterEnum'
+      responses:
+        '200':
+          description: Segments successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSegmentsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_segments
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListSegmentsRequestParameters
+      x-operation-group:
+      - experimentation
+      - segments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: List segments for the tenant.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Segments.ListAsync(\n            new ListSegmentsRequestParameters {\n                From = \"from\",\n                Take = 1,\n                Type = SegmentTypeFilterEnum.Auth0\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: List segments for the tenant.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.ListSegmentsRequestParameters;\nimport com.auth0.client.mgmt.types.SegmentTypeFilterEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().segments().list(\n            ListSegmentsRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .type(SegmentTypeFilterEnum.AUTH_0)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: List segments for the tenant.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\Segments\\Requests\\ListSegmentsRequestParameters;\nuse Auth0\\SDK\\API\\Management\\Types\\SegmentTypeFilterEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->segments->list(\n    new ListSegmentsRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n        'type' => SegmentTypeFilterEnum::Auth0->value,\n    ]),\n);\n"
+      - lang: python
+        label: List segments for the tenant.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.segments.list(\n    from=\"from\",\n    take=1,\n    type=\"auth0\",\n)\n"
+      - lang: ruby
+        label: List segments for the tenant.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.segments.list(\n  from: \"from\",\n  take: 1,\n  type: \"auth0\"\n)\n"
+    post:
+      summary: Create a segment for the Experiment Center
+      description: Create a new segment with rule-based membership criteria for use in experiments.
+      tags:
+      - experimentation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSegmentRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateSegmentRequestContent'
+      responses:
+        '201':
+          description: Segment successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSegmentResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Per-status segment limit exceeded.
+        '401':
+          description: Invalid token.
+        '403':
+          description: 'Insufficient scope; expected any of: create:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+        '409':
+          description: A segment with this name already exists.
+        '422':
+          description: Segment rule exceeds the maximum size of 4KB.
+          x-description-1: Segment exceeds the maximum size of 10KB.
+        '429':
+          description: Too many requests.
+      operationId: create_segment
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group:
+      - experimentation
+      - segments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Create a segment for the Experiment Center.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Segments.CreateAsync(\n            new CreateSegmentRequestContent {\n                Name = \"name\",\n                Rules = new List<SegmentRule>(){\n                    new SegmentRule(),\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Create a segment for the Experiment Center.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.CreateSegmentRequestContent;\nimport com.auth0.client.mgmt.types.SegmentRule;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().segments().create(\n            CreateSegmentRequestContent\n                .builder()\n                .name(\"name\")\n                .rules(\n                    Arrays.asList(\n                        SegmentRule\n                            .builder()\n                            .build()\n                    )\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create a segment for the Experiment Center.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\Segments\\Requests\\CreateSegmentRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\SegmentRule;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->segments->create(\n    new CreateSegmentRequestContent([\n        'name' => 'name',\n        'rules' => [\n            new SegmentRule([]),\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Create a segment for the Experiment Center.
+        source: "from auth0.management import ManagementClient, SegmentRule\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.segments.create(\n    name=\"name\",\n    rules=[\n        SegmentRule()\n    ],\n)\n"
+      - lang: ruby
+        label: Create a segment for the Experiment Center.
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.experimentation.segments.create(\n  name: \"name\",\n  rules: [{}]\n)\n"
+  /experimentation/segments/{id}:
+    get:
+      summary: Get a segment by ID
+      description: Retrieve a single segment by its ID.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the segment to retrieve.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Segment successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSegmentResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: Tenant not entitled to this feature.
+          x-description-0: 'Insufficient scope; expected any of: read:experimentation.'
+        '404':
+          description: Segment not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_segment
+      x-release-lifecycle: EA
+      x-operation-name: get
+      x-operation-group:
+      - experimentation
+      - segments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Get a segment by ID.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Segments.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a segment by ID.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().segments().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a segment by ID.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->segments->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a segment by ID.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.segments.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a segment by ID.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.segments.get(id: "id")
+
+          '
+    delete:
+      summary: Delete a segment
+      description: 'Delete a segment by ID. Idempotent: returns 204 even if segment does not exist.'
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the segment to delete.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Segment successfully deleted.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+          x-description-2: Segment cannot be modified.
+        '409':
+          description: Segment is in use by one or more non-archived experiment allocations.
+        '429':
+          description: Too many requests.
+      operationId: delete_segment
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-group:
+      - experimentation
+      - segments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a segment.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Segments.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Delete a segment.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().segments().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a segment.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->segments->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a segment.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.segments.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a segment.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.segments.delete(id: "id")
+
+          '
+    patch:
+      summary: Update a segment
+      description: Partially update a segment by ID. Only provided fields are updated. Sending rules replaces the entire rules array.
+      tags:
+      - experimentation
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the segment to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSegmentRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateSegmentRequestContent'
+      responses:
+        '200':
+          description: Segment successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSegmentResponseContent'
+        '400':
+          description: Invalid request body.
+          x-description-1: Status transition is not allowed.
+          x-description-2: Per-status segment limit exceeded.
+          x-description-0: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:experimentation.'
+          x-description-1: Tenant not entitled to this feature.
+          x-description-2: Segment cannot be modified.
+          x-description-0: 'Insufficient scope; expected any of: update:experimentation.'
+        '404':
+          description: Segment not found.
+        '409':
+          description: A segment with this name already exists.
+          x-description-1: Segment is archived and cannot be modified.
+        '422':
+          description: Segment rule exceeds the maximum size of 4KB.
+          x-description-1: Segment exceeds the maximum size of 10KB.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: update_segment
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-group:
+      - experimentation
+      - segments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:experimentation
+      x-codeSamples:
+      - lang: csharp
+        label: Update a segment.
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Experimentation;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Experimentation.Segments.UpdateAsync(\n            id: \"id\",\n            request: new UpdateSegmentRequestContent()\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update a segment.
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.experimentation.types.UpdateSegmentRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.experimentation().segments().update(\n            \"id\",\n            UpdateSegmentRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a segment.
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Experimentation\\Segments\\Requests\\UpdateSegmentRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->experimentation->segments->update(\n    'id',\n    new UpdateSegmentRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a segment.
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.experimentation.segments.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update a segment.
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.experimentation.segments.update(id: "id")
+
+          '
+components:
+  schemas:
+    SegmentEndsWithExpression:
+      type: object
+      additionalProperties: false
+      required:
+      - ends_with
+      properties:
+        ends_with:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            maxLength: 1024
+    SegmentNotMatchConditions:
+      type: object
+      description: Attribute conditions that must not match.
+      additionalProperties: true
+      minProperties: 1
+      maxProperties: 10
+      properties:
+        client_id:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        connection:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        connection_type:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        organization_id:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        domain:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        device_type:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        browser:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        platform:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        user_agent:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        country:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        region:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+    DefaultConfigEnum:
+      type: string
+      description: 'For Auth0-managed flags, where non-overridden config keys resolve from: ''tenant'' inherits the tenant''s live config, ''flag'' uses the flag''s frozen defaults. Omitted when unset (defaults to ''tenant'' at resolution). Not applicable to customer-defined flags.'
+      enum:
+      - tenant
+      - flag
+    ListExperimentsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - experiments
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentListItem'
+        next:
+          type: string
+          description: Checkpoint token for the next page. Omitted when there are no further results.
+    FeatureFlagConfigParam:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - value
+      properties:
+        type:
+          $ref: '#/components/schemas/FeatureFlagConfigParamTypeEnum'
+        value:
+          description: The parameter value
+        description:
+          type: string
+          description: A human-readable description of the parameter
+          maxLength: 255
+    SegmentTypeEnum:
+      type: string
+      enum:
+      - self
+      - auth0
+    UpdateVariationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - feature_flag_id
+      - name
+      - overrides
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^var_[A-HJ-NP-Za-km-z1-9]+$
+        feature_flag_id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        overrides:
+          $ref: '#/components/schemas/VariationOverridesMap'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Segment:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - rules
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^seg_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/SegmentTypeEnum'
+        status:
+          $ref: '#/components/schemas/SegmentStatusEnum'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentRule'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateSegmentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - rules
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^seg_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/SegmentTypeEnum'
+        status:
+          $ref: '#/components/schemas/SegmentStatusEnum'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentRule'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateVariationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - feature_flag_id
+      - name
+      - overrides
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^var_[A-HJ-NP-Za-km-z1-9]+$
+        feature_flag_id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        overrides:
+          $ref: '#/components/schemas/VariationOverridesMap'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    GetSegmentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - rules
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^seg_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/SegmentTypeEnum'
+        status:
+          $ref: '#/components/schemas/SegmentStatusEnum'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentRule'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    GetFeatureFlagResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeatureFlagTypeEnum'
+        status:
+          $ref: '#/components/schemas/FeatureFlagStatusEnum'
+        parameters:
+          $ref: '#/components/schemas/FeatureFlagConfigParams'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    VariationOverridesMap:
+      type: object
+      description: Configuration overrides for this variation
+      additionalProperties:
+        description: Override value for this configuration parameter
+    SegmentContainsExpression:
+      type: object
+      additionalProperties: false
+      required:
+      - contains
+      properties:
+        contains:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            maxLength: 1024
+    FeatureFlagStatusEnum:
+      type: string
+      enum:
+      - draft
+      - active
+      - archived
+      description: Filter by status. Exact match.
+    ListSegmentsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - segments
+      properties:
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        next:
+          type: string
+          description: Checkpoint token for the next page. Omitted when there are no further results.
+    AllocationRequestItem:
+      type: object
+      additionalProperties: false
+      required:
+      - variation_id
+      - is_control
+      properties:
+        variation_id:
+          type: string
+          description: The ID of the variation to allocate
+          pattern: ^var_[A-HJ-NP-Za-km-z1-9]+$
+        weight:
+          type: integer
+          description: Percentage weight for this allocation (percentage strategy only)
+          minimum: 0
+          maximum: 100
+        segment_id:
+          type: string
+          description: The segment this allocation targets (segment strategy only)
+          pattern: ^seg_[A-HJ-NP-Za-km-z1-9]+$
+        priority:
+          type: integer
+          description: Evaluation order; 1 = highest priority (segment strategy only)
+          minimum: 1
+        is_control:
+          type: boolean
+          description: Whether this allocation is the control group
+        is_fallback:
+          type: boolean
+          description: Whether this allocation is the default fallback (segment strategy only)
+    SegmentExistsExpression:
+      type: object
+      additionalProperties: false
+      required:
+      - exists
+      properties:
+        exists:
+          type: boolean
+    ExperimentListItem:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - feature_flag_id
+      - authentication_flow
+      - allocation_strategy
+      - status
+      - is_valid
+      - allocations
+      - editable_fields
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^exp_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        feature_flag_id:
+          type: string
+        feature_flag_name:
+          type: string
+        authentication_flow:
+          type: string
+        allocation_strategy:
+          $ref: '#/components/schemas/AllocationStrategyEnum'
+        status:
+          $ref: '#/components/schemas/ExperimentStatusEnum'
+        is_valid:
+          type: boolean
+          description: Whether the experiment is valid and ready to activate, as of its last update. It can lag changes made later to related entities. Call POST /experiments/{id}/validate for the current result.
+        default_config:
+          $ref: '#/components/schemas/DefaultConfigEnum'
+        feature_flag_snapshot:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllocationItem'
+        editable_fields:
+          type: array
+          description: Fields that may be mutated given the experiment's current status. Computed at response time; always current with the API's enforcement logic.
+          items:
+            type: string
+        levels:
+          type: array
+          description: Ramp experiment levels configuration.
+          items:
+            type: integer
+        current_level:
+          type:
+          - integer
+          - 'null'
+          description: Read-only. The active exposure percentage for the current ramp step. Null when no ramp schedule is active.
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    SegmentMatchConditions:
+      type: object
+      description: Attribute conditions that must match.
+      additionalProperties: true
+      minProperties: 1
+      maxProperties: 10
+      properties:
+        client_id:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        connection:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        connection_type:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        organization_id:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        domain:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        device_type:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        browser:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        platform:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        user_agent:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        country:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+        region:
+          $ref: '#/components/schemas/SegmentMatchExpression'
+    FeatureFlagTypeEnum:
+      type: string
+      enum:
+      - auth0
+      - self
+      description: Filter by type. Exact match.
+    ExperimentTransitionStatusEnum:
+      type: string
+      description: Target lifecycle status. Transitions the experiment through its lifecycle (draft → active, draft → archived, active → paused, paused → active, active/paused → completed, paused/completed → archived). Activation runs full readiness validation and snapshots the configuration. When combined with field edits, the edits apply first and the transition sees the updated config.
+      enum:
+      - active
+      - paused
+      - completed
+      - archived
+    UpdateSegmentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - rules
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^seg_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/SegmentTypeEnum'
+        status:
+          $ref: '#/components/schemas/SegmentStatusEnum'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentRule'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateFeatureFlagRequestContent:
+      type: object
+      description: Create a feature flag for experiment configuration
+      additionalProperties: false
+      required:
+      - name
+      - parameters
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the feature flag
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type: string
+          description: A description of what this feature flag controls
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        parameters:
+          $ref: '#/components/schemas/CreateFeatureFlagParameters'
+    FeatureFlagConfigParamTypeEnum:
+      type: string
+      description: The data type of the parameter value
+      enum:
+      - string
+      - boolean
+      - number
+      - array
+      - object
+    CreateVariationRequestContent:
+      type: object
+      description: Create a variation for a feature flag
+      additionalProperties: false
+      required:
+      - name
+      - overrides
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the variation
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type: string
+          description: A description of what this variation controls
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        overrides:
+          $ref: '#/components/schemas/VariationOverridesMap'
+          description: Configuration overrides for this variation; keys must exist in the parent flag parameters. Empty {} is the baseline (control) variation that overrides nothing.
+    CreateExperimentRequestContent:
+      type: object
+      description: Create an experiment with traffic allocation
+      additionalProperties: false
+      required:
+      - name
+      - feature_flag_id
+      - authentication_flow
+      - allocation_strategy
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the experiment
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type: string
+          description: A description of the experiment
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        feature_flag_id:
+          type: string
+          description: The ID of the feature flag this experiment is based on
+          pattern: ^flg_[A-Za-z0-9_]+$
+        authentication_flow:
+          $ref: '#/components/schemas/AuthenticationFlowEnum'
+        default_config:
+          $ref: '#/components/schemas/DefaultConfigEnum'
+          description: 'Applies only to Auth0-managed flags. Controls where non-overridden config keys resolve from: ''tenant'' inherits the tenant''s live config so the experiment overlays only its changes, ''flag'' uses the flag''s frozen defaults for a complete config. Optional; defaults to ''tenant'' when omitted. Rejected for customer-defined flags.'
+        allocation_strategy:
+          $ref: '#/components/schemas/AllocationStrategyEnum'
+          description: The traffic allocation strategy for this experiment
+        allocations:
+          type: array
+          description: Traffic allocations mapping variations to weights or segments
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AllocationRequestItem'
+        levels:
+          type: array
+          description: Ramp experiment levels configuration. A strictly-increasing sequence of exposure percentages, each an integer in [0, 100].
+          minItems: 1
+          items:
+            type: integer
+            minimum: 0
+            maximum: 100
+    ValidateExperimentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - is_valid
+      - errors
+      properties:
+        is_valid:
+          type: boolean
+          description: Whether the experiment is ready to be activated.
+        errors:
+          type: array
+          description: List of validation errors preventing activation. Empty when is_valid is true.
+          items:
+            $ref: '#/components/schemas/ExperimentValidationError'
+    UpdateFeatureFlagRequestContent:
+      type: object
+      description: Partial update of a feature flag. Only provided fields are updated.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the feature flag
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type:
+          - string
+          - 'null'
+          description: A description of what this feature flag controls
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        parameters:
+          $ref: '#/components/schemas/UpdateFeatureFlagParameters'
+        status:
+          $ref: '#/components/schemas/FeatureFlagStatusEnum'
+          description: Target lifecycle status (draft → active, draft → archived, active → archived). Activating a flag requires at least 2 variations. When combined with field edits, the edits and the transition are applied together; if the transition is rejected, no edits are applied.
+    ExperimentStatusEnum:
+      type: string
+      enum:
+      - draft
+      - active
+      - paused
+      - completed
+      - archived
+      description: Filter by status. Exact match.
+    SegmentStartsWithExpression:
+      type: object
+      additionalProperties: false
+      required:
+      - starts_with
+      properties:
+        starts_with:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            maxLength: 1024
+    CreateFeatureFlagResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeatureFlagTypeEnum'
+        status:
+          $ref: '#/components/schemas/FeatureFlagStatusEnum'
+        parameters:
+          $ref: '#/components/schemas/FeatureFlagConfigParams'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ExperimentValidationError:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code identifying the validation failure.
+        message:
+          type: string
+          description: Human-readable description of the validation failure.
+    AdvanceRampResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - experiment_id
+      - from_level
+      - to_level
+      - current_level
+      properties:
+        experiment_id:
+          type: string
+        from_level:
+          type: integer
+        to_level:
+          type: integer
+        current_level:
+          type: integer
+    AllocationStrategyEnum:
+      type: string
+      enum:
+      - percentage
+      - segment
+    FeatureFlagConfigParams:
+      type: object
+      description: Configuration parameters for this feature flag
+      additionalProperties:
+        $ref: '#/components/schemas/FeatureFlagConfigParam'
+      minProperties: 1
+      maxProperties: 10
+    UpdateExperimentRequestContent:
+      type: object
+      description: Partial update of an experiment. Only provided fields are updated. Providing allocations replaces the entire allocations set.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the experiment
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          description: A description of the experiment
+          type:
+          - string
+          - 'null'
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        authentication_flow:
+          $ref: '#/components/schemas/AuthenticationFlowEnum'
+          description: 'Specifies the target authentication flow for this experiment. This field can only be modified on draft experiments. Must be one of: authentication, mfa_enrollment, mfa_challenge, password_reset, passkey_enrollment, or all. Note that the all value targets every flow at once, but requires that this is the only active experiment.'
+        allocations:
+          type: array
+          description: Replaces all traffic allocations. Cannot be modified while the experiment is active.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AllocationRequestItem'
+        default_config:
+          $ref: '#/components/schemas/DefaultConfigEnum'
+          description: 'Applies only to Auth0-managed flags. Controls where non-overridden config keys resolve from: ''tenant'' inherits the tenant''s live config, ''flag'' uses the flag''s frozen defaults. Can only be modified on draft experiments. Rejected for customer-defined flags.'
+        levels:
+          type: array
+          description: Ramp experiment levels configuration. A strictly-increasing sequence of exposure percentages, each an integer in [0, 100]. Can only be modified on draft experiments.
+          minItems: 1
+          items:
+            type: integer
+            minimum: 0
+            maximum: 100
+        status:
+          $ref: '#/components/schemas/ExperimentTransitionStatusEnum'
+    CreateSegmentRequestContent:
+      type: object
+      description: Create a segment for experiment targeting
+      additionalProperties: false
+      required:
+      - name
+      - rules
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the segment
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type: string
+          description: A description of the segment
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        rules:
+          type: array
+          description: An ordered list of rules. A segment matches if any rule matches. Each rule is limited to 4KB and the whole segment to 10KB (serialized).
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SegmentRule'
+    UpdateExperimentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - feature_flag_id
+      - authentication_flow
+      - allocation_strategy
+      - status
+      - is_valid
+      - allocations
+      - editable_fields
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^exp_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        feature_flag_id:
+          type: string
+        feature_flag_name:
+          type: string
+        authentication_flow:
+          type: string
+        allocation_strategy:
+          $ref: '#/components/schemas/AllocationStrategyEnum'
+        status:
+          $ref: '#/components/schemas/ExperimentStatusEnum'
+        is_valid:
+          type: boolean
+          description: Whether the experiment is valid and ready to activate, as of its last update. It can lag changes made later to related entities. Call POST /experiments/{id}/validate for the current result.
+        default_config:
+          $ref: '#/components/schemas/DefaultConfigEnum'
+        feature_flag_snapshot:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllocationItem'
+        editable_fields:
+          type: array
+          description: Fields that may be mutated given the experiment's current status. Computed at response time; always current with the API's enforcement logic.
+          items:
+            type: string
+        levels:
+          type: array
+          description: Ramp experiment levels configuration.
+          items:
+            type: integer
+        current_level:
+          type:
+          - integer
+          - 'null'
+          description: Read-only. The active exposure percentage for the current ramp step. Null when no ramp schedule is active.
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    GetVariationResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - feature_flag_id
+      - name
+      - overrides
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^var_[A-HJ-NP-Za-km-z1-9]+$
+        feature_flag_id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        overrides:
+          $ref: '#/components/schemas/VariationOverridesMap'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AllocationItem:
+      type: object
+      additionalProperties: false
+      properties:
+        variation_id:
+          type: string
+        variation_name:
+          type: string
+        segment_id:
+          type: string
+        segment_name:
+          type: string
+        weight:
+          type: integer
+        priority:
+          type: integer
+        is_control:
+          type: boolean
+        is_fallback:
+          type: boolean
+        variation_snapshot:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        segment_snapshot:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+    FeatureFlag:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeatureFlagTypeEnum'
+        status:
+          $ref: '#/components/schemas/FeatureFlagStatusEnum'
+        parameters:
+          $ref: '#/components/schemas/FeatureFlagConfigParams'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AuthenticationFlowEnum:
+      type: string
+      description: 'Specifies the target authentication flow for this experiment. Must be one of: authentication, mfa_enrollment, mfa_challenge, password_reset, passkey_enrollment, or all. Note that the all value targets every flow at once, but requires that this is the only active experiment.'
+      enum:
+      - authentication
+      - mfa_enrollment
+      - mfa_challenge
+      - password_reset
+      - passkey_enrollment
+      - all
+    UpdateFeatureFlagParameters:
+      type: object
+      description: Configuration parameters for this feature flag
+      additionalProperties:
+        $ref: '#/components/schemas/FeatureFlagConfigParam'
+      minProperties: 1
+      maxProperties: 10
+    GetExperimentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - feature_flag_id
+      - authentication_flow
+      - allocation_strategy
+      - status
+      - is_valid
+      - allocations
+      - editable_fields
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^exp_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        feature_flag_id:
+          type: string
+        feature_flag_name:
+          type: string
+        authentication_flow:
+          type: string
+        allocation_strategy:
+          $ref: '#/components/schemas/AllocationStrategyEnum'
+        status:
+          $ref: '#/components/schemas/ExperimentStatusEnum'
+        is_valid:
+          type: boolean
+          description: Whether the experiment is valid and ready to activate, as of its last update. It can lag changes made later to related entities. Call POST /experiments/{id}/validate for the current result.
+        default_config:
+          $ref: '#/components/schemas/DefaultConfigEnum'
+        feature_flag_snapshot:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllocationItem'
+        editable_fields:
+          type: array
+          description: Fields that may be mutated given the experiment's current status. Computed at response time; always current with the API's enforcement logic.
+          items:
+            type: string
+        levels:
+          type: array
+          description: Ramp experiment levels configuration.
+          items:
+            type: integer
+        current_level:
+          type:
+          - integer
+          - 'null'
+          description: Read-only. The active exposure percentage for the current ramp step. Null when no ramp schedule is active.
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    UpdateVariationOverridesMap:
+      type:
+      - object
+      - 'null'
+      description: Top-level keys merge into the stored overrides. Set a key to `null` to remove it. Set `overrides` to `null` or `{}` to clear all. Keys must exist in the parent flag parameters.
+      additionalProperties:
+        description: Override value for this configuration parameter
+    ListFeatureFlagsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - feature_flags
+      properties:
+        feature_flags:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureFlag'
+        next:
+          type: string
+          description: Checkpoint token for the next page. Omitted when there are no further results.
+    Variation:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - feature_flag_id
+      - name
+      - overrides
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^var_[A-HJ-NP-Za-km-z1-9]+$
+        feature_flag_id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        overrides:
+          $ref: '#/components/schemas/VariationOverridesMap'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    SegmentRule:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        match:
+          $ref: '#/components/schemas/SegmentMatchConditions'
+        not_match:
+          $ref: '#/components/schemas/SegmentNotMatchConditions'
+    SegmentStatusEnum:
+      type: string
+      enum:
+      - active
+      - archived
+    UpdateVariationRequestContent:
+      type: object
+      description: Partial update of a variation. Only provided fields are updated.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the variation
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type:
+          - string
+          - 'null'
+          description: A description of what this variation controls
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        overrides:
+          $ref: '#/components/schemas/UpdateVariationOverridesMap'
+    CreateFeatureFlagParameters:
+      type: object
+      description: Configuration parameters for this feature flag
+      additionalProperties:
+        $ref: '#/components/schemas/FeatureFlagConfigParam'
+      minProperties: 1
+      maxProperties: 10
+    UpdateSegmentRequestContent:
+      type: object
+      description: Partial update of a segment. Only provided fields are updated. Sending rules replaces the entire rules array.
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: A human-readable name for the segment
+          minLength: 3
+          maxLength: 255
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        description:
+          type:
+          - string
+          - 'null'
+          description: A description of the segment
+          minLength: 3
+          maxLength: 1024
+          pattern: ^(?!.*\x00)\S(.*\S)?$
+        rules:
+          type: array
+          description: Replaces the entire rules array. Each rule is limited to 4KB and the whole segment to 10KB (serialized).
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SegmentRule'
+        status:
+          $ref: '#/components/schemas/SegmentStatusEnum'
+          description: Target lifecycle status. Archiving removes the segment from the active pool and is terminal (an archived segment cannot return to active). When combined with field edits, the edits apply first and the transition follows.
+    CreateExperimentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - feature_flag_id
+      - authentication_flow
+      - allocation_strategy
+      - status
+      - is_valid
+      - allocations
+      - editable_fields
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^exp_[A-HJ-NP-Za-km-z1-9]+$
+        name:
+          type: string
+        description:
+          type: string
+        feature_flag_id:
+          type: string
+        feature_flag_name:
+          type: string
+        authentication_flow:
+          type: string
+        allocation_strategy:
+          $ref: '#/components/schemas/AllocationStrategyEnum'
+        status:
+          $ref: '#/components/schemas/ExperimentStatusEnum'
+        is_valid:
+          type: boolean
+          description: Whether the experiment is valid and ready to activate, as of its last update. It can lag changes made later to related entities. Call POST /experiments/{id}/validate for the current result.
+        default_config:
+          $ref: '#/components/schemas/DefaultConfigEnum'
+        feature_flag_snapshot:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllocationItem'
+        editable_fields:
+          type: array
+          description: Fields that may be mutated given the experiment's current status. Computed at response time; always current with the API's enforcement logic.
+          items:
+            type: string
+        levels:
+          type: array
+          description: Ramp experiment levels configuration.
+          items:
+            type: integer
+        current_level:
+          type:
+          - integer
+          - 'null'
+          description: Read-only. The active exposure percentage for the current ramp step. Null when no ramp schedule is active.
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    SegmentTypeFilterEnum:
+      type: string
+      enum:
+      - auth0
+      - self
+      description: Filter by type. Exact match.
+    UpdateFeatureFlagResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - type
+      - status
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          pattern: ^flg_[A-Za-z0-9_]+$
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeatureFlagTypeEnum'
+        status:
+          $ref: '#/components/schemas/FeatureFlagStatusEnum'
+        parameters:
+          $ref: '#/components/schemas/FeatureFlagConfigParams'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AdvanceRampRequestContent:
+      type: object
+      description: The target rollout level to advance to.
+      additionalProperties: false
+      required:
+      - target_level
+      properties:
+        target_level:
+          type: integer
+          description: The target percentage level from the experiment schedule. Must be the immediate next level.
+          minimum: 0
+          maximum: 100
+    ListVariationsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - variations
+      properties:
+        variations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variation'
+    SegmentMatchExpression:
+      oneOf:
+      - type: array
+        minItems: 1
+        items:
+          type: string
+          maxLength: 1024
+      - $ref: '#/components/schemas/SegmentContainsExpression'
+      - $ref: '#/components/schemas/SegmentStartsWithExpression'
+      - $ref: '#/components/schemas/SegmentEndsWithExpression'
+      - $ref: '#/components/schemas/SegmentExistsExpression'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
+            read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

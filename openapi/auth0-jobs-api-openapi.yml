@@ -20,7 +20,7 @@ tags:
 paths:
   /jobs/users-exports:
     post:
-      summary: Create Export Users Job
+      summary: Create export users job
       description: Export all users to a file via a long-running job.
       tags:
       - Jobs
@@ -60,9 +60,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:users
+      x-codeSamples:
+      - lang: csharp
+        label: Create export users job
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Jobs;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Jobs.UsersExports.CreateAsync(\n            new CreateExportUsersRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create export users job
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateExportUsersRequestContent{}\n    mgmt.Jobs.UsersExports.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create export users job
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.jobs.types.CreateExportUsersRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.jobs().usersExports().create(\n            CreateExportUsersRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create export users job
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Jobs\\UsersExports\\Requests\\CreateExportUsersRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->jobs->usersExports->create(\n    new CreateExportUsersRequestContent([]),\n);\n"
+      - lang: python
+        label: Create export users job
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.jobs.users_exports.create()\n"
+      - lang: ruby
+        label: Create export users job
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.jobs.users_exports.create
+
+          '
+      - lang: typescript
+        label: Create export users job
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.usersExports.create({});\n}\nmain();\n"
+      - lang: javascript
+        label: Create export users job
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.usersExports.create({});\n}\nmain();\n"
   /jobs/users-imports:
     post:
-      summary: Create Import Users Job
+      summary: Create import users job
       description: Import users from a formatted file into a connection via a long-running job. When importing users, with or without upsert, the `email_verified` is set to `false` when the email address is added or updated. Users must verify their email address. To avoid this behavior, set `email_verified` to `true` in the imported data.
       tags:
       - Jobs
@@ -111,15 +144,57 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:users
+      x-codeSamples:
+      - lang: csharp
+        label: Create import users job
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Jobs;\nusing System.IO;\nusing System.Text;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Jobs.UsersImports.CreateAsync(\n            new CreateImportUsersRequestContent {\n                Users = new FileParameter(){\n                    Stream = new MemoryStream(Encoding.UTF8.GetBytes(\"[bytes]\"))\n                },\n                ConnectionId = \"connection_id\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create import users job
+        source: "package example\n\nimport (\n    context \"context\"\n    strings \"strings\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateImportUsersRequestContent{\n        Users: strings.NewReader(\n            \"\",\n        ),\n        ConnectionId: \"connection_id\",\n    }\n    mgmt.Jobs.UsersImports.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create import users job
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.core.FileStream;\nimport com.auth0.client.mgmt.jobs.types.CreateImportUsersRequestContent;\nimport java.io.ByteArrayInputStream;\nimport java.nio.charset.StandardCharsets;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.jobs().usersImports().create(\n            new FileStream(new ByteArrayInputStream(\"[bytes]\".getBytes(StandardCharsets.UTF_8))),\n            CreateImportUsersRequestContent\n                .builder()\n                .connectionId(\"connection_id\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create import users job
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Jobs\\UsersImports\\Requests\\CreateImportUsersRequestContent;\nuse Auth0\\SDK\\API\\Management\\Utils\\File;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->jobs->usersImports->create(\n    new CreateImportUsersRequestContent([\n        'users' => File::createFromString(\"[bytes]\", \"[bytes]\"),\n        'connectionId' => 'connection_id',\n    ]),\n);\n"
+      - lang: python
+        label: Create import users job
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.jobs.users_imports.create(\n    users=\"[bytes]\",\n    connection_id=\"connection_id\",\n)\n"
+      - lang: ruby
+        label: Create import users job
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.jobs.users_imports.create
+
+          '
+      - lang: typescript
+        label: Create import users job
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.usersImports.create({\n        connectionId: \"connection_id\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create import users job
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.usersImports.create({\n        connectionId: \"connection_id\",\n    });\n}\nmain();\n"
   /jobs/verification-email:
     post:
-      summary: Send an Email Address Verification Email
+      summary: Send an email address verification email
       description: 'Send an email to the specified user that asks them to click a link to verify their email address.
 
 
         Note: You must have the `Status` toggle enabled for the verification email template for the email to be sent.'
       tags:
       - Jobs
+      parameters:
+      - name: auth0-custom-domain
+        in: header
+        description: Custom domain to be used for this request
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 255
+        x-sdk-ignore: true
       requestBody:
         content:
           application/json:
@@ -162,9 +237,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:users
+      x-codeSamples:
+      - lang: csharp
+        label: Send an email address verification email
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Jobs;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Jobs.VerificationEmail.CreateAsync(\n            new CreateVerificationEmailRequestContent {\n                UserId = \"user_id\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Send an email address verification email
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateVerificationEmailRequestContent{\n        UserId: \"user_id\",\n    }\n    mgmt.Jobs.VerificationEmail.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Send an email address verification email
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.jobs.types.CreateVerificationEmailRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.jobs().verificationEmail().create(\n            CreateVerificationEmailRequestContent\n                .builder()\n                .userId(\"user_id\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Send an email address verification email
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Jobs\\VerificationEmail\\Requests\\CreateVerificationEmailRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->jobs->verificationEmail->create(\n    new CreateVerificationEmailRequestContent([\n        'userId' => 'user_id',\n    ]),\n);\n"
+      - lang: python
+        label: Send an email address verification email
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.jobs.verification_email.create(\n    user_id=\"user_id\",\n)\n"
+      - lang: ruby
+        label: Send an email address verification email
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.jobs.verification_email.create(user_id: "user_id")
+
+          '
+      - lang: typescript
+        label: Send an email address verification email
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.verificationEmail.create({\n        userId: \"user_id\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Send an email address verification email
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.verificationEmail.create({\n        userId: \"user_id\",\n    });\n}\nmain();\n"
   /jobs/{id}:
     get:
-      summary: Get a Job
+      summary: Get a job
       description: Retrieves a job. Useful to check its status.
       tags:
       - Jobs
@@ -175,7 +283,6 @@ paths:
         required: true
         schema:
           type: string
-          pattern: ^job_[A-Za-z0-9]{16}$
       responses:
         '200':
           description: Job retrieved successfully.
@@ -204,9 +311,42 @@ paths:
       - oAuth2ClientCredentials:
         - create:users
         - read:users
+      x-codeSamples:
+      - lang: csharp
+        label: Get a job
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Jobs.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a job
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.Jobs.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get a job
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.jobs().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a job
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->jobs->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a job
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.jobs.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a job
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.jobs.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get a job
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get a job
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.get(\"id\");\n}\nmain();\n"
   /jobs/{id}/errors:
     get:
-      summary: Get Job Error Details
+      summary: Get job error details
       description: Retrieve error details of a failed job.
       tags:
       - Jobs
@@ -217,7 +357,6 @@ paths:
         required: true
         schema:
           type: string
-          pattern: ^job_[A-Za-z0-9]{16}$
       responses:
         '200':
           description: Job successfully retrieved.
@@ -262,8 +401,59 @@ paths:
       - oAuth2ClientCredentials:
         - create:users
         - read:users
+      x-codeSamples:
+      - lang: csharp
+        label: Get job error details
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Jobs.Errors.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get job error details
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.Jobs.Errors.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get job error details
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.jobs().errors().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get job error details
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->jobs->errors->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get job error details
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.jobs.errors.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get job error details
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.jobs.errors.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get job error details
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.errors.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get job error details
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.jobs.errors.get(\"id\");\n}\nmain();\n"
 components:
   schemas:
+    Identity:
+      type: object
+      description: This must be provided to verify primary social, enterprise and passwordless email identities. Also, is needed to verify secondary identities.
+      additionalProperties: false
+      required:
+      - user_id
+      - provider
+      properties:
+        user_id:
+          type: string
+          description: user_id of the identity to be verified.
+          default: 5457edea1b8f22891a000004
+        provider:
+          $ref: '#/components/schemas/IdentityProviderEnum'
+        connection_id:
+          type: string
+          description: connection_id of the identity.
+          pattern: ^con_[A-Za-z0-9]{16}$
     GetJobGenericErrorResponseContent:
       type: object
       additionalProperties: true
@@ -294,100 +484,12 @@ components:
         status_details:
           type: string
           description: Status details.
-    CreateImportUsersResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - id
-      - type
-      - status
-      - connection
-      - connection_id
-      - created_at
-      properties:
-        status:
-          type: string
-          description: Status of this job.
-          default: pending
-        type:
-          type: string
-          description: Type of job this is.
-          default: users_import
-        created_at:
-          type: string
-          description: When this job was created.
-        id:
-          type: string
-          description: ID of this job.
-          default: job_0000000000000001
-        connection_id:
-          type: string
-          description: connection_id of the connection to which users will be imported.
-          default: con_0000000000000001
-          pattern: ^con_[A-Za-z0-9]{16}$
-        external_id:
-          type: string
-          description: Customer-defined ID.
-    Identity:
-      type: object
-      description: This must be provided to verify primary social, enterprise and passwordless email identities. Also, is needed to verify secondary identities.
-      additionalProperties: false
-      required:
-      - user_id
-      - provider
-      properties:
-        user_id:
-          type: string
-          description: user_id of the identity to be verified.
-          default: 5457edea1b8f22891a000004
-        provider:
-          $ref: '#/components/schemas/IdentityProviderEnum'
-        connection_id:
-          type: string
-          description: connection_id of the identity.
-          pattern: ^con_[A-Za-z0-9]{16}$
-    CreateVerificationEmailRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - user_id
-      properties:
-        user_id:
-          type: string
-          description: user_id of the user to send the verification email to.
-          default: google-oauth2|1234
-          format: user-id
-        client_id:
-          type: string
-          description: client_id of the client (application). If no value provided, the global Client ID will be used.
-          format: client-id
-        identity:
-          $ref: '#/components/schemas/Identity'
-        organization_id:
-          type: string
-          description: (Optional) Organization ID – the ID of the Organization. If provided, organization parameters will be made available to the email template and organization branding will be applied to the prompt. In addition, the redirect link in the prompt will include organization_id and organization_name query string parameters.
-          default: org_2eondWoxcMIpaLQc
-          format: organization-id
     JobFileFormatEnum:
       type: string
       description: Format of the file. Must be `json` or `csv`.
       enum:
       - json
       - csv
-    CreateExportUsersFields:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: Name of the field in the profile.
-          maxLength: 100
-        export_as:
-          type: string
-          description: Title of the column in the exported CSV.
-          maxLength: 100
     IdentityProviderEnum:
       type: string
       description: Identity provider name of the identity (e.g. `google-oauth2`).
@@ -448,10 +550,152 @@ components:
       - wordpress
       - yahoo
       - yandex
+    CreateExportUsersRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        connection_id:
+          type: string
+          description: connection_id of the connection from which users will be exported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        format:
+          $ref: '#/components/schemas/JobFileFormatEnum'
+        limit:
+          type: integer
+          description: Limit the number of records.
+          default: 5
+          minimum: 1
+        fields:
+          type: array
+          description: List of fields to be included in the CSV. Defaults to a predefined set of fields.
+          items:
+            $ref: '#/components/schemas/CreateExportUsersFields'
+    CreateVerificationEmailResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: completed
+        type:
+          type: string
+          description: Type of job this is.
+          default: verification_email
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+    GetJobImportUserError:
+      type: object
+      additionalProperties: true
+      properties:
+        code:
+          type: string
+          description: Error code.
+        message:
+          type: string
+          description: Error message.
+        path:
+          type: string
+          description: Error field.
+    CreateExportUsersFields:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: Name of the field in the profile.
+          maxLength: 100
+        export_as:
+          type: string
+          description: Title of the column in the exported CSV.
+          maxLength: 100
     GetJobUserError:
       type: object
       description: User, as provided in the import file
       additionalProperties: true
+    CreateImportUsersRequestContent:
+      type: object
+      additionalProperties: true
+      required:
+      - users
+      - connection_id
+      properties:
+        users:
+          type: string
+          contentMediaType: application/octet-stream
+        connection_id:
+          type: string
+          description: connection_id of the connection to which users will be imported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        upsert:
+          type: boolean
+          description: Whether to update users if they already exist (true) or to ignore them (false).
+          default: false
+        external_id:
+          type: string
+          description: Customer-defined ID.
+        send_completion_email:
+          type: boolean
+          description: Whether to send a completion email to all tenant owners when the job is finished (true) or not (false).
+          default: true
+    CreateImportUsersResponseContent:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - type
+      - status
+      - connection
+      - connection_id
+      - created_at
+      properties:
+        status:
+          type: string
+          description: Status of this job.
+          default: pending
+        type:
+          type: string
+          description: Type of job this is.
+          default: users_import
+        created_at:
+          type: string
+          description: When this job was created.
+        id:
+          type: string
+          description: ID of this job.
+          default: job_0000000000000001
+        connection_id:
+          type: string
+          description: connection_id of the connection to which users will be imported.
+          default: con_0000000000000001
+          pattern: ^con_[A-Za-z0-9]{16}$
+        external_id:
+          type: string
+          description: Customer-defined ID.
+    GetJobErrorResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        user:
+          $ref: '#/components/schemas/GetJobUserError'
+        errors:
+          type: array
+          description: Errors importing the user.
+          items:
+            $ref: '#/components/schemas/GetJobImportUserError'
     GetJobResponseContent:
       type: object
       additionalProperties: true
@@ -495,100 +739,6 @@ components:
           description: Status details.
         summary:
           $ref: '#/components/schemas/GetJobSummary'
-    CreateExportUsersRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        connection_id:
-          type: string
-          description: connection_id of the connection from which users will be exported.
-          default: con_0000000000000001
-          pattern: ^con_[A-Za-z0-9]{16}$
-        format:
-          $ref: '#/components/schemas/JobFileFormatEnum'
-        limit:
-          type: integer
-          description: Limit the number of records.
-          default: 5
-          minimum: 1
-        fields:
-          type: array
-          description: List of fields to be included in the CSV. Defaults to a predefined set of fields.
-          items:
-            $ref: '#/components/schemas/CreateExportUsersFields'
-    GetJobImportUserError:
-      type: object
-      additionalProperties: true
-      properties:
-        code:
-          type: string
-          description: Error code.
-        message:
-          type: string
-          description: Error message.
-        path:
-          type: string
-          description: Error field.
-    GetJobErrorResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        user:
-          $ref: '#/components/schemas/GetJobUserError'
-        errors:
-          type: array
-          description: Errors importing the user.
-          items:
-            $ref: '#/components/schemas/GetJobImportUserError'
-    CreateImportUsersRequestContent:
-      type: object
-      additionalProperties: true
-      required:
-      - users
-      - connection_id
-      properties:
-        users:
-          type: string
-          contentMediaType: application/octet-stream
-        connection_id:
-          type: string
-          description: connection_id of the connection to which users will be imported.
-          default: con_0000000000000001
-          pattern: ^con_[A-Za-z0-9]{16}$
-        upsert:
-          type: boolean
-          description: Whether to update users if they already exist (true) or to ignore them (false).
-          default: false
-        external_id:
-          type: string
-          description: Customer-defined ID.
-        send_completion_email:
-          type: boolean
-          description: Whether to send a completion email to all tenant owners when the job is finished (true) or not (false).
-          default: true
-    CreateVerificationEmailResponseContent:
-      type: object
-      additionalProperties: true
-      required:
-      - id
-      - type
-      - status
-      properties:
-        status:
-          type: string
-          description: Status of this job.
-          default: completed
-        type:
-          type: string
-          description: Type of job this is.
-          default: verification_email
-        created_at:
-          type: string
-          description: When this job was created.
-        id:
-          type: string
-          description: ID of this job.
-          default: job_0000000000000001
     GetJobSummary:
       type: object
       description: Job execution summary.
@@ -610,6 +760,28 @@ components:
           type: integer
           description: Total number of operations.
           default: 0
+    CreateVerificationEmailRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: user_id of the user to send the verification email to.
+          default: google-oauth2|1234
+          format: user-id
+        client_id:
+          type: string
+          description: client_id of the client (application). If no value provided, the global Client ID will be used.
+          format: client-id
+        identity:
+          $ref: '#/components/schemas/Identity'
+        organization_id:
+          type: string
+          description: (Optional) Organization ID – the ID of the Organization. If provided, organization parameters will be made available to the email template and organization branding will be applied to the prompt. In addition, the redirect link in the prompt will include organization_id and organization_name query string parameters.
+          default: org_2eondWoxcMIpaLQc
+          format: organization-id
     CreateExportUsersResponseContent:
       type: object
       additionalProperties: true
@@ -668,6 +840,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -744,8 +920,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -763,6 +941,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -797,9 +978,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -821,6 +1008,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -874,7 +1065,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -885,6 +1080,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

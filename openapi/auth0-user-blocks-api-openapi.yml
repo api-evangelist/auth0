@@ -20,7 +20,7 @@ tags:
 paths:
   /user-blocks:
     get:
-      summary: Get Blocks by Identifier
+      summary: Get blocks by identifier
       description: Retrieve details of all Brute-force Protection blocks for a user with the given identifier (username, phone number, or email).
       tags:
       - user-blocks
@@ -33,7 +33,7 @@ paths:
           type: string
       - name: consider_brute_force_enablement
         in: query
-        description: "\n          If true and Brute Force Protection is enabled and configured to block logins, will return a list of blocked IP addresses.\n          If true and Brute Force Protection is disabled, will return an empty list.\n        "
+        description: "\n          If true, returns only blocks that are currently enforced (e.g. subject to protection status, IP allowlist, etc.).\n          If false or omitted, returns all blocks regardless of enforcement state.\n        "
         schema:
           type: boolean
       responses:
@@ -62,8 +62,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:users
+      x-codeSamples:
+      - lang: csharp
+        label: Get blocks by identifier
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.UserBlocks.ListByIdentifierAsync(\n            new ListUserBlocksByIdentifierRequestParameters {\n                Identifier = \"identifier\",\n                ConsiderBruteForceEnablement = true\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get blocks by identifier
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListUserBlocksByIdentifierRequestParameters{\n        Identifier: \"identifier\",\n        ConsiderBruteForceEnablement: management.Bool(\n            true,\n        ),\n    }\n    mgmt.UserBlocks.ListByIdentifier(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get blocks by identifier
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListUserBlocksByIdentifierRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.userBlocks().listByIdentifier(\n            ListUserBlocksByIdentifierRequestParameters\n                .builder()\n                .identifier(\"identifier\")\n                .considerBruteForceEnablement(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get blocks by identifier
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\UserBlocks\\Requests\\ListUserBlocksByIdentifierRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->userBlocks->listByIdentifier(\n    new ListUserBlocksByIdentifierRequestParameters([\n        'identifier' => 'identifier',\n        'considerBruteForceEnablement' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get blocks by identifier
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.user_blocks.list_by_identifier(\n    identifier=\"identifier\",\n    consider_brute_force_enablement=True,\n)\n"
+      - lang: ruby
+        label: Get blocks by identifier
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.user_blocks.list_by_identifier(\n  identifier: \"identifier\",\n  consider_brute_force_enablement: true\n)\n"
+      - lang: typescript
+        label: Get blocks by identifier
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.listByIdentifier({\n        identifier: \"identifier\",\n        considerBruteForceEnablement: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get blocks by identifier
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.listByIdentifier({\n        identifier: \"identifier\",\n        considerBruteForceEnablement: true,\n    });\n}\nmain();\n"
     delete:
-      summary: Unblock by Identifier
+      summary: Unblock by identifier
       description: 'Remove all Brute-force Protection blocks for the user with the given identifier (username, phone number, or email).
 
 
@@ -100,9 +125,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:users
+      x-codeSamples:
+      - lang: csharp
+        label: Unblock by identifier
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.UserBlocks.DeleteByIdentifierAsync(\n            new DeleteUserBlocksByIdentifierRequestParameters {\n                Identifier = \"identifier\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Unblock by identifier
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.DeleteUserBlocksByIdentifierRequestParameters{\n        Identifier: \"identifier\",\n    }\n    mgmt.UserBlocks.DeleteByIdentifier(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Unblock by identifier
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.DeleteUserBlocksByIdentifierRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.userBlocks().deleteByIdentifier(\n            DeleteUserBlocksByIdentifierRequestParameters\n                .builder()\n                .identifier(\"identifier\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Unblock by identifier
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\UserBlocks\\Requests\\DeleteUserBlocksByIdentifierRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->userBlocks->deleteByIdentifier(\n    new DeleteUserBlocksByIdentifierRequestParameters([\n        'identifier' => 'identifier',\n    ]),\n);\n"
+      - lang: python
+        label: Unblock by identifier
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.user_blocks.delete_by_identifier(\n    identifier=\"identifier\",\n)\n"
+      - lang: ruby
+        label: Unblock by identifier
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.user_blocks.delete_by_identifier(identifier: "identifier")
+
+          '
+      - lang: typescript
+        label: Unblock by identifier
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.deleteByIdentifier({\n        identifier: \"identifier\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Unblock by identifier
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.deleteByIdentifier({\n        identifier: \"identifier\",\n    });\n}\nmain();\n"
   /user-blocks/{id}:
     get:
-      summary: Get a User's Blocks
+      summary: Get a user's blocks
       description: Retrieve details of all Brute-force Protection blocks for the user with the given ID.
       tags:
       - user-blocks
@@ -115,7 +173,7 @@ paths:
           type: string
       - name: consider_brute_force_enablement
         in: query
-        description: "\n          If true and Brute Force Protection is enabled and configured to block logins, will return a list of blocked IP addresses.\n          If true and Brute Force Protection is disabled, will return an empty list.\n        "
+        description: "\n          If true, returns only blocks that are currently enforced (e.g. subject to protection status, IP allowlist, etc.).\n          If false or omitted, returns all blocks regardless of enforcement state.\n        "
         schema:
           type: boolean
       responses:
@@ -147,8 +205,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:users
+      x-codeSamples:
+      - lang: csharp
+        label: Get a user's blocks
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.UserBlocks.ListAsync(\n            id: \"id\",\n            request: new ListUserBlocksRequestParameters {\n                ConsiderBruteForceEnablement = true\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a user's blocks
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListUserBlocksRequestParameters{\n        ConsiderBruteForceEnablement: management.Bool(\n            true,\n        ),\n    }\n    mgmt.UserBlocks.List(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get a user's blocks
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListUserBlocksRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.userBlocks().list(\n            \"id\",\n            ListUserBlocksRequestParameters\n                .builder()\n                .considerBruteForceEnablement(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get a user's blocks
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\UserBlocks\\Requests\\ListUserBlocksRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->userBlocks->list(\n    'id',\n    new ListUserBlocksRequestParameters([\n        'considerBruteForceEnablement' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get a user's blocks
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.user_blocks.list(\n    id=\"id\",\n    consider_brute_force_enablement=True,\n)\n"
+      - lang: ruby
+        label: Get a user's blocks
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.user_blocks.list(\n  id: \"id\",\n  consider_brute_force_enablement: true\n)\n"
+      - lang: typescript
+        label: Get a user's blocks
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.list(\"id\", {\n        considerBruteForceEnablement: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get a user's blocks
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.list(\"id\", {\n        considerBruteForceEnablement: true,\n    });\n}\nmain();\n"
     delete:
-      summary: Unblock a User
+      summary: Unblock a user
       description: 'Remove all Brute-force Protection blocks for the user with the given ID.
 
 
@@ -187,9 +270,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:users
+      x-codeSamples:
+      - lang: csharp
+        label: Unblock a user
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.UserBlocks.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Unblock a user
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.UserBlocks.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Unblock a user
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.userBlocks().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Unblock a user
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->userBlocks->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Unblock a user
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.user_blocks.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Unblock a user
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.user_blocks.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Unblock a user
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Unblock a user
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.userBlocks.delete(\"id\");\n}\nmain();\n"
 components:
   schemas:
-    ListUserBlocksByIdentifierResponseContent:
+    ListUserBlocksResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -213,7 +329,7 @@ components:
         connection:
           type: string
           description: Connection identifier
-    ListUserBlocksResponseContent:
+    ListUserBlocksByIdentifierResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -239,6 +355,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -315,8 +435,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -334,6 +456,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -368,9 +493,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -392,6 +523,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -445,7 +580,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -456,6 +595,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

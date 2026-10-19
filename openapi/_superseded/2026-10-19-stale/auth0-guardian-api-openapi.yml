@@ -1,0 +1,2534 @@
+openapi: 3.2.0
+info:
+  title: Auth0 Management Guardian API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
+servers:
+- url: https://{tenantDomain}/api/v2
+  variables:
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
+tags:
+- name: Guardian
+paths:
+  /guardian/enrollments/ticket:
+    post:
+      summary: Create a Multi-factor Authentication Enrollment Ticket
+      description: 'Create a multi-factor authentication (MFA) enrollment ticket, and optionally send an email with the created ticket, to a given user.
+
+        Create a multi-factor authentication (MFA) enrollment ticket, and optionally send an email with the created ticket to a given user. Enrollment tickets can specify which factor users must enroll with or allow existing MFA users to enroll in additional factors.
+
+
+        Note: Users cannot enroll in Email as a factor through custom enrollment tickets.'
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGuardianEnrollmentTicketRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateGuardianEnrollmentTicketRequestContent'
+      responses:
+        '200':
+          description: Enrollment ticket successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGuardianEnrollmentTicketResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+        '404':
+          description: User not found.
+      operationId: post_ticket
+      x-release-lifecycle: GA
+      x-operation-name: createTicket
+      x-operation-group:
+      - guardian
+      - enrollments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:guardian_enrollment_tickets
+  /guardian/enrollments/{id}:
+    get:
+      summary: Get a Multi-factor Authentication Enrollment
+      description: Retrieve details, such as status and type, for a specific multi-factor authentication enrollment registered to a user account.
+      tags:
+      - Guardian
+      parameters:
+      - name: id
+        in: path
+        description: ID of the enrollment to be retrieve.
+        required: true
+        schema:
+          type: string
+          pattern: ^((totp|sms|voice|push|email|recovery-code|webauthn-roaming|webauthn-platform)\|)?dev_[A-Za-z0-9-_]+$
+      responses:
+        '200':
+          description: Enrollment successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianEnrollmentResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_enrollments_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - guardian
+      - enrollments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_enrollments
+    delete:
+      summary: Delete a Multi-factor Authentication Enrollment
+      description: Remove a specific multi-factor authentication (MFA) enrollment from a user's account. This allows the user to re-enroll with MFA. For more information, review Reset User Multi-Factor Authentication and Recovery Codes.
+      tags:
+      - Guardian
+      parameters:
+      - name: id
+        in: path
+        description: ID of the enrollment to be deleted.
+        required: true
+        schema:
+          type: string
+          pattern: ^((totp|sms|voice|push|email|recovery-code|webauthn-roaming|webauthn-platform)\|)?dev_[A-Za-z0-9-_]+$
+      responses:
+        '204':
+          description: Enrollment successfully deleted.
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope (expected delete:enrollment).
+      operationId: delete_enrollments_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - guardian
+      - enrollments
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:guardian_enrollments
+  /guardian/factors:
+    get:
+      summary: Get Factors and Multi-factor Authentication Details
+      description: Retrieve details of all multi-factor authentication factors associated with your tenant.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Factors successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GuardianFactor'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_factors
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListFactorsRequestParameters
+      x-operation-group:
+      - guardian
+      - factors
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+  /guardian/factors/duo/settings:
+    get:
+      summary: Get DUO Configuration
+      description: Retrieves the DUO account and factor configuration.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: DUO settings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorDuoSettingsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_factor_duo_settings
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group:
+      - guardian
+      - factors
+      - duo
+      - settings
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    patch:
+      summary: Update the DUO Configuration
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorDuoSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorDuoSettingsRequestContent'
+      responses:
+        '200':
+          description: DUO settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuardianFactorDuoSettingsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: patch_factor_duo_settings
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group:
+      - guardian
+      - factors
+      - duo
+      - settings
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+    put:
+      summary: Set the DUO Configuration
+      description: Set the DUO account configuration and other properties specific to this factor.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorDuoSettingsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorDuoSettingsRequestContent'
+      responses:
+        '200':
+          description: DUO settings successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorDuoSettingsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_factor_duo_settings
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - guardian
+      - factors
+      - duo
+      - settings
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/phone/message-types:
+    get:
+      summary: Get Enabled Phone Factors
+      description: Retrieve list of phone-type MFA factors (i.e., sms and voice) that are enabled for your tenant.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Returns the enabled phone factors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorPhoneMessageTypesResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: get_message-types
+      x-release-lifecycle: GA
+      x-operation-name: getMessageTypes
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update the Enabled Phone Factors
+      description: Replace the list of phone-type MFA factors (i.e., sms and voice) that are enabled for your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorPhoneMessageTypesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorPhoneMessageTypesRequestContent'
+      responses:
+        '200':
+          description: Returns selected SMS provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorPhoneMessageTypesResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+        '404':
+          description: The phone factor does not exist.
+      operationId: put_message-types
+      x-release-lifecycle: GA
+      x-operation-name: setMessageTypes
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/phone/providers/twilio:
+    get:
+      summary: Get Twilio Configuration
+      description: Retrieve configuration details for a Twilio phone provider that has been set up in your tenant. To learn more, review Configure SMS and Voice Notifications for MFA.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Twilio Phone configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderPhoneTwilioResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_phone_twilio_factor_provider
+      x-release-lifecycle: GA
+      x-operation-name: getTwilioProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update Twilio Configuration
+      description: Update the configuration of a Twilio phone provider that has been set up in your tenant. To learn more, review Configure SMS and Voice Notifications for MFA.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPhoneTwilioRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPhoneTwilioRequestContent'
+      responses:
+        '200':
+          description: Twilio Phone configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPhoneTwilioResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_twilio
+      x-release-lifecycle: GA
+      x-operation-name: setTwilioProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/phone/selected-provider:
+    get:
+      summary: Get Phone Provider Configuration
+      description: Retrieve details of the multi-factor authentication phone provider configured for your tenant.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Returns selected Phone provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderPhoneResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: get_guardian_phone_providers
+      x-release-lifecycle: GA
+      x-operation-name: getSelectedProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update Phone Provider Configuration
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPhoneRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPhoneRequestContent'
+      responses:
+        '200':
+          description: Returns selected Phone provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPhoneResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: put_phone_providers
+      x-release-lifecycle: GA
+      x-operation-name: setProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/phone/templates:
+    get:
+      summary: Get Enrollment and Verification Phone Templates
+      description: Retrieve details of the multi-factor authentication enrollment and verification templates for phone-type factors available in your tenant.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Phone enrollment and verification templates successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorPhoneTemplatesResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_factor_phone_templates
+      x-release-lifecycle: GA
+      x-operation-name: getTemplates
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update Enrollment and Verification Phone Templates
+      description: Customize the messages sent to complete phone enrollment and verification (subscription required).
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorPhoneTemplatesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorPhoneTemplatesRequestContent'
+      responses:
+        '200':
+          description: Phone enrollment and verification templates successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorPhoneTemplatesResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+          x-description-1: 'Invalid <enrollment_message/verification_message> template: <error details>.'
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_factor_phone_templates
+      x-release-lifecycle: GA
+      x-operation-name: setTemplates
+      x-operation-group:
+      - guardian
+      - factors
+      - phone
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/push-notification/providers/apns:
+    get:
+      summary: Get APNS Push Notification Configuration
+      description: Retrieve configuration details for the multi-factor authentication APNS provider associated with your tenant.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: APNS configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderApnsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_apns
+      x-release-lifecycle: GA
+      x-operation-name: getApnsProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    patch:
+      summary: Update APNs Provider Configuration
+      description: Modify configuration details of the multi-factor authentication APNS provider associated with your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationApnsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationApnsRequestContent'
+      responses:
+        '200':
+          description: APNS configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationApnsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+          x-description-1: 'The PKCS #12 file is invalid. Please ensure the client certificate is not expired, the environment matches, and the key and certificate are not encrypted with a deprecated algorithm.'
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: patch_apns
+      x-release-lifecycle: GA
+      x-operation-name: updateApnsProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+    put:
+      summary: Update APNS Configuration
+      description: Overwrite all configuration details of the multi-factor authentication APNS provider associated with your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationApnsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationApnsRequestContent'
+      responses:
+        '200':
+          description: APNS configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationApnsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+          x-description-1: 'The PKCS #12 file is invalid. Please ensure the client certificate is not expired, the environment matches, and the key and certificate are not encrypted with a deprecated algorithm.'
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_apns
+      x-release-lifecycle: GA
+      x-operation-name: setApnsProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/push-notification/providers/fcm:
+    patch:
+      summary: Updates FCM Configuration
+      description: Modify configuration details of the multi-factor authentication FCM provider associated with your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationFcmRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationFcmRequestContent'
+      responses:
+        '200':
+          description: FCM configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationFcmResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: patch_fcm
+      x-release-lifecycle: GA
+      x-operation-name: updateFcmProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+    put:
+      summary: Overwrite FCM Configuration
+      description: Overwrite all configuration details of the multi-factor authentication FCM provider associated with your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationFcmRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationFcmRequestContent'
+      responses:
+        '200':
+          description: FCM configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationFcmResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: put_fcm
+      x-release-lifecycle: GA
+      x-operation-name: setFcmProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/push-notification/providers/fcmv1:
+    patch:
+      summary: Updates FCMV1 Configuration
+      description: Modify configuration details of the multi-factor authentication FCMV1 provider associated with your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationFcmv1RequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationFcmv1RequestContent'
+      responses:
+        '200':
+          description: FCMV1 configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationFcmv1ResponseContent'
+        '400':
+          description: Invalid input based on schemas
+          x-description-1: Invalid server credentials
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: patch_fcmv1
+      x-release-lifecycle: GA
+      x-operation-name: updateFcmv1Provider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+    put:
+      summary: Overwrite FCMV1 Configuration
+      description: Overwrite all configuration details of the multi-factor authentication FCMV1 provider associated with your tenant.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationFcmv1RequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationFcmv1RequestContent'
+      responses:
+        '200':
+          description: FCMV1 configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationFcmv1ResponseContent'
+        '400':
+          description: Invalid input based on schemas
+          x-description-1: Invalid server credentials
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: put_fcmv1
+      x-release-lifecycle: GA
+      x-operation-name: setFcmv1Provider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/push-notification/providers/sns:
+    get:
+      summary: Get AWS SNS Configuration
+      description: Retrieve configuration details for an AWS SNS push notification provider that has been enabled for MFA. To learn more, review Configure Push Notifications for MFA.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: AWS SNS configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderSnsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_sns
+      x-release-lifecycle: GA
+      x-operation-name: getSnsProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    patch:
+      summary: Update AWS SNS Configuration
+      description: Configure the AWS SNS push notification provider configuration (subscription required).
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationSnsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationSnsRequestContent'
+      responses:
+        '200':
+          description: AWS SNS configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuardianFactorsProviderPushNotificationSnsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: patch_sns
+      x-release-lifecycle: GA
+      x-operation-name: updateSnsProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+    put:
+      summary: Configure AWS SNS Configuration
+      description: Configure the AWS SNS push notification provider configuration (subscription required).
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationSnsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationSnsRequestContent'
+      responses:
+        '200':
+          description: AWS SNS configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationSnsResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_sns
+      x-release-lifecycle: GA
+      x-operation-name: setSnsProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/push-notification/selected-provider:
+    get:
+      summary: Get Push Notification Provider
+      description: Modify the push notification provider configured for your tenant. For more information, review Configure Push Notifications for MFA.
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Returns selected push notification provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderPushNotificationResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: get_pn_providers
+      x-release-lifecycle: GA
+      x-operation-name: getSelectedProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update Push Notification Configuration
+      description: Modify the push notification provider configured for your tenant. For more information, review Configure Push Notifications for MFA.
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationRequestContent'
+      responses:
+        '200':
+          description: Returns selected push notification provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderPushNotificationResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: put_pn_providers
+      x-release-lifecycle: GA
+      x-operation-name: setProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - pushNotification
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/sms/providers/twilio:
+    get:
+      summary: Get Twilio SMS Configuration
+      description: 'Retrieve the Twilio SMS provider configuration (subscription required).
+
+
+        A new endpoint is available to retrieve the Twilio configuration related to phone factors (phone Twilio configuration). It has the same payload as this one. Please use it instead.'
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Twilio SMS configuration successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderSmsTwilioResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_sms_twilio_factor_provider
+      x-release-lifecycle: GA
+      x-operation-name: getTwilioProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - sms
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update Twilio SMS Configuration
+      description: 'This endpoint has been deprecated. To complete this action, use the Update Twilio phone configuration endpoint.
+
+
+        Previous functionality: Update the Twilio SMS provider configuration.'
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderSmsTwilioRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderSmsTwilioRequestContent'
+      responses:
+        '200':
+          description: Twilio SMS configuration successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderSmsTwilioResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_sms_twilio_factor_provider
+      x-release-lifecycle: GA
+      x-operation-name: setTwilioProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - sms
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/sms/selected-provider:
+    get:
+      summary: Get SMS Configuration
+      description: 'This endpoint has been deprecated. To complete this action, use the Retrieve phone configuration endpoint instead.
+
+
+        Previous functionality: Retrieve details for the multi-factor authentication SMS provider configured for your tenant.'
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Returns selected SMS provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorsProviderSmsResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: get_sms_providers
+      x-release-lifecycle: GA
+      x-operation-name: getSelectedProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - sms
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update SMS Configuration
+      description: 'This endpoint has been deprecated. To complete this action, use the Update phone configuration endpoint instead.
+
+
+        Previous functionality: Update the multi-factor authentication SMS provider configuration in your tenant.'
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderSmsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorsProviderSmsRequestContent'
+      responses:
+        '200':
+          description: Returns selected SMS provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorsProviderSmsResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: put_sms_providers
+      x-release-lifecycle: GA
+      x-operation-name: setProvider
+      x-operation-group:
+      - guardian
+      - factors
+      - sms
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/sms/templates:
+    get:
+      summary: Get SMS Enrollment and Verification Templates
+      description: 'This endpoint has been deprecated. To complete this action, use the Retrieve enrollment and verification phone templates endpoint instead.
+
+
+        Previous function: Retrieve details of SMS enrollment and verification templates configured for your tenant.'
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: SMS enrollment and verification templates successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorSmsTemplatesResponseContent'
+        '204':
+          description: No content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGuardianFactorSmsTemplatesResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: get_factor_sms_templates
+      x-release-lifecycle: GA
+      x-operation-name: getTemplates
+      x-operation-group:
+      - guardian
+      - factors
+      - sms
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:guardian_factors
+    put:
+      summary: Update SMS Enrollment and Verification Templates
+      description: 'This endpoint has been deprecated. To complete this action, use the Update enrollment and verification phone templates endpoint instead.
+
+
+        Previous functionality: Customize the messages sent to complete SMS enrollment and verification.'
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorSmsTemplatesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorSmsTemplatesRequestContent'
+      responses:
+        '200':
+          description: SMS enrollment and verification templates successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorSmsTemplatesResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+          x-description-1: 'Invalid <enrollment_message/verification_message> template: <error details>.'
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_factor_sms_templates
+      x-release-lifecycle: GA
+      x-operation-name: setTemplates
+      x-operation-group:
+      - guardian
+      - factors
+      - sms
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/factors/{name}:
+    put:
+      summary: Update Multi-factor Authentication Type
+      description: Update the status (i.e., enabled or disabled) of a specific multi-factor authentication factor.
+      tags:
+      - Guardian
+      parameters:
+      - name: name
+        in: path
+        description: Factor name. Can be `sms`, `push-notification`, `email`, `duo` `otp` `webauthn-roaming`, `webauthn-platform`, or `recovery-code`.
+        required: true
+        schema:
+          $ref: '#/components/schemas/GuardianFactorNameEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianFactorRequestContent'
+      responses:
+        '200':
+          description: Factor updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianFactorResponseContent'
+        '400':
+          description: Invalid input based on schemas.
+        '401':
+          description: Token has expired or signature is invalid.
+        '403':
+          description: Insufficient scope.
+      operationId: put_factors_by_name
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - guardian
+      - factors
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:guardian_factors
+  /guardian/policies:
+    get:
+      summary: Get Multi-factor Authentication Policies
+      description: 'Retrieve the multi-factor authentication (MFA) policies configured for your tenant.
+
+
+        The following policies are supported:
+
+
+        all-applications policy prompts with MFA for all logins.
+
+
+        confidence-score policy prompts with MFA only for low confidence logins.
+
+
+        Note: The confidence-score policy is part of the Adaptive MFA feature. Adaptive MFA requires an add-on for the Enterprise plan; review Auth0 Pricing for more details.'
+      tags:
+      - Guardian
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGuardianPoliciesResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: get_policies
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-group:
+      - guardian
+      - policies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:mfa_policies
+    put:
+      summary: Update Multi-factor Authentication Policies
+      description: 'Set multi-factor authentication (MFA) policies for your tenant.
+
+
+        The following policies are supported:
+
+
+        all-applications policy prompts with MFA for all logins.
+
+
+        confidence-score policy prompts with MFA only for low confidence logins.
+
+
+        Note: The confidence-score policy is part of the Adaptive MFA feature. Adaptive MFA requires an add-on for the Enterprise plan; review Auth0 Pricing for more details.'
+      tags:
+      - Guardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetGuardianPoliciesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetGuardianPoliciesRequestContent'
+      responses:
+        '200':
+          description: Policies updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetGuardianPoliciesResponseContent'
+        '400':
+          description: Invalid input based on schemas
+        '401':
+          description: Token has expired or signature is invalid
+        '403':
+          description: Insufficient scope
+      operationId: put_policies
+      x-release-lifecycle: GA
+      x-operation-name: set
+      x-operation-group:
+      - guardian
+      - policies
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:mfa_policies
+components:
+  schemas:
+    UpdateGuardianFactorDuoSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    SetGuardianFactorsProviderPushNotificationResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
+    UpdateGuardianFactorDuoSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    GetGuardianFactorsProviderApnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 20
+        sandbox:
+          type: boolean
+        enabled:
+          type: boolean
+    GuardianEnrollmentStatus:
+      type: string
+      description: Status of this enrollment. Can be `pending` or `confirmed`.
+      default: pending
+      enum:
+      - pending
+      - confirmed
+    UpdateGuardianFactorsProviderPushNotificationFcmRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_key:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 152
+    SetGuardianFactorsProviderPhoneResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    GuardianEnrollmentFactorEnum:
+      type: string
+      description: 'Optional. Specifies which factor the user must enroll with.<br />Note: Parameter can only be used with Universal Login; it cannot be used with Classic Login or custom MFA pages.'
+      enum:
+      - push-notification
+      - phone
+      - email
+      - otp
+      - webauthn-roaming
+      - webauthn-platform
+    CreateGuardianEnrollmentTicketRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - user_id
+      properties:
+        user_id:
+          type: string
+          description: user_id for the enrollment ticket
+          format: user-id
+        email:
+          type: string
+          description: alternate email to which the enrollment email will be sent. Optional - by default, the email will be sent to the user's default address
+          format: email
+        send_mail:
+          type: boolean
+          description: Send an email to the user to start the enrollment
+        email_locale:
+          type: string
+          description: Optional. Specify the locale of the enrollment email. Used with send_email.
+        factor:
+          $ref: '#/components/schemas/GuardianEnrollmentFactorEnum'
+        allow_multiple_enrollments:
+          type: boolean
+          description: 'Optional. Allows a user who has previously enrolled in MFA to enroll with additional factors.<br />Note: Parameter can only be used with Universal Login; it cannot be used with Classic Login or custom MFA pages.'
+    UpdateGuardianFactorsProviderPushNotificationFcmResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    UpdateGuardianFactorsProviderPushNotificationFcmv1RequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_credentials:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    SetGuardianFactorsProviderPushNotificationFcmv1ResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    SetGuardianFactorsProviderSmsTwilioResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorsProviderPhoneTwilioResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorsProviderSmsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    SetGuardianFactorsProviderSmsTwilioRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorsProviderPhoneTwilioRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorsProviderPushNotificationFcmResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    CreateGuardianEnrollmentTicketResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        ticket_id:
+          type: string
+          description: The ticket_id used to identify the enrollment
+          default: u2x2-u2x2-u2x2-u2x2-u2x2-u2x2
+        ticket_url:
+          type: string
+          description: The url you can use to start enrollment
+          format: url
+    GetGuardianFactorPhoneTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    SetGuardianFactorDuoSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    SetGuardianFactorsProviderPhoneRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    UpdateGuardianFactorsProviderPushNotificationFcmv1ResponseContent:
+      type: object
+      additionalProperties: true
+      minProperties: 0
+      maxProperties: 0
+    SetGuardianFactorsProviderPushNotificationApnsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        sandbox:
+          type: boolean
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        p12:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    SetGuardianFactorPhoneMessageTypesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - message_types
+      properties:
+        message_types:
+          type: array
+          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
+          items:
+            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
+    SetGuardianFactorPhoneTemplatesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    GetGuardianFactorPhoneMessageTypesResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        message_types:
+          type: array
+          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
+          items:
+            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
+    SetGuardianPoliciesRequestContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/MFAPolicyEnum'
+    SetGuardianFactorResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether this factor is enabled (true) or disabled (false).
+    MFAPolicyEnum:
+      type: string
+      description: The MFA policy
+      enum:
+      - all-applications
+      - confidence-score
+    SetGuardianPoliciesResponseContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/MFAPolicyEnum'
+    GetGuardianFactorsProviderPhoneTwilioResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorPhoneMessageTypesResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        message_types:
+          type: array
+          description: The list of phone factors to enable on the tenant. Can include `sms` and `voice`.
+          items:
+            $ref: '#/components/schemas/GuardianFactorPhoneFactorMessageTypeEnum'
+    GetGuardianFactorDuoSettingsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    GuardianFactorPhoneFactorMessageTypeEnum:
+      type: string
+      enum:
+      - sms
+      - voice
+    GetGuardianFactorsProviderPushNotificationResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
+    SetGuardianFactorSmsTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    GuardianEnrollmentDate:
+      type: string
+      default: '2016-07-12T17:56:26.804Z'
+      description: Enrollment date and time.
+    SetGuardianFactorsProviderSmsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    GetGuardianFactorsProviderSnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        aws_access_key_id:
+          type:
+          - string
+          - 'null'
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+        aws_secret_access_key:
+          type:
+          - string
+          - 'null'
+          default: B1ER5JHDGJL3C4sVAKK7SBsq806R3IpL
+          minLength: 1
+          maxLength: 1000
+        aws_region:
+          type:
+          - string
+          - 'null'
+          default: us-west-1
+          minLength: 1
+          maxLength: 1000
+          pattern: ^(?:us-east-[0-9]{1,2}|us-west-[0-9]{1,2}|ap-southeast-[0-9]{1,2}|ap-northeast-[0-9]{1,2}|ap-central-[0-9]{1,2}|eu-west-[0-9]{1,2}|eu-central-[0-9]{1,2})$
+        sns_apns_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        sns_gcm_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorSmsTemplatesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    SetGuardianFactorsProviderPushNotificationFcmRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_key:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 152
+    SetGuardianFactorsProviderPushNotificationSnsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        aws_access_key_id:
+          type:
+          - string
+          - 'null'
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+        aws_secret_access_key:
+          type:
+          - string
+          - 'null'
+          default: B1ER5JHDGJL3C4sVAKK7SBsq806R3IpL
+          minLength: 1
+          maxLength: 1000
+        aws_region:
+          type:
+          - string
+          - 'null'
+          default: us-west-1
+          minLength: 1
+          maxLength: 1000
+          pattern: ^(?:us-east-[0-9]{1,2}|us-west-[0-9]{1,2}|ap-southeast-[0-9]{1,2}|ap-northeast-[0-9]{1,2}|ap-central-[0-9]{1,2}|eu-west-[0-9]{1,2}|eu-central-[0-9]{1,2})$
+        sns_apns_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        sns_gcm_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
+          minLength: 1
+          maxLength: 1000
+    GetGuardianEnrollmentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: ID for this enrollment.
+          default: dev_0000000000000001
+        status:
+          $ref: '#/components/schemas/GuardianEnrollmentStatus'
+        name:
+          type: string
+          description: Device name (only for push notification).
+          default: iPhone 7
+          minLength: 1
+          maxLength: 20
+          pattern: ^\+[0-9]{8, 20}
+        identifier:
+          type: string
+          description: Device identifier. This is usually the phone identifier.
+          default: 76dc-a90c-a88c-a90c-a88c-a88c-a90c
+        phone_number:
+          type: string
+          description: Phone number.
+          default: +1 999999999999
+        enrolled_at:
+          $ref: '#/components/schemas/GuardianEnrollmentDate'
+        last_auth:
+          $ref: '#/components/schemas/GuardianEnrollmentDate'
+    GetGuardianFactorsProviderSmsTwilioResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type:
+          - string
+          - 'null'
+          description: From number
+          default: '+1223323'
+          minLength: 0
+          maxLength: 64
+        messaging_service_sid:
+          type:
+          - string
+          - 'null'
+          description: Copilot SID
+          default: 5dEkAiHLPCuQ1uJj4qNXcAnERFAL6cpq
+          minLength: 1
+          maxLength: 1000
+        auth_token:
+          type:
+          - string
+          - 'null'
+          description: Twilio Authentication token
+          default: zw5Ku6z2sxhd0ZVXto5SDHX6KPDByJPU
+          minLength: 1
+          maxLength: 1000
+        sid:
+          type:
+          - string
+          - 'null'
+          description: Twilio SID
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorPhoneTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    GuardianFactorNameEnum:
+      type: string
+      description: Factor name. Can be `sms`, `push-notification`, `email`, `duo` `otp` `webauthn-roaming`, `webauthn-platform`, or `recovery-code`.
+      default: sms
+      minLength: 1
+      enum:
+      - push-notification
+      - sms
+      - email
+      - duo
+      - otp
+      - webauthn-roaming
+      - webauthn-platform
+      - recovery-code
+    GuardianFactor:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether this factor is enabled (true) or disabled (false).
+          default: true
+        trial_expired:
+          type: boolean
+          description: Whether trial limits have been exceeded.
+          default: true
+        name:
+          $ref: '#/components/schemas/GuardianFactorNameEnum'
+    SetGuardianFactorsProviderPushNotificationSnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        aws_access_key_id:
+          type:
+          - string
+          - 'null'
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+        aws_secret_access_key:
+          type:
+          - string
+          - 'null'
+          default: B1ER5JHDGJL3C4sVAKK7SBsq806R3IpL
+          minLength: 1
+          maxLength: 1000
+        aws_region:
+          type:
+          - string
+          - 'null'
+          default: us-west-1
+          minLength: 1
+          maxLength: 1000
+          pattern: ^(?:us-east-[0-9]{1,2}|us-west-[0-9]{1,2}|ap-southeast-[0-9]{1,2}|ap-northeast-[0-9]{1,2}|ap-central-[0-9]{1,2}|eu-west-[0-9]{1,2}|eu-central-[0-9]{1,2})$
+        sns_apns_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        sns_gcm_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
+          minLength: 1
+          maxLength: 1000
+    UpdateGuardianFactorsProviderPushNotificationSnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        aws_access_key_id:
+          type:
+          - string
+          - 'null'
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+        aws_secret_access_key:
+          type:
+          - string
+          - 'null'
+          default: B1ER5JHDGJL3C4sVAKK7SBsq806R3IpL
+          minLength: 1
+          maxLength: 1000
+        aws_region:
+          type:
+          - string
+          - 'null'
+          default: us-west-1
+          minLength: 1
+          maxLength: 1000
+          pattern: ^(?:us-east-[0-9]{1,2}|us-west-[0-9]{1,2}|ap-southeast-[0-9]{1,2}|ap-northeast-[0-9]{1,2}|ap-central-[0-9]{1,2}|eu-west-[0-9]{1,2}|eu-central-[0-9]{1,2})$
+        sns_apns_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        sns_gcm_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
+          minLength: 1
+          maxLength: 1000
+    GetGuardianFactorSmsTemplatesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enrollment_message
+      - verification_message
+      properties:
+        enrollment_message:
+          type: string
+          description: Message sent to the user when they are invited to enroll with a phone number.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}. Please enter this code to verify your enrollment.'
+        verification_message:
+          type: string
+          description: Message sent to the user when they are prompted to verify their account.
+          default: '{{code}} is your verification code for {{tenant.friendly_name}}'
+    SetGuardianFactorRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Whether this factor is enabled (true) or disabled (false).
+    UpdateGuardianFactorsProviderPushNotificationApnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        sandbox:
+          type: boolean
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+    GetGuardianFactorsProviderPhoneResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+    SetGuardianFactorDuoSettingsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        ikey:
+          type: string
+          maxLength: 10000
+        skey:
+          type: string
+          maxLength: 10000
+          format: non-empty-string
+        host:
+          type: string
+          maxLength: 10000
+    ListGuardianPoliciesResponseContent:
+      type: array
+      items:
+        $ref: '#/components/schemas/MFAPolicyEnum'
+    SetGuardianFactorsProviderPushNotificationApnsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        sandbox:
+          type: boolean
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+    SetGuardianFactorsProviderPushNotificationRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderPushNotificationProviderDataEnum'
+    SetGuardianFactorsProviderPushNotificationFcmv1RequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        server_credentials:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    GuardianFactorsProviderPushNotificationProviderDataEnum:
+      type: string
+      enum:
+      - guardian
+      - sns
+      - direct
+    UpdateGuardianFactorsProviderPushNotificationApnsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        sandbox:
+          type: boolean
+        bundle_id:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        p12:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 10000
+    GuardianFactorsProviderSmsProviderEnum:
+      type: string
+      enum:
+      - auth0
+      - twilio
+      - phone-message-hook
+    UpdateGuardianFactorsProviderPushNotificationSnsRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        aws_access_key_id:
+          type:
+          - string
+          - 'null'
+          default: wywA2BH4VqTpfywiDuyDAYZL3xQjoO40
+          minLength: 1
+          maxLength: 1000
+        aws_secret_access_key:
+          type:
+          - string
+          - 'null'
+          default: B1ER5JHDGJL3C4sVAKK7SBsq806R3IpL
+          minLength: 1
+          maxLength: 1000
+        aws_region:
+          type:
+          - string
+          - 'null'
+          default: us-west-1
+          minLength: 1
+          maxLength: 1000
+          pattern: ^(?:us-east-[0-9]{1,2}|us-west-[0-9]{1,2}|ap-southeast-[0-9]{1,2}|ap-northeast-[0-9]{1,2}|ap-central-[0-9]{1,2}|eu-west-[0-9]{1,2}|eu-central-[0-9]{1,2})$
+        sns_apns_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 1000
+        sns_gcm_platform_application_arn:
+          type:
+          - string
+          - 'null'
+          default: urn://yRMeBxgcCXh8MeTXPBAxhQnm6gP6f5nP
+          minLength: 1
+          maxLength: 1000
+    GetGuardianFactorsProviderSmsResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        provider:
+          $ref: '#/components/schemas/GuardianFactorsProviderSmsProviderEnum'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            read:federated_connections_tokens: Read Federated Connections Tokens
+            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_idp_tokens: Read User Idp Tokens
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

@@ -20,7 +20,7 @@ tags:
 paths:
   /client-grants:
     get:
-      summary: Get Client Grants
+      summary: Get client grants
       description: Retrieve a list of client grants, including the scopes associated with the application/API pair.
       tags:
       - client-grants
@@ -106,8 +106,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:client_grants
+      x-codeSamples:
+      - lang: csharp
+        label: Get client grants
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.ClientGrants.ListAsync(\n            new ListClientGrantsRequestParameters {\n                From = \"from\",\n                Take = 1,\n                Audience = \"audience\",\n                ClientId = \"client_id\",\n                AllowAnyOrganization = true,\n                SubjectType = ClientGrantSubjectTypeEnum.Client,\n                DefaultFor = ClientGrantDefaultForEnum.ThirdPartyClients\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get client grants
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListClientGrantsRequestParameters{\n        From: management.String(\n            \"from\",\n        ),\n        Take: management.Int(\n            1,\n        ),\n        Audience: management.String(\n            \"audience\",\n        ),\n        ClientId: management.String(\n            \"client_id\",\n        ),\n        AllowAnyOrganization: management.Bool(\n            true,\n        ),\n    }\n    mgmt.ClientGrants.List(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get client grants
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ClientGrantDefaultForEnum;\nimport com.auth0.client.mgmt.types.ClientGrantSubjectTypeEnum;\nimport com.auth0.client.mgmt.types.ListClientGrantsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.clientGrants().list(\n            ListClientGrantsRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .audience(\"audience\")\n                .clientId(\"client_id\")\n                .allowAnyOrganization(true)\n                .subjectType(ClientGrantSubjectTypeEnum.CLIENT)\n                .defaultFor(ClientGrantDefaultForEnum.THIRD_PARTY_CLIENTS)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get client grants
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\ClientGrants\\Requests\\ListClientGrantsRequestParameters;\nuse Auth0\\SDK\\API\\Management\\Types\\ClientGrantSubjectTypeEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\ClientGrantDefaultForEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->clientGrants->list(\n    new ListClientGrantsRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n        'audience' => 'audience',\n        'clientId' => 'client_id',\n        'allowAnyOrganization' => true,\n        'subjectType' => ClientGrantSubjectTypeEnum::Client->value,\n        'defaultFor' => ClientGrantDefaultForEnum::ThirdPartyClients->value,\n    ]),\n);\n"
+      - lang: python
+        label: Get client grants
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.client_grants.list(\n    from=\"from\",\n    take=1,\n    audience=\"audience\",\n    client_id=\"client_id\",\n    allow_any_organization=True,\n    subject_type=\"client\",\n    default_for=\"third_party_clients\",\n)\n"
+      - lang: ruby
+        label: Get client grants
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.client_grants.list(\n  from: \"from\",\n  take: 1,\n  audience: \"audience\",\n  client_id: \"client_id\",\n  allow_any_organization: true,\n  subject_type: \"client\",\n  default_for: \"third_party_clients\"\n)\n"
+      - lang: typescript
+        label: Get client grants
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.list({\n        from: \"from\",\n        take: 1,\n        audience: \"audience\",\n        clientId: \"client_id\",\n        allowAnyOrganization: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get client grants
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.list({\n        from: \"from\",\n        take: 1,\n        audience: \"audience\",\n        clientId: \"client_id\",\n        allowAnyOrganization: true,\n    });\n}\nmain();\n"
     post:
-      summary: Create Client Grant
+      summary: Create client grant
       description: Create a client grant for a machine-to-machine login flow. To learn more, read Client Credential Flow.
       tags:
       - client-grants
@@ -150,9 +175,124 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:client_grants
+      x-codeSamples:
+      - lang: csharp
+        label: Create client grant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.ClientGrants.CreateAsync(\n            new CreateClientGrantRequestContent {\n                Audience = \"audience\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create client grant
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateClientGrantRequestContent{\n        ClientId: \"client_id\",\n        Audience: \"audience\",\n        Scope: []string{\n            \"scope\",\n        },\n    }\n    mgmt.ClientGrants.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create client grant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateClientGrantRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.clientGrants().create(\n            CreateClientGrantRequestContent\n                .builder()\n                .audience(\"audience\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create client grant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\ClientGrants\\Requests\\CreateClientGrantRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->clientGrants->create(\n    new CreateClientGrantRequestContent([\n        'audience' => 'audience',\n    ]),\n);\n"
+      - lang: python
+        label: Create client grant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.client_grants.create(\n    audience=\"audience\",\n)\n"
+      - lang: ruby
+        label: Create client grant
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.client_grants.create(audience: "audience")
+
+          '
+      - lang: typescript
+        label: Create client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.create({\n        clientId: \"client_id\",\n        audience: \"audience\",\n        scope: [\n            \"scope\",\n        ],\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.create({\n        clientId: \"client_id\",\n        audience: \"audience\",\n        scope: [\n            \"scope\",\n        ],\n    });\n}\nmain();\n"
+  /client-grants/search:
+    get:
+      summary: Search client grants
+      description: 'Search client grants using SCIM or Lucene filter syntax with low-latency, eventually consistent results. Use the parser parameter to specify "scim" or "lucene" syntax (default: "lucene"). This endpoint provides an alternative to the standard GET /client-grants endpoint with better performance for complex queries.
+
+        Results may not reflect recent updates immediately.'
+      tags:
+      - client-grants
+      parameters:
+      - name: q
+        in: query
+        description: 'Filter expression in SCIM or Lucene syntax (depending on parser parameter). SCIM examples: `audience eq "https://api.example.com"`, `client_id eq "cli_abc"`, `subject_type eq "client"`, `allow_any_organization eq true`, `default_for eq "third_party_clients"`, `audience co "example" and organization_id eq "org_123"`. SCIM operators: eq, ne, sw, ew, co, pr, gt, ge, lt, le, and, or. <br /><br /><b>Supported Fields</b>:<ul><li><i>audience</i> - Filter by audience (eq, ne, sw, co, ew, pr)</li><li><i>client_id</i> - Filter by client ID (eq, ne, sw, pr)</li><li><i>subject_type</i> - Filter by subject type (eq, ne, sw, pr)</li><li><i>allow_any_organization</i> - Filter by allow_any_organization (eq, ne, pr)</li><li><i>organization_id</i> - Filter by organization ID (eq, ne, sw, pr)</li><li><i>updated_at</i> - Filter by last update date (eq, ne, gt, ge, lt, le, pr)</li><li><i>default_for</i> - Filter by default grant group (eq, ne, sw, pr)</li></ul>Maximum 5 filter operations per query. Results are eventually consistent and may not reflect recent updates.'
+        schema:
+          type: string
+          maxLength: 1000
+      - name: parser
+        in: query
+        description: Query parser to use for the filter expression. Use "scim" for SCIM filter syntax or "lucene" for Lucene query syntax (default).
+        schema:
+          $ref: '#/components/schemas/SearchParserEnum'
+      - name: fields
+        in: query
+        description: Comma-separated list of fields to include or exclude in the response. Works with the include_fields parameter to control projection mode.
+        schema:
+          type: string
+          maxLength: 1000
+      - name: include_fields
+        in: query
+        description: Controls field projection mode. Set to true to include only fields specified in the fields parameter. Set to false to exclude fields specified in the fields parameter. Defaults to true if not specified.
+        schema:
+          type: boolean
+      - name: take
+        in: query
+        description: Maximum number of results to return per page (1-100). Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - name: from
+        in: query
+        description: Cursor for the next page of results. Use the value from the next field in the previous response.
+        schema:
+          type: string
+          maxLength: 1000
+      - name: sort
+        in: query
+        description: Field name to sort results by in ascending order. Defaults to insertion order (oldest first) if not provided.
+        schema:
+          $ref: '#/components/schemas/ClientGrantSortFieldEnum'
+      responses:
+        '200':
+          description: Client grants successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchClientGrantsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:client_grants.'
+        '404':
+          description: Not Found
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+        '500':
+          description: An internal server error occurred
+        '504':
+          description: The search request timed out. Please simplify your query and try again.
+      operationId: get_client-grants_search
+      x-release-lifecycle: EA
+      x-operation-name: search
+      x-operation-request-parameters-name: SearchClientGrantsRequestParameters
+      x-operation-group: clientGrants
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:client_grants
+      x-codeSamples: []
   /client-grants/{id}:
     get:
-      summary: Get Client Grant
+      summary: Get client grant
       description: 'Retrieve a single client grant, including the
 
         scopes associated with the application/API pair.'
@@ -191,8 +331,32 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:client_grants
+      x-codeSamples:
+      - lang: csharp
+        label: Get client grant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.ClientGrants.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get client grant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.clientGrants().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get client grant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->clientGrants->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get client grant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.client_grants.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get client grant
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.client_grants.get(id: "id")
+
+          '
     delete:
-      summary: Delete Client Grant
+      summary: Delete client grant
       description: Delete the Client Credential Flow from your machine-to-machine application.
       tags:
       - client-grants
@@ -224,8 +388,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:client_grants
+      x-codeSamples:
+      - lang: csharp
+        label: Delete client grant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.ClientGrants.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete client grant
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.ClientGrants.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete client grant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.clientGrants().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete client grant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->clientGrants->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete client grant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.client_grants.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete client grant
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.client_grants.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.delete(\"id\");\n}\nmain();\n"
     patch:
-      summary: Update Client Grant
+      summary: Update client grant
       description: Update a client grant.
       tags:
       - client-grants
@@ -272,9 +469,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:client_grants
+      x-codeSamples:
+      - lang: csharp
+        label: Update client grant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.ClientGrants.UpdateAsync(\n            id: \"id\",\n            request: new UpdateClientGrantRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update client grant
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateClientGrantRequestContent{}\n    mgmt.ClientGrants.Update(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update client grant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateClientGrantRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.clientGrants().update(\n            \"id\",\n            UpdateClientGrantRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update client grant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\ClientGrants\\Requests\\UpdateClientGrantRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->clientGrants->update(\n    'id',\n    new UpdateClientGrantRequestContent([]),\n);\n"
+      - lang: python
+        label: Update client grant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.client_grants.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update client grant
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.client_grants.update(id: "id")
+
+          '
+      - lang: typescript
+        label: Update client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.update(\"id\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Update client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.update(\"id\", {});\n}\nmain();\n"
   /client-grants/{id}/organizations:
     get:
-      summary: Get the Organizations Associated to a Client Grant
+      summary: Get the organizations associated to a client grant
       tags:
       - client-grants
       parameters:
@@ -330,6 +560,8 @@ paths:
           x-description-2: Client is not global.
         '403':
           description: 'Insufficient scope; expected any of: read:organization_client_grants.'
+        '404':
+          description: The grant does not exist.
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: get_client-grant-organizations
@@ -343,13 +575,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:organization_client_grants
+      x-codeSamples:
+      - lang: csharp
+        label: Get the organizations associated to a client grant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.ClientGrants;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.ClientGrants.Organizations.ListAsync(\n            id: \"id\",\n            request: new ListClientGrantOrganizationsRequestParameters {\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get the organizations associated to a client grant
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListClientGrantOrganizationsRequestParameters{\n        From: management.String(\n            \"from\",\n        ),\n        Take: management.Int(\n            1,\n        ),\n    }\n    mgmt.ClientGrants.Organizations.List(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get the organizations associated to a client grant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.clientgrants.types.ListClientGrantOrganizationsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.clientGrants().organizations().list(\n            \"id\",\n            ListClientGrantOrganizationsRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get the organizations associated to a client grant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\ClientGrants\\Organizations\\Requests\\ListClientGrantOrganizationsRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->clientGrants->organizations->list(\n    'id',\n    new ListClientGrantOrganizationsRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get the organizations associated to a client grant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.client_grants.organizations.list(\n    id=\"id\",\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get the organizations associated to a client grant
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.client_grants.organizations.list(\n  id: \"id\",\n  from: \"from\",\n  take: 1\n)\n"
+      - lang: typescript
+        label: Get the organizations associated to a client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.organizations.list(\"id\", {\n        from: \"from\",\n        take: 1,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get the organizations associated to a client grant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.clientGrants.organizations.list(\"id\", {\n        from: \"from\",\n        take: 1,\n    });\n}\nmain();\n"
 components:
   schemas:
-    ClientGrantAllowAnyOrganizationEnum:
-      type: boolean
-      enum:
-      - true
-      description: Optional filter on allow_any_organization.
     UpdateClientGrantResponseContent:
       type: object
       additionalProperties: false
@@ -393,6 +645,133 @@ components:
         allow_all_scopes:
           type: boolean
           description: If enabled, all scopes configured on the resource server are allowed for this grant.
+    OrganizationThirdPartyClientAccessEnum:
+      type: string
+      description: Controls whether this organization can be used in user flows with third-party clients. Defaults to `block`.
+      enum:
+      - block
+      - allow
+      x-release-lifecycle: GA
+    ClientGrantSubjectTypeEnum:
+      type: string
+      enum:
+      - client
+      - user
+      - anonymous_user
+      description: The type of application access the client grant allows.
+    ClientGrantOrganizationUsageEnum:
+      type: string
+      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+      enum:
+      - deny
+      - allow
+      - require
+    ListClientGrantOrganizationsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    OrganizationMetadata:
+      type: object
+      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 25
+    Organization:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Organization identifier.
+          maxLength: 50
+          format: organization-id
+        name:
+          type: string
+          description: The name of this organization.
+          default: organization-1
+          minLength: 1
+          maxLength: 50
+          format: organization-name
+        display_name:
+          type: string
+          description: Friendly name of this organization.
+          default: Acme Users
+          minLength: 1
+          maxLength: 255
+        branding:
+          $ref: '#/components/schemas/OrganizationBranding'
+        metadata:
+          $ref: '#/components/schemas/OrganizationMetadata'
+        token_quota:
+          $ref: '#/components/schemas/TokenQuota'
+          x-release-lifecycle: EA
+        third_party_client_access:
+          $ref: '#/components/schemas/OrganizationThirdPartyClientAccessEnum'
+          x-release-lifecycle: GA
+        is_app_entitlement_active:
+          type: boolean
+          description: Whether app entitlement is active for this organization.
+          x-release-lifecycle: EA
+        client:
+          $ref: '#/components/schemas/OrganizationClientAssociation'
+          x-release-lifecycle: EA
+    ClientGrantDefaultForEnum:
+      type: string
+      enum:
+      - third_party_clients
+      x-release-lifecycle: GA
+      description: Applies this client grant as the default for all clients in the specified group. The only accepted value is <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants#default-permissions-for-third-party-applications">`third_party_clients`</a>, which applies the grant to all third-party clients. Per-client grants for the same audience take precedence. Mutually exclusive with `client_id`.
+    SearchParserEnum:
+      type: string
+      enum:
+      - scim
+      - lucene
+      description: Query parser to use for the filter expression. Use "scim" for SCIM filter syntax or "lucene" for Lucene query syntax (default).
+    OrganizationBrandingColors:
+      type: object
+      description: Color scheme used to customize the login pages.
+      additionalProperties: false
+      required:
+      - primary
+      - page_background
+      properties:
+        primary:
+          type: string
+          description: HEX Color for primary elements.
+          format: html-color
+        page_background:
+          type: string
+          description: HEX Color for background.
+          format: html-color
+    TokenQuotaClientCredentials:
+      type: object
+      description: The token quota configuration
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        enforce:
+          type: boolean
+          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
+        per_day:
+          type: integer
+          description: Maximum number of issued tokens per day
+          minimum: 1
+          maximum: 2147483647
+        per_hour:
+          type: integer
+          description: Maximum number of issued tokens per hour
+          minimum: 1
+          maximum: 2147483647
     ListClientGrantOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -407,56 +786,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ClientGrantResponseContent'
-    ClientGrantOrganizationUsageEnum:
-      type: string
-      description: Defines whether organizations can be used with client credentials exchanges for this grant.
+    ClientGrantAllowAnyOrganizationEnum:
+      type: boolean
       enum:
-      - deny
-      - allow
-      - require
-    GetClientGrantResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID of the client grant.
-        client_id:
-          type: string
-          description: ID of the client.
-        audience:
-          type: string
-          description: The audience (API identifier) of this client grant.
-          minLength: 1
-        scope:
-          type: array
-          description: Scopes allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-        organization_usage:
-          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
-        allow_any_organization:
-          type: boolean
-          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
-        default_for:
-          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
-          x-release-lifecycle: GA
-        is_system:
-          type: boolean
-          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
-        subject_type:
-          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
-        authorization_details_types:
-          type: array
-          description: Types of authorization_details allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-            maxLength: 255
-        allow_all_scopes:
-          type: boolean
-          description: If enabled, all scopes configured on the resource server are allowed for this grant.
+      - true
+      description: Optional filter on allow_any_organization.
     ListClientGrantOrganizationsResponseContent:
       oneOf:
       - type: array
@@ -464,52 +798,42 @@ components:
           $ref: '#/components/schemas/Organization'
       - $ref: '#/components/schemas/ListClientGrantOrganizationsOffsetPaginatedResponseContent'
       - $ref: '#/components/schemas/ListClientGrantOrganizationsPaginatedResponseContent'
-    ClientGrantDefaultForEnum:
-      type: string
-      enum:
-      - third_party_clients
-      x-release-lifecycle: GA
-      description: Applies this client grant as the default for all clients in the specified group. The only accepted value is <a href="https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants#default-permissions-for-third-party-applications">`third_party_clients`</a>, which applies the grant to all third-party clients. Per-client grants for the same audience take precedence. Mutually exclusive with `client_id`.
-    UpdateClientGrantRequestContent:
+    TokenQuota:
       type: object
       additionalProperties: false
-      minProperties: 1
+      required:
+      - client_credentials
+      x-release-lifecycle: EA
       properties:
-        scope:
-          type:
-          - array
-          - 'null'
-          description: Scopes allowed for this client grant.
-          items:
-            type: string
-            minLength: 1
-            maxLength: 280
-        organization_usage:
-          $ref: '#/components/schemas/ClientGrantOrganizationNullableUsageEnum'
-        allow_any_organization:
-          type:
-          - boolean
-          - 'null'
-          description: Controls allowing any organization to be used with this grant
-        authorization_details_types:
+        client_credentials:
+          $ref: '#/components/schemas/TokenQuotaClientCredentials'
+    OrganizationClientAssociation:
+      type: object
+      description: The organization's association with the client passed in the <code>include_client_association_for</code> query parameter.
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        use_for_member_access:
+          type: boolean
+          description: Whether this client is used for member access to the organization.
+    ListClientGrantPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
+        client_grants:
           type: array
-          description: Types of authorization_details allowed for this client grant.
           items:
-            type: string
-            minLength: 1
-            maxLength: 255
-        allow_all_scopes:
-          type:
-          - boolean
-          - 'null'
-          description: If enabled, all scopes configured on the resource server are allowed for this grant.
-    ClientGrantSubjectTypeEnum:
+            $ref: '#/components/schemas/ClientGrantResponseContent'
+    ClientGrantSortFieldEnum:
       type: string
       enum:
-      - client
-      - user
-      description: The type of application access the client grant allows.
-    ClientGrantResponseContent:
+      - audience
+      - updated_at
+      description: Field name to sort results by in ascending order. Defaults to insertion order (oldest first) if not provided.
+    CreateClientGrantResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -563,48 +887,7 @@ components:
           format: strict-https-uri-or-null
         colors:
           $ref: '#/components/schemas/OrganizationBrandingColors'
-    OrganizationMetadata:
-      type: object
-      description: Metadata associated with the organization, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 25
-    ClientGrantOrganizationNullableUsageEnum:
-      type:
-      - string
-      - 'null'
-      description: Controls how organizations may be used with this grant
-      enum:
-      - deny
-      - allow
-      - require
-      - null
-    ListClientGrantPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
-        client_grants:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClientGrantResponseContent'
-    ListClientGrantOrganizationsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-          description: Opaque identifier for use with the <i>from</i> query parameter for the next page of results.<br/>This identifier is valid for 24 hours.
-        organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Organization'
-    CreateClientGrantResponseContent:
+    ClientGrantResponseContent:
       type: object
       additionalProperties: false
       properties:
@@ -647,41 +930,73 @@ components:
         allow_all_scopes:
           type: boolean
           description: If enabled, all scopes configured on the resource server are allowed for this grant.
-    OrganizationBrandingColors:
+    SearchClientGrantsResponseContent:
       type: object
-      description: Color scheme used to customize the login pages.
       additionalProperties: false
       required:
-      - primary
-      - page_background
+      - client_grants
       properties:
-        primary:
+        client_grants:
+          type: array
+          description: Array of client grant objects matching the search criteria.
+          items:
+            $ref: '#/components/schemas/ClientGrantResponseContent'
+        next:
           type: string
-          description: HEX Color for primary elements.
-          format: html-color
-        page_background:
-          type: string
-          description: HEX Color for background.
-          format: html-color
-    TokenQuotaClientCredentials:
+          description: Cursor for retrieving the next page of results. Omitted if there are no more results.
+    ClientGrantOrganizationNullableUsageEnum:
+      type:
+      - string
+      - 'null'
+      description: Controls how organizations may be used with this grant
+      enum:
+      - deny
+      - allow
+      - require
+      - null
+    GetClientGrantResponseContent:
       type: object
-      description: The token quota configuration
       additionalProperties: false
-      minProperties: 1
       properties:
-        enforce:
+        id:
+          type: string
+          description: ID of the client grant.
+        client_id:
+          type: string
+          description: ID of the client.
+        audience:
+          type: string
+          description: The audience (API identifier) of this client grant.
+          minLength: 1
+        scope:
+          type: array
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationUsageEnum'
+        allow_any_organization:
           type: boolean
-          description: If enabled, the quota will be enforced and requests in excess of the quota will fail. If disabled, the quota will not be enforced, but notifications for requests exceeding the quota will be available in logs.
-        per_day:
-          type: integer
-          description: Maximum number of issued tokens per day
-          minimum: 1
-          maximum: 2147483647
-        per_hour:
-          type: integer
-          description: Maximum number of issued tokens per hour
-          minimum: 1
-          maximum: 2147483647
+          description: If enabled, any organization can be used with this grant. If disabled (default), the grant must be explicitly assigned to the desired organizations.
+        default_for:
+          $ref: '#/components/schemas/ClientGrantDefaultForEnum'
+          x-release-lifecycle: GA
+        is_system:
+          type: boolean
+          description: If enabled, this grant is a special grant created by Auth0. It cannot be modified or deleted directly.
+        subject_type:
+          $ref: '#/components/schemas/ClientGrantSubjectTypeEnum'
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type: boolean
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
     CreateClientGrantRequestContent:
       type: object
       additionalProperties: false
@@ -723,15 +1038,6 @@ components:
         allow_all_scopes:
           type: boolean
           description: If enabled, all scopes configured on the resource server are allowed for this grant.
-    TokenQuota:
-      type: object
-      additionalProperties: false
-      required:
-      - client_credentials
-      x-release-lifecycle: EA
-      properties:
-        client_credentials:
-          $ref: '#/components/schemas/TokenQuotaClientCredentials'
     ListClientGrantOrganizationsOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -746,6 +1052,39 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Organization'
+    UpdateClientGrantRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        scope:
+          type:
+          - array
+          - 'null'
+          description: Scopes allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 280
+        organization_usage:
+          $ref: '#/components/schemas/ClientGrantOrganizationNullableUsageEnum'
+        allow_any_organization:
+          type:
+          - boolean
+          - 'null'
+          description: Controls allowing any organization to be used with this grant
+        authorization_details_types:
+          type: array
+          description: Types of authorization_details allowed for this client grant.
+          items:
+            type: string
+            minLength: 1
+            maxLength: 255
+        allow_all_scopes:
+          type:
+          - boolean
+          - 'null'
+          description: If enabled, all scopes configured on the resource server are allowed for this grant.
     ListClientGrantResponseContent:
       oneOf:
       - type: array
@@ -753,35 +1092,6 @@ components:
           $ref: '#/components/schemas/ClientGrantResponseContent'
       - $ref: '#/components/schemas/ListClientGrantOffsetPaginatedResponseContent'
       - $ref: '#/components/schemas/ListClientGrantPaginatedResponseContent'
-    Organization:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: Organization identifier.
-          maxLength: 50
-          format: organization-id
-        name:
-          type: string
-          description: The name of this organization.
-          default: organization-1
-          minLength: 1
-          maxLength: 50
-          format: organization-name
-        display_name:
-          type: string
-          description: Friendly name of this organization.
-          default: Acme Users
-          minLength: 1
-          maxLength: 255
-        branding:
-          $ref: '#/components/schemas/OrganizationBranding'
-        metadata:
-          $ref: '#/components/schemas/OrganizationMetadata'
-        token_quota:
-          $ref: '#/components/schemas/TokenQuota'
-          x-release-lifecycle: EA
   securitySchemes:
     bearerAuth:
       type: http
@@ -799,6 +1109,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -875,8 +1189,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -894,6 +1210,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -928,9 +1247,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -952,6 +1277,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -1005,7 +1334,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -1016,6 +1349,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

@@ -20,7 +20,7 @@ tags:
 paths:
   /refresh-tokens:
     get:
-      summary: Get Refresh Tokens
+      summary: Get refresh tokens
       description: Retrieve a paginated list of refresh tokens for a specific user, with optional filtering by client ID. Results are sorted by credential_id ascending.
       tags:
       - refresh-tokens
@@ -87,10 +87,26 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:refresh_tokens
+      x-codeSamples:
+      - lang: csharp
+        label: Get refresh tokens
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RefreshTokens.ListAsync(\n            new GetRefreshTokensRequestParameters {\n                UserId = \"user_id\",\n                ClientId = \"client_id\",\n                From = \"from\",\n                Take = 1,\n                Fields = \"fields\",\n                IncludeFields = true\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get refresh tokens
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.GetRefreshTokensRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.refreshTokens().list(\n            GetRefreshTokensRequestParameters\n                .builder()\n                .userId(\"user_id\")\n                .clientId(\"client_id\")\n                .from(\"from\")\n                .take(1)\n                .fields(\"fields\")\n                .includeFields(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get refresh tokens
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\RefreshTokens\\Requests\\GetRefreshTokensRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->refreshTokens->list(\n    new GetRefreshTokensRequestParameters([\n        'userId' => 'user_id',\n        'clientId' => 'client_id',\n        'from' => 'from',\n        'take' => 1,\n        'fields' => 'fields',\n        'includeFields' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get refresh tokens
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.refresh_tokens.list(\n    user_id=\"user_id\",\n    client_id=\"client_id\",\n    from=\"from\",\n    take=1,\n    fields=\"fields\",\n    include_fields=True,\n)\n"
+      - lang: ruby
+        label: Get refresh tokens
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.refresh_tokens.list(\n  user_id: \"user_id\",\n  client_id: \"client_id\",\n  from: \"from\",\n  take: 1,\n  fields: \"fields\",\n  include_fields: true\n)\n"
   /refresh-tokens/revoke:
     post:
-      summary: Revoke Refresh Tokens
-      description: Revoke refresh tokens in bulk by ID list, user, user+client, or client.
+      summary: Revoke refresh tokens
+      description: Revoke refresh tokens in bulk by ID list, user, user+client, or user+client+audience.
       tags:
       - refresh-tokens
       requestBody:
@@ -110,6 +126,7 @@ paths:
           x-description-2: 'API doesn''t support Online Refresh Tokens. To revoke an Online Refresh Token, use the Sessions API: POST /api/v2/sessions/{session_id}/revoke'
           x-description-3: User not found.
           x-description-4: Client not found.
+          x-description-5: Resource server not found.
         '401':
           description: Invalid token.
           x-description-1: Invalid signature received for JSON Web Token validation.
@@ -126,9 +143,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:refresh_tokens
+      x-codeSamples:
+      - lang: csharp
+        label: Revoke refresh tokens
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RefreshTokens.RevokeAsync(\n            new RevokeRefreshTokensRequestContent()\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Revoke refresh tokens
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.RevokeRefreshTokensRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.refreshTokens().revoke(\n            RevokeRefreshTokensRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Revoke refresh tokens
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\RefreshTokens\\Requests\\RevokeRefreshTokensRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->refreshTokens->revoke(\n    new RevokeRefreshTokensRequestContent([]),\n);\n"
+      - lang: python
+        label: Revoke refresh tokens
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.refresh_tokens.revoke()\n"
+      - lang: ruby
+        label: Revoke refresh tokens
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.refresh_tokens.revoke
+
+          '
   /refresh-tokens/{id}:
     get:
-      summary: Get a Refresh Token
+      summary: Get a refresh token
       description: Retrieve refresh token information.
       tags:
       - refresh-tokens
@@ -165,8 +206,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:refresh_tokens
+      x-codeSamples:
+      - lang: csharp
+        label: Get a refresh token
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RefreshTokens.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a refresh token
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.RefreshTokens.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get a refresh token
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.refreshTokens().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a refresh token
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->refreshTokens->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a refresh token
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.refresh_tokens.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a refresh token
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.refresh_tokens.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get a refresh token
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.refreshTokens.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get a refresh token
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.refreshTokens.get(\"id\");\n}\nmain();\n"
     delete:
-      summary: Delete a Refresh Token
+      summary: Delete a refresh token
       description: Delete a refresh token by its ID.
       tags:
       - refresh-tokens
@@ -198,8 +272,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:refresh_tokens
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a refresh token
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RefreshTokens.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete a refresh token
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.RefreshTokens.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete a refresh token
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.refreshTokens().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a refresh token
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->refreshTokens->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a refresh token
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.refresh_tokens.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a refresh token
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.refresh_tokens.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete a refresh token
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.refreshTokens.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete a refresh token
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.refreshTokens.delete(\"id\");\n}\nmain();\n"
     patch:
-      summary: Update a Refresh Token
+      summary: Update a refresh token
       description: Update a refresh token by its ID.
       tags:
       - refresh-tokens
@@ -248,8 +355,44 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:refresh_tokens
+      x-codeSamples:
+      - lang: csharp
+        label: Update a refresh token
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.RefreshTokens.UpdateAsync(\n            id: \"id\",\n            request: new UpdateRefreshTokenRequestContent()\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update a refresh token
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateRefreshTokenRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.refreshTokens().update(\n            \"id\",\n            UpdateRefreshTokenRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a refresh token
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\RefreshTokens\\Requests\\UpdateRefreshTokenRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->refreshTokens->update(\n    'id',\n    new UpdateRefreshTokenRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a refresh token
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.refresh_tokens.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update a refresh token
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.refresh_tokens.update(id: "id")
+
+          '
 components:
   schemas:
+    RefreshTokenSessionId:
+      type:
+      - string
+      - 'null'
+      description: ID of the authenticated session used to obtain this refresh-token
+    RefreshTokenDate:
+      oneOf:
+      - type: string
+        description: The date and time when the refresh token was created
+        format: date-time
+      - $ref: '#/components/schemas/RefreshTokenDateObject'
+      - type: 'null'
     RefreshTokenDevice:
       type: object
       description: Device used while issuing/exchanging the refresh token
@@ -273,77 +416,26 @@ components:
         last_user_agent:
           type: string
           description: Last user agent associated with the refresh token
-    RefreshTokenSessionId:
+    RefreshTokenMetadata:
       type:
-      - string
+      - object
       - 'null'
-      description: ID of the authenticated session used to obtain this refresh-token
-    RefreshTokenResponseContent:
-      type: object
+      description: Metadata associated with the refresh token, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
       additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The ID of the refresh token
-        user_id:
-          type: string
-          description: ID of the user which can be used when interacting with other APIs.
-          default: auth0|507f1f77bcf86cd799439020
-        created_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-        idle_expires_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-        expires_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-        device:
-          $ref: '#/components/schemas/RefreshTokenDevice'
-        client_id:
-          type: string
-          description: ID of the client application granted with this refresh token
-        session_id:
-          $ref: '#/components/schemas/RefreshTokenSessionId'
-        rotating:
-          type: boolean
-          description: True if the token is a rotating refresh token
-        resource_servers:
-          type: array
-          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
-          items:
-            $ref: '#/components/schemas/RefreshTokenResourceServer'
-        refresh_token_metadata:
-          $ref: '#/components/schemas/RefreshTokenMetadata'
-        last_exchanged_at:
-          $ref: '#/components/schemas/RefreshTokenDate'
-    RevokeRefreshTokensRequestContent:
-      type: object
-      description: 'Exactly one of the following combinations must be provided: `ids` (up to 100 token IDs); `user_id`; `user_id` + `client_id`; or `client_id` alone. `ids` cannot be combined with `user_id` or `client_id`.'
-      additionalProperties: false
-      properties:
-        ids:
-          type: array
-          description: Array of refresh token IDs to revoke. Limited to 100 at a time.
-          minItems: 1
-          items:
-            type: string
-            minLength: 1
-            maxLength: 30
-        user_id:
-          type: string
-          description: Revoke all refresh tokens for this user.
-          minLength: 1
-          maxLength: 300
-          format: user-id
-        client_id:
-          type: string
-          description: Revoke all refresh tokens for this client.
-          minLength: 1
-          maxLength: 64
-          format: client-id
+      maxProperties: 25
     RefreshTokenDateObject:
       type: object
       description: The date and time when the refresh token was created
       additionalProperties: true
-    GetRefreshTokenResponseContent:
+    UpdateRefreshTokenRequestContent:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+          description: Metadata associated with the refresh token. Pass null or {} to remove all metadata.
+    UpdateRefreshTokenResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -390,39 +482,7 @@ components:
         next:
           type: string
           description: A cursor to be used as the "from" query parameter for the next page of results.
-    RefreshTokenResourceServer:
-      type: object
-      additionalProperties: true
-      properties:
-        audience:
-          type: string
-          description: Resource server ID
-        scopes:
-          type: string
-          description: List of scopes for the refresh token
-    RefreshTokenDate:
-      oneOf:
-      - type: string
-        description: The date and time when the refresh token was created
-        format: date-time
-      - $ref: '#/components/schemas/RefreshTokenDateObject'
-      - type: 'null'
-    UpdateRefreshTokenRequestContent:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        refresh_token_metadata:
-          $ref: '#/components/schemas/RefreshTokenMetadata'
-          description: Metadata associated with the refresh token. Pass null or {} to remove all metadata.
-    RefreshTokenMetadata:
-      type:
-      - object
-      - 'null'
-      description: Metadata associated with the refresh token, in the form of an object with string values (max 255 chars). Maximum of 25 metadata properties allowed.
-      additionalProperties: true
-      maxProperties: 25
-    UpdateRefreshTokenResponseContent:
+    RefreshTokenResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -458,6 +518,82 @@ components:
           $ref: '#/components/schemas/RefreshTokenMetadata'
         last_exchanged_at:
           $ref: '#/components/schemas/RefreshTokenDate'
+    RevokeRefreshTokensRequestContent:
+      type: object
+      description: 'Exactly one of the following combinations must be provided: `ids` (up to 100 token IDs); `user_id`; `user_id` + `client_id`; or `user_id` + `client_id` + `audience`. `ids` cannot be combined with `user_id`, `client_id`, or `audience`. `audience` requires both `user_id` and `client_id`. `client_id` alone is not allowed — it must be paired with `user_id`.'
+      additionalProperties: false
+      properties:
+        ids:
+          type: array
+          description: Array of refresh token IDs to revoke. Limited to 100 at a time.
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+            maxLength: 30
+        user_id:
+          type: string
+          description: Revoke all refresh tokens for this user.
+          minLength: 1
+          maxLength: 300
+          format: user-id
+        client_id:
+          type: string
+          description: Revoke refresh tokens for this client. Must be paired with `user_id`; optionally narrowed further with `audience`.
+          minLength: 1
+          maxLength: 64
+          format: client-id
+        audience:
+          type: string
+          description: Resource server identifier (audience) to scope the revocation. Must be used with both `user_id` and `client_id`.
+          minLength: 1
+          maxLength: 600
+    GetRefreshTokenResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The ID of the refresh token
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        created_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        idle_expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        expires_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+        device:
+          $ref: '#/components/schemas/RefreshTokenDevice'
+        client_id:
+          type: string
+          description: ID of the client application granted with this refresh token
+        session_id:
+          $ref: '#/components/schemas/RefreshTokenSessionId'
+        rotating:
+          type: boolean
+          description: True if the token is a rotating refresh token
+        resource_servers:
+          type: array
+          description: A list of the resource server IDs associated to this refresh-token and their granted scopes
+          items:
+            $ref: '#/components/schemas/RefreshTokenResourceServer'
+        refresh_token_metadata:
+          $ref: '#/components/schemas/RefreshTokenMetadata'
+        last_exchanged_at:
+          $ref: '#/components/schemas/RefreshTokenDate'
+    RefreshTokenResourceServer:
+      type: object
+      additionalProperties: true
+      properties:
+        audience:
+          type: string
+          description: Resource server ID
+        scopes:
+          type: string
+          description: List of scopes for the refresh token
   securitySchemes:
     bearerAuth:
       type: http
@@ -475,6 +611,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -551,8 +691,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -570,6 +712,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -604,9 +749,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -628,6 +779,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -681,7 +836,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -692,6 +851,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

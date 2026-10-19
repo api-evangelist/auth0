@@ -20,7 +20,7 @@ tags:
 paths:
   /email-templates:
     post:
-      summary: Create an Email Template
+      summary: Create an email template
       description: Create an email template.
       tags:
       - Email Templates
@@ -59,16 +59,49 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:email_templates
+      x-codeSamples:
+      - lang: csharp
+        label: Create an email template
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.EmailTemplates.CreateAsync(\n            new CreateEmailTemplateRequestContent {\n                Template = EmailTemplateNameEnum.VerifyEmail\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create an email template
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateEmailTemplateRequestContent{\n        Template: management.EmailTemplateNameEnumVerifyEmail,\n    }\n    mgmt.EmailTemplates.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create an email template
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateEmailTemplateRequestContent;\nimport com.auth0.client.mgmt.types.EmailTemplateNameEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.emailTemplates().create(\n            CreateEmailTemplateRequestContent\n                .builder()\n                .template(EmailTemplateNameEnum.VERIFY_EMAIL)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create an email template
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\EmailTemplates\\Requests\\CreateEmailTemplateRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\EmailTemplateNameEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->emailTemplates->create(\n    new CreateEmailTemplateRequestContent([\n        'template' => EmailTemplateNameEnum::VerifyEmail->value,\n    ]),\n);\n"
+      - lang: python
+        label: Create an email template
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.email_templates.create(\n    template=\"verify_email\",\n)\n"
+      - lang: ruby
+        label: Create an email template
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.email_templates.create(template: "verify_email")
+
+          '
+      - lang: typescript
+        label: Create an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.create({\n        template: \"verify_email\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.create({\n        template: \"verify_email\",\n    });\n}\nmain();\n"
   /email-templates/{templateName}:
     get:
-      summary: Get an Email Template
-      description: Retrieve an email template by pre-defined name. These names are `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, and `async_approval`. The names `change_password`, and `password_reset` are also supported for legacy scenarios.
+      summary: Get an email template
+      description: Retrieve an email template by pre-defined name. These names are `verify_email`, `verify_email_by_code`, `auth_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, and `async_approval`. The names `change_password`, and `password_reset` are also supported for legacy scenarios.
       tags:
       - Email Templates
       parameters:
       - name: templateName
         in: path
-        description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+        description: Template name. Can be `verify_email`, `verify_email_by_code`, `auth_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
         required: true
         schema:
           $ref: '#/components/schemas/EmailTemplateNameEnum'
@@ -96,15 +129,48 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:email_templates
+      x-codeSamples:
+      - lang: csharp
+        label: Get an email template
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.EmailTemplates.GetAsync(\n            EmailTemplateNameEnum.VerifyEmail\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get an email template
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.EmailTemplates.Get(\n        context.TODO(),\n        management.EmailTemplateNameEnumVerifyEmail.Ptr(),\n    )\n}\n"
+      - lang: java
+        label: Get an email template
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.EmailTemplateNameEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.emailTemplates().get(EmailTemplateNameEnum.VERIFY_EMAIL);\n    }\n}"
+      - lang: php
+        label: Get an email template
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Types\\EmailTemplateNameEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->emailTemplates->get(\n    EmailTemplateNameEnum::VerifyEmail->value,\n);\n"
+      - lang: python
+        label: Get an email template
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.email_templates.get(\n    template_name=\"verify_email\",\n)\n"
+      - lang: ruby
+        label: Get an email template
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.email_templates.get(template_name: "verify_email")
+
+          '
+      - lang: typescript
+        label: Get an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.get(\"verify_email\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.get(\"verify_email\");\n}\nmain();\n"
     patch:
-      summary: Patch an Email Template
+      summary: Patch an email template
       description: Modify an email template.
       tags:
       - Email Templates
       parameters:
       - name: templateName
         in: path
-        description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+        description: Template name. Can be `verify_email`, `verify_email_by_code`, `auth_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
         required: true
         schema:
           $ref: '#/components/schemas/EmailTemplateNameEnum'
@@ -142,15 +208,48 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:email_templates
+      x-codeSamples:
+      - lang: csharp
+        label: Patch an email template
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.EmailTemplates.UpdateAsync(\n            templateName: EmailTemplateNameEnum.VerifyEmail,\n            request: new UpdateEmailTemplateRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Patch an email template
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateEmailTemplateRequestContent{}\n    mgmt.EmailTemplates.Update(\n        context.TODO(),\n        management.EmailTemplateNameEnumVerifyEmail.Ptr(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Patch an email template
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.EmailTemplateNameEnum;\nimport com.auth0.client.mgmt.types.UpdateEmailTemplateRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.emailTemplates().update(\n            EmailTemplateNameEnum.VERIFY_EMAIL,\n            UpdateEmailTemplateRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Patch an email template
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Types\\EmailTemplateNameEnum;\nuse Auth0\\SDK\\API\\Management\\EmailTemplates\\Requests\\UpdateEmailTemplateRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->emailTemplates->update(\n    EmailTemplateNameEnum::VerifyEmail->value,\n    new UpdateEmailTemplateRequestContent([]),\n);\n"
+      - lang: python
+        label: Patch an email template
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.email_templates.update(\n    template_name=\"verify_email\",\n)\n"
+      - lang: ruby
+        label: Patch an email template
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.email_templates.update(template_name: "verify_email")
+
+          '
+      - lang: typescript
+        label: Patch an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.update(\"verify_email\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Patch an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.update(\"verify_email\", {});\n}\nmain();\n"
     put:
-      summary: Update an Email Template
+      summary: Update an email template
       description: Update an email template.
       tags:
       - Email Templates
       parameters:
       - name: templateName
         in: path
-        description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+        description: Template name. Can be `verify_email`, `verify_email_by_code`, `auth_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
         required: true
         schema:
           $ref: '#/components/schemas/EmailTemplateNameEnum'
@@ -188,11 +287,43 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:email_templates
+      x-codeSamples:
+      - lang: csharp
+        label: Update an email template
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.EmailTemplates.SetAsync(\n            templateName: EmailTemplateNameEnum.VerifyEmail,\n            request: new SetEmailTemplateRequestContent {\n                Template = EmailTemplateNameEnum.VerifyEmail\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update an email template
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.SetEmailTemplateRequestContent{\n        Template: management.EmailTemplateNameEnumVerifyEmail,\n    }\n    mgmt.EmailTemplates.Set(\n        context.TODO(),\n        management.EmailTemplateNameEnumVerifyEmail.Ptr(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update an email template
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.EmailTemplateNameEnum;\nimport com.auth0.client.mgmt.types.SetEmailTemplateRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.emailTemplates().set(\n            EmailTemplateNameEnum.VERIFY_EMAIL,\n            SetEmailTemplateRequestContent\n                .builder()\n                .template(EmailTemplateNameEnum.VERIFY_EMAIL)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update an email template
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Types\\EmailTemplateNameEnum;\nuse Auth0\\SDK\\API\\Management\\EmailTemplates\\Requests\\SetEmailTemplateRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->emailTemplates->set(\n    EmailTemplateNameEnum::VerifyEmail->value,\n    new SetEmailTemplateRequestContent([\n        'template' => EmailTemplateNameEnum::VerifyEmail->value,\n    ]),\n);\n"
+      - lang: python
+        label: Update an email template
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.email_templates.set(\n    template_name=\"verify_email\",\n    template=\"verify_email\",\n)\n"
+      - lang: ruby
+        label: Update an email template
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.email_templates.set(\n  template_name: \"verify_email\",\n  template: \"verify_email\"\n)\n"
+      - lang: typescript
+        label: Update an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.set(\"verify_email\", {\n        template: \"verify_email\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Update an email template
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.emailTemplates.set(\"verify_email\", {\n        template: \"verify_email\",\n    });\n}\nmain();\n"
 components:
   schemas:
-    UpdateEmailTemplateResponseContent:
+    CreateEmailTemplateResponseContent:
       type: object
       additionalProperties: false
+      required:
+      - template
+      - body
+      - from
+      - subject
+      - syntax
+      - enabled
       properties:
         template:
           $ref: '#/components/schemas/EmailTemplateNameEnum'
@@ -284,125 +415,6 @@ components:
           - boolean
           - 'null'
           description: Whether the template is enabled (true) or disabled (false).
-    CreateEmailTemplateResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - template
-      - body
-      - from
-      - subject
-      - syntax
-      - enabled
-      properties:
-        template:
-          $ref: '#/components/schemas/EmailTemplateNameEnum'
-        body:
-          type:
-          - string
-          - 'null'
-          description: Body of the email template.
-        from:
-          type:
-          - string
-          - 'null'
-          description: Senders `from` email address.
-          default: sender@auth0.com
-        resultUrl:
-          type:
-          - string
-          - 'null'
-          description: URL to redirect the user to after a successful action.
-        subject:
-          type:
-          - string
-          - 'null'
-          description: Subject line of the email.
-        syntax:
-          type:
-          - string
-          - 'null'
-          description: Syntax of the template body.
-          default: liquid
-        urlLifetimeInSeconds:
-          type:
-          - number
-          - 'null'
-          description: Lifetime in seconds that the link within the email will be valid for.
-          minimum: 0
-        includeEmailInRedirect:
-          type: boolean
-          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
-        enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Whether the template is enabled (true) or disabled (false).
-    UpdateEmailTemplateRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        template:
-          $ref: '#/components/schemas/EmailTemplateNameEnum'
-        body:
-          type:
-          - string
-          - 'null'
-          description: Body of the email template.
-        from:
-          type:
-          - string
-          - 'null'
-          description: Senders `from` email address.
-          default: sender@auth0.com
-        resultUrl:
-          type:
-          - string
-          - 'null'
-          description: URL to redirect the user to after a successful action.
-        subject:
-          type:
-          - string
-          - 'null'
-          description: Subject line of the email.
-        syntax:
-          type:
-          - string
-          - 'null'
-          description: Syntax of the template body.
-          default: liquid
-        urlLifetimeInSeconds:
-          type:
-          - number
-          - 'null'
-          description: Lifetime in seconds that the link within the email will be valid for.
-          minimum: 0
-        includeEmailInRedirect:
-          type: boolean
-          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
-        enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Whether the template is enabled (true) or disabled (false).
-    EmailTemplateNameEnum:
-      type: string
-      description: Template name. Can be `verify_email`, `verify_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
-      default: verify_email
-      enum:
-      - verify_email
-      - verify_email_by_code
-      - reset_email
-      - reset_email_by_code
-      - welcome_email
-      - blocked_account
-      - stolen_credentials
-      - enrollment_email
-      - mfa_oob_code
-      - user_invitation
-      - change_password
-      - password_reset
-      - async_approval
     SetEmailTemplateRequestContent:
       type: object
       additionalProperties: false
@@ -565,6 +577,119 @@ components:
           - boolean
           - 'null'
           description: Whether the template is enabled (true) or disabled (false).
+    EmailTemplateNameEnum:
+      type: string
+      description: Template name. Can be `verify_email`, `verify_email_by_code`, `auth_email_by_code`, `reset_email`, `reset_email_by_code`, `welcome_email`, `blocked_account`, `stolen_credentials`, `enrollment_email`, `mfa_oob_code`, `user_invitation`, `async_approval`, `change_password` (legacy), or `password_reset` (legacy).
+      default: verify_email
+      enum:
+      - verify_email
+      - verify_email_by_code
+      - auth_email_by_code
+      - reset_email
+      - reset_email_by_code
+      - welcome_email
+      - blocked_account
+      - stolen_credentials
+      - enrollment_email
+      - mfa_oob_code
+      - user_invitation
+      - change_password
+      - password_reset
+      - async_approval
+    UpdateEmailTemplateResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
+    UpdateEmailTemplateRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNameEnum'
+        body:
+          type:
+          - string
+          - 'null'
+          description: Body of the email template.
+        from:
+          type:
+          - string
+          - 'null'
+          description: Senders `from` email address.
+          default: sender@auth0.com
+        resultUrl:
+          type:
+          - string
+          - 'null'
+          description: URL to redirect the user to after a successful action.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: Subject line of the email.
+        syntax:
+          type:
+          - string
+          - 'null'
+          description: Syntax of the template body.
+          default: liquid
+        urlLifetimeInSeconds:
+          type:
+          - number
+          - 'null'
+          description: Lifetime in seconds that the link within the email will be valid for.
+          minimum: 0
+        includeEmailInRedirect:
+          type: boolean
+          description: Whether the `reset_email` and `verify_email` templates should include the user's email address as the `email` parameter in the returnUrl (true) or whether no email address should be included in the redirect (false). Defaults to true.
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the template is enabled (true) or disabled (false).
   securitySchemes:
     bearerAuth:
       type: http
@@ -582,6 +707,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -658,8 +787,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -677,6 +808,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -711,9 +845,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -735,6 +875,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -788,7 +932,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -799,6 +947,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

@@ -20,7 +20,7 @@ tags:
 paths:
   /log-streams:
     get:
-      summary: Get Log Streams
+      summary: Get log streams
       description: 'Retrieve details on log streams.
 
 
@@ -189,8 +189,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:log_streams
+      x-codeSamples:
+      - lang: csharp
+        label: Get log streams
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.LogStreams.ListAsync();\n    }\n\n}\n"
+      - lang: go
+        label: Get log streams
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.LogStreams.List(\n        context.TODO(),\n    )\n}\n"
+      - lang: java
+        label: Get log streams
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logStreams().list();\n    }\n}"
+      - lang: php
+        label: Get log streams
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logStreams->list();\n"
+      - lang: python
+        label: Get log streams
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.log_streams.list()\n"
+      - lang: ruby
+        label: Get log streams
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.log_streams.list
+
+          '
+      - lang: typescript
+        label: Get log streams
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.list();\n}\nmain();\n"
+      - lang: javascript
+        label: Get log streams
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.list();\n}\nmain();\n"
     post:
-      summary: Create a Log Stream
+      summary: Create a log stream
       description: 'Create a log stream.
 
 
@@ -594,9 +627,34 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:log_streams
+      x-codeSamples:
+      - lang: csharp
+        label: Create a log stream
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.LogStreams.CreateAsync(\n            new CreateLogStreamHttpRequestBody {\n                Type = LogStreamHttpEnum.Http,\n                Sink = new LogStreamHttpSink {\n                    HttpEndpoint = \"httpEndpoint\"\n                }\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create a log stream
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateLogStreamRequestContent{\n        CreateLogStreamHttpRequestBody: &management.CreateLogStreamHttpRequestBody{\n            Type: management.LogStreamHttpEnum(\n                \"http\",\n            ),\n            Sink: &management.LogStreamHttpSink{\n                HttpEndpoint: \"httpEndpoint\",\n            },\n        },\n    }\n    mgmt.LogStreams.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create a log stream
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateLogStreamHttpRequestBody;\nimport com.auth0.client.mgmt.types.CreateLogStreamRequestContent;\nimport com.auth0.client.mgmt.types.LogStreamHttpEnum;\nimport com.auth0.client.mgmt.types.LogStreamHttpSink;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logStreams().create(\n            CreateLogStreamRequestContent.of(\n                CreateLogStreamHttpRequestBody\n                    .builder()\n                    .type(LogStreamHttpEnum.HTTP)\n                    .sink(\n                        LogStreamHttpSink\n                            .builder()\n                            .httpEndpoint(\"httpEndpoint\")\n                            .build()\n                    )\n                    .build()\n            )\n        );\n    }\n}"
+      - lang: php
+        label: Create a log stream
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Types\\CreateLogStreamHttpRequestBody;\nuse Auth0\\SDK\\API\\Management\\Types\\LogStreamHttpEnum;\nuse Auth0\\SDK\\API\\Management\\Types\\LogStreamHttpSink;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logStreams->create(\n    new CreateLogStreamHttpRequestBody([\n        'type' => LogStreamHttpEnum::Http->value,\n        'sink' => new LogStreamHttpSink([\n            'httpEndpoint' => 'httpEndpoint',\n        ]),\n    ]),\n);\n"
+      - lang: python
+        label: Create a log stream
+        source: "from auth0.management import ManagementClient, CreateLogStreamHttpRequestBody, LogStreamHttpSink\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.log_streams.create(\n    request=CreateLogStreamHttpRequestBody(\n        type=\"http\",\n        sink=LogStreamHttpSink(\n            http_endpoint=\"httpEndpoint\",\n        ),\n    ),\n)\n"
+      - lang: ruby
+        label: Create a log stream
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.log_streams.create(\n  type: \"http\",\n  sink: {\n    http_endpoint: \"httpEndpoint\"\n  }\n)\n"
+      - lang: typescript
+        label: Create a log stream
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.create({\n        type: \"http\",\n        sink: {\n            httpEndpoint: \"httpEndpoint\",\n        },\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create a log stream
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.create({\n        type: \"http\",\n        sink: {\n            httpEndpoint: \"httpEndpoint\",\n        },\n    });\n}\nmain();\n"
   /log-streams/{id}:
     get:
-      summary: Get Log Stream by ID
+      summary: Get log stream by ID
       description: 'Retrieve a log stream configuration and status.
 
 
@@ -910,8 +968,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:log_streams
+      x-codeSamples:
+      - lang: csharp
+        label: Get log stream by ID
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.LogStreams.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get log stream by ID
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.LogStreams.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get log stream by ID
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logStreams().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get log stream by ID
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logStreams->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get log stream by ID
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.log_streams.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get log stream by ID
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.log_streams.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get log stream by ID
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get log stream by ID
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.get(\"id\");\n}\nmain();\n"
     delete:
-      summary: Delete Log Stream
+      summary: Delete log stream
       description: Delete a log stream.
       tags:
       - log-streams
@@ -944,8 +1035,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:log_streams
+      x-codeSamples:
+      - lang: csharp
+        label: Delete log stream
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.LogStreams.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete log stream
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.LogStreams.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete log stream
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logStreams().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete log stream
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logStreams->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete log stream
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.log_streams.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete log stream
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.log_streams.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete log stream
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete log stream
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.delete(\"id\");\n}\nmain();\n"
     patch:
-      summary: Update a Log Stream
+      summary: Update a log stream
       description: 'Update a log stream.
 
 
@@ -1119,221 +1243,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:log_streams
+      x-codeSamples:
+      - lang: csharp
+        label: Update a log stream
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.LogStreams.UpdateAsync(\n            id: \"id\",\n            request: new UpdateLogStreamRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update a log stream
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateLogStreamRequestContent{}\n    mgmt.LogStreams.Update(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update a log stream
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateLogStreamRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logStreams().update(\n            \"id\",\n            UpdateLogStreamRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a log stream
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\LogStreams\\Requests\\UpdateLogStreamRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logStreams->update(\n    'id',\n    new UpdateLogStreamRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a log stream
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.log_streams.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update a log stream
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.log_streams.update(id: "id")
+
+          '
+      - lang: typescript
+        label: Update a log stream
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.update(\"id\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Update a log stream
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logStreams.update(\"id\", {});\n}\nmain();\n"
 components:
   schemas:
-    LogStreamHttpEnum:
-      type: string
-      enum:
-      - http
-    LogStreamEventBridgeResponseSchema:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The id of the log stream
-          format: log-stream-id
-        name:
-          type: string
-          description: log stream name
-        status:
-          $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamEventBridgeEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamEventBridgeSink'
-    LogStreamMixpanelSinkPatch:
-      type: object
-      additionalProperties: false
-      required:
-      - mixpanelRegion
-      - mixpanelProjectId
-      - mixpanelServiceAccountUsername
-      properties:
-        mixpanelRegion:
-          $ref: '#/components/schemas/LogStreamMixpanelRegionEnum'
-        mixpanelProjectId:
-          type: string
-          description: Mixpanel Project Id
-          pattern: ^\d+$
-        mixpanelServiceAccountUsername:
-          type: string
-          description: Mixpanel Service Account Username
-          pattern: ^[^:]+$
-        mixpanelServiceAccountPassword:
-          type: string
-          description: Mixpanel Service Account Password
-          pattern: ^[^:]+$
-    LogStreamHttpContentFormatEnum:
-      type: string
-      description: HTTP JSON format
-      enum:
-      - JSONARRAY
-      - JSONLINES
-      - JSONOBJECT
-    UpdateLogStreamResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
-      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
-      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
-      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
-      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
-      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
-      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
-      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
-    LogStreamMixpanelEnum:
-      type: string
-      enum:
-      - mixpanel
-    LogStreamPiiConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - log_fields
-      properties:
-        log_fields:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/LogStreamPiiLogFieldsEnum'
-        method:
-          $ref: '#/components/schemas/LogStreamPiiMethodEnum'
-        algorithm:
-          $ref: '#/components/schemas/LogStreamPiiAlgorithmEnum'
-    LogStreamPiiMethodEnum:
-      type: string
-      enum:
-      - mask
-      - hash
-    LogStreamFilterGroupNameEnum:
-      type: string
-      description: Category group name
-      enum:
-      - auth.login.fail
-      - auth.login.notification
-      - auth.login.success
-      - auth.logout.fail
-      - auth.logout.success
-      - auth.signup.fail
-      - auth.signup.success
-      - auth.silent_auth.fail
-      - auth.silent_auth.success
-      - auth.token_exchange.fail
-      - auth.token_exchange.success
-      - management.fail
-      - management.success
-      - scim.event
-      - system.notification
-      - user.fail
-      - user.notification
-      - user.success
-      - actions
-      - other
-    LogStreamSumoEnum:
-      type: string
-      enum:
-      - sumo
-    LogStreamSplunkResponseSchema:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The id of the log stream
-          format: log-stream-id
-        name:
-          type: string
-          description: log stream name
-        status:
-          $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamSplunkEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamSplunkSink'
-    HttpCustomHeader:
-      type: object
-      additionalProperties: true
-      properties:
-        header:
-          type: string
-          description: HTTP header name
-        value:
-          type: string
-          description: HTTP header value
-    LogStreamSumoResponseSchema:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The id of the log stream
-          format: log-stream-id
-        name:
-          type: string
-          description: log stream name
-        status:
-          $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamSumoEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamSumoSink'
-    LogStreamHttpResponseSchema:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The id of the log stream
-          format: log-stream-id
-        name:
-          type: string
-          description: log stream name
-        status:
-          $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamHttpEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamHttpSink'
     CreateLogStreamDatadogRequestBody:
       type: object
       additionalProperties: false
@@ -1362,29 +1306,37 @@ components:
           type: string
           description: The optional datetime (ISO 8601) to start streaming logs from
           default: '2021-03-01T19:57:29.532Z'
-    LogStreamFilter:
+    LogStreamPiiConfig:
       type: object
-      additionalProperties: true
+      additionalProperties: false
+      required:
+      - log_fields
       properties:
-        type:
-          $ref: '#/components/schemas/LogStreamFilterTypeEnum'
-        name:
-          $ref: '#/components/schemas/LogStreamFilterGroupNameEnum'
-    LogStreamDatadogResponseSchema:
+        log_fields:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/LogStreamPiiLogFieldsEnum'
+        method:
+          $ref: '#/components/schemas/LogStreamPiiMethodEnum'
+        algorithm:
+          $ref: '#/components/schemas/LogStreamPiiAlgorithmEnum'
+    LogStreamStatusEnum:
+      type: string
+      description: 'The status of the log stream. Possible values: `active`, `paused`, `suspended`'
+      enum:
+      - active
+      - paused
+      - suspended
+    UpdateLogStreamRequestContent:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
-        id:
-          type: string
-          description: The id of the log stream
-          format: log-stream-id
         name:
           type: string
           description: log stream name
         status:
           $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamDatadogEnum'
         isPriority:
           type: boolean
           description: True for priority log streams, false for non-priority
@@ -1396,16 +1348,7 @@ components:
         pii_config:
           $ref: '#/components/schemas/LogStreamPiiConfig'
         sink:
-          $ref: '#/components/schemas/LogStreamDatadogSink'
-    LogStreamSegmentSinkWriteKey:
-      type: object
-      additionalProperties: false
-      required:
-      - segmentWriteKey
-      properties:
-        segmentWriteKey:
-          type: string
-          description: Segment write key
+          $ref: '#/components/schemas/LogStreamSinkPatch'
     LogStreamHttpSink:
       type: object
       additionalProperties: false
@@ -1429,6 +1372,134 @@ components:
           description: custom HTTP headers
           items:
             $ref: '#/components/schemas/HttpCustomHeader'
+    LogStreamSumoEnum:
+      type: string
+      enum:
+      - sumo
+    LogStreamFilterGroupNameEnum:
+      type: string
+      description: Category group name
+      enum:
+      - auth.login.fail
+      - auth.login.notification
+      - auth.login.success
+      - auth.logout.fail
+      - auth.logout.success
+      - auth.signup.fail
+      - auth.signup.success
+      - auth.silent_auth.fail
+      - auth.silent_auth.success
+      - auth.token_exchange.fail
+      - auth.token_exchange.success
+      - management.fail
+      - management.success
+      - scim.event
+      - system.notification
+      - user.fail
+      - user.notification
+      - user.success
+      - actions
+      - other
+    LogStreamSinkPatch:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpSink'
+      - $ref: '#/components/schemas/LogStreamDatadogSink'
+      - $ref: '#/components/schemas/LogStreamSplunkSink'
+      - $ref: '#/components/schemas/LogStreamSumoSink'
+      - $ref: '#/components/schemas/LogStreamSegmentSink'
+      - $ref: '#/components/schemas/LogStreamMixpanelSinkPatch'
+    CreateLogStreamRequestContent:
+      oneOf:
+      - $ref: '#/components/schemas/CreateLogStreamHttpRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamEventBridgeRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamEventGridRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamDatadogRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamSplunkRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamSumoRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamSegmentRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamMixpanelRequestBody'
+    GetLogStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
+      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
+      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    LogStreamPiiLogFieldsEnum:
+      type: string
+      enum:
+      - first_name
+      - last_name
+      - username
+      - email
+      - phone
+      - address
+    LogStreamDatadogSink:
+      type: object
+      additionalProperties: false
+      required:
+      - datadogApiKey
+      - datadogRegion
+      properties:
+        datadogApiKey:
+          type: string
+          description: Datadog API Key
+        datadogRegion:
+          $ref: '#/components/schemas/LogStreamDatadogRegionEnum'
+    LogStreamMixpanelSink:
+      type: object
+      additionalProperties: false
+      required:
+      - mixpanelRegion
+      - mixpanelProjectId
+      - mixpanelServiceAccountUsername
+      - mixpanelServiceAccountPassword
+      properties:
+        mixpanelRegion:
+          $ref: '#/components/schemas/LogStreamMixpanelRegionEnum'
+        mixpanelProjectId:
+          type: string
+          description: Mixpanel Project Id
+          pattern: ^\d+$
+        mixpanelServiceAccountUsername:
+          type: string
+          description: Mixpanel Service Account Username
+          pattern: ^[^:]+$
+        mixpanelServiceAccountPassword:
+          type: string
+          description: Mixpanel Service Account Password
+          pattern: ^[^:]+$
+    CreateLogStreamMixpanelRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamMixpanelEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamMixpanelSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
     CreateLogStreamEventGridRequestBody:
       type: object
       additionalProperties: false
@@ -1453,6 +1524,76 @@ components:
           $ref: '#/components/schemas/LogStreamPiiConfig'
         sink:
           $ref: '#/components/schemas/LogStreamEventGridSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    LogStreamSegmentSink:
+      type: object
+      additionalProperties: false
+      properties:
+        segmentWriteKey:
+          type: string
+          description: Segment write key
+    LogStreamMixpanelEnum:
+      type: string
+      enum:
+      - mixpanel
+    LogStreamSplunkSink:
+      type: object
+      additionalProperties: false
+      required:
+      - splunkDomain
+      - splunkToken
+      - splunkPort
+      - splunkSecure
+      properties:
+        splunkDomain:
+          type: string
+          description: Splunk URL Endpoint
+        splunkPort:
+          type: string
+          description: Port
+          pattern: ^[0-9]*$
+        splunkToken:
+          type: string
+          description: Splunk token
+        splunkSecure:
+          type: boolean
+          description: Verify TLS certificate
+    LogStreamSumoSink:
+      type: object
+      additionalProperties: false
+      required:
+      - sumoSourceAddress
+      properties:
+        sumoSourceAddress:
+          type: string
+          description: HTTP Source Address
+    CreateLogStreamSplunkRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamSplunkEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSplunkSink'
         startFrom:
           type: string
           description: The optional datetime (ISO 8601) to start streaming logs from
@@ -1495,63 +1636,11 @@ components:
       - westindia
       - westus
       - westus2
-    LogStreamMixpanelSink:
-      type: object
-      additionalProperties: false
-      required:
-      - mixpanelRegion
-      - mixpanelProjectId
-      - mixpanelServiceAccountUsername
-      - mixpanelServiceAccountPassword
-      properties:
-        mixpanelRegion:
-          $ref: '#/components/schemas/LogStreamMixpanelRegionEnum'
-        mixpanelProjectId:
-          type: string
-          description: Mixpanel Project Id
-          pattern: ^\d+$
-        mixpanelServiceAccountUsername:
-          type: string
-          description: Mixpanel Service Account Username
-          pattern: ^[^:]+$
-        mixpanelServiceAccountPassword:
-          type: string
-          description: Mixpanel Service Account Password
-          pattern: ^[^:]+$
-    LogStreamSplunkEnum:
+    LogStreamPiiMethodEnum:
       type: string
       enum:
-      - splunk
-    LogStreamEventGridSink:
-      type: object
-      additionalProperties: false
-      required:
-      - azureSubscriptionId
-      - azureRegion
-      - azureResourceGroup
-      properties:
-        azureSubscriptionId:
-          type: string
-          description: Subscription ID
-          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-        azureRegion:
-          $ref: '#/components/schemas/LogStreamEventGridRegionEnum'
-        azureResourceGroup:
-          type: string
-          description: Resource Group
-        azurePartnerTopic:
-          type: string
-          description: Partner Topic
-    CreateLogStreamRequestContent:
-      oneOf:
-      - $ref: '#/components/schemas/CreateLogStreamHttpRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamEventBridgeRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamEventGridRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamDatadogRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamSplunkRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamSumoRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamSegmentRequestBody'
-      - $ref: '#/components/schemas/CreateLogStreamMixpanelRequestBody'
+      - mask
+      - hash
     LogStreamEventGridResponseSchema:
       type: object
       additionalProperties: true
@@ -1579,71 +1668,11 @@ components:
           $ref: '#/components/schemas/LogStreamPiiConfig'
         sink:
           $ref: '#/components/schemas/LogStreamEventGridSink'
-    LogStreamEventGridEnum:
+    LogStreamSplunkEnum:
       type: string
       enum:
-      - eventgrid
-    LogStreamDatadogEnum:
-      type: string
-      enum:
-      - datadog
-    CreateLogStreamHttpRequestBody:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - sink
-      properties:
-        name:
-          type: string
-          description: log stream name
-        type:
-          $ref: '#/components/schemas/LogStreamHttpEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamHttpSink'
-        startFrom:
-          type: string
-          description: The optional datetime (ISO 8601) to start streaming logs from
-          default: '2021-03-01T19:57:29.532Z'
-    CreateLogStreamEventBridgeRequestBody:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - sink
-      properties:
-        name:
-          type: string
-          description: log stream name
-        type:
-          $ref: '#/components/schemas/LogStreamEventBridgeEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamEventBridgeSink'
-        startFrom:
-          type: string
-          description: The optional datetime (ISO 8601) to start streaming logs from
-          default: '2021-03-01T19:57:29.532Z'
-    GetLogStreamResponseContent:
+      - splunk
+    LogStreamResponseSchema:
       oneOf:
       - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
       - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
@@ -1653,14 +1682,27 @@ components:
       - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
       - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
       - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
-    LogStreamSegmentSink:
+    LogStreamEventGridEnum:
+      type: string
+      enum:
+      - eventgrid
+    LogStreamDatadogRegionEnum:
+      type: string
+      description: Datadog region
+      enum:
+      - us
+      - eu
+      - us3
+      - us5
+    LogStreamFilter:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
-        segmentWriteKey:
-          type: string
-          description: Segment write key
-    LogStreamMixpanelResponseSchema:
+        type:
+          $ref: '#/components/schemas/LogStreamFilterTypeEnum'
+        name:
+          $ref: '#/components/schemas/LogStreamFilterGroupNameEnum'
+    LogStreamSumoResponseSchema:
       type: object
       additionalProperties: true
       properties:
@@ -1673,89 +1715,6 @@ components:
           description: log stream name
         status:
           $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamMixpanelEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamMixpanelSink'
-    LogStreamSplunkSink:
-      type: object
-      additionalProperties: false
-      required:
-      - splunkDomain
-      - splunkToken
-      - splunkPort
-      - splunkSecure
-      properties:
-        splunkDomain:
-          type: string
-          description: Splunk URL Endpoint
-        splunkPort:
-          type: string
-          description: Port
-          pattern: ^[0-9]*$
-        splunkToken:
-          type: string
-          description: Splunk token
-        splunkSecure:
-          type: boolean
-          description: Verify TLS certificate
-    LogStreamFilterTypeEnum:
-      type: string
-      description: Filter type. Currently `category` is the only valid type.
-      enum:
-      - category
-    LogStreamPiiAlgorithmEnum:
-      type: string
-      enum:
-      - xxhash
-    CreateLogStreamSplunkRequestBody:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - sink
-      properties:
-        name:
-          type: string
-          description: log stream name
-        type:
-          $ref: '#/components/schemas/LogStreamSplunkEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamSplunkSink'
-        startFrom:
-          type: string
-          description: The optional datetime (ISO 8601) to start streaming logs from
-          default: '2021-03-01T19:57:29.532Z'
-    CreateLogStreamSumoRequestBody:
-      type: object
-      additionalProperties: false
-      required:
-      - type
-      - sink
-      properties:
-        name:
-          type: string
-          description: log stream name
         type:
           $ref: '#/components/schemas/LogStreamSumoEnum'
         isPriority:
@@ -1770,44 +1729,43 @@ components:
           $ref: '#/components/schemas/LogStreamPiiConfig'
         sink:
           $ref: '#/components/schemas/LogStreamSumoSink'
-        startFrom:
-          type: string
-          description: The optional datetime (ISO 8601) to start streaming logs from
-          default: '2021-03-01T19:57:29.532Z'
-    LogStreamSegmentEnum:
+    LogStreamFilterTypeEnum:
+      type: string
+      description: Filter type. Currently `category` is the only valid type.
+      enum:
+      - category
+    LogStreamHttpEnum:
       type: string
       enum:
-      - segment
-    LogStreamDatadogSink:
-      type: object
-      additionalProperties: false
-      required:
-      - datadogApiKey
-      - datadogRegion
-      properties:
-        datadogApiKey:
-          type: string
-          description: Datadog API Key
-        datadogRegion:
-          $ref: '#/components/schemas/LogStreamDatadogRegionEnum'
+      - http
+    LogStreamHttpContentFormatEnum:
+      type: string
+      description: HTTP JSON format
+      enum:
+      - JSONARRAY
+      - JSONLINES
+      - JSONOBJECT
     LogStreamMixpanelRegionEnum:
       type: string
       description: Mixpanel Region
       enum:
       - us
       - eu
-    CreateLogStreamMixpanelRequestBody:
+    LogStreamEventBridgeResponseSchema:
       type: object
-      additionalProperties: false
-      required:
-      - type
-      - sink
+      additionalProperties: true
       properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
         name:
           type: string
           description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
         type:
-          $ref: '#/components/schemas/LogStreamMixpanelEnum'
+          $ref: '#/components/schemas/LogStreamEventBridgeEnum'
         isPriority:
           type: boolean
           description: True for priority log streams, false for non-priority
@@ -1819,11 +1777,43 @@ components:
         pii_config:
           $ref: '#/components/schemas/LogStreamPiiConfig'
         sink:
-          $ref: '#/components/schemas/LogStreamMixpanelSink'
-        startFrom:
+          $ref: '#/components/schemas/LogStreamEventBridgeSink'
+    LogStreamSegmentSinkWriteKey:
+      type: object
+      additionalProperties: false
+      required:
+      - segmentWriteKey
+      properties:
+        segmentWriteKey:
           type: string
-          description: The optional datetime (ISO 8601) to start streaming logs from
-          default: '2021-03-01T19:57:29.532Z'
+          description: Segment write key
+    LogStreamHttpResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamHttpEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamHttpSink'
     CreateLogStreamSegmentRequestBody:
       type: object
       additionalProperties: false
@@ -1852,32 +1842,58 @@ components:
           type: string
           description: The optional datetime (ISO 8601) to start streaming logs from
           default: '2021-03-01T19:57:29.532Z'
-    LogStreamDatadogRegionEnum:
+    LogStreamSplunkResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamSplunkEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSplunkSink'
+    LogStreamEventGridSink:
+      type: object
+      additionalProperties: false
+      required:
+      - azureSubscriptionId
+      - azureRegion
+      - azureResourceGroup
+      properties:
+        azureSubscriptionId:
+          type: string
+          description: Subscription ID
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+        azureRegion:
+          $ref: '#/components/schemas/LogStreamEventGridRegionEnum'
+        azureResourceGroup:
+          type: string
+          description: Resource Group
+        azurePartnerTopic:
+          type: string
+          description: Partner Topic
+    LogStreamDatadogEnum:
       type: string
-      description: Datadog region
       enum:
-      - us
-      - eu
-      - us3
-      - us5
-    LogStreamSinkPatch:
-      oneOf:
-      - $ref: '#/components/schemas/LogStreamHttpSink'
-      - $ref: '#/components/schemas/LogStreamDatadogSink'
-      - $ref: '#/components/schemas/LogStreamSplunkSink'
-      - $ref: '#/components/schemas/LogStreamSumoSink'
-      - $ref: '#/components/schemas/LogStreamSegmentSink'
-      - $ref: '#/components/schemas/LogStreamMixpanelSinkPatch'
-    LogStreamPiiLogFieldsEnum:
-      type: string
-      enum:
-      - first_name
-      - last_name
-      - username
-      - email
-      - phone
-      - address
-    LogStreamResponseSchema:
+      - datadog
+    UpdateLogStreamResponseContent:
       oneOf:
       - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
       - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
@@ -1887,6 +1903,43 @@ components:
       - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
       - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
       - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    HttpCustomHeader:
+      type: object
+      additionalProperties: true
+      properties:
+        header:
+          type: string
+          description: HTTP header name
+        value:
+          type: string
+          description: HTTP header value
+    LogStreamSegmentResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamSegmentEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSegmentSinkWriteKey'
     LogStreamEventBridgeSinkRegionEnum:
       type: string
       description: The region in which the EventBridge event source will be created
@@ -1927,6 +1980,188 @@ components:
       - us-east-2
       - us-west-1
       - us-west-2
+    LogStreamMixpanelResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamMixpanelEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamMixpanelSink'
+    CreateLogStreamSumoRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamSumoEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSumoSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    CreateLogStreamEventBridgeRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamEventBridgeEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamEventBridgeSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    LogStreamDatadogResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamDatadogEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamDatadogSink'
+    LogStreamSegmentEnum:
+      type: string
+      enum:
+      - segment
+    LogStreamEventBridgeEnum:
+      type: string
+      enum:
+      - eventbridge
+    LogStreamPiiAlgorithmEnum:
+      type: string
+      enum:
+      - xxhash
+    CreateLogStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
+      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
+      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    LogStreamMixpanelSinkPatch:
+      type: object
+      additionalProperties: false
+      required:
+      - mixpanelRegion
+      - mixpanelProjectId
+      - mixpanelServiceAccountUsername
+      properties:
+        mixpanelRegion:
+          $ref: '#/components/schemas/LogStreamMixpanelRegionEnum'
+        mixpanelProjectId:
+          type: string
+          description: Mixpanel Project Id
+          pattern: ^\d+$
+        mixpanelServiceAccountUsername:
+          type: string
+          description: Mixpanel Service Account Username
+          pattern: ^[^:]+$
+        mixpanelServiceAccountPassword:
+          type: string
+          description: Mixpanel Service Account Password
+          pattern: ^[^:]+$
+    CreateLogStreamHttpRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamHttpEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamHttpSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
     LogStreamEventBridgeSink:
       type: object
       additionalProperties: false
@@ -1943,84 +2178,6 @@ components:
         awsPartnerEventSource:
           type: string
           description: AWS EventBridge partner event source
-    LogStreamStatusEnum:
-      type: string
-      description: 'The status of the log stream. Possible values: `active`, `paused`, `suspended`'
-      enum:
-      - active
-      - paused
-      - suspended
-    CreateLogStreamResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
-      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
-      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
-      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
-      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
-      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
-      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
-      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
-    UpdateLogStreamRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: log stream name
-        status:
-          $ref: '#/components/schemas/LogStreamStatusEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamSinkPatch'
-    LogStreamSegmentResponseSchema:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-          description: The id of the log stream
-          format: log-stream-id
-        name:
-          type: string
-          description: log stream name
-        status:
-          $ref: '#/components/schemas/LogStreamStatusEnum'
-        type:
-          $ref: '#/components/schemas/LogStreamSegmentEnum'
-        isPriority:
-          type: boolean
-          description: True for priority log streams, false for non-priority
-        filters:
-          type: array
-          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
-          items:
-            $ref: '#/components/schemas/LogStreamFilter'
-        pii_config:
-          $ref: '#/components/schemas/LogStreamPiiConfig'
-        sink:
-          $ref: '#/components/schemas/LogStreamSegmentSinkWriteKey'
-    LogStreamEventBridgeEnum:
-      type: string
-      enum:
-      - eventbridge
-    LogStreamSumoSink:
-      type: object
-      additionalProperties: false
-      required:
-      - sumoSourceAddress
-      properties:
-        sumoSourceAddress:
-          type: string
-          description: HTTP Source Address
   securitySchemes:
     bearerAuth:
       type: http
@@ -2038,6 +2195,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -2114,8 +2275,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -2133,6 +2296,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -2167,9 +2333,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -2191,6 +2363,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -2244,7 +2420,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -2255,6 +2435,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

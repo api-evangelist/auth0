@@ -1,0 +1,596 @@
+openapi: 3.2.0
+info:
+  title: Auth0 Management Agents API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
+servers:
+- url: https://{tenantDomain}/api/v2
+  variables:
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
+tags:
+- name: Agents
+paths:
+  /agents:
+    get:
+      summary: Get agents
+      tags:
+      - Agents
+      parameters:
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+          maxLength: 1000
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Agents successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAgentsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:agents.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_agents
+      x-release-lifecycle: EA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListAgentsRequestParameters
+      x-operation-group: agents
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:agents
+      x-codeSamples: []
+    post:
+      summary: Create an agent
+      tags:
+      - Agents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgentRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateAgentRequestContent'
+      responses:
+        '201':
+          description: Agent successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+          x-description-1: The specified client does not exist.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:agents.'
+          x-description-1: This feature is not enabled for this tenant.
+        '409':
+          description: The client is already associated with another agent.
+          x-description-1: An agent with this external_agent_id already exists in this tenant.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_agent
+      x-release-lifecycle: EA
+      x-operation-name: create
+      x-operation-group: agents
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:agents
+      x-codeSamples: []
+  /agents/{id}:
+    get:
+      summary: Get an agent
+      tags:
+      - Agents
+      parameters:
+      - name: id
+        in: path
+        description: The agent ID
+        required: true
+        schema:
+          type: string
+          maxLength: 26
+      responses:
+        '200':
+          description: Agent successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:agents.'
+        '404':
+          description: The specified agent does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_agent
+      x-release-lifecycle: EA
+      x-operation-name: read
+      x-operation-request-parameters-name: GetAgentRequestParameters
+      x-operation-group: agents
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:agents
+      x-codeSamples: []
+    delete:
+      summary: Delete an agent
+      tags:
+      - Agents
+      parameters:
+      - name: id
+        in: path
+        description: The agent ID
+        required: true
+        schema:
+          type: string
+          maxLength: 26
+      responses:
+        '204':
+          description: Agent successfully deleted.
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:agents.'
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_agent
+      x-release-lifecycle: EA
+      x-operation-name: delete
+      x-operation-request-parameters-name: DeleteAgentRequestParameters
+      x-operation-group: agents
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:agents
+      x-codeSamples: []
+    patch:
+      summary: Update an agent
+      tags:
+      - Agents
+      parameters:
+      - name: id
+        in: path
+        description: The agent ID
+        required: true
+        schema:
+          type: string
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgentRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateAgentRequestContent'
+      responses:
+        '200':
+          description: Agent successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: update:agents.'
+        '404':
+          description: The specified agent does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_agent
+      x-release-lifecycle: EA
+      x-operation-name: update
+      x-operation-request-parameters-name: PatchAgentRequestParameters
+      x-operation-group: agents
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:agents
+      x-codeSamples: []
+components:
+  schemas:
+    UpdateAgentRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The agent name. Cannot contain <, >, or null bytes.
+          minLength: 1
+          maxLength: 255
+          pattern: ^[^<>]+$
+        metadata:
+          type:
+          - object
+          - 'null'
+          description: Arbitrary key-value metadata for the agent. Pass null to clear all metadata.
+          additionalProperties: true
+    ListAgentsResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - agents
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentResponseContent'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results. Omitted when there are no further results.
+    CreateAgentRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The agent name. Cannot contain <, >, or null bytes.
+          minLength: 1
+          maxLength: 255
+          pattern: ^[^<>]+$
+        client_id:
+          type: string
+          description: Optional client ID to associate with the agent
+          maxLength: 255
+        external_agent_id:
+          type: string
+          description: Optional external identifier for the agent. Immutable after creation. Must be unique within the tenant.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[^]*$
+        metadata:
+          $ref: '#/components/schemas/AgentMetadata'
+    AgentMetadata:
+      type: object
+      description: Arbitrary key-value metadata for the agent
+      additionalProperties: true
+    AgentResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - agent_id
+      - name
+      - metadata
+      - created_at
+      - updated_at
+      properties:
+        agent_id:
+          type: string
+          description: The agent ID
+          format: agent-id
+        name:
+          type: string
+          description: The agent name
+          maxLength: 255
+        created_at:
+          type: string
+          description: When the agent was created
+          format: date-time
+        updated_at:
+          type: string
+          description: When the agent was last updated
+          format: date-time
+        external_agent_id:
+          type: string
+          description: External identifier for the agent, if set. Omitted when not set.
+          maxLength: 128
+        metadata:
+          $ref: '#/components/schemas/AgentMetadata'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
+            read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

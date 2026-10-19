@@ -20,56 +20,49 @@ tags:
 paths:
   /logs:
     get:
-      summary: Search Log Events
+      summary: Search log events
       description: 'Retrieve log entries that match the specified search criteria (or all log entries if no criteria specified).
 
 
-        Set custom search criteria using the q parameter, or search from a specific log ID ("search from checkpoint").
+        Set custom search criteria using the `q` parameter, or search from a specific log ID (_"search from checkpoint"_).
 
 
         For more information on all possible event types, their respective acronyms, and descriptions, see Log Event Type Codes.
 
 
-        To set custom search criteria, use the following parameters:
+        **To set custom search criteria, use the following parameters:**
 
 
-        q: Search Criteria using Query String Syntax
+        - **q:** Search Criteria using Query String Syntax
+
+        - **page:** Page index of the results to return. First page is 0.
+
+        - **per_page:** Number of results per page.
+
+        - **sort:** Field to use for sorting appended with `:1` for ascending and `:-1` for descending. e.g. `date:-1`
+
+        - **fields:** Comma-separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields.
+
+        - **include_fields:** Whether specified fields are to be included (true) or excluded (false).
+
+        - **include_totals:** Return results inside an object that contains the total result count (true) or as a direct array of results (false, default). **Deprecated:** this field is deprecated and should be removed from use. See Search Engine V3 Breaking Changes
 
 
-        page: Page index of the results to return. First page is 0.
-
-
-        per_page: Number of results per page.
-
-
-        sort: Field to use for sorting appended with `:1` for ascending and `:-1` for descending. e.g. `date:-1`
-
-
-        fields: Comma-separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields.
-
-
-        include_fields: Whether specified fields are to be included (true) or excluded (false).
-
-
-        include_totals: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default). Deprecated: this field is deprecated and should be removed from use. See Search Engine V3 Breaking Changes
-
-
-        For more information on the list of fields that can be used in fields and sort, see Searchable Fields.
+        For more information on the list of fields that can be used in `fields` and `sort`, see Searchable Fields.
 
 
         Auth0 limits the number of logs you can return by search criteria to 100 logs per request. Furthermore, you may paginate only through 1,000 search results. If you exceed this threshold, please redefine your search or use the get logs by checkpoint method.
 
 
-        To search from a checkpoint log ID, use the following parameters:
+        **To search from a checkpoint log ID, use the following parameters:**
 
 
-        from: Log Event ID from which to start retrieving logs. You can limit the number of logs returned using the take parameter. If you use from at the same time as q, from takes precedence and q is ignored.
+        - **from:** Log Event ID from which to start retrieving logs. You can limit the number of logs returned using the `take` parameter. If you use `from` at the same time as `q`, `from` takes precedence and `q` is ignored.
+
+        - **take:** Number of entries to retrieve when using the `from` parameter.
 
 
-        take: Number of entries to retrieve when using the from parameter.
-
-
-        Important: When fetching logs from a checkpoint log ID, any parameter other than from and take will be ignored, and date ordering is not guaranteed.'
+        **Important:** When fetching logs from a checkpoint log ID, any parameter other than `from` and `take` will be ignored, and date ordering is not guaranteed.'
       tags:
       - Logs
       parameters:
@@ -91,13 +84,11 @@ paths:
         description: Field to use for sorting appended with <code>:1</code>  for ascending and <code>:-1</code> for descending. e.g. <code>date:-1</code>
         schema:
           type: string
-          pattern: ^((date)|(connection)|(client_id)|(client_name)|(ip)|(user_id)|(user_name)|(description)|(user_agent)|(type)|(details)|(strategy)|(strategy_type))\:(1|-1)$
       - name: fields
         in: query
         description: Comma-separated list of fields to include or exclude (based on value provided for <code>include_fields</code>) in the result. Leave empty to retrieve all fields.
         schema:
           type: string
-          pattern: ^((date)|(connection)|(client_id)|(client_name)|(ip)|(user_id)|(user_name)|(description)|(user_agent)|(type)|(details)|(strategy)|(strategy_type))(,((date)|(connection)|(client_id)|(client_name)|(ip)|(user_id)|(user_name)|(description)|(user_agent)|(type)|(details)|(strategy)|(strategy_type)))*$
       - name: include_fields
         in: query
         description: Whether specified fields are to be included (<code>true</code>) or excluded (<code>false</code>)
@@ -153,9 +144,34 @@ paths:
       - oAuth2ClientCredentials:
         - read:logs
         - read:logs_users
+      x-codeSamples:
+      - lang: csharp
+        label: Search log events
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Logs.ListAsync(\n            new ListLogsRequestParameters {\n                Page = 1,\n                PerPage = 1,\n                Sort = \"sort\",\n                Fields = \"fields\",\n                IncludeFields = true,\n                IncludeTotals = true,\n                Search = \"search\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Search log events
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListLogsRequestParameters{\n        Page: management.Int(\n            1,\n        ),\n        PerPage: management.Int(\n            1,\n        ),\n        Sort: management.String(\n            \"sort\",\n        ),\n        Fields: management.String(\n            \"fields\",\n        ),\n        IncludeFields: management.Bool(\n            true,\n        ),\n        IncludeTotals: management.Bool(\n            true,\n        ),\n        Q: management.String(\n            \"q\",\n        ),\n    }\n    mgmt.Logs.List(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Search log events
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListLogsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logs().list(\n            ListLogsRequestParameters\n                .builder()\n                .page(1)\n                .perPage(1)\n                .sort(\"sort\")\n                .fields(\"fields\")\n                .includeFields(true)\n                .includeTotals(true)\n                .search(\"search\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Search log events
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Logs\\Requests\\ListLogsRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logs->list(\n    new ListLogsRequestParameters([\n        'page' => 1,\n        'perPage' => 1,\n        'sort' => 'sort',\n        'fields' => 'fields',\n        'includeFields' => true,\n        'includeTotals' => true,\n        'search' => 'search',\n    ]),\n);\n"
+      - lang: python
+        label: Search log events
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.logs.list(\n    page=1,\n    per_page=1,\n    sort=\"sort\",\n    fields=\"fields\",\n    include_fields=True,\n    include_totals=True,\n    search=\"search\",\n)\n"
+      - lang: ruby
+        label: Search log events
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.logs.list(\n  page: 1,\n  per_page: 1,\n  sort: \"sort\",\n  fields: \"fields\",\n  include_fields: true,\n  include_totals: true,\n  search: \"search\"\n)\n"
+      - lang: typescript
+        label: Search log events
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logs.list({\n        page: 1,\n        perPage: 1,\n        sort: \"sort\",\n        fields: \"fields\",\n        includeFields: true,\n        includeTotals: true,\n        q: \"q\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Search log events
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logs.list({\n        page: 1,\n        perPage: 1,\n        sort: \"sort\",\n        fields: \"fields\",\n        includeFields: true,\n        includeTotals: true,\n        q: \"q\",\n    });\n}\nmain();\n"
   /logs/{id}:
     get:
-      summary: Get a Log Event by Id
+      summary: Get a log event by id
       description: Retrieve an individual log event.
       tags:
       - Logs
@@ -193,117 +209,45 @@ paths:
       - oAuth2ClientCredentials:
         - read:logs
         - read:logs_users
+      x-codeSamples:
+      - lang: csharp
+        label: Get a log event by id
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Logs.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a log event by id
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.Logs.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get a log event by id
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.logs().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a log event by id
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->logs->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a log event by id
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.logs.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a log event by id
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.logs.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get a log event by id
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logs.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get a log event by id
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.logs.get(\"id\");\n}\nmain();\n"
 components:
   schemas:
-    Log:
-      type: object
-      additionalProperties: true
-      properties:
-        date:
-          $ref: '#/components/schemas/LogDate'
-        type:
-          type: string
-          description: Type of event.
-          default: sapi
-        description:
-          type:
-          - string
-          - 'null'
-          description: Description of this event.
-        connection:
-          type: string
-          description: Name of the connection the event relates to.
-        connection_id:
-          type: string
-          description: ID of the connection the event relates to.
-        client_id:
-          type: string
-          description: ID of the client (application).
-          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
-        client_name:
-          type: string
-          description: Name of the client (application).
-          default: My application Name
-        ip:
-          type: string
-          description: IP address of the log event source.
-          default: 190.257.209.19
-        hostname:
-          type: string
-          description: Hostname the event applies to.
-          default: 190.257.209.19
-        user_id:
-          type: string
-          description: ID of the user involved in the event.
-          default: auth0|56c75c4e42b6359e98374bc2
-        user_name:
-          type: string
-          description: Name of the user involved in the event.
-        audience:
-          type: string
-          description: API audience the event applies to.
-        scope:
-          type: string
-          description: Scope permissions applied to the event.
-          default: ''
-        strategy:
-          type: string
-          description: Name of the strategy involved in the event.
-        strategy_type:
-          type: string
-          description: Type of strategy involved in the event.
-        log_id:
-          type: string
-          description: Unique ID of the event.
-        isMobile:
-          type: boolean
-          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
-        details:
-          $ref: '#/components/schemas/LogDetails'
-        user_agent:
-          type: string
-          description: User agent string from the client device that caused the event.
-        security_context:
-          $ref: '#/components/schemas/LogSecurityContext'
-        location_info:
-          $ref: '#/components/schemas/LogLocationInfo'
     LogDetails:
       type: object
       description: Additional useful details about this event (structure is dependent upon event type).
       additionalProperties: true
-    LogLocationInfo:
-      type: object
-      description: Information about the location that triggered this event based on the `ip`.
-      additionalProperties: true
-      properties:
-        country_code:
-          type: string
-          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
-          minLength: 2
-          maxLength: 2
-        country_code3:
-          type: string
-          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
-          minLength: 3
-          maxLength: 3
-        country_name:
-          type: string
-          description: Full country name in English.
-        city_name:
-          type: string
-          description: Full city name in English.
-        latitude:
-          type: number
-          description: Global latitude (horizontal) position.
-        longitude:
-          type: number
-          description: Global longitude (vertical) position.
-        time_zone:
-          type: string
-          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
-        continent_code:
-          type: string
-          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
     LogSecurityContext:
       type: object
       description: Information about security-related signals.
@@ -315,34 +259,10 @@ components:
         ja4:
           type: string
           description: JA4 fingerprint value.
-    ListLogResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Log'
-      - $ref: '#/components/schemas/ListLogOffsetPaginatedResponseContent'
-    ListLogOffsetPaginatedResponseContent:
+    LogDateObject:
       type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        length:
-          type: number
-        total:
-          type: number
-        logs:
-          type: array
-          items:
-            $ref: '#/components/schemas/Log'
-    LogDate:
-      oneOf:
-      - type: string
-        description: Date when the event occurred in ISO 8601 format.
-        default: '2016-02-23T19:57:29.532Z'
-      - $ref: '#/components/schemas/LogDateObject'
+      description: Date when the event occurred in ISO 8601 format.
+      additionalProperties: true
     GetLogResponseContent:
       type: object
       additionalProperties: true
@@ -415,10 +335,139 @@ components:
           $ref: '#/components/schemas/LogSecurityContext'
         location_info:
           $ref: '#/components/schemas/LogLocationInfo'
-    LogDateObject:
+    ListLogResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Log'
+      - $ref: '#/components/schemas/ListLogOffsetPaginatedResponseContent'
+    Log:
       type: object
-      description: Date when the event occurred in ISO 8601 format.
       additionalProperties: true
+      properties:
+        date:
+          $ref: '#/components/schemas/LogDate'
+        type:
+          type: string
+          description: Type of event.
+          default: sapi
+        description:
+          type:
+          - string
+          - 'null'
+          description: Description of this event.
+        connection:
+          type: string
+          description: Name of the connection the event relates to.
+        connection_id:
+          type: string
+          description: ID of the connection the event relates to.
+        client_id:
+          type: string
+          description: ID of the client (application).
+          default: AaiyAPdpYdesoKnqjj8HJqRn4T5titww
+        client_name:
+          type: string
+          description: Name of the client (application).
+          default: My application Name
+        ip:
+          type: string
+          description: IP address of the log event source.
+          default: 190.257.209.19
+        hostname:
+          type: string
+          description: Hostname the event applies to.
+          default: 190.257.209.19
+        user_id:
+          type: string
+          description: ID of the user involved in the event.
+          default: auth0|56c75c4e42b6359e98374bc2
+        user_name:
+          type: string
+          description: Name of the user involved in the event.
+        audience:
+          type: string
+          description: API audience the event applies to.
+        scope:
+          type: string
+          description: Scope permissions applied to the event.
+          default: ''
+        strategy:
+          type: string
+          description: Name of the strategy involved in the event.
+        strategy_type:
+          type: string
+          description: Type of strategy involved in the event.
+        log_id:
+          type: string
+          description: Unique ID of the event.
+        isMobile:
+          type: boolean
+          description: Whether the client was a mobile device (true) or desktop/laptop/server (false).
+        details:
+          $ref: '#/components/schemas/LogDetails'
+        user_agent:
+          type: string
+          description: User agent string from the client device that caused the event.
+        security_context:
+          $ref: '#/components/schemas/LogSecurityContext'
+        location_info:
+          $ref: '#/components/schemas/LogLocationInfo'
+    LogDate:
+      oneOf:
+      - type: string
+        description: Date when the event occurred in ISO 8601 format.
+        default: '2016-02-23T19:57:29.532Z'
+      - $ref: '#/components/schemas/LogDateObject'
+    LogLocationInfo:
+      type: object
+      description: Information about the location that triggered this event based on the `ip`.
+      additionalProperties: true
+      properties:
+        country_code:
+          type: string
+          description: Two-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-2 ISO 3166-1</a> country code.
+          minLength: 2
+          maxLength: 2
+        country_code3:
+          type: string
+          description: Three-letter <a href="https://www.iso.org/iso-3166-country-codes.html">Alpha-3 ISO 3166-1</a> country code.
+          minLength: 3
+          maxLength: 3
+        country_name:
+          type: string
+          description: Full country name in English.
+        city_name:
+          type: string
+          description: Full city name in English.
+        latitude:
+          type: number
+          description: Global latitude (horizontal) position.
+        longitude:
+          type: number
+          description: Global longitude (vertical) position.
+        time_zone:
+          type: string
+          description: Time zone name as found in the <a href="https://www.iana.org/time-zones">tz database</a>.
+        continent_code:
+          type: string
+          description: Continent the country is located within. Can be `AF` (Africa), `AN` (Antarctica), `AS` (Asia), `EU` (Europe), `NA` (North America), `OC` (Oceania) or `SA` (South America).
+    ListLogOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        length:
+          type: number
+        total:
+          type: number
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Log'
   securitySchemes:
     bearerAuth:
       type: http
@@ -436,6 +485,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -512,8 +565,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -531,6 +586,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -565,9 +623,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -589,6 +653,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -642,7 +710,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -653,6 +725,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

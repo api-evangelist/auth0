@@ -1,0 +1,2260 @@
+openapi: 3.2.0
+info:
+  title: Auth0 Management Log Streams API
+  description: Auth0 Management API v2.
+  termsOfService: https://auth0.com/web-terms/
+  contact:
+    name: Auth0 Support
+    url: https://support.auth0.com
+  version: '2.0'
+servers:
+- url: https://{tenantDomain}/api/v2
+  variables:
+    tenantDomain:
+      default: '{TENANT}.auth0.com'
+      description: Auth0 Tenant Domain
+security:
+- bearerAuth: []
+tags:
+- name: log-streams
+paths:
+  /log-streams:
+    get:
+      summary: Get Log Streams
+      description: 'Retrieve details on log streams.
+
+
+        **Sample Response**
+
+
+        ```json
+
+        [{
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "eventbridge",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "awsAccountId": "string",
+
+        "awsRegion": "string",
+
+        "awsPartnerEventSource": "string"
+
+        }
+
+        }, {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "http",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "httpContentFormat": "JSONLINES|JSONARRAY",
+
+        "httpContentType": "string",
+
+        "httpEndpoint": "string",
+
+        "httpAuthorization": "string"
+
+        }
+
+        },
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "eventgrid",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "azureSubscriptionId": "string",
+
+        "azureResourceGroup": "string",
+
+        "azureRegion": "string",
+
+        "azurePartnerTopic": "string"
+
+        }
+
+        },
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "splunk",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "splunkDomain": "string",
+
+        "splunkToken": "string",
+
+        "splunkPort": "string",
+
+        "splunkSecure": "boolean"
+
+        }
+
+        },
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "sumo",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "sumoSourceAddress": "string"
+
+        }
+
+        },
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "datadog",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "datadogRegion": "string",
+
+        "datadogApiKey": "string"
+
+        }
+
+        }]
+
+        ```'
+      tags:
+      - log-streams
+      responses:
+        '200':
+          description: Returning log streams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LogStreamResponseSchema'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:log_streams.'
+          x-description-1: The account is not allowed to perform this operation.
+        '404':
+          description: The log stream does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_log-streams
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-group: logStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:log_streams
+    post:
+      summary: Create a Log Stream
+      description: 'Create a log stream.
+
+
+        **Log Stream Types**
+
+
+        The `type` of log stream being created determines the properties required in the `sink` payload.
+
+
+        **HTTP Stream**
+
+
+        For an `http` Stream, the `sink` properties are listed in the payload below.
+
+
+        **Request:**
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "http",
+
+        "sink": {
+
+        "httpEndpoint": "string",
+
+        "httpContentType": "string",
+
+        "httpContentFormat": "JSONLINES|JSONARRAY",
+
+        "httpAuthorization": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "http",
+
+        "status": "active",
+
+        "sink": {
+
+        "httpEndpoint": "string",
+
+        "httpContentType": "string",
+
+        "httpContentFormat": "JSONLINES|JSONARRAY",
+
+        "httpAuthorization": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Amazon EventBridge Stream**
+
+
+        For an `eventbridge` Stream, the `sink` properties are listed in the payload below.
+
+
+        **Request:**
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "eventbridge",
+
+        "sink": {
+
+        "awsRegion": "string",
+
+        "awsAccountId": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        The response will include an additional field `awsPartnerEventSource` in the `sink`:
+
+
+        **Response:**
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "eventbridge",
+
+        "status": "active",
+
+        "sink": {
+
+        "awsAccountId": "string",
+
+        "awsRegion": "string",
+
+        "awsPartnerEventSource": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Azure Event Grid Stream**
+
+
+        For an `Azure Event Grid` Stream, the `sink` properties are listed in the payload below.
+
+
+        **Request:**
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "eventgrid",
+
+        "sink": {
+
+        "azureSubscriptionId": "string",
+
+        "azureResourceGroup": "string",
+
+        "azureRegion": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "http",
+
+        "status": "active",
+
+        "sink": {
+
+        "azureSubscriptionId": "string",
+
+        "azureResourceGroup": "string",
+
+        "azureRegion": "string",
+
+        "azurePartnerTopic": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Datadog Stream**
+
+
+        For a `Datadog` Stream, the `sink` properties are listed in the payload below.
+
+
+        **Request:**
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "datadog",
+
+        "sink": {
+
+        "datadogRegion": "string",
+
+        "datadogApiKey": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "datadog",
+
+        "status": "active",
+
+        "sink": {
+
+        "datadogRegion": "string",
+
+        "datadogApiKey": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Splunk Stream**
+
+
+        For a `Splunk` Stream, the `sink` properties are listed in the payload below.
+
+
+        **Request:**
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "splunk",
+
+        "sink": {
+
+        "splunkDomain": "string",
+
+        "splunkToken": "string",
+
+        "splunkPort": "string",
+
+        "splunkSecure": "boolean"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "splunk",
+
+        "status": "active",
+
+        "sink": {
+
+        "splunkDomain": "string",
+
+        "splunkToken": "string",
+
+        "splunkPort": "string",
+
+        "splunkSecure": "boolean"
+
+        }
+
+        }
+
+        ```
+
+
+        **Sumo Logic Stream**
+
+
+        For a `Sumo Logic` Stream, the `sink` properties are listed in the payload below.
+
+
+        **Request:**
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "sumo",
+
+        "sink": {
+
+        "sumoSourceAddress": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "sumo",
+
+        "status": "active",
+
+        "sink": {
+
+        "sumoSourceAddress": "string"
+
+        }
+
+        }
+
+        ```'
+      tags:
+      - log-streams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLogStreamRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateLogStreamRequestContent'
+      responses:
+        '200':
+          description: Log stream created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLogStreamResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: create:log_streams.'
+          x-description-1: The account is not allowed to perform this operation.
+        '409':
+          description: You have reached the maximum number of log streams for your account.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_log-streams
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group: logStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:log_streams
+  /log-streams/{id}:
+    get:
+      summary: Get Log Stream by ID
+      description: 'Retrieve a log stream configuration and status.
+
+
+        **Sample responses**
+
+
+        **Amazon EventBridge Log Stream**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "eventbridge",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "awsAccountId": "string",
+
+        "awsRegion": "string",
+
+        "awsPartnerEventSource": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **HTTP Log Stream**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "http",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "httpContentFormat": "JSONLINES|JSONARRAY",
+
+        "httpContentType": "string",
+
+        "httpEndpoint": "string",
+
+        "httpAuthorization": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Datadog Log Stream**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "datadog",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "datadogRegion": "string",
+
+        "datadogApiKey": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Mixpanel**
+
+
+        **Request:**
+
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "mixpanel",
+
+        "sink": {
+
+        "mixpanelRegion": "string",
+
+        "mixpanelProjectId": "string",
+
+        "mixpanelServiceAccountUsername": "string",
+
+        "mixpanelServiceAccountPassword": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "mixpanel",
+
+        "status": "active",
+
+        "sink": {
+
+        "mixpanelRegion": "string",
+
+        "mixpanelProjectId": "string",
+
+        "mixpanelServiceAccountUsername": "string",
+
+        "mixpanelServiceAccountPassword": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Segment**
+
+
+        **Request:**
+
+
+        ```json
+
+        {
+
+        "name": "string",
+
+        "type": "segment",
+
+        "sink": {
+
+        "segmentWriteKey": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Response:**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "segment",
+
+        "status": "active",
+
+        "sink": {
+
+        "segmentWriteKey": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Splunk Log Stream**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "splunk",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "splunkDomain": "string",
+
+        "splunkToken": "string",
+
+        "splunkPort": "string",
+
+        "splunkSecure": "boolean"
+
+        }
+
+        }
+
+        ```
+
+
+        **Sumo Logic Log Stream**
+
+
+        ```json
+
+        {
+
+        "id": "string",
+
+        "name": "string",
+
+        "type": "sumo",
+
+        "status": "active|paused|suspended",
+
+        "sink": {
+
+        "sumoSourceAddress": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Status**
+
+
+        The `status` of a log stream maybe any of the following:
+
+
+        1. `active` - Stream is currently enabled.
+
+        2. `paused` - Stream is currently user disabled and will not attempt log delivery.
+
+        3. `suspended` - Stream is currently disabled because of errors and will not attempt log delivery.'
+      tags:
+      - log-streams
+      parameters:
+      - name: id
+        in: path
+        description: The id of the log stream to get
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Returning log stream.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLogStreamResponseContent'
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: read:log_streams.'
+          x-description-1: The account is not allowed to perform this operation.
+        '404':
+          description: The log stream does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_log-streams_by_id
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-group: logStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:log_streams
+    delete:
+      summary: Delete Log Stream
+      description: Delete a log stream.
+      tags:
+      - log-streams
+      parameters:
+      - name: id
+        in: path
+        description: The id of the log stream to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The log stream was deleted.
+        '400':
+          description: Invalid request URI. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope, expected: delete:log_streams.'
+        '404':
+          description: The log stream does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_log-streams_by_id
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group: logStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:log_streams
+    patch:
+      summary: Update a Log Stream
+      description: 'Update a log stream.
+
+
+        **Examples of how to use the PATCH endpoint.**
+
+
+        The following fields may be updated in a PATCH operation:
+
+
+        - name
+
+        - status
+
+        - sink
+
+
+        Note: For log streams of type `eventbridge` and `eventgrid`, updating the `sink` is not permitted.
+
+
+        **Update the status of a log stream**
+
+
+        ```json
+
+        {
+
+        "status": "active|paused"
+
+        }
+
+        ```
+
+
+        **Update the name of a log stream**
+
+
+        ```json
+
+        {
+
+        "name": "string"
+
+        }
+
+        ```
+
+
+        **Update the sink properties of a stream of type `http`**
+
+
+        ```json
+
+        {
+
+        "sink": {
+
+        "httpEndpoint": "string",
+
+        "httpContentType": "string",
+
+        "httpContentFormat": "JSONARRAY|JSONLINES",
+
+        "httpAuthorization": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Update the sink properties of a stream of type `datadog`**
+
+
+        ```json
+
+        {
+
+        "sink": {
+
+        "datadogRegion": "string",
+
+        "datadogApiKey": "string"
+
+        }
+
+        }
+
+        ```
+
+
+        **Update the sink properties of a stream of type `splunk`**
+
+
+        ```json
+
+        {
+
+        "sink": {
+
+        "splunkDomain": "string",
+
+        "splunkToken": "string",
+
+        "splunkPort": "string",
+
+        "splunkSecure": "boolean"
+
+        }
+
+        }
+
+        ```
+
+
+        **Update the sink properties of a stream of type `sumo`**
+
+
+        ```json
+
+        {
+
+        "sink": {
+
+        "sumoSourceAddress": "string"
+
+        }
+
+        }
+
+        ```'
+      tags:
+      - log-streams
+      parameters:
+      - name: id
+        in: path
+        description: The id of the log stream to get
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLogStreamRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateLogStreamRequestContent'
+      responses:
+        '200':
+          description: Log stream updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateLogStreamResponseContent'
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+        '403':
+          description: 'Insufficient scope; expected any of: update:log_streams.'
+          x-description-1: The account is not allowed to perform this operation.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: patch_log-streams_by_id
+      x-release-lifecycle: GA
+      x-operation-name: update
+      x-operation-group: logStreams
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - update:log_streams
+components:
+  schemas:
+    LogStreamHttpEnum:
+      type: string
+      enum:
+      - http
+    LogStreamEventBridgeResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamEventBridgeEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamEventBridgeSink'
+    LogStreamMixpanelSinkPatch:
+      type: object
+      additionalProperties: false
+      required:
+      - mixpanelRegion
+      - mixpanelProjectId
+      - mixpanelServiceAccountUsername
+      properties:
+        mixpanelRegion:
+          $ref: '#/components/schemas/LogStreamMixpanelRegionEnum'
+        mixpanelProjectId:
+          type: string
+          description: Mixpanel Project Id
+          pattern: ^\d+$
+        mixpanelServiceAccountUsername:
+          type: string
+          description: Mixpanel Service Account Username
+          pattern: ^[^:]+$
+        mixpanelServiceAccountPassword:
+          type: string
+          description: Mixpanel Service Account Password
+          pattern: ^[^:]+$
+    LogStreamHttpContentFormatEnum:
+      type: string
+      description: HTTP JSON format
+      enum:
+      - JSONARRAY
+      - JSONLINES
+      - JSONOBJECT
+    UpdateLogStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
+      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
+      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    LogStreamMixpanelEnum:
+      type: string
+      enum:
+      - mixpanel
+    LogStreamPiiConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - log_fields
+      properties:
+        log_fields:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/LogStreamPiiLogFieldsEnum'
+        method:
+          $ref: '#/components/schemas/LogStreamPiiMethodEnum'
+        algorithm:
+          $ref: '#/components/schemas/LogStreamPiiAlgorithmEnum'
+    LogStreamPiiMethodEnum:
+      type: string
+      enum:
+      - mask
+      - hash
+    LogStreamFilterGroupNameEnum:
+      type: string
+      description: Category group name
+      enum:
+      - auth.login.fail
+      - auth.login.notification
+      - auth.login.success
+      - auth.logout.fail
+      - auth.logout.success
+      - auth.signup.fail
+      - auth.signup.success
+      - auth.silent_auth.fail
+      - auth.silent_auth.success
+      - auth.token_exchange.fail
+      - auth.token_exchange.success
+      - management.fail
+      - management.success
+      - scim.event
+      - system.notification
+      - user.fail
+      - user.notification
+      - user.success
+      - actions
+      - other
+    LogStreamSumoEnum:
+      type: string
+      enum:
+      - sumo
+    LogStreamSplunkResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamSplunkEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSplunkSink'
+    HttpCustomHeader:
+      type: object
+      additionalProperties: true
+      properties:
+        header:
+          type: string
+          description: HTTP header name
+        value:
+          type: string
+          description: HTTP header value
+    LogStreamSumoResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamSumoEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSumoSink'
+    LogStreamHttpResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamHttpEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamHttpSink'
+    CreateLogStreamDatadogRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamDatadogEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamDatadogSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    LogStreamFilter:
+      type: object
+      additionalProperties: true
+      properties:
+        type:
+          $ref: '#/components/schemas/LogStreamFilterTypeEnum'
+        name:
+          $ref: '#/components/schemas/LogStreamFilterGroupNameEnum'
+    LogStreamDatadogResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamDatadogEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamDatadogSink'
+    LogStreamSegmentSinkWriteKey:
+      type: object
+      additionalProperties: false
+      required:
+      - segmentWriteKey
+      properties:
+        segmentWriteKey:
+          type: string
+          description: Segment write key
+    LogStreamHttpSink:
+      type: object
+      additionalProperties: false
+      required:
+      - httpEndpoint
+      properties:
+        httpAuthorization:
+          type: string
+          description: HTTP Authorization header
+        httpContentFormat:
+          $ref: '#/components/schemas/LogStreamHttpContentFormatEnum'
+        httpContentType:
+          type: string
+          description: HTTP Content-Type header
+        httpEndpoint:
+          type: string
+          description: HTTP endpoint
+          pattern: ^https://.*
+        httpCustomHeaders:
+          type: array
+          description: custom HTTP headers
+          items:
+            $ref: '#/components/schemas/HttpCustomHeader'
+    CreateLogStreamEventGridRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamEventGridEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamEventGridSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    LogStreamEventGridRegionEnum:
+      type: string
+      description: Azure Region Name
+      enum:
+      - australiacentral
+      - australiaeast
+      - australiasoutheast
+      - brazilsouth
+      - canadacentral
+      - canadaeast
+      - centralindia
+      - centralus
+      - eastasia
+      - eastus
+      - eastus2
+      - francecentral
+      - germanywestcentral
+      - japaneast
+      - japanwest
+      - koreacentral
+      - koreasouth
+      - northcentralus
+      - northeurope
+      - norwayeast
+      - southafricanorth
+      - southcentralus
+      - southeastasia
+      - southindia
+      - swedencentral
+      - switzerlandnorth
+      - uaenorth
+      - uksouth
+      - ukwest
+      - westcentralus
+      - westeurope
+      - westindia
+      - westus
+      - westus2
+    LogStreamMixpanelSink:
+      type: object
+      additionalProperties: false
+      required:
+      - mixpanelRegion
+      - mixpanelProjectId
+      - mixpanelServiceAccountUsername
+      - mixpanelServiceAccountPassword
+      properties:
+        mixpanelRegion:
+          $ref: '#/components/schemas/LogStreamMixpanelRegionEnum'
+        mixpanelProjectId:
+          type: string
+          description: Mixpanel Project Id
+          pattern: ^\d+$
+        mixpanelServiceAccountUsername:
+          type: string
+          description: Mixpanel Service Account Username
+          pattern: ^[^:]+$
+        mixpanelServiceAccountPassword:
+          type: string
+          description: Mixpanel Service Account Password
+          pattern: ^[^:]+$
+    LogStreamSplunkEnum:
+      type: string
+      enum:
+      - splunk
+    LogStreamEventGridSink:
+      type: object
+      additionalProperties: false
+      required:
+      - azureSubscriptionId
+      - azureRegion
+      - azureResourceGroup
+      properties:
+        azureSubscriptionId:
+          type: string
+          description: Subscription ID
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+        azureRegion:
+          $ref: '#/components/schemas/LogStreamEventGridRegionEnum'
+        azureResourceGroup:
+          type: string
+          description: Resource Group
+        azurePartnerTopic:
+          type: string
+          description: Partner Topic
+    CreateLogStreamRequestContent:
+      oneOf:
+      - $ref: '#/components/schemas/CreateLogStreamHttpRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamEventBridgeRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamEventGridRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamDatadogRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamSplunkRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamSumoRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamSegmentRequestBody'
+      - $ref: '#/components/schemas/CreateLogStreamMixpanelRequestBody'
+    LogStreamEventGridResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamEventGridEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamEventGridSink'
+    LogStreamEventGridEnum:
+      type: string
+      enum:
+      - eventgrid
+    LogStreamDatadogEnum:
+      type: string
+      enum:
+      - datadog
+    CreateLogStreamHttpRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamHttpEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamHttpSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    CreateLogStreamEventBridgeRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamEventBridgeEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamEventBridgeSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    GetLogStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
+      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
+      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    LogStreamSegmentSink:
+      type: object
+      additionalProperties: false
+      properties:
+        segmentWriteKey:
+          type: string
+          description: Segment write key
+    LogStreamMixpanelResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamMixpanelEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamMixpanelSink'
+    LogStreamSplunkSink:
+      type: object
+      additionalProperties: false
+      required:
+      - splunkDomain
+      - splunkToken
+      - splunkPort
+      - splunkSecure
+      properties:
+        splunkDomain:
+          type: string
+          description: Splunk URL Endpoint
+        splunkPort:
+          type: string
+          description: Port
+          pattern: ^[0-9]*$
+        splunkToken:
+          type: string
+          description: Splunk token
+        splunkSecure:
+          type: boolean
+          description: Verify TLS certificate
+    LogStreamFilterTypeEnum:
+      type: string
+      description: Filter type. Currently `category` is the only valid type.
+      enum:
+      - category
+    LogStreamPiiAlgorithmEnum:
+      type: string
+      enum:
+      - xxhash
+    CreateLogStreamSplunkRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamSplunkEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSplunkSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    CreateLogStreamSumoRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamSumoEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSumoSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    LogStreamSegmentEnum:
+      type: string
+      enum:
+      - segment
+    LogStreamDatadogSink:
+      type: object
+      additionalProperties: false
+      required:
+      - datadogApiKey
+      - datadogRegion
+      properties:
+        datadogApiKey:
+          type: string
+          description: Datadog API Key
+        datadogRegion:
+          $ref: '#/components/schemas/LogStreamDatadogRegionEnum'
+    LogStreamMixpanelRegionEnum:
+      type: string
+      description: Mixpanel Region
+      enum:
+      - us
+      - eu
+    CreateLogStreamMixpanelRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamMixpanelEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamMixpanelSink'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    CreateLogStreamSegmentRequestBody:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - sink
+      properties:
+        name:
+          type: string
+          description: log stream name
+        type:
+          $ref: '#/components/schemas/LogStreamSegmentEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSegmentSinkWriteKey'
+        startFrom:
+          type: string
+          description: The optional datetime (ISO 8601) to start streaming logs from
+          default: '2021-03-01T19:57:29.532Z'
+    LogStreamDatadogRegionEnum:
+      type: string
+      description: Datadog region
+      enum:
+      - us
+      - eu
+      - us3
+      - us5
+    LogStreamSinkPatch:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpSink'
+      - $ref: '#/components/schemas/LogStreamDatadogSink'
+      - $ref: '#/components/schemas/LogStreamSplunkSink'
+      - $ref: '#/components/schemas/LogStreamSumoSink'
+      - $ref: '#/components/schemas/LogStreamSegmentSink'
+      - $ref: '#/components/schemas/LogStreamMixpanelSinkPatch'
+    LogStreamPiiLogFieldsEnum:
+      type: string
+      enum:
+      - first_name
+      - last_name
+      - username
+      - email
+      - phone
+      - address
+    LogStreamResponseSchema:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
+      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
+      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    LogStreamEventBridgeSinkRegionEnum:
+      type: string
+      description: The region in which the EventBridge event source will be created
+      enum:
+      - af-south-1
+      - ap-east-1
+      - ap-east-2
+      - ap-northeast-1
+      - ap-northeast-2
+      - ap-northeast-3
+      - ap-south-1
+      - ap-south-2
+      - ap-southeast-1
+      - ap-southeast-2
+      - ap-southeast-3
+      - ap-southeast-4
+      - ap-southeast-5
+      - ap-southeast-6
+      - ap-southeast-7
+      - ca-central-1
+      - ca-west-1
+      - eu-central-1
+      - eu-central-2
+      - eu-north-1
+      - eu-south-1
+      - eu-south-2
+      - eu-west-1
+      - eu-west-2
+      - eu-west-3
+      - il-central-1
+      - me-central-1
+      - me-south-1
+      - mx-central-1
+      - sa-east-1
+      - us-gov-east-1
+      - us-gov-west-1
+      - us-east-1
+      - us-east-2
+      - us-west-1
+      - us-west-2
+    LogStreamEventBridgeSink:
+      type: object
+      additionalProperties: false
+      required:
+      - awsAccountId
+      - awsRegion
+      properties:
+        awsAccountId:
+          type: string
+          description: AWS account ID
+          pattern: ^\d{12}$
+        awsRegion:
+          $ref: '#/components/schemas/LogStreamEventBridgeSinkRegionEnum'
+        awsPartnerEventSource:
+          type: string
+          description: AWS EventBridge partner event source
+    LogStreamStatusEnum:
+      type: string
+      description: 'The status of the log stream. Possible values: `active`, `paused`, `suspended`'
+      enum:
+      - active
+      - paused
+      - suspended
+    CreateLogStreamResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/LogStreamHttpResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventBridgeResponseSchema'
+      - $ref: '#/components/schemas/LogStreamEventGridResponseSchema'
+      - $ref: '#/components/schemas/LogStreamDatadogResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSplunkResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSumoResponseSchema'
+      - $ref: '#/components/schemas/LogStreamSegmentResponseSchema'
+      - $ref: '#/components/schemas/LogStreamMixpanelResponseSchema'
+    UpdateLogStreamRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSinkPatch'
+    LogStreamSegmentResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: The id of the log stream
+          format: log-stream-id
+        name:
+          type: string
+          description: log stream name
+        status:
+          $ref: '#/components/schemas/LogStreamStatusEnum'
+        type:
+          $ref: '#/components/schemas/LogStreamSegmentEnum'
+        isPriority:
+          type: boolean
+          description: True for priority log streams, false for non-priority
+        filters:
+          type: array
+          description: Only logs events matching these filters will be delivered by the stream. If omitted or empty, all events will be delivered.
+          items:
+            $ref: '#/components/schemas/LogStreamFilter'
+        pii_config:
+          $ref: '#/components/schemas/LogStreamPiiConfig'
+        sink:
+          $ref: '#/components/schemas/LogStreamSegmentSinkWriteKey'
+    LogStreamEventBridgeEnum:
+      type: string
+      enum:
+      - eventbridge
+    LogStreamSumoSink:
+      type: object
+      additionalProperties: false
+      required:
+      - sumoSourceAddress
+      properties:
+        sumoSourceAddress:
+          type: string
+          description: HTTP Source Address
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token/
+          x-form-parameters:
+            audience: /api/v2/
+          scopes:
+            create:actions: Create Actions
+            read:actions: Read Actions
+            update:actions: Update Actions
+            delete:actions: Delete Actions
+            read:anomaly_blocks: Read Anomaly Blocks
+            delete:anomaly_blocks: Delete Anomaly Blocks
+            read:attack_protection: Read Attack Protection
+            update:attack_protection: Update Attack Protection
+            create:authentication_methods: Create Authentication Methods
+            read:authentication_methods: Read Authentication Methods
+            update:authentication_methods: Update Authentication Methods
+            delete:authentication_methods: Delete Authentication Methods
+            read:branding: Read Branding
+            update:branding: Update Branding
+            delete:branding: Delete Branding
+            create:client_credentials: Create Client Credentials
+            read:client_credentials: Read Client Credentials
+            update:client_credentials: Update Client Credentials
+            delete:client_credentials: Delete Client Credentials
+            create:client_grants: Create Client Grants
+            read:client_grants: Read Client Grants
+            update:client_grants: Update Client Grants
+            delete:client_grants: Delete Client Grants
+            read:client_keys: Read Client Keys
+            update:client_keys: Update Client Keys
+            read:client_summary: Read Client Summary
+            update:client_token_vault_privileged_access: Update Client Token Vault Privileged Access
+            create:clients: Create Clients
+            read:clients: Read Clients
+            update:clients: Update Clients
+            delete:clients: Delete Clients
+            create:connection_profiles: Create Connection Profiles
+            read:connection_profiles: Read Connection Profiles
+            update:connection_profiles: Update Connection Profiles
+            delete:connection_profiles: Delete Connection Profiles
+            create:connections: Create Connections
+            read:connections: Read Connections
+            update:connections: Update Connections
+            delete:connections: Delete Connections
+            create:connections_keys: Create Connections Keys
+            read:connections_keys: Read Connections Keys
+            update:connections_keys: Update Connections Keys
+            read:current_user: Read Current User
+            delete:current_user: Delete Current User
+            create:current_user_device_credentials: Create Current User Device Credentials
+            delete:current_user_device_credentials: Delete Current User Device Credentials
+            update:current_user_identities: Update Current User Identities
+            update:current_user_metadata: Update Current User Metadata
+            create:custom_domains: Create Custom Domains
+            read:custom_domains: Read Custom Domains
+            update:custom_domains: Update Custom Domains
+            delete:custom_domains: Delete Custom Domains
+            create:custom_signing_keys: Create Custom Signing Keys
+            read:custom_signing_keys: Read Custom Signing Keys
+            update:custom_signing_keys: Update Custom Signing Keys
+            delete:custom_signing_keys: Delete Custom Signing Keys
+            read:device_credentials: Read Device Credentials
+            delete:device_credentials: Delete Device Credentials
+            create:directory_provisionings: Create Directory Provisionings
+            read:directory_provisionings: Read Directory Provisionings
+            update:directory_provisionings: Update Directory Provisionings
+            delete:directory_provisionings: Delete Directory Provisionings
+            create:email_provider: Create Email Provider
+            read:email_provider: Read Email Provider
+            update:email_provider: Update Email Provider
+            delete:email_provider: Delete Email Provider
+            create:email_templates: Create Email Templates
+            read:email_templates: Read Email Templates
+            update:email_templates: Update Email Templates
+            create:encryption_keys: Create Encryption Keys
+            read:encryption_keys: Read Encryption Keys
+            update:encryption_keys: Update Encryption Keys
+            delete:encryption_keys: Delete Encryption Keys
+            read:event_deliveries: Read Event Deliveries
+            update:event_deliveries: Update Event Deliveries
+            create:event_streams: Create Event Streams
+            read:event_streams: Read Event Streams
+            update:event_streams: Update Event Streams
+            delete:event_streams: Delete Event Streams
+            read:events: Read Events
+            read:federated_connections_tokens: Read Federated Connections Tokens
+            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:flows: Create Flows
+            read:flows: Read Flows
+            update:flows: Update Flows
+            delete:flows: Delete Flows
+            read:flows_executions: Read Flows Executions
+            delete:flows_executions: Delete Flows Executions
+            create:flows_vault_connections: Create Flows Vault Connections
+            read:flows_vault_connections: Read Flows Vault Connections
+            update:flows_vault_connections: Update Flows Vault Connections
+            delete:flows_vault_connections: Delete Flows Vault Connections
+            create:forms: Create Forms
+            read:forms: Read Forms
+            update:forms: Update Forms
+            delete:forms: Delete Forms
+            read:grants: Read Grants
+            delete:grants: Delete Grants
+            read:group_members: Read Group Members
+            read:groups: Read Groups
+            delete:groups: Delete Groups
+            create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
+            read:guardian_enrollments: Read Guardian Enrollments
+            delete:guardian_enrollments: Delete Guardian Enrollments
+            read:guardian_factors: Read Guardian Factors
+            update:guardian_factors: Update Guardian Factors
+            create:hooks: Create Hooks
+            read:hooks: Read Hooks
+            update:hooks: Update Hooks
+            delete:hooks: Delete Hooks
+            create:log_streams: Create Log Streams
+            read:log_streams: Read Log Streams
+            update:log_streams: Update Log Streams
+            delete:log_streams: Delete Log Streams
+            read:logs: Read Logs
+            read:logs_users: Read Logs Users
+            read:mfa_policies: Read Mfa Policies
+            update:mfa_policies: Update Mfa Policies
+            create:network_acls: Create Network Acls
+            read:network_acls: Read Network Acls
+            update:network_acls: Update Network Acls
+            delete:network_acls: Delete Network Acls
+            create:organization_client_grants: Create Organization Client Grants
+            read:organization_client_grants: Read Organization Client Grants
+            delete:organization_client_grants: Delete Organization Client Grants
+            create:organization_connections: Create Organization Connections
+            read:organization_connections: Read Organization Connections
+            update:organization_connections: Update Organization Connections
+            delete:organization_connections: Delete Organization Connections
+            create:organization_discovery_domains: Create Organization Discovery Domains
+            read:organization_discovery_domains: Read Organization Discovery Domains
+            update:organization_discovery_domains: Update Organization Discovery Domains
+            delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_invitations: Create Organization Invitations
+            read:organization_invitations: Read Organization Invitations
+            delete:organization_invitations: Delete Organization Invitations
+            create:organization_member_roles: Create Organization Member Roles
+            read:organization_member_roles: Read Organization Member Roles
+            delete:organization_member_roles: Delete Organization Member Roles
+            create:organization_members: Create Organization Members
+            read:organization_members: Read Organization Members
+            delete:organization_members: Delete Organization Members
+            create:organizations: Create Organizations
+            read:organizations: Read Organizations
+            update:organizations: Update Organizations
+            delete:organizations: Delete Organizations
+            read:organizations_summary: Read Organizations Summary
+            create:phone_providers: Create Phone Providers
+            read:phone_providers: Read Phone Providers
+            update:phone_providers: Update Phone Providers
+            delete:phone_providers: Delete Phone Providers
+            create:phone_templates: Create Phone Templates
+            read:phone_templates: Read Phone Templates
+            update:phone_templates: Update Phone Templates
+            delete:phone_templates: Delete Phone Templates
+            read:prompts: Read Prompts
+            update:prompts: Update Prompts
+            read:refresh_tokens: Read Refresh Tokens
+            update:refresh_tokens: Update Refresh Tokens
+            delete:refresh_tokens: Delete Refresh Tokens
+            create:resource_servers: Create Resource Servers
+            read:resource_servers: Read Resource Servers
+            update:resource_servers: Update Resource Servers
+            delete:resource_servers: Delete Resource Servers
+            create:role_members: Create Role Members
+            read:role_members: Read Role Members
+            delete:role_members: Delete Role Members
+            create:roles: Create Roles
+            read:roles: Read Roles
+            update:roles: Update Roles
+            delete:roles: Delete Roles
+            create:rules: Create Rules
+            read:rules: Read Rules
+            update:rules: Update Rules
+            delete:rules: Delete Rules
+            read:rules_configs: Read Rules Configs
+            update:rules_configs: Update Rules Configs
+            delete:rules_configs: Delete Rules Configs
+            create:scim_config: Create Scim Config
+            read:scim_config: Read Scim Config
+            update:scim_config: Update Scim Config
+            delete:scim_config: Delete Scim Config
+            create:scim_token: Create Scim Token
+            read:scim_token: Read Scim Token
+            delete:scim_token: Delete Scim Token
+            read:self_service_profile_custom_texts: Read Self Service Profile Custom Texts
+            update:self_service_profile_custom_texts: Update Self Service Profile Custom Texts
+            create:self_service_profiles: Create Self Service Profiles
+            read:self_service_profiles: Read Self Service Profiles
+            update:self_service_profiles: Update Self Service Profiles
+            delete:self_service_profiles: Delete Self Service Profiles
+            read:sessions: Read Sessions
+            update:sessions: Update Sessions
+            delete:sessions: Delete Sessions
+            create:signing_keys: Create Signing Keys
+            read:signing_keys: Read Signing Keys
+            update:signing_keys: Update Signing Keys
+            create:sso_access_tickets: Create Sso Access Tickets
+            delete:sso_access_tickets: Delete Sso Access Tickets
+            read:stats: Read Stats
+            read:tenant_settings: Read Tenant Settings
+            update:tenant_settings: Update Tenant Settings
+            create:token_exchange_profiles: Create Token Exchange Profiles
+            read:token_exchange_profiles: Read Token Exchange Profiles
+            update:token_exchange_profiles: Update Token Exchange Profiles
+            delete:token_exchange_profiles: Delete Token Exchange Profiles
+            create:user_attribute_profiles: Create User Attribute Profiles
+            read:user_attribute_profiles: Read User Attribute Profiles
+            update:user_attribute_profiles: Update User Attribute Profiles
+            delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_idp_tokens: Read User Idp Tokens
+            create:user_tickets: Create User Tickets
+            create:users: Create Users
+            read:users: Read Users
+            update:users: Update Users
+            delete:users: Delete Users
+            update:users_app_metadata: Update Users App Metadata
+            create:vdcs_templates: Create Vdcs Templates
+            read:vdcs_templates: Read Vdcs Templates
+            update:vdcs_templates: Update Vdcs Templates
+            delete:vdcs_templates: Delete Vdcs Templates
+externalDocs:
+  description: Auth0 Management API Documentation
+  url: https://auth0.com/docs/api/management/v2/

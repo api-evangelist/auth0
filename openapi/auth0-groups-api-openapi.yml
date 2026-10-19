@@ -20,7 +20,7 @@ tags:
 paths:
   /groups:
     get:
-      summary: Get All Groups
+      summary: Get all Groups
       description: List all groups in your tenant.
       tags:
       - Groups
@@ -37,7 +37,6 @@ paths:
           type: string
           minLength: 1
           maxLength: 128
-          pattern: ^[\x20-\x7E]+$
       - name: external_id
         in: query
         description: Filter groups by external ID.
@@ -57,7 +56,6 @@ paths:
         schema:
           type: string
           maxLength: 256
-          pattern: ^((id)|(name)|(external_id)|(organization_id)|(connection_id)|(tenant_name)|(description)|(created_at)|(updated_at))(,((id)|(name)|(external_id)|(organization_id)|(connection_id)|(tenant_name)|(description)|(created_at)|(updated_at)))*$
       - name: include_fields
         in: query
         description: Whether specified fields are to be included (true) or excluded (false).
@@ -65,22 +63,28 @@ paths:
           type: boolean
       - name: page
         in: query
-        description: Page index of the results to return. First page is 0.
+        description: Page index of the results to return. First page is 0. Offset-based pagination is limited to a maximum of 1,000 results; use checkpoint pagination (`from` and `take`) instead.
         schema:
           type: integer
           minimum: 0
+          x-release-lifecycle: deprecated
+        x-release-lifecycle: deprecated
       - name: per_page
         in: query
-        description: Number of results per page. Defaults to 50.
+        description: Number of results per page. Defaults to 50. Offset-based pagination is limited to a maximum of 1,000 results; use checkpoint pagination (`from` and `take`) instead.
         schema:
           type: integer
           minimum: 1
           maximum: 100
+          x-release-lifecycle: deprecated
+        x-release-lifecycle: deprecated
       - name: include_totals
         in: query
-        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default).
+        description: Return results inside an object that contains the total result count (true) or as a direct array of results (false, default). The returned total reflects at most 1,000 results.
         schema:
           type: boolean
+          x-release-lifecycle: deprecated
+        x-release-lifecycle: deprecated
       - name: from
         in: query
         description: Optional Id from which to start selection.
@@ -112,7 +116,7 @@ paths:
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: get_groups
-      x-release-lifecycle: EA
+      x-release-lifecycle: GA
       x-operation-name: list
       x-operation-request-parameters-name: ListGroupsRequestParameters
       x-operation-group: groups
@@ -120,6 +124,22 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:groups
+      x-codeSamples:
+      - lang: csharp
+        label: Get all Groups
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.ListAsync(\n            new ListGroupsRequestParameters {\n                ConnectionId = \"connection_id\",\n                Name = \"name\",\n                ExternalId = \"external_id\",\n                Search = \"search\",\n                Fields = \"fields\",\n                IncludeFields = true,\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get all Groups
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListGroupsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().list(\n            ListGroupsRequestParameters\n                .builder()\n                .connectionId(\"connection_id\")\n                .name(\"name\")\n                .externalId(\"external_id\")\n                .search(\"search\")\n                .fields(\"fields\")\n                .includeFields(true)\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get all Groups
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Groups\\Requests\\ListGroupsRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->list(\n    new ListGroupsRequestParameters([\n        'connectionId' => 'connection_id',\n        'name' => 'name',\n        'externalId' => 'external_id',\n        'search' => 'search',\n        'fields' => 'fields',\n        'includeFields' => true,\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get all Groups
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.list(\n    connection_id=\"connection_id\",\n    name=\"name\",\n    external_id=\"external_id\",\n    search=\"search\",\n    fields=\"fields\",\n    include_fields=True,\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get all Groups
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.groups.list(\n  connection_id: \"connection_id\",\n  name: \"name\",\n  external_id: \"external_id\",\n  search: \"search\",\n  fields: \"fields\",\n  include_fields: true,\n  from: \"from\",\n  take: 1\n)\n"
   /groups/{id}:
     get:
       summary: Get a Group
@@ -135,7 +155,6 @@ paths:
           type: string
           minLength: 18
           maxLength: 26
-          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
       responses:
         '200':
           description: Group successfully retrieved.
@@ -152,11 +171,11 @@ paths:
         '403':
           description: 'Insufficient scope; expected any of: read:groups.'
         '404':
-          description: The group does not exist.
+          description: Group not found.
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: get_group
-      x-release-lifecycle: EA
+      x-release-lifecycle: GA
       x-operation-name: get
       x-operation-request-parameters-name: getGroupRequestParameters
       x-operation-group: groups
@@ -164,6 +183,30 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:groups
+      x-codeSamples:
+      - lang: csharp
+        label: Get a Group
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a Group
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a Group
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a Group
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a Group
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.groups.get(id: "id")
+
+          '
     delete:
       summary: Delete a Group
       description: Delete a group by its ID.
@@ -178,7 +221,6 @@ paths:
           type: string
           minLength: 18
           maxLength: 26
-          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
       responses:
         '204':
           description: Group successfully deleted.
@@ -189,11 +231,11 @@ paths:
         '403':
           description: 'Insufficient scope; expected any of: delete:groups.'
         '404':
-          description: The group does not exist.
+          description: Group not found.
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: delete_group
-      x-release-lifecycle: EA
+      x-release-lifecycle: GA
       x-operation-name: delete
       x-operation-request-parameters-name: deleteGroupRequestParameters
       x-operation-group: groups
@@ -201,6 +243,30 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:groups
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a Group
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Delete a Group
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a Group
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a Group
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a Group
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.groups.delete(id: "id")
+
+          '
   /groups/{id}/members:
     get:
       summary: Get Group Members
@@ -216,14 +282,12 @@ paths:
           type: string
           minLength: 18
           maxLength: 26
-          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
       - name: fields
         in: query
         description: A comma separated list of fields to include or exclude (depending on include_fields) from the result, empty to retrieve all fields
         schema:
           type: string
           maxLength: 256
-          pattern: ^((id)|(member_type)|(type)|(connection_id)|(created_at))(,((id)|(member_type)|(type)|(connection_id)|(created_at)))*$
       - name: include_fields
         in: query
         description: Whether specified fields are to be included (true) or excluded (false).
@@ -256,10 +320,12 @@ paths:
           x-description-2: Client is not global.
         '403':
           description: 'Insufficient scope; expected any of: read:group_members.'
+        '404':
+          description: Group not found.
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: get_group_members
-      x-release-lifecycle: EA
+      x-release-lifecycle: GA
       x-operation-name: get
       x-operation-request-parameters-name: GetGroupMembersRequestParameters
       x-operation-group:
@@ -269,46 +335,307 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:group_members
+      x-codeSamples:
+      - lang: csharp
+        label: Get Group Members
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Groups;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.Members.GetAsync(\n            id: \"id\",\n            request: new GetGroupMembersRequestParameters {\n                Fields = \"fields\",\n                IncludeFields = true,\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get Group Members
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.groups.types.GetGroupMembersRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().members().get(\n            \"id\",\n            GetGroupMembersRequestParameters\n                .builder()\n                .fields(\"fields\")\n                .includeFields(true)\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get Group Members
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Groups\\Members\\Requests\\GetGroupMembersRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->members->get(\n    'id',\n    new GetGroupMembersRequestParameters([\n        'fields' => 'fields',\n        'includeFields' => true,\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get Group Members
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.members.get(\n    id=\"id\",\n    fields=\"fields\",\n    include_fields=True,\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get Group Members
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.groups.members.get(\n  id: \"id\",\n  fields: \"fields\",\n  include_fields: true,\n  from: \"from\",\n  take: 1\n)\n"
+  /groups/{id}/roles:
+    get:
+      summary: Get a group's roles
+      description: Lists the roles assigned to a group.
+      tags:
+      - Groups
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the group (service-generated).
+        required: true
+        schema:
+          type: string
+          minLength: 18
+          maxLength: 26
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Group's roles successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGroupRolesResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:group_roles.'
+        '404':
+          description: Group not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_group_roles
+      x-release-lifecycle: GA
+      x-operation-name: list
+      x-operation-request-parameters-name: ListGroupRolesRequestParameters
+      x-operation-group:
+      - groups
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:group_roles
+      x-codeSamples:
+      - lang: csharp
+        label: Get a group's roles
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Groups;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.Roles.ListAsync(\n            id: \"id\",\n            request: new ListGroupRolesRequestParameters {\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a group's roles
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.groups.types.ListGroupRolesRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().roles().list(\n            \"id\",\n            ListGroupRolesRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get a group's roles
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Groups\\Roles\\Requests\\ListGroupRolesRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->roles->list(\n    'id',\n    new ListGroupRolesRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get a group's roles
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.roles.list(\n    id=\"id\",\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get a group's roles
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.groups.roles.list(\n  id: \"id\",\n  from: \"from\",\n  take: 1\n)\n"
+    delete:
+      summary: Remove roles from a group
+      description: Unassign one or more roles from a specified group.
+      tags:
+      - Groups
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the group (service-generated).
+        required: true
+        schema:
+          type: string
+          minLength: 18
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteGroupRolesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteGroupRolesRequestContent'
+      responses:
+        '204':
+          description: Roles successfully removed from group.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:group_roles.'
+        '404':
+          description: Group not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_group_roles
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - groups
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:group_roles
+      x-codeSamples:
+      - lang: csharp
+        label: Remove roles from a group
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Groups;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.Roles.DeleteAsync(\n            id: \"id\",\n            request: new DeleteGroupRolesRequestContent {\n                Roles = new List<string>(){\n                    \"roles\",\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Remove roles from a group
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.groups.types.DeleteGroupRolesRequestContent;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().roles().delete(\n            \"id\",\n            DeleteGroupRolesRequestContent\n                .builder()\n                .roles(\n                    Arrays.asList(\"roles\")\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Remove roles from a group
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Groups\\Roles\\Requests\\DeleteGroupRolesRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->roles->delete(\n    'id',\n    new DeleteGroupRolesRequestContent([\n        'roles' => [\n            'roles',\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Remove roles from a group
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.roles.delete(\n    id=\"id\",\n    roles=[\n        \"roles\"\n    ],\n)\n"
+      - lang: ruby
+        label: Remove roles from a group
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.groups.roles.delete(\n  id: \"id\",\n  roles: [\"roles\"]\n)\n"
+    post:
+      summary: Assign roles to a group
+      description: Assign one or more roles to a specified group.
+      tags:
+      - Groups
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the group (service-generated).
+        required: true
+        schema:
+          type: string
+          minLength: 18
+          maxLength: 26
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignGroupRolesRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignGroupRolesRequestContent'
+      responses:
+        '204':
+          description: Roles successfully assigned to group.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:group_roles.'
+        '404':
+          description: Group not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_group_roles
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-request-parameters-name: CreateGroupRolesRequestParameters
+      x-operation-group:
+      - groups
+      - roles
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:group_roles
+      x-codeSamples:
+      - lang: csharp
+        label: Assign roles to a group
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Groups;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Groups.Roles.CreateAsync(\n            id: \"id\",\n            request: new CreateGroupRolesRequestParameters {\n                Roles = new List<string>(){\n                    \"roles\",\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Assign roles to a group
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.groups.types.CreateGroupRolesRequestParameters;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.groups().roles().create(\n            \"id\",\n            CreateGroupRolesRequestParameters\n                .builder()\n                .roles(\n                    Arrays.asList(\"roles\")\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Assign roles to a group
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Groups\\Roles\\Requests\\CreateGroupRolesRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->groups->roles->create(\n    'id',\n    new CreateGroupRolesRequestParameters([\n        'roles' => [\n            'roles',\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Assign roles to a group
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.groups.roles.create(\n    id=\"id\",\n    roles=[\n        \"roles\"\n    ],\n)\n"
+      - lang: ruby
+        label: Assign roles to a group
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.groups.roles.create(\n  id: \"id\",\n  roles: [\"roles\"]\n)\n"
 components:
   schemas:
-    GetGroupMembersResponseContent:
+    Group:
+      type: object
+      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the group (service-generated).
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+        name:
+          type: string
+          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+        external_id:
+          type: string
+          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
+          maxLength: 256
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        tenant_name:
+          type: string
+          description: Identifier for the tenant this group belongs to.
+          minLength: 3
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+        created_at:
+          type: string
+          description: Timestamp of when the group was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp of when the group was last updated.
+          format: date-time
+    DeleteGroupRolesRequestContent:
       type: object
       additionalProperties: false
       required:
-      - members
+      - roles
       properties:
-        members:
+        roles:
           type: array
+          description: Array of role IDs to remove from the group.
+          minItems: 1
           items:
-            $ref: '#/components/schemas/GroupMember'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
-    ListGroupsResponseContent:
+            type: string
+            description: Unique identifier for the role (service-generated).
+            format: role-id
+    GroupTypeEnum:
+      type: string
+      description: Type of the group.
+      enum:
+      - connection
+      - organization
+      - tenant
+    AssignGroupRolesRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          description: Array of role IDs to assign to the group.
+          minItems: 1
+          items:
+            type: string
+            description: Unique identifier for the role (service-generated).
+            format: role-id
+    RoleOwnerId:
+      type: string
+      description: 'The id of the entity that owns this role: an organization id, or "auth0" for Auth0-managed System Roles.'
+      x-release-lifecycle: EA
       oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Group'
-      - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
-    ListGroupsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - groups
-      properties:
-        groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/Group'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
+      - type: string
+        maxLength: 50
+        format: organization-id
+        x-release-lifecycle: EA
+      - $ref: '#/components/schemas/SystemRoleOwnerId'
     GroupMember:
       type: object
       description: Represents the metadata of a group membership.
@@ -329,13 +656,44 @@ components:
           type: string
           description: Timestamp of when the membership was created.
           format: date-time
-    GroupTypeEnum:
+    GroupMemberTypeEnum:
       type: string
-      description: Type of the group.
+      description: Type of the member.
       enum:
-      - connection
-      - organization
-      - tenant
+      - user
+      - group
+    GetGroupMembersResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - members
+      properties:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMember'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    ListGroupsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Group'
+      - $ref: '#/components/schemas/ListGroupsPaginatedResponseContent'
+    ListGroupRolesResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - roles
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
     GetGroupResponseContent:
       type: object
       description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
@@ -380,50 +738,55 @@ components:
           type: string
           description: Timestamp of when the group was last updated.
           format: date-time
-    Group:
+    ListGroupsPaginatedResponseContent:
       type: object
-      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
-      additionalProperties: true
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+    SystemRoleOwnerId:
+      type: string
+      enum:
+      - auth0
+    RoleTypeEnum:
+      type: string
+      description: The type of the role
+      enum:
+      - tenant
+      - organization
+      x-release-lifecycle: EA
+    Role:
+      type: object
+      additionalProperties: false
       properties:
         id:
           type: string
-          description: Unique identifier for the group (service-generated).
-          minLength: 18
-          maxLength: 26
-          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+          description: ID for this role.
         name:
           type: string
-          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
-          minLength: 1
-          maxLength: 128
-          pattern: ^[\x20-\x7E]+$
-        external_id:
+          description: Name of this role.
+        description:
           type: string
-          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
-          maxLength: 256
-        connection_id:
-          type: string
-          description: Identifier for the connection this group belongs to (if a connection group).
-          format: connection-id
-        tenant_name:
-          type: string
-          description: Identifier for the tenant this group belongs to.
-          minLength: 3
-          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
-        created_at:
-          type: string
-          description: Timestamp of when the group was created.
-          format: date-time
-        updated_at:
-          type: string
-          description: Timestamp of when the group was last updated.
-          format: date-time
-    GroupMemberTypeEnum:
-      type: string
-      description: Type of the member.
-      enum:
-      - user
-      - group
+          description: Description of this role.
+        type:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+        owner_id:
+          $ref: '#/components/schemas/RoleOwnerId'
+          x-release-lifecycle: EA
   securitySchemes:
     bearerAuth:
       type: http
@@ -441,6 +804,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -517,8 +884,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -536,6 +905,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -570,9 +942,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -594,6 +972,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -647,7 +1029,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -658,6 +1044,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

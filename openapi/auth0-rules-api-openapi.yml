@@ -20,7 +20,7 @@ tags:
 paths:
   /rules:
     get:
-      summary: Get Rules
+      summary: Get rules
       description: Retrieve a filtered list of rules. Accepts a list of fields to include or exclude.
       tags:
       - Rules
@@ -53,7 +53,6 @@ paths:
         description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
         schema:
           type: string
-          pattern: ^((name)|(enabled)|(script)|(order)|(id)|(stage))(,((name)|(enabled)|(script)|(order)|(id)|(stage)))*$
       - name: include_fields
         in: query
         description: Whether specified fields are to be included (true) or excluded (false).
@@ -87,12 +86,37 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:rules
+      x-codeSamples:
+      - lang: csharp
+        label: Get rules
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Rules.ListAsync(\n            new ListRulesRequestParameters {\n                Page = 1,\n                PerPage = 1,\n                IncludeTotals = true,\n                Enabled = true,\n                Fields = \"fields\",\n                IncludeFields = true\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get rules
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListRulesRequestParameters{\n        Page: management.Int(\n            1,\n        ),\n        PerPage: management.Int(\n            1,\n        ),\n        IncludeTotals: management.Bool(\n            true,\n        ),\n        Enabled: management.Bool(\n            true,\n        ),\n        Fields: management.String(\n            \"fields\",\n        ),\n        IncludeFields: management.Bool(\n            true,\n        ),\n    }\n    mgmt.Rules.List(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get rules
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListRulesRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rules().list(\n            ListRulesRequestParameters\n                .builder()\n                .page(1)\n                .perPage(1)\n                .includeTotals(true)\n                .enabled(true)\n                .fields(\"fields\")\n                .includeFields(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get rules
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Rules\\Requests\\ListRulesRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rules->list(\n    new ListRulesRequestParameters([\n        'page' => 1,\n        'perPage' => 1,\n        'includeTotals' => true,\n        'enabled' => true,\n        'fields' => 'fields',\n        'includeFields' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get rules
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rules.list(\n    page=1,\n    per_page=1,\n    include_totals=True,\n    enabled=True,\n    fields=\"fields\",\n    include_fields=True,\n)\n"
+      - lang: ruby
+        label: Get rules
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.rules.list(\n  page: 1,\n  per_page: 1,\n  include_totals: true,\n  enabled: true,\n  fields: \"fields\",\n  include_fields: true\n)\n"
+      - lang: typescript
+        label: Get rules
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.list({\n        page: 1,\n        perPage: 1,\n        includeTotals: true,\n        enabled: true,\n        fields: \"fields\",\n        includeFields: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get rules
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.list({\n        page: 1,\n        perPage: 1,\n        includeTotals: true,\n        enabled: true,\n        fields: \"fields\",\n        includeFields: true,\n    });\n}\nmain();\n"
     post:
-      summary: Create a Rule
+      summary: Create a rule
       description: 'Create a new rule.
 
 
-        Note: Changing a rule''s stage of execution from the default login_success can change the rule''s function signature to have user omitted.'
+        Note: Changing a rule''s stage of execution from the default `login_success` can change the rule''s function signature to have user omitted.'
       tags:
       - Rules
       requestBody:
@@ -133,9 +157,34 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:rules
+      x-codeSamples:
+      - lang: csharp
+        label: Create a rule
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Rules.CreateAsync(\n            new CreateRuleRequestContent {\n                Name = \"name\",\n                Script = \"script\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create a rule
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateRuleRequestContent{\n        Name: \"name\",\n        Script: \"script\",\n    }\n    mgmt.Rules.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create a rule
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateRuleRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rules().create(\n            CreateRuleRequestContent\n                .builder()\n                .name(\"name\")\n                .script(\"script\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create a rule
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Rules\\Requests\\CreateRuleRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rules->create(\n    new CreateRuleRequestContent([\n        'name' => 'name',\n        'script' => 'script',\n    ]),\n);\n"
+      - lang: python
+        label: Create a rule
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rules.create(\n    name=\"name\",\n    script=\"script\",\n)\n"
+      - lang: ruby
+        label: Create a rule
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.rules.create(\n  name: \"name\",\n  script: \"script\"\n)\n"
+      - lang: typescript
+        label: Create a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.create({\n        name: \"name\",\n        script: \"script\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.create({\n        name: \"name\",\n        script: \"script\",\n    });\n}\nmain();\n"
   /rules/{id}:
     get:
-      summary: Get a Rule
+      summary: Get a rule
       description: Retrieve rule details. Accepts a list of fields to include or exclude in the result.
       tags:
       - Rules
@@ -146,13 +195,11 @@ paths:
         required: true
         schema:
           type: string
-          pattern: ^rul_[A-Za-z0-9]{16}$
       - name: fields
         in: query
         description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
         schema:
           type: string
-          pattern: ^((name)|(enabled)|(script)|(order)|(id)|(stage))(,((name)|(enabled)|(script)|(order)|(id)|(stage)))*$
       - name: include_fields
         in: query
         description: Whether specified fields are to be included (true) or excluded (false).
@@ -187,8 +234,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:rules
+      x-codeSamples:
+      - lang: csharp
+        label: Get a rule
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Rules.GetAsync(\n            id: \"id\",\n            request: new GetRuleRequestParameters {\n                Fields = \"fields\",\n                IncludeFields = true\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a rule
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.GetRuleRequestParameters{\n        Fields: management.String(\n            \"fields\",\n        ),\n        IncludeFields: management.Bool(\n            true,\n        ),\n    }\n    mgmt.Rules.Get(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get a rule
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.GetRuleRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rules().get(\n            \"id\",\n            GetRuleRequestParameters\n                .builder()\n                .fields(\"fields\")\n                .includeFields(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get a rule
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Rules\\Requests\\GetRuleRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rules->get(\n    'id',\n    new GetRuleRequestParameters([\n        'fields' => 'fields',\n        'includeFields' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get a rule
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rules.get(\n    id=\"id\",\n    fields=\"fields\",\n    include_fields=True,\n)\n"
+      - lang: ruby
+        label: Get a rule
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.rules.get(\n  id: \"id\",\n  fields: \"fields\",\n  include_fields: true\n)\n"
+      - lang: typescript
+        label: Get a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.get(\"id\", {\n        fields: \"fields\",\n        includeFields: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.get(\"id\", {\n        fields: \"fields\",\n        includeFields: true,\n    });\n}\nmain();\n"
     delete:
-      summary: Delete a Rule
+      summary: Delete a rule
       description: Delete a rule.
       tags:
       - Rules
@@ -199,7 +271,6 @@ paths:
         required: true
         schema:
           type: string
-          pattern: ^rul_[A-Za-z0-9]{16}$
       responses:
         '204':
           description: Rule successfully deleted.
@@ -221,8 +292,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:rules
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a rule
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Rules.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete a rule
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.Rules.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete a rule
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rules().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a rule
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rules->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a rule
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rules.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a rule
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.rules.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.delete(\"id\");\n}\nmain();\n"
     patch:
-      summary: Update a Rule
+      summary: Update a rule
       description: Update an existing rule.
       tags:
       - Rules
@@ -233,7 +337,6 @@ paths:
         required: true
         schema:
           type: string
-          pattern: ^rul_[A-Za-z0-9]{16}$
       requestBody:
         content:
           application/json:
@@ -272,6 +375,39 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:rules
+      x-codeSamples:
+      - lang: csharp
+        label: Update a rule
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Rules.UpdateAsync(\n            id: \"id\",\n            request: new UpdateRuleRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update a rule
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateRuleRequestContent{}\n    mgmt.Rules.Update(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update a rule
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateRuleRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.rules().update(\n            \"id\",\n            UpdateRuleRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a rule
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Rules\\Requests\\UpdateRuleRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->rules->update(\n    'id',\n    new UpdateRuleRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a rule
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.rules.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update a rule
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.rules.update(id: "id")
+
+          '
+      - lang: typescript
+        label: Update a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.update(\"id\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Update a rule
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.rules.update(\"id\", {});\n}\nmain();\n"
 components:
   schemas:
     ListRulesOffsetPaginatedResponseContent:
@@ -288,88 +424,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Rule'
-    Rule:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of this rule.
-          default: rule_1
-        id:
-          type: string
-          description: ID of this rule.
-          default: con_0000000000000001
-        enabled:
-          type: boolean
-          description: Whether the rule is enabled (true), or disabled (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this rule runs.
-          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
-        order:
-          type: number
-          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
-          default: 1
-        stage:
-          type: string
-          description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
-          default: login_success
-    CreateRuleRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - script
-      properties:
-        name:
-          type: string
-          description: Name of this rule.
-          default: my-rule
-          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
-        script:
-          type: string
-          description: Code to be executed when this rule runs.
-          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
-          minLength: 1
-        order:
-          type: number
-          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
-          default: 2
-          minimum: 0
-        enabled:
-          type: boolean
-          description: Whether the rule is enabled (true), or disabled (false).
-          default: true
-    UpdateRuleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of this rule.
-          default: rule_1
-        id:
-          type: string
-          description: ID of this rule.
-          default: con_0000000000000001
-        enabled:
-          type: boolean
-          description: Whether the rule is enabled (true), or disabled (false).
-          default: true
-        script:
-          type: string
-          description: Code to be executed when this rule runs.
-          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
-        order:
-          type: number
-          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
-          default: 1
-        stage:
-          type: string
-          description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
-          default: login_success
     UpdateRuleRequestContent:
       type: object
       additionalProperties: false
@@ -395,6 +449,40 @@ components:
           description: Whether the rule is enabled (true), or disabled (false).
           default: true
     CreateRuleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of this rule.
+          default: rule_1
+        id:
+          type: string
+          description: ID of this rule.
+          default: con_0000000000000001
+        enabled:
+          type: boolean
+          description: Whether the rule is enabled (true), or disabled (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this rule runs.
+          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
+        order:
+          type: number
+          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
+          default: 1
+        stage:
+          type: string
+          description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
+          default: login_success
+    ListRulesResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/Rule'
+      - $ref: '#/components/schemas/ListRulesOffsetPaginatedResponseContent'
+    Rule:
       type: object
       additionalProperties: false
       properties:
@@ -450,12 +538,60 @@ components:
           type: string
           description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
           default: login_success
-    ListRulesResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/Rule'
-      - $ref: '#/components/schemas/ListRulesOffsetPaginatedResponseContent'
+    UpdateRuleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of this rule.
+          default: rule_1
+        id:
+          type: string
+          description: ID of this rule.
+          default: con_0000000000000001
+        enabled:
+          type: boolean
+          description: Whether the rule is enabled (true), or disabled (false).
+          default: true
+        script:
+          type: string
+          description: Code to be executed when this rule runs.
+          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
+        order:
+          type: number
+          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
+          default: 1
+        stage:
+          type: string
+          description: Execution stage of this rule. Can be `login_success`, `login_failure`, or `pre_authorize`.
+          default: login_success
+    CreateRuleRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - script
+      properties:
+        name:
+          type: string
+          description: Name of this rule.
+          default: my-rule
+          pattern: ^[a-zA-Z0-9]([ \-a-zA-Z0-9]*[a-zA-Z0-9])?$
+        script:
+          type: string
+          description: Code to be executed when this rule runs.
+          default: "function (user, context, callback) {\n  callback(null, user, context);\n}"
+          minLength: 1
+        order:
+          type: number
+          description: Order that this rule should execute in relative to other rules. Lower-valued rules execute first.
+          default: 2
+          minimum: 0
+        enabled:
+          type: boolean
+          description: Whether the rule is enabled (true), or disabled (false).
+          default: true
   securitySchemes:
     bearerAuth:
       type: http
@@ -473,6 +609,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -549,8 +689,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -568,6 +710,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -602,9 +747,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -626,6 +777,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -679,7 +834,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -690,6 +849,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

@@ -20,11 +20,11 @@ tags:
 paths:
   /roles:
     get:
-      summary: Get Roles
-      description: 'Retrieve detailed list of user roles created in your tenant.
+      summary: Get roles
+      description: 'Retrieve a list of roles. Includes roles created in your tenant and, when `owner_id=auth0` is supplied, Auth0-managed System Roles.
 
 
-        Note: The returned list does not include standard roles available for tenant members, such as Admin or Support Access.'
+        **Note**: The returned list does not include standard roles available for tenant members, such as Admin or Support Access.'
       tags:
       - Roles
       parameters:
@@ -51,6 +51,36 @@ paths:
         description: Optional filter on name (case-insensitive).
         schema:
           type: string
+      - name: type
+        in: query
+        description: Optional filter on the type of the role
+        schema:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+        x-release-lifecycle: EA
+      - name: owner_id
+        in: query
+        description: Filter organization-level roles by owner ID. Use an organization ID to filter that organization's roles, or "auth0" to retrieve Auth0-managed System Roles. Required when type is "organization".
+        schema:
+          $ref: '#/components/schemas/RoleOwnerIdFilter'
+          x-release-lifecycle: EA
+        x-release-lifecycle: EA
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+          x-release-lifecycle: EA
+        x-release-lifecycle: EA
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          x-release-lifecycle: EA
+        x-release-lifecycle: EA
       responses:
         '200':
           description: Roles successfully retrieved.
@@ -77,12 +107,37 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Get roles
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.ListAsync(\n            new ListRolesRequestParameters {\n                NameFilter = \"name_filter\",\n                Type = RoleTypeEnum.Tenant,\n                OwnerId = \"owner_id\",\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get roles
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListRolesRequestParameters{\n        PerPage: management.Int(\n            1,\n        ),\n        Page: management.Int(\n            1,\n        ),\n        IncludeTotals: management.Bool(\n            true,\n        ),\n        NameFilter: management.String(\n            \"name_filter\",\n        ),\n    }\n    mgmt.Roles.List(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get roles
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListRolesRequestParameters;\nimport com.auth0.client.mgmt.types.RoleTypeEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().list(\n            ListRolesRequestParameters\n                .builder()\n                .nameFilter(\"name_filter\")\n                .type(RoleTypeEnum.TENANT)\n                .ownerId(\"owner_id\")\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get roles
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Requests\\ListRolesRequestParameters;\nuse Auth0\\SDK\\API\\Management\\Types\\RoleTypeEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->list(\n    new ListRolesRequestParameters([\n        'nameFilter' => 'name_filter',\n        'type' => RoleTypeEnum::Tenant->value,\n        'ownerId' => 'owner_id',\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get roles
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.list(\n    name_filter=\"name_filter\",\n    type=\"tenant\",\n    owner_id=\"owner_id\",\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get roles
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.list(\n  name_filter: \"name_filter\",\n  type: \"tenant\",\n  owner_id: \"owner_id\",\n  from: \"from\",\n  take: 1\n)\n"
+      - lang: typescript
+        label: Get roles
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.list({\n        perPage: 1,\n        page: 1,\n        includeTotals: true,\n        nameFilter: \"name_filter\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get roles
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.list({\n        perPage: 1,\n        page: 1,\n        includeTotals: true,\n        nameFilter: \"name_filter\",\n    });\n}\nmain();\n"
     post:
-      summary: Create a Role
+      summary: Create a role
       description: 'Create a user role for Role-Based Access Control.
 
 
-        Note: New roles are not associated with any permissions by default. To assign existing permissions to your role, review Associate Permissions with a Role. To create new permissions, review Add API Permissions.'
+        **Note**: New roles are not associated with any permissions by default. To assign existing permissions to your role, review Associate Permissions with a Role. To create new permissions, review Add API Permissions.'
       tags:
       - Roles
       requestBody:
@@ -120,9 +175,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Create a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.CreateAsync(\n            new CreateRoleRequestContent {\n                Name = \"name\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateRoleRequestContent{\n        Name: \"name\",\n    }\n    mgmt.Roles.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateRoleRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().create(\n            CreateRoleRequestContent\n                .builder()\n                .name(\"name\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Requests\\CreateRoleRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->create(\n    new CreateRoleRequestContent([\n        'name' => 'name',\n    ]),\n);\n"
+      - lang: python
+        label: Create a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.create(\n    name=\"name\",\n)\n"
+      - lang: ruby
+        label: Create a role
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.roles.create(name: "name")
+
+          '
+      - lang: typescript
+        label: Create a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.create({\n        name: \"name\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.create({\n        name: \"name\",\n    });\n}\nmain();\n"
   /roles/{id}:
     get:
-      summary: Get a Role
+      summary: Get a role
       description: Retrieve details about a specific user role specified by ID.
       tags:
       - Roles
@@ -160,8 +248,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Get a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.Roles.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a role
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.roles.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.get(\"id\");\n}\nmain();\n"
     delete:
-      summary: Delete a Role
+      summary: Delete a role
       description: Delete a specific user role from your tenant. Once deleted, it is removed from any user who was previously assigned that role. This action cannot be undone.
       tags:
       - Roles
@@ -194,8 +315,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Delete a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.Roles.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete a role
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.roles.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.delete(\"id\");\n}\nmain();\n"
     patch:
-      summary: Update a Role
+      summary: Update a role
       description: Modify the details of a specific user role specified by ID.
       tags:
       - Roles
@@ -239,9 +393,236 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Update a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.UpdateAsync(\n            id: \"id\",\n            request: new UpdateRoleRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateRoleRequestContent{}\n    mgmt.Roles.Update(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateRoleRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().update(\n            \"id\",\n            UpdateRoleRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Requests\\UpdateRoleRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->update(\n    'id',\n    new UpdateRoleRequestContent([]),\n);\n"
+      - lang: python
+        label: Update a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update a role
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.roles.update(id: "id")
+
+          '
+      - lang: typescript
+        label: Update a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.update(\"id\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Update a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.update(\"id\", {});\n}\nmain();\n"
+  /roles/{id}/groups:
+    get:
+      summary: Get a role's groups
+      description: Lists the groups to which the specified role is assigned.
+      tags:
+      - Roles
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the role (service-generated).
+        required: true
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: Optional Id from which to start selection.
+        schema:
+          type: string
+      - name: take
+        in: query
+        description: Number of results per page. Defaults to 50.
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Role's groups successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRoleGroupsResponseContent'
+        '400':
+          description: Invalid request query string. The message will vary depending on the cause.
+          x-description-1: Invalid query string paging options. The message will vary depending on the cause
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: read:group_roles.'
+        '404':
+          description: The role does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: get_role_groups
+      x-release-lifecycle: GA
+      x-operation-name: get
+      x-operation-request-parameters-name: ListRoleGroupsParameters
+      x-operation-group:
+      - roles
+      - groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - read:group_roles
+      x-codeSamples:
+      - lang: csharp
+        label: Get a role's groups
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Groups.GetAsync(\n            id: \"id\",\n            request: new ListRoleGroupsParameters {\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Get a role's groups
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.ListRoleGroupsParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().groups().get(\n            \"id\",\n            ListRoleGroupsParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get a role's groups
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Groups\\Requests\\ListRoleGroupsParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->groups->get(\n    'id',\n    new ListRoleGroupsParameters([\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get a role's groups
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.groups.get(\n    id=\"id\",\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get a role's groups
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.groups.get(\n  id: \"id\",\n  from: \"from\",\n  take: 1\n)\n"
+    delete:
+      summary: Remove groups from a role
+      description: Unassign one or more groups from a specified role.
+      tags:
+      - Roles
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the role (service-generated).
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRoleGroupsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteRoleGroupsRequestContent'
+      responses:
+        '204':
+          description: Groups successfully removed from role.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: delete:group_roles.'
+        '404':
+          description: The role does not exist.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: delete_role_groups
+      x-release-lifecycle: GA
+      x-operation-name: delete
+      x-operation-group:
+      - roles
+      - groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - delete:group_roles
+      x-codeSamples:
+      - lang: csharp
+        label: Remove groups from a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Groups.DeleteAsync(\n            id: \"id\",\n            request: new DeleteRoleGroupsRequestContent {\n                Groups = new List<string>(){\n                    \"groups\",\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Remove groups from a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.DeleteRoleGroupsRequestContent;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().groups().delete(\n            \"id\",\n            DeleteRoleGroupsRequestContent\n                .builder()\n                .groups(\n                    Arrays.asList(\"groups\")\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Remove groups from a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Groups\\Requests\\DeleteRoleGroupsRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->groups->delete(\n    'id',\n    new DeleteRoleGroupsRequestContent([\n        'groups' => [\n            'groups',\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Remove groups from a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.groups.delete(\n    id=\"id\",\n    groups=[\n        \"groups\"\n    ],\n)\n"
+      - lang: ruby
+        label: Remove groups from a role
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.groups.delete(\n  id: \"id\",\n  groups: [\"groups\"]\n)\n"
+    post:
+      summary: Assign groups to a role
+      description: Assign one or more groups to a specified role.
+      tags:
+      - Roles
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier for the role (service-generated).
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignRoleGroupsRequestContent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignRoleGroupsRequestContent'
+      responses:
+        '204':
+          description: Groups successfully assigned to role.
+        '400':
+          description: Invalid request body. The message will vary depending on the cause.
+        '401':
+          description: Invalid token.
+          x-description-1: Invalid signature received for JSON Web Token validation.
+          x-description-2: Client is not global.
+        '403':
+          description: 'Insufficient scope; expected any of: create:group_roles.'
+        '404':
+          description: Role not found.
+          x-description-0: Role not found.
+        '429':
+          description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
+      operationId: post_role_groups
+      x-release-lifecycle: GA
+      x-operation-name: create
+      x-operation-group:
+      - roles
+      - groups
+      security:
+      - bearerAuth: []
+      - oAuth2ClientCredentials:
+        - create:group_roles
+      x-codeSamples:
+      - lang: csharp
+        label: Assign groups to a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Groups.CreateAsync(\n            id: \"id\",\n            request: new AssignRoleGroupsRequestContent {\n                Groups = new List<string>(){\n                    \"groups\",\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Assign groups to a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.AssignRoleGroupsRequestContent;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().groups().create(\n            \"id\",\n            AssignRoleGroupsRequestContent\n                .builder()\n                .groups(\n                    Arrays.asList(\"groups\")\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Assign groups to a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Groups\\Requests\\AssignRoleGroupsRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->groups->create(\n    'id',\n    new AssignRoleGroupsRequestContent([\n        'groups' => [\n            'groups',\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Assign groups to a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.groups.create(\n    id=\"id\",\n    groups=[\n        \"groups\"\n    ],\n)\n"
+      - lang: ruby
+        label: Assign groups to a role
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.groups.create(\n  id: \"id\",\n  groups: [\"groups\"]\n)\n"
   /roles/{id}/permissions:
     get:
-      summary: Get Permissions Granted by Role
+      summary: Get permissions granted by role
       description: Retrieve detailed list (name, description, resource server) of permissions granted by a specified user role.
       tags:
       - Roles
@@ -300,8 +681,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Get permissions granted by role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Permissions.ListAsync(\n            id: \"id\",\n            request: new ListRolePermissionsRequestParameters {\n                PerPage = 1,\n                Page = 1,\n                IncludeTotals = true\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get permissions granted by role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListRolePermissionsRequestParameters{\n        PerPage: management.Int(\n            1,\n        ),\n        Page: management.Int(\n            1,\n        ),\n        IncludeTotals: management.Bool(\n            true,\n        ),\n    }\n    mgmt.Roles.Permissions.List(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get permissions granted by role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.ListRolePermissionsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().permissions().list(\n            \"id\",\n            ListRolePermissionsRequestParameters\n                .builder()\n                .perPage(1)\n                .page(1)\n                .includeTotals(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get permissions granted by role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Permissions\\Requests\\ListRolePermissionsRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->permissions->list(\n    'id',\n    new ListRolePermissionsRequestParameters([\n        'perPage' => 1,\n        'page' => 1,\n        'includeTotals' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get permissions granted by role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.permissions.list(\n    id=\"id\",\n    per_page=1,\n    page=1,\n    include_totals=True,\n)\n"
+      - lang: ruby
+        label: Get permissions granted by role
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.permissions.list(\n  id: \"id\",\n  per_page: 1,\n  page: 1,\n  include_totals: true\n)\n"
+      - lang: typescript
+        label: Get permissions granted by role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.permissions.list(\"id\", {\n        perPage: 1,\n        page: 1,\n        includeTotals: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get permissions granted by role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.permissions.list(\"id\", {\n        perPage: 1,\n        page: 1,\n        includeTotals: true,\n    });\n}\nmain();\n"
     delete:
-      summary: Remove Permissions from a Role
+      summary: Remove permissions from a role
       description: Remove one or more permissions from a specified user role.
       tags:
       - Roles
@@ -343,8 +749,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Remove permissions from a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Permissions.DeleteAsync(\n            id: \"id\",\n            request: new DeleteRolePermissionsRequestContent {\n                Permissions = new List<PermissionRequestPayload>(){\n                    new PermissionRequestPayload {\n                        ResourceServerIdentifier = \"resource_server_identifier\",\n                        PermissionName = \"permission_name\"\n                    },\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Remove permissions from a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.DeleteRolePermissionsRequestContent{\n        Permissions: []*management.PermissionRequestPayload{\n            &management.PermissionRequestPayload{\n                ResourceServerIdentifier: \"resource_server_identifier\",\n                PermissionName: \"permission_name\",\n            },\n        },\n    }\n    mgmt.Roles.Permissions.Delete(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Remove permissions from a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.DeleteRolePermissionsRequestContent;\nimport com.auth0.client.mgmt.types.PermissionRequestPayload;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().permissions().delete(\n            \"id\",\n            DeleteRolePermissionsRequestContent\n                .builder()\n                .permissions(\n                    Arrays.asList(\n                        PermissionRequestPayload\n                            .builder()\n                            .resourceServerIdentifier(\"resource_server_identifier\")\n                            .permissionName(\"permission_name\")\n                            .build()\n                    )\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Remove permissions from a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Permissions\\Requests\\DeleteRolePermissionsRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\PermissionRequestPayload;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->permissions->delete(\n    'id',\n    new DeleteRolePermissionsRequestContent([\n        'permissions' => [\n            new PermissionRequestPayload([\n                'resourceServerIdentifier' => 'resource_server_identifier',\n                'permissionName' => 'permission_name',\n            ]),\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Remove permissions from a role
+        source: "from auth0.management import ManagementClient, PermissionRequestPayload\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.permissions.delete(\n    id=\"id\",\n    permissions=[\n        PermissionRequestPayload(\n            resource_server_identifier=\"resource_server_identifier\",\n            permission_name=\"permission_name\",\n        )\n    ],\n)\n"
+      - lang: ruby
+        label: Remove permissions from a role
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.permissions.delete(\n  id: \"id\",\n  permissions: [{\n    resource_server_identifier: \"resource_server_identifier\",\n    permission_name: \"permission_name\"\n  }]\n)\n"
+      - lang: typescript
+        label: Remove permissions from a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.permissions.delete(\"id\", {\n        permissions: [\n            {\n                resourceServerIdentifier: \"resource_server_identifier\",\n                permissionName: \"permission_name\",\n            },\n        ],\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Remove permissions from a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.permissions.delete(\"id\", {\n        permissions: [\n            {\n                resourceServerIdentifier: \"resource_server_identifier\",\n                permissionName: \"permission_name\",\n            },\n        ],\n    });\n}\nmain();\n"
     post:
-      summary: Associate Permissions with a Role
+      summary: Associate permissions with a role
       description: Add one or more permissions to a specified user role.
       tags:
       - Roles
@@ -374,6 +805,9 @@ paths:
           x-description-1: Invalid signature received for JSON Web Token validation.
         '403':
           description: 'Insufficient scope; expected: update:roles.'
+        '404':
+          description: The role does not exist.
+          x-description-1: The resource server does not exist.
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: post_role_permission_assignment
@@ -386,37 +820,63 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:roles
+      x-codeSamples:
+      - lang: csharp
+        label: Associate permissions with a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Permissions.AddAsync(\n            id: \"id\",\n            request: new AddRolePermissionsRequestContent {\n                Permissions = new List<PermissionRequestPayload>(){\n                    new PermissionRequestPayload {\n                        ResourceServerIdentifier = \"resource_server_identifier\",\n                        PermissionName = \"permission_name\"\n                    },\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Associate permissions with a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.AddRolePermissionsRequestContent{\n        Permissions: []*management.PermissionRequestPayload{\n            &management.PermissionRequestPayload{\n                ResourceServerIdentifier: \"resource_server_identifier\",\n                PermissionName: \"permission_name\",\n            },\n        },\n    }\n    mgmt.Roles.Permissions.Add(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Associate permissions with a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.AddRolePermissionsRequestContent;\nimport com.auth0.client.mgmt.types.PermissionRequestPayload;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().permissions().add(\n            \"id\",\n            AddRolePermissionsRequestContent\n                .builder()\n                .permissions(\n                    Arrays.asList(\n                        PermissionRequestPayload\n                            .builder()\n                            .resourceServerIdentifier(\"resource_server_identifier\")\n                            .permissionName(\"permission_name\")\n                            .build()\n                    )\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Associate permissions with a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Permissions\\Requests\\AddRolePermissionsRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\PermissionRequestPayload;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->permissions->add(\n    'id',\n    new AddRolePermissionsRequestContent([\n        'permissions' => [\n            new PermissionRequestPayload([\n                'resourceServerIdentifier' => 'resource_server_identifier',\n                'permissionName' => 'permission_name',\n            ]),\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Associate permissions with a role
+        source: "from auth0.management import ManagementClient, PermissionRequestPayload\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.permissions.add(\n    id=\"id\",\n    permissions=[\n        PermissionRequestPayload(\n            resource_server_identifier=\"resource_server_identifier\",\n            permission_name=\"permission_name\",\n        )\n    ],\n)\n"
+      - lang: ruby
+        label: Associate permissions with a role
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.permissions.add(\n  id: \"id\",\n  permissions: [{\n    resource_server_identifier: \"resource_server_identifier\",\n    permission_name: \"permission_name\"\n  }]\n)\n"
+      - lang: typescript
+        label: Associate permissions with a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.permissions.add(\"id\", {\n        permissions: [\n            {\n                resourceServerIdentifier: \"resource_server_identifier\",\n                permissionName: \"permission_name\",\n            },\n        ],\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Associate permissions with a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.permissions.add(\"id\", {\n        permissions: [\n            {\n                resourceServerIdentifier: \"resource_server_identifier\",\n                permissionName: \"permission_name\",\n            },\n        ],\n    });\n}\nmain();\n"
   /roles/{id}/users:
     get:
-      summary: Get a Role's Users
+      summary: Get a role's users
       description: 'Retrieve list of users associated with a specific role. For Dashboard instructions, review View Users Assigned to Roles.
+
+
+        **Note**: Returns only users with direct role assignments. For groups assigned to this role, use `GET /api/v2/roles/{id}/groups`.
 
 
         This endpoint supports two types of pagination:
 
 
-        Offset pagination
+        - Offset pagination
 
-
-        Checkpoint pagination
+        - Checkpoint pagination
 
 
         Checkpoint pagination must be used if you need to retrieve more than 1000 organization members.
 
 
-        Checkpoint Pagination
+        **Checkpoint Pagination**
 
 
         To search by checkpoint, use the following parameters:
 
 
-        from: Optional id from which to start selection.
+        - `from`: Optional id from which to start selection.
+
+        - `take`: The total amount of entries to retrieve when using the from parameter. Defaults to 50.
 
 
-        take: The total amount of entries to retrieve when using the from parameter. Defaults to 50.
-
-
-        Note: The first time you call this endpoint using checkpoint pagination, omit the from parameter. If there are more results, a next value is included in the response. You can use this for subsequent API calls. When next is no longer included in the response, no pages are remaining.'
+        **Note**: The first time you call this endpoint using checkpoint pagination, omit the `from` parameter. If there are more results, a `next` value is included in the response. You can use this for subsequent API calls. When `next` is no longer included in the response, no pages are remaining.'
       tags:
       - Roles
       parameters:
@@ -488,12 +948,37 @@ paths:
         - read:users
         - read:roles
         - read:role_members
+      x-codeSamples:
+      - lang: csharp
+        label: Get a role's users
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Users.ListAsync(\n            id: \"id\",\n            request: new ListRoleUsersRequestParameters {\n                From = \"from\",\n                Take = 1\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a role's users
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListRoleUsersRequestParameters{\n        From: management.String(\n            \"from\",\n        ),\n        Take: management.Int(\n            1,\n        ),\n    }\n    mgmt.Roles.Users.List(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get a role's users
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.ListRoleUsersRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().users().list(\n            \"id\",\n            ListRoleUsersRequestParameters\n                .builder()\n                .from(\"from\")\n                .take(1)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get a role's users
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Users\\Requests\\ListRoleUsersRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->users->list(\n    'id',\n    new ListRoleUsersRequestParameters([\n        'from' => 'from',\n        'take' => 1,\n    ]),\n);\n"
+      - lang: python
+        label: Get a role's users
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.users.list(\n    id=\"id\",\n    from=\"from\",\n    take=1,\n)\n"
+      - lang: ruby
+        label: Get a role's users
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.users.list(\n  id: \"id\",\n  from: \"from\",\n  take: 1\n)\n"
+      - lang: typescript
+        label: Get a role's users
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.users.list(\"id\", {\n        from: \"from\",\n        take: 1,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get a role's users
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.users.list(\"id\", {\n        from: \"from\",\n        take: 1,\n    });\n}\nmain();\n"
     post:
-      summary: Assign Users to a Role
+      summary: Assign users to a role
       description: 'Assign one or more users to an existing user role. To learn more, review Role-Based Access Control.
 
 
-        Note: New roles cannot be created through this action.'
+        **Note**: New roles cannot be created through this action.'
       tags:
       - Roles
       parameters:
@@ -538,8 +1023,61 @@ paths:
       - oAuth2ClientCredentials:
         - update:roles
         - create:role_members
+      x-codeSamples:
+      - lang: csharp
+        label: Assign users to a role
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\nusing Auth0.ManagementApi.Roles;\nusing System.Collections.Generic;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Roles.Users.AssignAsync(\n            id: \"id\",\n            request: new AssignRoleUsersRequestContent {\n                Users = new List<string>(){\n                    \"users\",\n                }\n\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Assign users to a role
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.AssignRoleUsersRequestContent{\n        Users: []string{\n            \"users\",\n        },\n    }\n    mgmt.Roles.Users.Assign(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Assign users to a role
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.roles.types.AssignRoleUsersRequestContent;\nimport java.util.Arrays;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.roles().users().assign(\n            \"id\",\n            AssignRoleUsersRequestContent\n                .builder()\n                .users(\n                    Arrays.asList(\"users\")\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Assign users to a role
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Roles\\Users\\Requests\\AssignRoleUsersRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->roles->users->assign(\n    'id',\n    new AssignRoleUsersRequestContent([\n        'users' => [\n            'users',\n        ],\n    ]),\n);\n"
+      - lang: python
+        label: Assign users to a role
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.roles.users.assign(\n    id=\"id\",\n    users=[\n        \"users\"\n    ],\n)\n"
+      - lang: ruby
+        label: Assign users to a role
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.roles.users.assign(\n  id: \"id\",\n  users: [\"users\"]\n)\n"
+      - lang: typescript
+        label: Assign users to a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.users.assign(\"id\", {\n        users: [\n            \"users\",\n        ],\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Assign users to a role
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.roles.users.assign(\"id\", {\n        users: [\n            \"users\",\n        ],\n    });\n}\nmain();\n"
 components:
   schemas:
+    ListRolesOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - start
+      - limit
+      - total
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    RoleOwnerId:
+      type: string
+      description: 'The id of the entity that owns this role: an organization id, or "auth0" for Auth0-managed System Roles.'
+      x-release-lifecycle: EA
+      oneOf:
+      - type: string
+        maxLength: 50
+        format: organization-id
+        x-release-lifecycle: EA
+      - $ref: '#/components/schemas/SystemRoleOwnerId'
     AssignRoleUsersRequestContent:
       type: object
       additionalProperties: false
@@ -552,125 +1090,94 @@ components:
           items:
             type: string
             format: user-id-with-max-length
-    ListRolesResponseContent:
+    DeleteRoleGroupsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - groups
+      properties:
+        groups:
+          type: array
+          description: Array of group IDs to remove from the role.
+          minItems: 1
+          items:
+            type: string
+            description: Unique identifier for the group (service-generated).
+            minLength: 18
+            maxLength: 26
+            pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+    AddRolePermissionsRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - permissions
+      properties:
+        permissions:
+          type: array
+          description: array of resource_server_identifier, permission_name pairs.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PermissionRequestPayload'
+    GetRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+        type:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+        owner_id:
+          $ref: '#/components/schemas/RoleOwnerId'
+          x-release-lifecycle: EA
+    ListRolePermissionsResponseContent:
       oneOf:
       - type: array
         items:
-          $ref: '#/components/schemas/Role'
-      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'
-    ListRolesOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-    ListRoleUsersOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoleUser'
-    PermissionRequestPayload:
+          $ref: '#/components/schemas/PermissionsResponsePayload'
+      - $ref: '#/components/schemas/ListRolePermissionsOffsetPaginatedResponseContent'
+    AssignRoleGroupsRequestContent:
       type: object
       additionalProperties: false
       required:
-      - resource_server_identifier
-      - permission_name
+      - groups
       properties:
-        resource_server_identifier:
-          type: string
-          description: Resource server (API) identifier that this permission is for.
-        permission_name:
-          type: string
-          description: Name of this permission.
-    UpdateRoleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    UpdateRoleRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    CreateRoleRequestContent:
+        groups:
+          type: array
+          description: Array of group IDs to assign to the role.
+          minItems: 1
+          items:
+            type: string
+            description: Unique identifier for the group (service-generated).
+            minLength: 18
+            maxLength: 26
+            pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+    ListRoleUsersResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/RoleUser'
+      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
+    DeleteRolePermissionsRequestContent:
       type: object
       additionalProperties: false
       required:
-      - name
+      - permissions
       properties:
-        name:
-          type: string
-          description: Name of the role.
-        description:
-          type: string
-          description: Description of the role.
-    CreateRoleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
-    ListRolePermissionsOffsetPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        start:
-          type: number
-        limit:
-          type: number
-        total:
-          type: number
         permissions:
           type: array
+          description: array of resource_server_identifier, permission_name pairs.
+          minItems: 1
           items:
-            $ref: '#/components/schemas/PermissionsResponsePayload'
-    ListRoleUsersPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        next:
-          type: string
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoleUser'
+            $ref: '#/components/schemas/PermissionRequestPayload'
     RoleUser:
       type: object
       additionalProperties: false
@@ -689,18 +1196,178 @@ components:
           description: Email address of this user.
           default: john.doe@gmail.com
           format: email
-    AddRolePermissionsRequestContent:
+    ListRoleUsersPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        next:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleUser'
+    ListRolesCheckpointPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      x-release-lifecycle: EA
+      properties:
+        next:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    RoleTypeEnum:
+      type: string
+      description: The type of the role
+      enum:
+      - tenant
+      - organization
+      x-release-lifecycle: EA
+    ListRoleUsersOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleUser'
+    UpdateRoleRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+    RoleOwnerIdFilter:
+      type: string
+      x-release-lifecycle: EA
+      oneOf:
+      - type: string
+        maxLength: 50
+        format: organization-id
+        x-release-lifecycle: EA
+      - $ref: '#/components/schemas/SystemRoleOwnerId'
+      description: Filter organization-level roles by owner ID. Use an organization ID to filter that organization's roles, or "auth0" to retrieve Auth0-managed System Roles. Required when type is "organization".
+    CreateRoleRequestContent:
       type: object
       additionalProperties: false
       required:
-      - permissions
+      - name
       properties:
+        name:
+          type: string
+          description: Name of the role.
+        description:
+          type: string
+          description: Description of the role.
+        type:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+          description: The type of the role. Defaults to tenant.
+        owner_id:
+          type: string
+          description: The ID of the organization that owns this role. Required when type is "organization".
+          maxLength: 50
+          format: organization-id
+          x-release-lifecycle: EA
+    CreateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+        type:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+        owner_id:
+          $ref: '#/components/schemas/RoleOwnerId'
+          x-release-lifecycle: EA
+    ListRolePermissionsOffsetPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        start:
+          type: number
+        limit:
+          type: number
+        total:
+          type: number
         permissions:
           type: array
-          description: array of resource_server_identifier, permission_name pairs.
-          minItems: 1
           items:
-            $ref: '#/components/schemas/PermissionRequestPayload'
+            $ref: '#/components/schemas/PermissionsResponsePayload'
+    SystemRoleOwnerId:
+      type: string
+      enum:
+      - auth0
+    Group:
+      type: object
+      description: Represents the metadata of a group. Member lists are retrieved via a separate endpoint.
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the group (service-generated).
+          minLength: 18
+          maxLength: 26
+          pattern: ^grp_[1-9a-km-zA-HJ-NP-Z]{14,22}$
+        name:
+          type: string
+          description: Name of the group. Must be unique within its connection. Must contain between 1 and 128 printable ASCII characters.
+          minLength: 1
+          maxLength: 128
+          pattern: ^[\x20-\x7E]+$
+        external_id:
+          type: string
+          description: External identifier for the group, often used for SCIM synchronization. Max length of 256 characters.
+          maxLength: 256
+        connection_id:
+          type: string
+          description: Identifier for the connection this group belongs to (if a connection group).
+          format: connection-id
+        tenant_name:
+          type: string
+          description: Identifier for the tenant this group belongs to.
+          minLength: 3
+          pattern: ^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+        created_at:
+          type: string
+          description: Timestamp of when the group was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Timestamp of when the group was last updated.
+          format: date-time
+    PermissionRequestPayload:
+      type: object
+      additionalProperties: false
+      required:
+      - resource_server_identifier
+      - permission_name
+      properties:
+        resource_server_identifier:
+          type: string
+          description: Resource server (API) identifier that this permission is for.
+        permission_name:
+          type: string
+          description: Name of this permission.
     PermissionsResponsePayload:
       type: object
       additionalProperties: false
@@ -717,31 +1384,46 @@ components:
         description:
           type: string
           description: Description of this permission.
-    ListRolePermissionsResponseContent:
-      oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/PermissionsResponsePayload'
-      - $ref: '#/components/schemas/ListRolePermissionsOffsetPaginatedResponseContent'
-    DeleteRolePermissionsRequestContent:
+    ListRoleGroupsResponseContent:
       type: object
       additionalProperties: false
       required:
-      - permissions
+      - groups
       properties:
-        permissions:
+        groups:
           type: array
-          description: array of resource_server_identifier, permission_name pairs.
-          minItems: 1
           items:
-            $ref: '#/components/schemas/PermissionRequestPayload'
-    ListRoleUsersResponseContent:
+            $ref: '#/components/schemas/Group'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    UpdateRoleResponseContent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: ID for this role.
+        name:
+          type: string
+          description: Name of this role.
+        description:
+          type: string
+          description: Description of this role.
+        type:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+        owner_id:
+          $ref: '#/components/schemas/RoleOwnerId'
+          x-release-lifecycle: EA
+    ListRolesResponseContent:
       oneOf:
       - type: array
         items:
-          $ref: '#/components/schemas/RoleUser'
-      - $ref: '#/components/schemas/ListRoleUsersOffsetPaginatedResponseContent'
-      - $ref: '#/components/schemas/ListRoleUsersPaginatedResponseContent'
+          $ref: '#/components/schemas/Role'
+      - $ref: '#/components/schemas/ListRolesOffsetPaginatedResponseContent'
+      - $ref: '#/components/schemas/ListRolesCheckpointPaginatedResponseContent'
+        x-release-lifecycle: EA
     Role:
       type: object
       additionalProperties: false
@@ -755,19 +1437,12 @@ components:
         description:
           type: string
           description: Description of this role.
-    GetRoleResponseContent:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: ID for this role.
-        name:
-          type: string
-          description: Name of this role.
-        description:
-          type: string
-          description: Description of this role.
+        type:
+          $ref: '#/components/schemas/RoleTypeEnum'
+          x-release-lifecycle: EA
+        owner_id:
+          $ref: '#/components/schemas/RoleOwnerId'
+          x-release-lifecycle: EA
   securitySchemes:
     bearerAuth:
       type: http
@@ -785,6 +1460,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -861,8 +1540,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -880,6 +1561,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -914,9 +1598,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -938,6 +1628,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -991,7 +1685,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -1002,6 +1700,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

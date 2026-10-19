@@ -20,7 +20,7 @@ tags:
 paths:
   /network-acls:
     get:
-      summary: Get All Access Control List Entries for a Tenant
+      summary: Get all access control list entries for a tenant
       description: Get all access control list entries for your client.
       tags:
       - Network ACLs
@@ -69,6 +69,31 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:network_acls
+      x-codeSamples:
+      - lang: csharp
+        label: Get all access control list entries for a tenant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.NetworkAcls.ListAsync(\n            new ListNetworkAclsRequestParameters {\n                Page = 1,\n                PerPage = 1,\n                IncludeTotals = true\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get all access control list entries for a tenant
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListNetworkAclsRequestParameters{\n        Page: management.Int(\n            1,\n        ),\n        PerPage: management.Int(\n            1,\n        ),\n        IncludeTotals: management.Bool(\n            true,\n        ),\n    }\n    mgmt.NetworkAcls.List(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Get all access control list entries for a tenant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListNetworkAclsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.networkAcls().list(\n            ListNetworkAclsRequestParameters\n                .builder()\n                .page(1)\n                .perPage(1)\n                .includeTotals(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get all access control list entries for a tenant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\NetworkAcls\\Requests\\ListNetworkAclsRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->networkAcls->list(\n    new ListNetworkAclsRequestParameters([\n        'page' => 1,\n        'perPage' => 1,\n        'includeTotals' => true,\n    ]),\n);\n"
+      - lang: python
+        label: Get all access control list entries for a tenant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.network_acls.list(\n    page=1,\n    per_page=1,\n    include_totals=True,\n)\n"
+      - lang: ruby
+        label: Get all access control list entries for a tenant
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.network_acls.list(\n  page: 1,\n  per_page: 1,\n  include_totals: true\n)\n"
+      - lang: typescript
+        label: Get all access control list entries for a tenant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.list({\n        page: 1,\n        perPage: 1,\n        includeTotals: true,\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Get all access control list entries for a tenant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.list({\n        page: 1,\n        perPage: 1,\n        includeTotals: true,\n    });\n}\nmain();\n"
     post:
       summary: Create Access Control List
       description: Create a new access control list for your client.
@@ -109,9 +134,34 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:network_acls
+      x-codeSamples:
+      - lang: csharp
+        label: Create Access Control List
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.NetworkAcls.CreateAsync(\n            new CreateNetworkAclRequestContent {\n                Description = \"description\",\n                Active = true,\n                Rule = new NetworkAclRule {\n                    Action = new NetworkAclAction(),\n                    Scope = NetworkAclRuleScopeEnum.Management\n                }\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Create Access Control List
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateNetworkAclRequestContent{\n        Description: \"description\",\n        Active: true,\n        Priority: 1.1,\n        Rule: &management.NetworkAclRule{\n            Action: &management.NetworkAclAction{},\n            Scope: management.NetworkAclRuleScopeEnumManagement,\n        },\n    }\n    mgmt.NetworkAcls.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Create Access Control List
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateNetworkAclRequestContent;\nimport com.auth0.client.mgmt.types.NetworkAclAction;\nimport com.auth0.client.mgmt.types.NetworkAclRule;\nimport com.auth0.client.mgmt.types.NetworkAclRuleScopeEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.networkAcls().create(\n            CreateNetworkAclRequestContent\n                .builder()\n                .description(\"description\")\n                .active(true)\n                .rule(\n                    NetworkAclRule\n                        .builder()\n                        .action(\n                            NetworkAclAction\n                                .builder()\n                                .build()\n                        )\n                        .scope(NetworkAclRuleScopeEnum.MANAGEMENT)\n                        .build()\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Create Access Control List
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\NetworkAcls\\Requests\\CreateNetworkAclRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\NetworkAclRule;\nuse Auth0\\SDK\\API\\Management\\Types\\NetworkAclAction;\nuse Auth0\\SDK\\API\\Management\\Types\\NetworkAclRuleScopeEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->networkAcls->create(\n    new CreateNetworkAclRequestContent([\n        'description' => 'description',\n        'active' => true,\n        'rule' => new NetworkAclRule([\n            'action' => new NetworkAclAction([]),\n            'scope' => NetworkAclRuleScopeEnum::Management->value,\n        ]),\n    ]),\n);\n"
+      - lang: python
+        label: Create Access Control List
+        source: "from auth0.management import ManagementClient, NetworkAclRule, NetworkAclAction\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.network_acls.create(\n    description=\"description\",\n    active=True,\n    rule=NetworkAclRule(\n        action=NetworkAclAction(),\n        scope=\"management\",\n    ),\n)\n"
+      - lang: ruby
+        label: Create Access Control List
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.network_acls.create(\n  description: \"description\",\n  active: true,\n  rule: {\n    action: {},\n    scope: \"management\"\n  }\n)\n"
+      - lang: typescript
+        label: Create Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.create({\n        description: \"description\",\n        active: true,\n        priority: 1.1,\n        rule: {\n            action: {},\n            scope: \"management\",\n        },\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Create Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.create({\n        description: \"description\",\n        active: true,\n        priority: 1.1,\n        rule: {\n            action: {},\n            scope: \"management\",\n        },\n    });\n}\nmain();\n"
   /network-acls/{id}:
     get:
-      summary: Get a Specific Access Control List Entry for a Tenant
+      summary: Get a specific access control list entry for a tenant
       description: Get a specific access control list entry for your client.
       tags:
       - Network ACLs
@@ -148,6 +198,39 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:network_acls
+      x-codeSamples:
+      - lang: csharp
+        label: Get a specific access control list entry for a tenant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.NetworkAcls.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get a specific access control list entry for a tenant
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.NetworkAcls.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get a specific access control list entry for a tenant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.networkAcls().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get a specific access control list entry for a tenant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->networkAcls->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get a specific access control list entry for a tenant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.network_acls.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get a specific access control list entry for a tenant
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.network_acls.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get a specific access control list entry for a tenant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get a specific access control list entry for a tenant
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.get(\"id\");\n}\nmain();\n"
     delete:
       summary: Delete Access Control List
       description: Delete existing access control list for your client.
@@ -185,6 +268,39 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:network_acls
+      x-codeSamples:
+      - lang: csharp
+        label: Delete Access Control List
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.NetworkAcls.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete Access Control List
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.NetworkAcls.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete Access Control List
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.networkAcls().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete Access Control List
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->networkAcls->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete Access Control List
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.network_acls.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete Access Control List
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.network_acls.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.delete(\"id\");\n}\nmain();\n"
     patch:
       summary: Partial Update for an Access Control List
       description: Update existing access control list for your client.
@@ -233,6 +349,39 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:network_acls
+      x-codeSamples:
+      - lang: csharp
+        label: Partial Update for an Access Control List
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.NetworkAcls.UpdateAsync(\n            id: \"id\",\n            request: new UpdateNetworkAclRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Partial Update for an Access Control List
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateNetworkAclRequestContent{}\n    mgmt.NetworkAcls.Update(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Partial Update for an Access Control List
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateNetworkAclRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.networkAcls().update(\n            \"id\",\n            UpdateNetworkAclRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Partial Update for an Access Control List
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\NetworkAcls\\Requests\\UpdateNetworkAclRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->networkAcls->update(\n    'id',\n    new UpdateNetworkAclRequestContent([]),\n);\n"
+      - lang: python
+        label: Partial Update for an Access Control List
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.network_acls.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Partial Update for an Access Control List
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.network_acls.update(id: "id")
+
+          '
+      - lang: typescript
+        label: Partial Update for an Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.update(\"id\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Partial Update for an Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.update(\"id\", {});\n}\nmain();\n"
     put:
       summary: Update Access Control List
       description: Update existing access control list for your client.
@@ -281,8 +430,104 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:network_acls
+      x-codeSamples:
+      - lang: csharp
+        label: Update Access Control List
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.NetworkAcls.SetAsync(\n            id: \"id\",\n            request: new SetNetworkAclRequestContent {\n                Description = \"description\",\n                Active = true,\n                Rule = new NetworkAclRule {\n                    Action = new NetworkAclAction(),\n                    Scope = NetworkAclRuleScopeEnum.Management\n                }\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update Access Control List
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.SetNetworkAclRequestContent{\n        Description: \"description\",\n        Active: true,\n        Priority: 1.1,\n        Rule: &management.NetworkAclRule{\n            Action: &management.NetworkAclAction{},\n            Scope: management.NetworkAclRuleScopeEnumManagement,\n        },\n    }\n    mgmt.NetworkAcls.Set(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update Access Control List
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.NetworkAclAction;\nimport com.auth0.client.mgmt.types.NetworkAclRule;\nimport com.auth0.client.mgmt.types.NetworkAclRuleScopeEnum;\nimport com.auth0.client.mgmt.types.SetNetworkAclRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.networkAcls().set(\n            \"id\",\n            SetNetworkAclRequestContent\n                .builder()\n                .description(\"description\")\n                .active(true)\n                .rule(\n                    NetworkAclRule\n                        .builder()\n                        .action(\n                            NetworkAclAction\n                                .builder()\n                                .build()\n                        )\n                        .scope(NetworkAclRuleScopeEnum.MANAGEMENT)\n                        .build()\n                )\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update Access Control List
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\NetworkAcls\\Requests\\SetNetworkAclRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\NetworkAclRule;\nuse Auth0\\SDK\\API\\Management\\Types\\NetworkAclAction;\nuse Auth0\\SDK\\API\\Management\\Types\\NetworkAclRuleScopeEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->networkAcls->set(\n    'id',\n    new SetNetworkAclRequestContent([\n        'description' => 'description',\n        'active' => true,\n        'rule' => new NetworkAclRule([\n            'action' => new NetworkAclAction([]),\n            'scope' => NetworkAclRuleScopeEnum::Management->value,\n        ]),\n    ]),\n);\n"
+      - lang: python
+        label: Update Access Control List
+        source: "from auth0.management import ManagementClient, NetworkAclRule, NetworkAclAction\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.network_acls.set(\n    id=\"id\",\n    description=\"description\",\n    active=True,\n    rule=NetworkAclRule(\n        action=NetworkAclAction(),\n        scope=\"management\",\n    ),\n)\n"
+      - lang: ruby
+        label: Update Access Control List
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.network_acls.set(\n  id: \"id\",\n  description: \"description\",\n  active: true,\n  rule: {\n    action: {},\n    scope: \"management\"\n  }\n)\n"
+      - lang: typescript
+        label: Update Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.set(\"id\", {\n        description: \"description\",\n        active: true,\n        priority: 1.1,\n        rule: {\n            action: {},\n            scope: \"management\",\n        },\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Update Access Control List
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.networkAcls.set(\"id\", {\n        description: \"description\",\n        active: true,\n        priority: 1.1,\n        rule: {\n            action: {},\n            scope: \"management\",\n        },\n    });\n}\nmain();\n"
 components:
   schemas:
+    NetworkAclsResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    NetworkAclActionLogEnum:
+      type: boolean
+      description: Indicates the rule will log requests that either match or not_match specific criteria
+      enum:
+      - true
+    SetNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - description
+      - active
+      - rule
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          default: 50
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+    NetworkAclActionBlockEnum:
+      type: boolean
+      description: Indicates the rule will block requests that either match or not_match specific criteria
+      enum:
+      - true
+    UpdateNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
     ListNetworkAclsOffsetPaginatedResponseContent:
       type: object
       additionalProperties: false
@@ -297,24 +542,43 @@ components:
           type: number
         total:
           type: number
-    NetworkAclAction:
+    NetworkAclActionAllowEnum:
+      type: boolean
+      description: Indicates the rule will allow requests that either match or not_match specific criteria
+      enum:
+      - true
+    NetworkAclRule:
       type: object
       additionalProperties: false
+      required:
+      - action
+      - scope
       properties:
-        block:
-          $ref: '#/components/schemas/NetworkAclActionBlockEnum'
-        allow:
-          $ref: '#/components/schemas/NetworkAclActionAllowEnum'
-        log:
-          $ref: '#/components/schemas/NetworkAclActionLogEnum'
-        redirect:
-          $ref: '#/components/schemas/NetworkAclActionRedirectEnum'
-        redirect_uri:
-          type: string
-          description: The URI to which the match or not_match requests will be routed
-          minLength: 1
-          maxLength: 2000
-    GetNetworkAclsResponseContent:
+        action:
+          $ref: '#/components/schemas/NetworkAclAction'
+        match:
+          $ref: '#/components/schemas/NetworkAclMatch'
+        not_match:
+          $ref: '#/components/schemas/NetworkAclMatch'
+        match_all:
+          $ref: '#/components/schemas/NetworkAclRuleMatchAllEnum'
+        scope:
+          $ref: '#/components/schemas/NetworkAclRuleScopeEnum'
+    NetworkACLMatchIpv6Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    NetworkACLMatchConnectingIpv6Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv6
+      - type: string
+        format: ipv6_cidr
+    SetNetworkAclsResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -341,13 +605,111 @@ components:
       description: Indicates the rule will redirect requests that either match or not_match specific criteria
       enum:
       - true
-    NetworkACLMatchConnectingIpv4Cidr:
+    NetworkAclAction:
+      type: object
+      additionalProperties: false
+      properties:
+        block:
+          $ref: '#/components/schemas/NetworkAclActionBlockEnum'
+        allow:
+          $ref: '#/components/schemas/NetworkAclActionAllowEnum'
+        log:
+          $ref: '#/components/schemas/NetworkAclActionLogEnum'
+        redirect:
+          $ref: '#/components/schemas/NetworkAclActionRedirectEnum'
+        redirect_uri:
+          type: string
+          description: The URI to which the match or not_match requests will be routed
+          minLength: 1
+          maxLength: 2000
+    NetworkAclHttpMessageSignatureKeys:
+      type: array
+      description: The keys whose signatures satisfy this rule. Each id references a key that was already created via `POST /api/v2/keys/network-acls`.
+      minItems: 1
+      items:
+        $ref: '#/components/schemas/NetworkAclHttpMessageSignatureKey'
+    NetworkAclRuleScopeEnum:
       type: string
+      description: Identifies the origin of the request as the Management API (management), Authentication API (authentication), Dynamic Client Registration API (dynamic_client_registration), or any (tenant)
+      enum:
+      - management
+      - authentication
+      - tenant
+      - dynamic_client_registration
+    ListNetworkAclsResponseContent:
       oneOf:
-      - type: string
-        format: ipv4
-      - type: string
-        format: cidr
+      - $ref: '#/components/schemas/ListNetworkAclsOffsetPaginatedResponseContent'
+      - type: array
+        items:
+          $ref: '#/components/schemas/NetworkAclsResponseContent'
+    NetworkAclRuleMatchAllEnum:
+      type: boolean
+      description: When true, the rule unconditionally matches all traffic regardless of any other signals. Mutually exclusive with `match` and `not_match`.
+      enum:
+      - true
+    NetworkAclHttpMessageSignature:
+      type: object
+      description: HTTP Message Signature configuration.
+      additionalProperties: false
+      required:
+      - keys
+      properties:
+        keys:
+          $ref: '#/components/schemas/NetworkAclHttpMessageSignatureKeys'
+    CreateNetworkAclRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - description
+      - active
+      - rule
+      properties:
+        description:
+          type: string
+          maxLength: 255
+        active:
+          type: boolean
+          description: Indicates whether or not this access control list is actively being used
+        priority:
+          type: number
+          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
+          default: 50
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+    UpdateNetworkAclResponseContent:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        priority:
+          type: number
+          minimum: 1
+          maximum: 100
+        rule:
+          $ref: '#/components/schemas/NetworkAclRule'
+        created_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was created
+        updated_at:
+          type: string
+          description: The timestamp when the Network ACL Configuration was last updated
+    NetworkAclHttpMessageSignatureKey:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Auth0-generated identifier for the key, as returned by `POST /api/v2/keys/network-acls`.
+          pattern: ^key_[1-9A-HJ-NP-Za-km-z]{16,22}$
     NetworkAclMatch:
       type: object
       additionalProperties: false
@@ -357,6 +719,12 @@ components:
           minItems: 1
           items:
             type: integer
+        auth0_managed:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            pattern: ^auth0\.[^\.\s]+$
         geo_country_codes:
           type: array
           minItems: 1
@@ -408,12 +776,16 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/NetworkACLMatchConnectingIpv6Cidr'
-    NetworkAclActionLogEnum:
-      type: boolean
-      description: Indicates the rule will log requests that either match or not_match specific criteria
-      enum:
-      - true
-    UpdateNetworkAclResponseContent:
+        http_message_signature:
+          $ref: '#/components/schemas/NetworkAclHttpMessageSignature'
+    NetworkACLMatchConnectingIpv4Cidr:
+      type: string
+      oneOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: cidr
+    GetNetworkAclsResponseContent:
       type: object
       additionalProperties: true
       properties:
@@ -435,18 +807,6 @@ components:
         updated_at:
           type: string
           description: The timestamp when the Network ACL Configuration was last updated
-    NetworkAclActionBlockEnum:
-      type: boolean
-      description: Indicates the rule will block requests that either match or not_match specific criteria
-      enum:
-      - true
-    NetworkACLMatchIpv6Cidr:
-      type: string
-      oneOf:
-      - type: string
-        format: ipv6
-      - type: string
-        format: ipv6_cidr
     NetworkACLMatchIpv4Cidr:
       type: string
       oneOf:
@@ -454,152 +814,6 @@ components:
         format: ipv4
       - type: string
         format: cidr
-    SetNetworkAclRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - description
-      - active
-      - rule
-      properties:
-        description:
-          type: string
-          maxLength: 255
-        active:
-          type: boolean
-          description: Indicates whether or not this access control list is actively being used
-        priority:
-          type: number
-          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
-          default: 50
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-    NetworkAclsResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-        description:
-          type: string
-        active:
-          type: boolean
-        priority:
-          type: number
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-        created_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was created
-        updated_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was last updated
-    SetNetworkAclsResponseContent:
-      type: object
-      additionalProperties: true
-      properties:
-        id:
-          type: string
-        description:
-          type: string
-        active:
-          type: boolean
-        priority:
-          type: number
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-        created_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was created
-        updated_at:
-          type: string
-          description: The timestamp when the Network ACL Configuration was last updated
-    CreateNetworkAclRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - description
-      - active
-      - rule
-      properties:
-        description:
-          type: string
-          maxLength: 255
-        active:
-          type: boolean
-          description: Indicates whether or not this access control list is actively being used
-        priority:
-          type: number
-          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
-          default: 50
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-    ListNetworkAclsResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/ListNetworkAclsOffsetPaginatedResponseContent'
-      - type: array
-        items:
-          $ref: '#/components/schemas/NetworkAclsResponseContent'
-    NetworkAclActionAllowEnum:
-      type: boolean
-      description: Indicates the rule will allow requests that either match or not_match specific criteria
-      enum:
-      - true
-    NetworkACLMatchConnectingIpv6Cidr:
-      type: string
-      oneOf:
-      - type: string
-        format: ipv6
-      - type: string
-        format: ipv6_cidr
-    NetworkAclRuleScopeEnum:
-      type: string
-      description: Identifies the origin of the request as the Management API (management), Authentication API (authentication), Dynamic Client Registration API (dynamic_client_registration), or any (tenant)
-      enum:
-      - management
-      - authentication
-      - tenant
-      - dynamic_client_registration
-    UpdateNetworkAclRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        description:
-          type: string
-          maxLength: 255
-        active:
-          type: boolean
-          description: Indicates whether or not this access control list is actively being used
-        priority:
-          type: number
-          description: Indicates the order in which the ACL will be evaluated relative to other ACL rules.
-          minimum: 1
-          maximum: 100
-        rule:
-          $ref: '#/components/schemas/NetworkAclRule'
-    NetworkAclRule:
-      type: object
-      additionalProperties: false
-      required:
-      - action
-      - scope
-      properties:
-        action:
-          $ref: '#/components/schemas/NetworkAclAction'
-        match:
-          $ref: '#/components/schemas/NetworkAclMatch'
-        not_match:
-          $ref: '#/components/schemas/NetworkAclMatch'
-        scope:
-          $ref: '#/components/schemas/NetworkAclRuleScopeEnum'
   securitySchemes:
     bearerAuth:
       type: http
@@ -617,6 +831,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -693,8 +911,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -712,6 +932,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -746,9 +969,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -770,6 +999,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -823,7 +1056,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -834,6 +1071,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

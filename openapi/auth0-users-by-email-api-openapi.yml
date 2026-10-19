@@ -36,7 +36,6 @@ paths:
         description: Comma-separated list of fields to include or exclude (based on value provided for include_fields) in the result. Leave empty to retrieve all fields.
         schema:
           type: string
-          pattern: ^((phone_number)|(email)|(email_verified)|(picture)|(username)|(user_id)|(name)|(nickname)|(created_at)|(identities)|(app_metadata)|(user_metadata)|(last_ip)|(last_login)|(logins_count)|(updated_at)|(blocked)|(family_name)|(given_name))(,((phone_number)|(email)|(email_verified)|(picture)|(username)|(user_id)|(name)|(nickname)|(created_at)|(identities)|(app_metadata)|(user_metadata)|(last_ip)|(last_login)|(logins_count)|(updated_at)|(blocked)|(family_name)|(given_name)))*$
       - name: include_fields
         in: query
         description: Whether specified fields are to be included (true) or excluded (false). Defaults to true.
@@ -78,45 +77,166 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:users
+      x-codeSamples:
+      - lang: csharp
+        label: Search Users by Email
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.Users.ListUsersByEmailAsync(\n            new ListUsersByEmailRequestParameters {\n                Fields = \"fields\",\n                IncludeFields = true,\n                Email = \"email\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Search Users by Email
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.ListUsersByEmailRequestParameters{\n        Fields: management.String(\n            \"fields\",\n        ),\n        IncludeFields: management.Bool(\n            true,\n        ),\n        Email: \"email\",\n    }\n    mgmt.Users.ListUsersByEmail(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Search Users by Email
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListUsersByEmailRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.users().listUsersByEmail(\n            ListUsersByEmailRequestParameters\n                .builder()\n                .email(\"email\")\n                .fields(\"fields\")\n                .includeFields(true)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Search Users by Email
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\Users\\Requests\\ListUsersByEmailRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->users->listUsersByEmail(\n    new ListUsersByEmailRequestParameters([\n        'fields' => 'fields',\n        'includeFields' => true,\n        'email' => 'email',\n    ]),\n);\n"
+      - lang: python
+        label: Search Users by Email
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.users.list_users_by_email(\n    fields=\"fields\",\n    include_fields=True,\n    email=\"email\",\n)\n"
+      - lang: ruby
+        label: Search Users by Email
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.users.list_users_by_email(\n  fields: \"fields\",\n  include_fields: true,\n  email: \"email\"\n)\n"
+      - lang: typescript
+        label: Search Users by Email
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.users.listUsersByEmail({\n        fields: \"fields\",\n        includeFields: true,\n        email: \"email\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Search Users by Email
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.users.listUsersByEmail({\n        fields: \"fields\",\n        includeFields: true,\n        email: \"email\",\n    });\n}\nmain();\n"
 components:
   schemas:
+    UserId:
+      description: Unique identifier of the user for this identity.
+      oneOf:
+      - type: string
+        default: abc
+        minLength: 1
+      - type: integer
+        default: 191919191
+    UserResponseSchema:
+      type: object
+      additionalProperties: true
+      properties:
+        user_id:
+          type: string
+          description: ID of the user which can be used when interacting with other APIs.
+          default: auth0|507f1f77bcf86cd799439020
+        email:
+          type: string
+          description: Email address of this user.
+          default: john.doe@gmail.com
+          format: email
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+          default: false
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        phone_number:
+          type: string
+          description: Phone number for this user. Follows the <a href="https://en.wikipedia.org/wiki/E.164">E.164 recommendation</a>.
+          default: '+199999999999999'
+        phone_verified:
+          type: boolean
+          description: Whether this phone number has been verified (true) or not (false).
+          default: false
+        created_at:
+          type: string
+          description: Date and time when this user was created.
+          format: date-time
+        updated_at:
+          type: string
+          description: Date and time when this user was last updated/modified.
+          format: date-time
+        identities:
+          type: array
+          description: Array of user identity objects when accounts are linked.
+          items:
+            $ref: '#/components/schemas/UserIdentitySchema'
+        app_metadata:
+          $ref: '#/components/schemas/UserAppMetadataSchema'
+        user_metadata:
+          $ref: '#/components/schemas/UserMetadataSchema'
+        picture:
+          type: string
+          description: URL to picture, photo, or avatar of this user.
+        name:
+          type: string
+          description: Name of this user.
+        nickname:
+          type: string
+          description: Preferred nickname or alias of this user.
+        multifactor:
+          type: array
+          description: List of multi-factor authentication providers with which this user has enrolled.
+          items:
+            type: string
+        multifactor_last_modified:
+          type: string
+          description: Last date and time this user's multi-factor authentication providers were updated.
+          format: date-time
+        last_ip:
+          type: string
+          description: Last IP address from which this user logged in.
+        last_login:
+          type: string
+          description: Last date and time this user logged in.
+          format: date-time
+        last_password_reset:
+          type: string
+          description: Last date and time this user had their password reset.
+          format: date-time
+        logins_count:
+          type: integer
+          description: Total number of logins this user has performed.
+        blocked:
+          type: boolean
+          description: Whether this user was blocked by an administrator (true) or is not (false).
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    UserProfileData:
+      type: object
+      additionalProperties: true
+      properties:
+        email:
+          type: string
+          description: Email address of this user.
+        email_verified:
+          type: boolean
+          description: Whether this email address is verified (true) or unverified (false).
+        name:
+          type: string
+          description: Name of this user.
+        username:
+          type: string
+          description: Username of this user.
+          default: johndoe
+        given_name:
+          type: string
+          description: Given name/first name/forename of this user.
+        phone_number:
+          type: string
+          description: Phone number for this user.
+        phone_verified:
+          type: boolean
+          description: Whether this phone number is verified (true) or unverified (false).
+        family_name:
+          type: string
+          description: Family name/last name/surname of this user.
+    UserAppMetadataSchema:
+      type: object
+      description: User metadata to which this user has read-only access.
+      additionalProperties: true
+      properties: {}
     UserMetadataSchema:
       type: object
       description: User metadata to which this user has read/write access.
       additionalProperties: true
-    UserIdentitySchema:
-      type: object
-      additionalProperties: false
-      properties:
-        connection:
-          type: string
-          description: Name of the connection containing this identity.
-        user_id:
-          type: string
-          description: Unique identifier of the user user for this identity.
-        provider:
-          $ref: '#/components/schemas/UserIdentityProviderEnum'
-        isSocial:
-          type: boolean
-          description: Whether this identity is from a social provider (true) or not (false).
-        access_token:
-          type: string
-          description: IDP access token returned only if scope read:user_idp_tokens is defined.
-        access_token_secret:
-          type: string
-          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
-        refresh_token:
-          type: string
-          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
-        profileData:
-          $ref: '#/components/schemas/UserProfileData'
-    UserDateSchema:
-      oneOf:
-      - type: string
-        description: Date and time when this user was created (ISO_8601 format).
-      - type: object
-        description: Date and time when this user was created (ISO_8601 format).
-        additionalProperties: true
     UserIdentityProviderEnum:
       type: string
       description: The type of identity provider
@@ -176,113 +296,31 @@ components:
       - wordpress
       - yahoo
       - yandex
-    UserProfileData:
+    UserIdentitySchema:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       properties:
-        email:
+        connection:
           type: string
-          description: Email address of this user.
-        email_verified:
-          type: boolean
-          description: Whether this email address is verified (true) or unverified (false).
-        name:
-          type: string
-          description: Name of this user.
-        username:
-          type: string
-          description: Username of this user.
-          default: johndoe
-        given_name:
-          type: string
-          description: Given name/first name/forename of this user.
-        phone_number:
-          type: string
-          description: Phone number for this user.
-        phone_verified:
-          type: boolean
-          description: Whether this phone number is verified (true) or unverified (false).
-        family_name:
-          type: string
-          description: Family name/last name/surname of this user.
-    UserResponseSchema:
-      type: object
-      additionalProperties: true
-      properties:
+          description: Name of the connection containing this identity.
         user_id:
-          type: string
-          description: ID of the user which can be used when interacting with other APIs.
-          default: auth0|507f1f77bcf86cd799439020
-        email:
-          type: string
-          description: Email address of this user.
-          default: john.doe@gmail.com
-          format: email
-        email_verified:
+          $ref: '#/components/schemas/UserId'
+        provider:
+          $ref: '#/components/schemas/UserIdentityProviderEnum'
+        isSocial:
           type: boolean
-          description: Whether this email address is verified (true) or unverified (false).
-          default: false
-        username:
+          description: Whether this identity is from a social provider (true) or not (false).
+        access_token:
           type: string
-          description: Username of this user.
-          default: johndoe
-        phone_number:
+          description: IDP access token returned only if scope read:user_idp_tokens is defined.
+        access_token_secret:
           type: string
-          description: Phone number for this user. Follows the <a href="https://en.wikipedia.org/wiki/E.164">E.164 recommendation</a>.
-          default: '+199999999999999'
-        phone_verified:
-          type: boolean
-          description: Whether this phone number has been verified (true) or not (false).
-          default: false
-        created_at:
-          $ref: '#/components/schemas/UserDateSchema'
-        updated_at:
-          $ref: '#/components/schemas/UserDateSchema'
-        identities:
-          type: array
-          description: Array of user identity objects when accounts are linked.
-          items:
-            $ref: '#/components/schemas/UserIdentitySchema'
-        app_metadata:
-          $ref: '#/components/schemas/UserAppMetadataSchema'
-        user_metadata:
-          $ref: '#/components/schemas/UserMetadataSchema'
-        picture:
+          description: IDP access token secret returned only if scope read:user_idp_tokens is defined.
+        refresh_token:
           type: string
-          description: URL to picture, photo, or avatar of this user.
-        name:
-          type: string
-          description: Name of this user.
-        nickname:
-          type: string
-          description: Preferred nickname or alias of this user.
-        multifactor:
-          type: array
-          description: List of multi-factor authentication providers with which this user has enrolled.
-          items:
-            type: string
-        last_ip:
-          type: string
-          description: Last IP address from which this user logged in.
-        last_login:
-          $ref: '#/components/schemas/UserDateSchema'
-        logins_count:
-          type: integer
-          description: Total number of logins this user has performed.
-        blocked:
-          type: boolean
-          description: Whether this user was blocked by an administrator (true) or is not (false).
-        given_name:
-          type: string
-          description: Given name/first name/forename of this user.
-        family_name:
-          type: string
-          description: Family name/last name/surname of this user.
-    UserAppMetadataSchema:
-      type: object
-      description: User metadata to which this user has read-only access.
-      additionalProperties: true
-      properties: {}
+          description: IDP refresh token returned only if scope read:user_idp_tokens is defined.
+        profileData:
+          $ref: '#/components/schemas/UserProfileData'
   securitySchemes:
     bearerAuth:
       type: http
@@ -300,6 +338,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -376,8 +418,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -395,6 +439,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -429,9 +476,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -453,6 +506,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -506,7 +563,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -517,6 +578,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/

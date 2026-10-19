@@ -20,7 +20,7 @@ tags:
 paths:
   /custom-domains:
     get:
-      summary: Get Custom Domains Configurations
+      summary: Get custom domains configurations
       description: Retrieve details on custom domains.
       tags:
       - Custom Domains
@@ -61,7 +61,6 @@ paths:
         schema:
           type: string
           maxLength: 15
-          pattern: ^domain:1$
       responses:
         '200':
           description: Custom domains successfully retrieved.
@@ -88,8 +87,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Get custom domains configurations
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.ListAsync(\n            new ListCustomDomainsRequestParameters {\n                Q = \"q\",\n                Fields = \"fields\",\n                IncludeFields = true,\n                Sort = \"sort\"\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get custom domains configurations
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.CustomDomains.List(\n        context.TODO(),\n    )\n}\n"
+      - lang: java
+        label: Get custom domains configurations
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.ListCustomDomainsRequestParameters;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().list(\n            ListCustomDomainsRequestParameters\n                .builder()\n                .q(\"q\")\n                .fields(\"fields\")\n                .includeFields(true)\n                .sort(\"sort\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Get custom domains configurations
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\CustomDomains\\Requests\\ListCustomDomainsRequestParameters;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->list(\n    new ListCustomDomainsRequestParameters([\n        'q' => 'q',\n        'fields' => 'fields',\n        'includeFields' => true,\n        'sort' => 'sort',\n    ]),\n);\n"
+      - lang: python
+        label: Get custom domains configurations
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.list(\n    q=\"q\",\n    fields=\"fields\",\n    include_fields=True,\n    sort=\"sort\",\n)\n"
+      - lang: ruby
+        label: Get custom domains configurations
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.custom_domains.list(\n  q: \"q\",\n  fields: \"fields\",\n  include_fields: true,\n  sort: \"sort\"\n)\n"
+      - lang: typescript
+        label: Get custom domains configurations
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.list();\n}\nmain();\n"
+      - lang: javascript
+        label: Get custom domains configurations
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.list();\n}\nmain();\n"
     post:
-      summary: Configure a New Custom Domain
+      summary: Configure a new custom domain
       description: 'Create a new custom domain.
 
 
@@ -152,9 +176,34 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Configure a new custom domain
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.CreateAsync(\n            new CreateCustomDomainRequestContent {\n                Domain = \"domain\",\n                Type = CustomDomainProvisioningTypeEnum.Auth0ManagedCerts\n            }\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Configure a new custom domain
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.CreateCustomDomainRequestContent{\n        Domain: \"domain\",\n        Type: management.CustomDomainProvisioningTypeEnumAuth0ManagedCerts,\n    }\n    mgmt.CustomDomains.Create(\n        context.TODO(),\n        request,\n    )\n}\n"
+      - lang: java
+        label: Configure a new custom domain
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.CreateCustomDomainRequestContent;\nimport com.auth0.client.mgmt.types.CustomDomainProvisioningTypeEnum;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().create(\n            CreateCustomDomainRequestContent\n                .builder()\n                .domain(\"domain\")\n                .type(CustomDomainProvisioningTypeEnum.AUTH_0_MANAGED_CERTS)\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Configure a new custom domain
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\CustomDomains\\Requests\\CreateCustomDomainRequestContent;\nuse Auth0\\SDK\\API\\Management\\Types\\CustomDomainProvisioningTypeEnum;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->create(\n    new CreateCustomDomainRequestContent([\n        'domain' => 'domain',\n        'type' => CustomDomainProvisioningTypeEnum::Auth0ManagedCerts->value,\n    ]),\n);\n"
+      - lang: python
+        label: Configure a new custom domain
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.create(\n    domain=\"domain\",\n    type=\"auth0_managed_certs\",\n)\n"
+      - lang: ruby
+        label: Configure a new custom domain
+        source: "require \"auth0\"\n\nclient = Auth0::Management.new(token: \"<token>\", base_url: \"https://{YOUR_DOMAIN}/api/v2\")\n\nclient.custom_domains.create(\n  domain: \"domain\",\n  type: \"auth0_managed_certs\"\n)\n"
+      - lang: typescript
+        label: Configure a new custom domain
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.create({\n        domain: \"domain\",\n        type: \"auth0_managed_certs\",\n    });\n}\nmain();\n"
+      - lang: javascript
+        label: Configure a new custom domain
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.create({\n        domain: \"domain\",\n        type: \"auth0_managed_certs\",\n    });\n}\nmain();\n"
   /custom-domains/default:
     get:
-      summary: Get the Default Domain
+      summary: Get the default domain
       description: Retrieve the tenant's default domain.
       tags:
       - Custom Domains
@@ -181,8 +230,32 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Get the default domain
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.GetDefaultAsync();\n    }\n\n}\n"
+      - lang: java
+        label: Get the default domain
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().getDefault();\n    }\n}"
+      - lang: php
+        label: Get the default domain
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->getDefault();\n"
+      - lang: python
+        label: Get the default domain
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.get_default()\n"
+      - lang: ruby
+        label: Get the default domain
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.get_default
+
+          '
     patch:
-      summary: Update the Default Custom Domain for the Tenant
+      summary: Update the default custom domain for the tenant
       description: Set the default custom domain for the tenant.
       tags:
       - Custom Domains
@@ -214,9 +287,33 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Update the default custom domain for the tenant
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.SetDefaultAsync(\n            new SetDefaultCustomDomainRequestContent {\n                Domain = \"domain\"\n            }\n        );\n    }\n\n}\n"
+      - lang: java
+        label: Update the default custom domain for the tenant
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.SetDefaultCustomDomainRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().setDefault(\n            SetDefaultCustomDomainRequestContent\n                .builder()\n                .domain(\"domain\")\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update the default custom domain for the tenant
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\CustomDomains\\Requests\\SetDefaultCustomDomainRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->setDefault(\n    new SetDefaultCustomDomainRequestContent([\n        'domain' => 'domain',\n    ]),\n);\n"
+      - lang: python
+        label: Update the default custom domain for the tenant
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.set_default(\n    domain=\"domain\",\n)\n"
+      - lang: ruby
+        label: Update the default custom domain for the tenant
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.set_default(domain: "domain")
+
+          '
   /custom-domains/{id}:
     get:
-      summary: Get Custom Domain Configuration
+      summary: Get custom domain configuration
       description: Retrieve a custom domain configuration and status.
       tags:
       - Custom Domains
@@ -256,8 +353,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Get custom domain configuration
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.GetAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Get custom domain configuration
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.CustomDomains.Get(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Get custom domain configuration
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().get(\"id\");\n    }\n}"
+      - lang: php
+        label: Get custom domain configuration
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->get(\n    'id',\n);\n"
+      - lang: python
+        label: Get custom domain configuration
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.get(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Get custom domain configuration
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.get(id: "id")
+
+          '
+      - lang: typescript
+        label: Get custom domain configuration
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.get(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Get custom domain configuration
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.get(\"id\");\n}\nmain();\n"
     delete:
-      summary: Delete Custom Domain Configuration
+      summary: Delete custom domain configuration
       description: Delete a custom domain and stop serving requests for it.
       tags:
       - Custom Domains
@@ -280,6 +410,8 @@ paths:
           description: 'Insufficient scope; expected any of: delete:custom_domains.'
           x-description-1: The account is not allowed to perform this operation.
           x-description-2: There must be a verified credit card on file to perform this operation.
+        '409':
+          description: Cannot delete the default custom domain. Please set another domain as default before deleting this one.
         '429':
           description: Too many requests. Check the X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset headers.
       operationId: delete_custom-domains_by_id
@@ -290,8 +422,41 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - delete:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Delete custom domain configuration
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.DeleteAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Delete custom domain configuration
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.CustomDomains.Delete(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Delete custom domain configuration
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().delete(\"id\");\n    }\n}"
+      - lang: php
+        label: Delete custom domain configuration
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->delete(\n    'id',\n);\n"
+      - lang: python
+        label: Delete custom domain configuration
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.delete(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Delete custom domain configuration
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.delete(id: "id")
+
+          '
+      - lang: typescript
+        label: Delete custom domain configuration
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.delete(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Delete custom domain configuration
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.delete(\"id\");\n}\nmain();\n"
     patch:
-      summary: Update Custom Domain Configuration
+      summary: Update custom domain configuration
       description: 'Update a custom domain.
 
 
@@ -303,22 +468,32 @@ paths:
         - tls_policy
 
 
-        Updating CUSTOM_CLIENT_IP_HEADER for a custom domain
+        **Updating CUSTOM_CLIENT_IP_HEADER for a custom domain**
 
-        To update the custom_client_ip_header for a domain, the body to
+
+        To update the `custom_client_ip_header` for a domain, the body to
 
         send should be:
 
 
+        ```json
+
         { "custom_client_ip_header": "cf-connecting-ip" }
 
+        ```
 
-        Updating TLS_POLICY for a custom domain
 
-        To update the tls_policy for a domain, the body to send should be:
+        **Updating TLS_POLICY for a custom domain**
 
+
+        To update the `tls_policy` for a domain, the body to send should be:
+
+
+        ```json
 
         { "tls_policy": "recommended" }
+
+        ```
 
 
         TLS Policies:
@@ -332,7 +507,7 @@ paths:
 
         - The TLS ciphers and protocols available in each TLS policy follow industry recommendations, and may be updated occasionally.
 
-        - The compatible TLS policy is no longer supported.'
+        - The `compatible` TLS policy is no longer supported.'
       tags:
       - Custom Domains
       parameters:
@@ -379,9 +554,42 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - update:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Update custom domain configuration
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.UpdateAsync(\n            id: \"id\",\n            request: new UpdateCustomDomainRequestContent()\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Update custom domain configuration
+        source: "package example\n\nimport (\n    context \"context\"\n\n    management \"github.com/auth0/go-auth0/v3/management\"\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    request := &management.UpdateCustomDomainRequestContent{}\n    mgmt.CustomDomains.Update(\n        context.TODO(),\n        \"id\",\n        request,\n    )\n}\n"
+      - lang: java
+        label: Update custom domain configuration
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\nimport com.auth0.client.mgmt.types.UpdateCustomDomainRequestContent;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().update(\n            \"id\",\n            UpdateCustomDomainRequestContent\n                .builder()\n                .build()\n        );\n    }\n}"
+      - lang: php
+        label: Update custom domain configuration
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\nuse Auth0\\SDK\\API\\Management\\CustomDomains\\Requests\\UpdateCustomDomainRequestContent;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->update(\n    'id',\n    new UpdateCustomDomainRequestContent([]),\n);\n"
+      - lang: python
+        label: Update custom domain configuration
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.update(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Update custom domain configuration
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.update(id: "id")
+
+          '
+      - lang: typescript
+        label: Update custom domain configuration
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.update(\"id\", {});\n}\nmain();\n"
+      - lang: javascript
+        label: Update custom domain configuration
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.update(\"id\", {});\n}\nmain();\n"
   /custom-domains/{id}/test:
     post:
-      summary: Test a Custom Domain
+      summary: Test a custom domain
       description: Run the test process on a custom domain.
       tags:
       - Custom Domains
@@ -420,16 +628,49 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - read:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Test a custom domain
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.TestAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Test a custom domain
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.CustomDomains.Test(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Test a custom domain
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().test(\"id\");\n    }\n}"
+      - lang: php
+        label: Test a custom domain
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->test(\n    'id',\n);\n"
+      - lang: python
+        label: Test a custom domain
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.test(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Test a custom domain
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.test(id: "id")
+
+          '
+      - lang: typescript
+        label: Test a custom domain
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.test(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Test a custom domain
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.test(\"id\");\n}\nmain();\n"
   /custom-domains/{id}/verify:
     post:
-      summary: Verify a Custom Domain
+      summary: Verify a custom domain
       description: 'Run the verification process on a custom domain.
 
 
-        Note: Check the status field to see its verification status. Once verification is complete, it may take up to 10 minutes before the custom domain can start accepting requests.
+        Note: Check the `status` field to see its verification status. Once verification is complete, it may take up to 10 minutes before the custom domain can start accepting requests.
 
 
-        For self_managed_certs, when the custom domain is verified for the first time, the response will also include the cname_api_key which you will need to configure your proxy. This key must be kept secret, and is used to validate the proxy requests.
+        For `self_managed_certs`, when the custom domain is verified for the first time, the response will also include the `cname_api_key` which you will need to configure your proxy. This key must be kept secret, and is used to validate the proxy requests.
 
 
         Learn more about verifying custom domains that use Auth0 Managed certificates.
@@ -474,8 +715,136 @@ paths:
       - bearerAuth: []
       - oAuth2ClientCredentials:
         - create:custom_domains
+      x-codeSamples:
+      - lang: csharp
+        label: Verify a custom domain
+        source: "using Auth0.ManagementApi;\nusing System.Threading.Tasks;\n\npublic partial class Examples\n{\n    public async Task Example() {\n        var client = new ManagementApiClient(\n            token: \"<token>\",\n            clientOptions: new ClientOptions { BaseUrl = \"https://{YOUR_DOMAIN}/api/v2\" }\n        );\n\n        await client.CustomDomains.VerifyAsync(\n            \"id\"\n        );\n    }\n\n}\n"
+      - lang: go
+        label: Verify a custom domain
+        source: "package example\n\nimport (\n    context \"context\"\n\n    client \"github.com/auth0/go-auth0/v3/management/client\"\n    option \"github.com/auth0/go-auth0/v3/management/option\"\n)\n\nfunc do() {\n    mgmt, err := client.New(\n        \"{YOUR_DOMAIN}\",\n        option.WithToken(\n            \"<token>\",\n        ),\n    )\n    if err != nil {\n        return\n    }\n    mgmt.CustomDomains.Verify(\n        context.TODO(),\n        \"id\",\n    )\n}\n"
+      - lang: java
+        label: Verify a custom domain
+        source: "package com.example.usage;\n\nimport com.auth0.client.mgmt.ManagementApi;\n\npublic class Example {\n    public static void main(String[] args) {\n        ManagementApi client = ManagementApi\n            .builder()\n            .domain(\"{YOUR_DOMAIN}\")\n            .token(\"<token>\")\n            .build();\n\n        client.customDomains().verify(\"id\");\n    }\n}"
+      - lang: php
+        label: Verify a custom domain
+        source: "<?php\n\nnamespace Example;\n\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClient;\nuse Auth0\\SDK\\API\\Management\\Wrapper\\ManagementClientOptions;\n\n$client = new ManagementClient(new ManagementClientOptions(\n    domain: '{YOUR_DOMAIN}',\n    token: '<token>',\n));\n$client->customDomains->verify(\n    'id',\n);\n"
+      - lang: python
+        label: Verify a custom domain
+        source: "from auth0.management import ManagementClient\n\nclient = ManagementClient(\n    domain=\"{YOUR_DOMAIN}\",\n    token=\"<token>\",\n)\n\nclient.custom_domains.verify(\n    id=\"id\",\n)\n"
+      - lang: ruby
+        label: Verify a custom domain
+        source: 'require "auth0"
+
+
+          client = Auth0::Management.new(token: "<token>", base_url: "https://{YOUR_DOMAIN}/api/v2")
+
+
+          client.custom_domains.verify(id: "id")
+
+          '
+      - lang: typescript
+        label: Verify a custom domain
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.verify(\"id\");\n}\nmain();\n"
+      - lang: javascript
+        label: Verify a custom domain
+        source: "import { ManagementClient } from \"auth0\";\n\nasync function main() {\n    const client = new ManagementClient({\n        domain: \"{YOUR_DOMAIN}\",\n        token: \"<token>\",\n    });\n    await client.customDomains.verify(\"id\");\n}\nmain();\n"
 components:
   schemas:
+    DomainVerificationStatusEnum:
+      type: string
+      description: The DNS record verification status. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
+      enum:
+      - verified
+      - pending
+      - failed
+    UpdateDefaultDomainResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/UpdateDefaultCustomDomainResponseContent'
+      - $ref: '#/components/schemas/UpdateDefaultCanonicalDomainResponseContent'
+    DomainCertificateAuthorityEnum:
+      type: string
+      description: The Certificate Authority issued the certificate.
+      enum:
+      - letsencrypt
+      - googletrust
+    UpdateCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      - verification
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
+    CreateCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      - type
+      properties:
+        domain:
+          type: string
+          description: Domain name.
+          minLength: 3
+          maxLength: 255
+          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])$
+        type:
+          $ref: '#/components/schemas/CustomDomainProvisioningTypeEnum'
+        verification_method:
+          $ref: '#/components/schemas/CustomDomainVerificationMethodEnum'
+        tls_policy:
+          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+        custom_client_ip_header:
+          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not provided, the full domain will be used.
+          maxLength: 255
+          format: hostname
     CustomDomain:
       type: object
       additionalProperties: false
@@ -529,12 +898,24 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    ListCustomDomainsResponseContent:
+    DomainCertificateStatusEnum:
+      type: string
+      description: The provisioning status of the certificate.
+      enum:
+      - provisioning
+      - provisioning_failed
+      - provisioned
+      - renewing_failed
+    CustomDomainVerificationMethodEnum:
+      type: string
+      description: Custom domain verification method. Must be `txt`.
+      default: txt
+      enum:
+      - txt
+    CustomDomainCustomClientIpHeader:
       oneOf:
-      - type: array
-        items:
-          $ref: '#/components/schemas/CustomDomain'
-      - $ref: '#/components/schemas/ListCustomDomainsPaginatedResponseContent'
+      - $ref: '#/components/schemas/CustomDomainCustomClientIpHeaderEnum'
+      - type: 'null'
     DomainVerification:
       type: object
       description: Domain verification settings.
@@ -554,75 +935,58 @@ components:
         last_verified_at:
           type: string
           description: The date and time when the custom domain was last verified. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
-    GetDefaultCustomDomainResponseContent:
+    CustomDomainCustomClientIpHeaderEnum:
+      type: string
+      description: The HTTP header to fetch the client's IP address
+      default: x-forwarded-for
+      enum:
+      - true-client-ip
+      - cf-connecting-ip
+      - x-forwarded-for
+      - x-azure-clientip
+      - ''
+    UpdateCustomDomainRequestContent:
       type: object
       additionalProperties: false
-      required:
-      - custom_domain_id
-      - domain
-      - primary
-      - status
-      - type
       properties:
-        custom_domain_id:
-          type: string
-          description: ID of the custom domain.
-          default: cd_0000000000000001
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-        primary:
-          type: boolean
-          description: Whether this is a primary domain (true) or not (false).
-          default: false
-        is_default:
-          type: boolean
-          description: Whether this is the default custom domain (true) or not (false).
-          default: false
-        status:
-          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
-        type:
-          $ref: '#/components/schemas/CustomDomainTypeEnum'
-        origin_domain_name:
-          type: string
-          description: Intermediate address.
-          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
-        verification:
-          $ref: '#/components/schemas/DomainVerification'
+        tls_policy:
+          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
+          description: recommended includes TLS 1.2
         custom_client_ip_header:
+          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        relying_party_identifier:
           type:
           - string
           - 'null'
-          description: The HTTP header to fetch the client's IP address
-        tls_policy:
-          type: string
-          description: The TLS version policy
-          default: recommended
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        certificate:
-          $ref: '#/components/schemas/DomainCertificate'
-        relying_party_identifier:
-          type: string
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. Set to null to remove the rpId and fall back to using the full domain.
+          maxLength: 255
           format: hostname
-    CustomDomainVerificationMethodEnum:
+    DomainVerificationMethod:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - record
+      properties:
+        name:
+          $ref: '#/components/schemas/DomainVerificationMethodNameEnum'
+        record:
+          type: string
+          description: Value used to verify the domain.
+          default: auth0-domain-verification=...
+        domain:
+          type: string
+          description: The name of the txt record for verification
+          default: _cf-custom-hostname.login.mycompany.com
+    CustomDomainTypeEnum:
       type: string
-      description: Custom domain verification method. Must be `txt`.
-      default: txt
-      enum:
-      - txt
-    CustomDomainProvisioningTypeEnum:
-      type: string
-      description: Custom domain provisioning type. Must be `auth0_managed_certs` or `self_managed_certs`.
+      description: Custom domain provisioning type. Can be `auth0_managed_certs` or `self_managed_certs`.
+      default: self_managed_certs
       enum:
       - auth0_managed_certs
       - self_managed_certs
-    CustomDomainCustomClientIpHeader:
-      oneOf:
-      - $ref: '#/components/schemas/CustomDomainCustomClientIpHeaderEnum'
-      - type: 'null'
     UpdateDefaultCustomDomainResponseContent:
       type: object
       additionalProperties: false
@@ -676,42 +1040,6 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    ListCustomDomainsPaginatedResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - custom_domains
-      properties:
-        custom_domains:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomDomain'
-        next:
-          type: string
-          description: A cursor to be used as the "from" query parameter for the next page of results.
-    DomainVerificationStatusEnum:
-      type: string
-      description: The DNS record verification status. This field is relevant only for Custom Domains with Auth0-Managed Certificates.
-      enum:
-      - verified
-      - pending
-      - failed
-    GetDefaultCanonicalDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - domain
-      properties:
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-    CustomDomainTlsPolicyEnum:
-      type: string
-      description: Custom domain TLS policy. Must be `recommended`, includes TLS 1.2.
-      default: recommended
-      enum:
-      - recommended
     UpdateDefaultCanonicalDomainResponseContent:
       type: object
       additionalProperties: false
@@ -722,84 +1050,6 @@ components:
           type: string
           description: Domain name.
           default: login.mycompany.com
-    CreateCustomDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - custom_domain_id
-      - domain
-      - primary
-      - status
-      - type
-      - verification
-      properties:
-        custom_domain_id:
-          type: string
-          description: ID of the custom domain.
-          default: cd_0000000000000001
-        domain:
-          type: string
-          description: Domain name.
-          default: login.mycompany.com
-        primary:
-          type: boolean
-          description: Whether this is a primary domain (true) or not (false).
-          default: false
-        is_default:
-          type: boolean
-          description: Whether this is the default custom domain (true) or not (false).
-          default: false
-        status:
-          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
-        type:
-          $ref: '#/components/schemas/CustomDomainTypeEnum'
-        verification:
-          $ref: '#/components/schemas/DomainVerification'
-        custom_client_ip_header:
-          type:
-          - string
-          - 'null'
-          description: The HTTP header to fetch the client's IP address
-        tls_policy:
-          type: string
-          description: The TLS version policy
-          default: recommended
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        certificate:
-          $ref: '#/components/schemas/DomainCertificate'
-        relying_party_identifier:
-          type: string
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
-          format: hostname
-    CustomDomainCustomClientIpHeaderEnum:
-      type: string
-      description: The HTTP header to fetch the client's IP address
-      default: true-client-ip
-      enum:
-      - true-client-ip
-      - cf-connecting-ip
-      - x-forwarded-for
-      - x-azure-clientip
-      - ''
-    UpdateCustomDomainRequestContent:
-      type: object
-      additionalProperties: false
-      properties:
-        tls_policy:
-          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
-          description: recommended includes TLS 1.2
-        custom_client_ip_header:
-          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        relying_party_identifier:
-          type:
-          - string
-          - 'null'
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. Set to null to remove the rpId and fall back to using the full domain.
-          maxLength: 255
-          format: hostname
     DomainVerificationMethodNameEnum:
       type: string
       description: Domain verification method.
@@ -807,21 +1057,6 @@ components:
       enum:
       - cname
       - txt
-    GetDefaultDomainResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/GetDefaultCustomDomainResponseContent'
-      - $ref: '#/components/schemas/GetDefaultCanonicalDomainResponseContent'
-    UpdateDefaultDomainResponseContent:
-      oneOf:
-      - $ref: '#/components/schemas/UpdateDefaultCustomDomainResponseContent'
-      - $ref: '#/components/schemas/UpdateDefaultCanonicalDomainResponseContent'
-    CustomDomainTypeEnum:
-      type: string
-      description: Custom domain provisioning type. Can be `auth0_managed_certs` or `self_managed_certs`.
-      default: self_managed_certs
-      enum:
-      - auth0_managed_certs
-      - self_managed_certs
     GetCustomDomainResponseContent:
       type: object
       additionalProperties: false
@@ -875,36 +1110,7 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    DomainCertificateAuthorityEnum:
-      type: string
-      description: The Certificate Authority issued the certificate.
-      enum:
-      - letsencrypt
-      - googletrust
-    TestCustomDomainResponseContent:
-      type: object
-      additionalProperties: false
-      required:
-      - success
-      properties:
-        success:
-          type: boolean
-          description: Result of the operation.
-        message:
-          type: string
-          description: Message describing the operation status.
-    SetDefaultCustomDomainRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - domain
-      properties:
-        domain:
-          type: string
-          description: The domain to set as the default custom domain. Must be a verified custom domain or the canonical domain.
-          minLength: 3
-          maxLength: 255
-    UpdateCustomDomainResponseContent:
+    CreateCustomDomainResponseContent:
       type: object
       additionalProperties: false
       required:
@@ -954,23 +1160,153 @@ components:
           type: string
           description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
           format: hostname
-    DomainVerificationMethod:
+    GetDefaultCanonicalDomainResponseContent:
       type: object
       additionalProperties: false
       required:
-      - name
-      - record
+      - domain
       properties:
-        name:
-          $ref: '#/components/schemas/DomainVerificationMethodNameEnum'
-        record:
-          type: string
-          description: Value used to verify the domain.
-          default: auth0-domain-verification=...
         domain:
           type: string
-          description: The name of the txt record for verification
-          default: _cf-custom-hostname.login.mycompany.com
+          description: Domain name.
+          default: login.mycompany.com
+    DomainMetadata:
+      type: object
+      description: Domain metadata associated with the custom domain, in the form of an object with string values (max 255 chars). Maximum of 10 domain metadata properties allowed.
+      additionalProperties:
+        type:
+        - string
+        - 'null'
+        maxLength: 255
+      maxProperties: 10
+    TestCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - success
+      properties:
+        success:
+          type: boolean
+          description: Result of the operation.
+        message:
+          type: string
+          description: Message describing the operation status.
+    DomainCertificate:
+      type: object
+      description: Certificate information. This object is relevant only for Custom Domains with Auth0-Managed Certificates.
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/DomainCertificateStatusEnum'
+        error_msg:
+          type: string
+          description: A user-friendly error message will be presented if the certificate status is provisioning_failed or renewing_failed.
+        certificate_authority:
+          $ref: '#/components/schemas/DomainCertificateAuthorityEnum'
+        renews_before:
+          type: string
+          description: The certificate will be renewed prior to this date.
+    CustomDomainTlsPolicyEnum:
+      type: string
+      description: Custom domain TLS policy. Must be `recommended`, includes TLS 1.2.
+      default: recommended
+      enum:
+      - recommended
+    ListCustomDomainsResponseContent:
+      oneOf:
+      - type: array
+        items:
+          $ref: '#/components/schemas/CustomDomain'
+      - $ref: '#/components/schemas/ListCustomDomainsPaginatedResponseContent'
+    ListCustomDomainsPaginatedResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domains
+      properties:
+        custom_domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomDomain'
+        next:
+          type: string
+          description: A cursor to be used as the "from" query parameter for the next page of results.
+    GetDefaultDomainResponseContent:
+      oneOf:
+      - $ref: '#/components/schemas/GetDefaultCustomDomainResponseContent'
+      - $ref: '#/components/schemas/GetDefaultCanonicalDomainResponseContent'
+    CustomDomainStatusFilterEnum:
+      type: string
+      description: Custom domain configuration status. Can be `failed`, `pending_verification`, or `ready`.
+      default: ready
+      enum:
+      - pending_verification
+      - ready
+      - failed
+    SetDefaultCustomDomainRequestContent:
+      type: object
+      additionalProperties: false
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          description: The domain to set as the default custom domain. Must be a verified custom domain or the canonical domain.
+          minLength: 3
+          maxLength: 255
+    GetDefaultCustomDomainResponseContent:
+      type: object
+      additionalProperties: false
+      required:
+      - custom_domain_id
+      - domain
+      - primary
+      - status
+      - type
+      properties:
+        custom_domain_id:
+          type: string
+          description: ID of the custom domain.
+          default: cd_0000000000000001
+        domain:
+          type: string
+          description: Domain name.
+          default: login.mycompany.com
+        primary:
+          type: boolean
+          description: Whether this is a primary domain (true) or not (false).
+          default: false
+        is_default:
+          type: boolean
+          description: Whether this is the default custom domain (true) or not (false).
+          default: false
+        status:
+          $ref: '#/components/schemas/CustomDomainStatusFilterEnum'
+        type:
+          $ref: '#/components/schemas/CustomDomainTypeEnum'
+        origin_domain_name:
+          type: string
+          description: Intermediate address.
+          default: mycompany_cd_0000000000000001.edge.tenants.auth0.com
+        verification:
+          $ref: '#/components/schemas/DomainVerification'
+        custom_client_ip_header:
+          type:
+          - string
+          - 'null'
+          description: The HTTP header to fetch the client's IP address
+        tls_policy:
+          type: string
+          description: The TLS version policy
+          default: recommended
+        domain_metadata:
+          $ref: '#/components/schemas/DomainMetadata'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        relying_party_identifier:
+          type: string
+          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not present, the full domain will be used.
+          format: hostname
     VerifyCustomDomainResponseContent:
       type: object
       additionalProperties: false
@@ -1020,74 +1356,12 @@ components:
           $ref: '#/components/schemas/DomainMetadata'
         certificate:
           $ref: '#/components/schemas/DomainCertificate'
-    CreateCustomDomainRequestContent:
-      type: object
-      additionalProperties: false
-      required:
-      - domain
-      - type
-      properties:
-        domain:
-          type: string
-          description: Domain name.
-          minLength: 3
-          maxLength: 255
-          pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])$
-        type:
-          $ref: '#/components/schemas/CustomDomainProvisioningTypeEnum'
-        verification_method:
-          $ref: '#/components/schemas/CustomDomainVerificationMethodEnum'
-        tls_policy:
-          $ref: '#/components/schemas/CustomDomainTlsPolicyEnum'
-        custom_client_ip_header:
-          $ref: '#/components/schemas/CustomDomainCustomClientIpHeader'
-        domain_metadata:
-          $ref: '#/components/schemas/DomainMetadata'
-        relying_party_identifier:
-          type: string
-          description: Relying Party ID (rpId) to be used for Passkeys on this custom domain. If not provided, the full domain will be used.
-          maxLength: 255
-          format: hostname
-    DomainMetadata:
-      type: object
-      description: Domain metadata associated with the custom domain, in the form of an object with string values (max 255 chars). Maximum of 10 domain metadata properties allowed.
-      additionalProperties:
-        type:
-        - string
-        - 'null'
-        maxLength: 255
-      maxProperties: 10
-    CustomDomainStatusFilterEnum:
+    CustomDomainProvisioningTypeEnum:
       type: string
-      description: Custom domain configuration status. Can be `failed`, `pending_verification`, or `ready`.
-      default: ready
+      description: Custom domain provisioning type. Must be `auth0_managed_certs` or `self_managed_certs`.
       enum:
-      - pending_verification
-      - ready
-      - failed
-    DomainCertificateStatusEnum:
-      type: string
-      description: The provisioning status of the certificate.
-      enum:
-      - provisioning
-      - provisioning_failed
-      - provisioned
-      - renewing_failed
-    DomainCertificate:
-      type: object
-      description: Certificate information. This object is relevant only for Custom Domains with Auth0-Managed Certificates.
-      additionalProperties: false
-      properties:
-        status:
-          $ref: '#/components/schemas/DomainCertificateStatusEnum'
-        error_msg:
-          type: string
-          description: A user-friendly error message will be presented if the certificate status is provisioning_failed or renewing_failed.
-        certificate_authority:
-          $ref: '#/components/schemas/DomainCertificateAuthorityEnum'
-        renews_before:
-          type: string
-          description: The certificate will be renewed prior to this date.
+      - auth0_managed_certs
+      - self_managed_certs
   securitySchemes:
     bearerAuth:
       type: http
@@ -1105,6 +1379,10 @@ components:
             read:actions: Read Actions
             update:actions: Update Actions
             delete:actions: Delete Actions
+            create:agents: Create Agents
+            read:agents: Read Agents
+            update:agents: Update Agents
+            delete:agents: Delete Agents
             read:anomaly_blocks: Read Anomaly Blocks
             delete:anomaly_blocks: Delete Anomaly Blocks
             read:attack_protection: Read Attack Protection
@@ -1181,8 +1459,10 @@ components:
             update:event_streams: Update Event Streams
             delete:event_streams: Delete Event Streams
             read:events: Read Events
-            read:federated_connections_tokens: Read Federated Connections Tokens
-            delete:federated_connections_tokens: Delete Federated Connections Tokens
+            create:experimentation: Create Experimentation
+            read:experimentation: Read Experimentation
+            update:experimentation: Update Experimentation
+            delete:experimentation: Delete Experimentation
             create:flows: Create Flows
             read:flows: Read Flows
             update:flows: Update Flows
@@ -1200,6 +1480,9 @@ components:
             read:grants: Read Grants
             delete:grants: Delete Grants
             read:group_members: Read Group Members
+            create:group_roles: Create Group Roles
+            read:group_roles: Read Group Roles
+            delete:group_roles: Delete Group Roles
             read:groups: Read Groups
             delete:groups: Delete Groups
             create:guardian_enrollment_tickets: Create Guardian Enrollment Tickets
@@ -1234,9 +1517,15 @@ components:
             read:organization_discovery_domains: Read Organization Discovery Domains
             update:organization_discovery_domains: Update Organization Discovery Domains
             delete:organization_discovery_domains: Delete Organization Discovery Domains
+            create:organization_group_roles: Create Organization Group Roles
+            read:organization_group_roles: Read Organization Group Roles
+            delete:organization_group_roles: Delete Organization Group Roles
+            read:organization_groups: Read Organization Groups
             create:organization_invitations: Create Organization Invitations
             read:organization_invitations: Read Organization Invitations
             delete:organization_invitations: Delete Organization Invitations
+            read:organization_member_effective_roles: Read Organization Member Effective Roles
+            read:organization_member_role_source_groups: Read Organization Member Role Source Groups
             create:organization_member_roles: Create Organization Member Roles
             read:organization_member_roles: Read Organization Member Roles
             delete:organization_member_roles: Delete Organization Member Roles
@@ -1258,6 +1547,10 @@ components:
             delete:phone_templates: Delete Phone Templates
             read:prompts: Read Prompts
             update:prompts: Update Prompts
+            create:rate_limit_policies: Create Rate Limit Policies
+            read:rate_limit_policies: Read Rate Limit Policies
+            update:rate_limit_policies: Update Rate Limit Policies
+            delete:rate_limit_policies: Delete Rate Limit Policies
             read:refresh_tokens: Read Refresh Tokens
             update:refresh_tokens: Update Refresh Tokens
             delete:refresh_tokens: Delete Refresh Tokens
@@ -1311,7 +1604,11 @@ components:
             read:user_attribute_profiles: Read User Attribute Profiles
             update:user_attribute_profiles: Update User Attribute Profiles
             delete:user_attribute_profiles: Delete User Attribute Profiles
+            read:user_effective_permissions: Read User Effective Permissions
+            read:user_effective_roles: Read User Effective Roles
             read:user_idp_tokens: Read User Idp Tokens
+            read:user_permission_source_roles: Read User Permission Source Roles
+            read:user_role_source_groups: Read User Role Source Groups
             create:user_tickets: Create User Tickets
             create:users: Create Users
             read:users: Read Users
@@ -1322,6 +1619,17 @@ components:
             read:vdcs_templates: Read Vdcs Templates
             update:vdcs_templates: Update Vdcs Templates
             delete:vdcs_templates: Delete Vdcs Templates
+            create:client_profiles: Create Client Profiles
+            read:client_profiles: Read Client Profiles
+            update:client_profiles: Update Client Profiles
+            delete:client_profiles: Delete Client Profiles
+            create:organization_clients: Create Organization Client Associations
+            read:organization_clients: Read Organization Client Associations
+            update:organization_clients: Update Organization Client Associations
+            delete:organization_clients: Delete Organization Client Associations
+            create:network_acl_keys: Create Network ACL Keys
+            read:network_acl_keys: Read Network ACL Keys
+            delete:network_acl_keys: Delete Network ACL Keys
 externalDocs:
   description: Auth0 Management API Documentation
   url: https://auth0.com/docs/api/management/v2/
