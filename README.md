@@ -1,4 +1,4 @@
-# Auth0 (auth0)
+# Auth0
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,222 +66,401 @@
 
 Auth0 (now part of Okta) is a leading identity-as-a-service platform providing authentication and authorization for applications, APIs, and AI agents. It implements OpenID Connect, OAuth 2.0, SAML 2.0, WS-Federation, and SCIM, and exposes a Management API (OpenAPI 3.1, 221 paths, 2,567 schemas), an Authentication API, a My Account API, a My Organization API, FGA (Fine-Grained Authorization, OpenFGA / Zanzibar-based), and Auth0 for AI Agents — covering Token Vault, asynchronous authorization, Auth for MCP, and FGA for RAG.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/auth0/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/auth0/refs/heads/main/apis.yml)
+**Areas:** Auth0 · AI Agents · Authentication · Authorization · FGA · Identity and Access Management · MCP · Okta · OpenID Connect · SAML · Security · SCIM
 
-## Scope
+## Auth0 on APIs.io
 
-- **Type:** Index
+Everything profiled for Auth0 is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/auth0/](https://apis.io/providers/auth0/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (75)
 
-- AI Agents
-- Authentication
-- Authorization
-- FGA
-- Identity Management
-- MCP
-- OAuth
-- Okta
-- OpenID Connect
-- SAML
-- Security
-- SCIM
+- [Auth0 My Account API](https://apis.io/apis/auth0/auth0-my-account-api/) — User self-service endpoints for managing authentication factors and account settings. Recently extended with ACR enforcement for sensitive scopes.
+- [Auth0 My Organization API](https://apis.io/apis/auth0/auth0-my-organization-api/) — Organization-scoped endpoints for B2B customers to manage their own Organizations — IdP configuration, SCIM provisioning, and Home Realm Discovery.
+- [Auth0 for AI Agents](https://apis.io/apis/auth0/auth0-for-ai-agents/) — Identity and authorization product line for AI agents. Bundles Token Vault (delegated API credentials for Google/GitHub/Slack etc.), asynchronous…
+- [Auth0 Actions API](https://apis.io/apis/auth0/auth0-actions-api/) — The actions API from Auth0 — 16 operation(s) for actions.
+- [Auth0 Anomaly API](https://apis.io/apis/auth0/auth0-anomaly-api/) — The anomaly API from Auth0 — 1 operation(s) for anomaly.
+- [Auth0 Assertions API](https://apis.io/apis/auth0/auth0-assertions-api/) — The Assertions API from Auth0 — 1 operation(s) for assertions.
+- [Auth0 Attack Protection API](https://apis.io/apis/auth0/auth0-attack-protection-api/) — The attack-protection API from Auth0 — 5 operation(s) for attack-protection.
+- [Auth0 Authorization Models API](https://apis.io/apis/auth0/auth0-authorization-models-api/) — The Authorization Models API from Auth0 — 2 operation(s) for authorization models.
+- [Auth0 Authorize User API](https://apis.io/apis/auth0/auth0-authorize-user-api/) — The Authorize User API from Auth0 — 1 operation(s) for authorize user.
+- [Auth0 AuthZenService API](https://apis.io/apis/auth0/auth0-authzenservice-api/) — The AuthZenService API from Auth0 — 6 operation(s) for authzenservice.
+- [Auth0 Branding API](https://apis.io/apis/auth0/auth0-branding-api/) — The branding API from Auth0 — 12 operation(s) for branding.
+- [Auth0 Client Grants API](https://apis.io/apis/auth0/auth0-client-grants-api/) — The client-grants API from Auth0 — 3 operation(s) for client-grants.
+- [Auth0 Clients API](https://apis.io/apis/auth0/auth0-clients-api/) — The clients API from Auth0 — 8 operation(s) for clients.
+- [Auth0 Connection Profiles API](https://apis.io/apis/auth0/auth0-connection-profiles-api/) — The connection-profiles API from Auth0 — 4 operation(s) for connection-profiles.
+- [Auth0 Connections API](https://apis.io/apis/auth0/auth0-connections-api/) — The connections API from Auth0 — 15 operation(s) for connections.
+- [Auth0 Connections Directory Provisionings API](https://apis.io/apis/auth0/auth0-connections-directory-provisionings-api/) — The connections-directory-provisionings API from Auth0 — 1 operation(s) for connections-directory-provisionings.
+- [Auth0 Connections SCIM Configurations API](https://apis.io/apis/auth0/auth0-connections-scim-configurations-api/) — The connections-scim-configurations API from Auth0 — 1 operation(s) for connections-scim-configurations.
+- [Auth0 Custom Domains API](https://apis.io/apis/auth0/auth0-custom-domains-api/) — The custom-domains API from Auth0 — 5 operation(s) for custom-domains.
+- [Auth0 DB Connections API](https://apis.io/apis/auth0/auth0-db-connections-api/) — The DB Connections API from Auth0 — 1 operation(s) for db connections.
+- [Auth0 Deprecated > Authenticate API](https://apis.io/apis/auth0/auth0-deprecated-authenticate-api/) — The Deprecated > Authenticate API from Auth0 — 2 operation(s) for deprecated > authenticate.
+- [Auth0 Deprecated > Delegated Authentication API](https://apis.io/apis/auth0/auth0-deprecated-delegated-authentication-api/) — The Deprecated > Delegated Authentication API from Auth0 — 1 operation(s) for deprecated > delegated authentication.
+- [Auth0 Deprecated > Impersonation API](https://apis.io/apis/auth0/auth0-deprecated-impersonation-api/) — The Deprecated > Impersonation API from Auth0 — 1 operation(s) for deprecated > impersonation.
+- [Auth0 Deprecated > Link Accounts API](https://apis.io/apis/auth0/auth0-deprecated-link-accounts-api/) — The Deprecated > Link Accounts API from Auth0 — 1 operation(s) for deprecated > link accounts.
+- [Auth0 Deprecated > Passwordless API](https://apis.io/apis/auth0/auth0-deprecated-passwordless-api/) — The Deprecated > Passwordless API from Auth0 — 2 operation(s) for deprecated > passwordless.
+- [Auth0 Device Credentials API](https://apis.io/apis/auth0/auth0-device-credentials-api/) — The device-credentials API from Auth0 — 2 operation(s) for device-credentials.
+- [Auth0 Device Flow API](https://apis.io/apis/auth0/auth0-device-flow-api/) — The Device Flow API from Auth0 — 1 operation(s) for device flow.
+- [Auth0 Email Templates API](https://apis.io/apis/auth0/auth0-email-templates-api/) — The email-templates API from Auth0 — 2 operation(s) for email-templates.
+- [Auth0 Emails API](https://apis.io/apis/auth0/auth0-emails-api/) — The emails API from Auth0 — 1 operation(s) for emails.
+- [Auth0 Event Streams API](https://apis.io/apis/auth0/auth0-event-streams-api/) — The event-streams API from Auth0 — 7 operation(s) for event-streams.
+- [Auth0 Events API](https://apis.io/apis/auth0/auth0-events-api/) — The events API from Auth0 — 1 operation(s) for events.
+- [Auth0 Flows API](https://apis.io/apis/auth0/auth0-flows-api/) — The flows API from Auth0 — 6 operation(s) for flows.
+- [Auth0 Forms API](https://apis.io/apis/auth0/auth0-forms-api/) — The forms API from Auth0 — 2 operation(s) for forms.
+- [Auth0 Grants API](https://apis.io/apis/auth0/auth0-grants-api/) — The grants API from Auth0 — 2 operation(s) for grants.
+- [Auth0 Groups API](https://apis.io/apis/auth0/auth0-groups-api/) — The groups API from Auth0 — 3 operation(s) for groups.
+- [Auth0 Guardian API](https://apis.io/apis/auth0/auth0-guardian-api/) — The guardian API from Auth0 — 18 operation(s) for guardian.
+- [Auth0 Hooks API](https://apis.io/apis/auth0/auth0-hooks-api/) — The hooks API from Auth0 — 3 operation(s) for hooks.
+- [Auth0 Jobs API](https://apis.io/apis/auth0/auth0-jobs-api/) — The jobs API from Auth0 — 5 operation(s) for jobs.
+- [Auth0 Keys API](https://apis.io/apis/auth0/auth0-keys-api/) — The keys API from Auth0 — 9 operation(s) for keys.
+- [Auth0 Log Streams API](https://apis.io/apis/auth0/auth0-log-streams-api/) — The log-streams API from Auth0 — 2 operation(s) for log-streams.
+- [Auth0 Logout API](https://apis.io/apis/auth0/auth0-logout-api/) — The Logout API from Auth0 — 3 operation(s) for logout.
+- [Auth0 Logs API](https://apis.io/apis/auth0/auth0-logs-api/) — The logs API from Auth0 — 2 operation(s) for logs.
+- [Auth0 MFA API](https://apis.io/apis/auth0/auth0-mfa-api/) — The MFA API from Auth0 — 4 operation(s) for mfa.
+- [Auth0 Network Acls API](https://apis.io/apis/auth0/auth0-network-acls-api/) — The network-acls API from Auth0 — 2 operation(s) for network-acls.
+- [Auth0 OAuth Token API](https://apis.io/apis/auth0/auth0-oauth-token-api/) — The OAuth Token API from Auth0 — 1 operation(s) for oauth token.
+- [Auth0 OIDC API](https://apis.io/apis/auth0/auth0-oidc-api/) — The OIDC API from Auth0 — 1 operation(s) for oidc.
+- [Auth0 Organizations API](https://apis.io/apis/auth0/auth0-organizations-api/) — The organizations API from Auth0 — 16 operation(s) for organizations.
+- [Auth0 Passwordless API](https://apis.io/apis/auth0/auth0-passwordless-api/) — The Passwordless API from Auth0 — 1 operation(s) for passwordless.
+- [Auth0 Prompts API](https://apis.io/apis/auth0/auth0-prompts-api/) — The prompts API from Auth0 — 5 operation(s) for prompts.
+- [Auth0 Refresh Tokens API](https://apis.io/apis/auth0/auth0-refresh-tokens-api/) — The refresh-tokens API from Auth0 — 3 operation(s) for refresh-tokens.
+- [Auth0 Relationship Queries API](https://apis.io/apis/auth0/auth0-relationship-queries-api/) — The Relationship Queries API from Auth0 — 6 operation(s) for relationship queries.
+- [Auth0 Relationship Tuples API](https://apis.io/apis/auth0/auth0-relationship-tuples-api/) — The Relationship Tuples API from Auth0 — 3 operation(s) for relationship tuples.
+- [Auth0 Resource Servers API](https://apis.io/apis/auth0/auth0-resource-servers-api/) — The resource-servers API from Auth0 — 2 operation(s) for resource-servers.
+- [Auth0 Revoke Refresh Token API](https://apis.io/apis/auth0/auth0-revoke-refresh-token-api/) — The Revoke Refresh Token API from Auth0 — 1 operation(s) for revoke refresh token.
+- [Auth0 Risk Assessments API](https://apis.io/apis/auth0/auth0-risk-assessments-api/) — The risk-assessments API from Auth0 — 2 operation(s) for risk-assessments.
+- [Auth0 Roles API](https://apis.io/apis/auth0/auth0-roles-api/) — The roles API from Auth0 — 4 operation(s) for roles.
+- [Auth0 Rules API](https://apis.io/apis/auth0/auth0-rules-api/) — The rules API from Auth0 — 2 operation(s) for rules.
+- [Auth0 Rules Configs API](https://apis.io/apis/auth0/auth0-rules-configs-api/) — The rules-configs API from Auth0 — 2 operation(s) for rules-configs.
+- [Auth0 SAML API](https://apis.io/apis/auth0/auth0-saml-api/) — The SAML API from Auth0 — 2 operation(s) for saml.
+- [Auth0 Self Service Profiles API](https://apis.io/apis/auth0/auth0-self-service-profiles-api/) — The self-service-profiles API from Auth0 — 5 operation(s) for self-service-profiles.
+- [Auth0 Sessions API](https://apis.io/apis/auth0/auth0-sessions-api/) — The sessions API from Auth0 — 2 operation(s) for sessions.
+- [Auth0 SSO API](https://apis.io/apis/auth0/auth0-sso-api/) — The SSO API from Auth0 — 1 operation(s) for sso.
+- [Auth0 Stats API](https://apis.io/apis/auth0/auth0-stats-api/) — The stats API from Auth0 — 2 operation(s) for stats.
+- [Auth0 Stores API](https://apis.io/apis/auth0/auth0-stores-api/) — The Stores API from Auth0 — 2 operation(s) for stores.
+- [Auth0 Supplemental Signals API](https://apis.io/apis/auth0/auth0-supplemental-signals-api/) — The supplemental-signals API from Auth0 — 1 operation(s) for supplemental-signals.
+- [Auth0 Tenants API](https://apis.io/apis/auth0/auth0-tenants-api/) — The tenants API from Auth0 — 1 operation(s) for tenants.
+- [Auth0 Tickets API](https://apis.io/apis/auth0/auth0-tickets-api/) — The tickets API from Auth0 — 2 operation(s) for tickets.
+- [Auth0 Token Exchange Profiles API](https://apis.io/apis/auth0/auth0-token-exchange-profiles-api/) — The token-exchange-profiles API from Auth0 — 2 operation(s) for token-exchange-profiles.
+- [Auth0 User Attribute Profiles API](https://apis.io/apis/auth0/auth0-user-attribute-profiles-api/) — The user-attribute-profiles API from Auth0 — 4 operation(s) for user-attribute-profiles.
+- [Auth0 User Blocks API](https://apis.io/apis/auth0/auth0-user-blocks-api/) — The user-blocks API from Auth0 — 2 operation(s) for user-blocks.
+- [Auth0 User Profile API](https://apis.io/apis/auth0/auth0-user-profile-api/) — The User Profile API from Auth0 — 1 operation(s) for user profile.
+- [Auth0 Users API](https://apis.io/apis/auth0/auth0-users-api/) — The users API from Auth0 — 23 operation(s) for users.
+- [Auth0 Users By Email API](https://apis.io/apis/auth0/auth0-users-by-email-api/) — The users-by-email API from Auth0 — 1 operation(s) for users-by-email.
+- [Auth0 Verifiable Credentials API](https://apis.io/apis/auth0/auth0-verifiable-credentials-api/) — The verifiable-credentials API from Auth0 — 2 operation(s) for verifiable-credentials.
+- [Auth0 WS-Fed API](https://apis.io/apis/auth0/auth0-ws-fed-api/) — The WS-Fed API from Auth0 — 1 operation(s) for ws-fed.
+- [Auth0 WS-Federation API](https://apis.io/apis/auth0/auth0-ws-federation-api/) — The WS-Federation API from Auth0 — 1 operation(s) for ws-federation.
 
-## Timestamps
+### Published properties
 
-- **Created:** 2024-04-14
-- **Modified:** 2026-05-30
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### Arazzo workflows (19)
 
-### Auth0 Management API
+Multi-step workflows that chain operations into a business task.
 
-Comprehensive administrative API for managing Auth0 tenants — users, clients, connections, organizations, actions, event streams, branding, logs, roles, resource servers, and more. Published as OpenAPI 3.1 (Beta) with 221 paths and 2,567 schemas. Requires Management API access tokens (Bearer JWT or OAuth 2.0 client credentials).
+- [Auth0 Create Client, Create Connection and Enable](https://apis.io/arazzos/auth0/auth0-create-client-create-connection-enable-workflow/)
+- [Auth0 Create Client and Grant Access to an Existing API](https://apis.io/arazzos/auth0/auth0-create-client-grant-to-api-workflow/)
+- [Auth0 Create Connection and Enable for a Client](https://apis.io/arazzos/auth0/auth0-create-connection-enable-client-workflow/)
+- [Auth0 Create Organization and Add Connection](https://apis.io/arazzos/auth0/auth0-create-org-add-connection-workflow/)
+- [Auth0 Create Organization and Add Members](https://apis.io/arazzos/auth0/auth0-create-org-add-members-workflow/)
+- [Auth0 Create Organization, Add Member and Assign Member Roles](https://apis.io/arazzos/auth0/auth0-create-org-assign-member-roles-workflow/)
+- [Auth0 Create Organization, Attach Connection and Invite a User](https://apis.io/arazzos/auth0/auth0-create-org-connection-and-invite-workflow/)
+- [Auth0 Create API, Role and Bind Permissions](https://apis.io/arazzos/auth0/auth0-create-resource-server-role-permissions-workflow/)
+- [Auth0 Create Role and Add Permissions](https://apis.io/arazzos/auth0/auth0-create-role-add-permissions-workflow/)
+- [Auth0 Create Role and Assign to a User](https://apis.io/arazzos/auth0/auth0-create-role-assign-to-user-workflow/)
+- [Auth0 Create User, Add to Organization with Roles](https://apis.io/arazzos/auth0/auth0-create-user-add-to-org-with-roles-workflow/)
+- [Auth0 Create User and Assign Direct Permissions](https://apis.io/arazzos/auth0/auth0-create-user-assign-permissions-workflow/)
+- [Auth0 Create User and Assign Roles](https://apis.io/arazzos/auth0/auth0-create-user-assign-roles-workflow/)
+- [Auth0 Find Role by Name and Assign Users](https://apis.io/arazzos/auth0/auth0-find-role-assign-users-workflow/)
+- [Auth0 Find User by Email and Add to an Organization](https://apis.io/arazzos/auth0/auth0-find-user-add-to-org-workflow/)
+- [Auth0 Find User by Email and Assign Role](https://apis.io/arazzos/auth0/auth0-find-user-assign-role-workflow/)
+- [Auth0 Create Organization and Invite a User](https://apis.io/arazzos/auth0/auth0-invite-user-to-org-workflow/)
+- [Auth0 Offboard User and Revoke Grants](https://apis.io/arazzos/auth0/auth0-offboard-user-revoke-grants-workflow/)
+- [Auth0 Provision Machine-to-Machine Application](https://apis.io/arazzos/auth0/auth0-provision-m2m-app-workflow/)
 
-- **Human URL:** [https://auth0.com/docs/api/management/v2](https://auth0.com/docs/api/management/v2)
-- **Base URL:** `https://your-tenant.auth0.com/api/v2`
+#### AsyncAPI (1)
 
-#### Tags
+Event-driven and webhook contracts.
 
-- Authentication
-- Identity
-- Management
-- User Management
+- [Auth0 Log Streams and Actions Event Delivery](https://apis.io/asyncapis/auth0/auth0-log-streams-and-actions-asyncapi/)
 
-#### Properties
+#### Event channels (9)
 
-- [Documentation](https://auth0.com/docs/api/management/v2)
-- [API Reference](https://auth0.com/docs/api/management/v2)
-- [Getting Started](https://auth0.com/docs/get-started)
-- [Authentication](https://auth0.com/docs/secure/tokens)
-- [OpenAPI](openapi/auth0-management-api-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/auth0-management-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-management-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Open A P I Source](https://auth0.com/docs/api/management/openapi.json)
-- [AsyncAPI](asyncapi/auth0-log-streams-and-actions-asyncapi.yml) — [AsyncAPI Specification](https://www.asyncapi.com/docs/reference/specification/latest)
-- [Spectral Rules](rules/auth0-management-rules.yml)
+Individual events and webhooks the provider emits.
 
-### Auth0 Authentication API
+- [/auth0/actions/credentials-exchange](https://apis.io/channels/auth0/auth0-actions-credentials-exchange/)
+- [/auth0/actions/custom-token-exchange](https://apis.io/channels/auth0/auth0-actions-custom-token-exchange/)
+- [/auth0/actions/password-reset-post-challenge](https://apis.io/channels/auth0/auth0-actions-password-reset-post-challenge/)
+- [/auth0/actions/post-change-password](https://apis.io/channels/auth0/auth0-actions-post-change-password/)
+- [/auth0/actions/post-login](https://apis.io/channels/auth0/auth0-actions-post-login/)
+- [/auth0/actions/post-user-registration](https://apis.io/channels/auth0/auth0-actions-post-user-registration/)
+- [/auth0/actions/pre-user-registration](https://apis.io/channels/auth0/auth0-actions-pre-user-registration/)
+- [/auth0/actions/send-phone-message](https://apis.io/channels/auth0/auth0-actions-send-phone-message/)
+- [/auth0/log-stream](https://apis.io/channels/auth0/auth0-log-stream/)
 
-Authentication endpoints implementing OpenID Connect, OAuth 2.0, SAML 2.0, WS-Federation, and Passwordless. Covers /authorize, /oauth/token (including Token Exchange and Device Code), /v2/logout, /samlp/*, /mfa/*, /passwordless/*, /userinfo, and /dbconnections/*.
+#### GraphQL (1)
 
-- **Human URL:** [https://auth0.com/docs/api/authentication](https://auth0.com/docs/api/authentication)
-- **Base URL:** `https://your-tenant.auth0.com`
+GraphQL schemas.
 
-#### Tags
+- [Moved to /providers/auth0/](https://apis.io/graphqls/auth0/auth0-graphql/)
 
-- Authentication
-- OAuth
-- OpenID Connect
-- SAML
-- WS-Federation
-- Passwordless
-- MFA
+#### MCP servers (1)
 
-#### Properties
+Model Context Protocol servers that expose the API to agents.
 
-- [Documentation](https://auth0.com/docs/api/authentication)
-- [API Reference](https://auth0.com/docs/api/authentication)
-- [OpenAPI](openapi/auth0-authentication-api-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/auth0-authentication-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-authentication-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Spectral Rules](rules/auth0-authentication-rules.yml)
+- [auth0-mcp-server](https://apis.io/servers/auth0/auth0-mcp-server/)
 
-### Auth0 My Account API
+#### Agentic access (1)
 
-User self-service endpoints for managing authentication factors and account settings. Recently extended with ACR enforcement for sensitive scopes.
+Which operations an agent can call, which act, and which need a human in the loop.
 
-- **Human URL:** [https://auth0.com/docs/api/myaccount](https://auth0.com/docs/api/myaccount)
-- **Base URL:** `https://your-tenant.auth0.com`
+- [Auth0 Agentic Access](https://apis.io/agentic-access/auth0/auth0-agentic-access/)
 
-#### Tags
+#### JSON Schema (2544)
 
-- Account Management
-- Authentication
-- MFA
-- Self-Service
+The data models the API reads and writes.
 
-#### Properties
+- [Auth0 Action](https://apis.io/schemas/auth0/auth0-action/)
+- [ActionBase](https://apis.io/schemas/auth0/auth0-actionbase/)
+- [ActionBinding](https://apis.io/schemas/auth0/auth0-actionbinding/)
+- [ActionBindingRef](https://apis.io/schemas/auth0/auth0-actionbindingref/)
+- [ActionBindingRefTypeEnum](https://apis.io/schemas/auth0/auth0-actionbindingreftypeenum/)
+- [ActionBindingTypeEnum](https://apis.io/schemas/auth0/auth0-actionbindingtypeenum/)
+- [ActionBindingWithRef](https://apis.io/schemas/auth0/auth0-actionbindingwithref/)
+- [ActionBuildStatusEnum](https://apis.io/schemas/auth0/auth0-actionbuildstatusenum/)
+- [ActionDeployedVersion](https://apis.io/schemas/auth0/auth0-actiondeployedversion/)
+- [ActionError](https://apis.io/schemas/auth0/auth0-actionerror/)
+- [ActionExecutionResult](https://apis.io/schemas/auth0/auth0-actionexecutionresult/)
+- [ActionExecutionStatusEnum](https://apis.io/schemas/auth0/auth0-actionexecutionstatusenum/)
+- [ActionModuleAction](https://apis.io/schemas/auth0/auth0-actionmoduleaction/)
+- [ActionModuleDependency](https://apis.io/schemas/auth0/auth0-actionmoduledependency/)
+- [ActionModuleDependencyRequest](https://apis.io/schemas/auth0/auth0-actionmoduledependencyrequest/)
+- [ActionModuleListItem](https://apis.io/schemas/auth0/auth0-actionmodulelistitem/)
+- [ActionModuleReference](https://apis.io/schemas/auth0/auth0-actionmodulereference/)
+- [ActionModuleSecret](https://apis.io/schemas/auth0/auth0-actionmodulesecret/)
+- [ActionModuleSecretRequest](https://apis.io/schemas/auth0/auth0-actionmodulesecretrequest/)
+- [ActionModuleVersion](https://apis.io/schemas/auth0/auth0-actionmoduleversion/)
+- [ActionModuleVersionReference](https://apis.io/schemas/auth0/auth0-actionmoduleversionreference/)
+- [ActionSecretRequest](https://apis.io/schemas/auth0/auth0-actionsecretrequest/)
+- [ActionSecretResponse](https://apis.io/schemas/auth0/auth0-actionsecretresponse/)
+- [ActionTrigger](https://apis.io/schemas/auth0/auth0-actiontrigger/)
+- [ActionTriggerCompatibleTrigger](https://apis.io/schemas/auth0/auth0-actiontriggercompatibletrigger/)
+- …and 2519 more published on APIs.io
 
-- [Documentation](https://auth0.com/docs/api/myaccount)
-- [Postman Collection](collections/auth0-authentication-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-authentication-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Postman Collection](collections/auth0-fga.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-fga.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Postman Collection](collections/auth0-management-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-management-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+#### JSON Structure (13)
 
-### Auth0 My Organization API
+Data models expressed in JSON Structure.
 
-Organization-scoped endpoints for B2B customers to manage their own Organizations — IdP configuration, SCIM provisioning, and Home Realm Discovery.
+- [Auth0 Action Structure](https://apis.io/json-structure/auth0/auth0-action-structure/)
+- [Auth0 Client Structure](https://apis.io/json-structure/auth0/auth0-client-structure/)
+- [Auth0 Connection Structure](https://apis.io/json-structure/auth0/auth0-connection-structure/)
+- [Auth0 Eventstream Structure](https://apis.io/json-structure/auth0/auth0-eventstream-structure/)
+- [Auth0 Fga Model Structure](https://apis.io/json-structure/auth0/auth0-fga-model-structure/)
+- [Auth0 Fga Tuple Structure](https://apis.io/json-structure/auth0/auth0-fga-tuple-structure/)
+- [Auth0 Organization Member Structure](https://apis.io/json-structure/auth0/auth0-organization-member-structure/)
+- [Auth0 Organization Structure](https://apis.io/json-structure/auth0/auth0-organization-structure/)
+- [Auth0 Resourceserver Structure](https://apis.io/json-structure/auth0/auth0-resourceserver-structure/)
+- [Auth0 Role Structure](https://apis.io/json-structure/auth0/auth0-role-structure/)
+- [Auth0 Structure](https://apis.io/json-structure/auth0/auth0-structure/)
+- [Auth0 Tenant Structure](https://apis.io/json-structure/auth0/auth0-tenant-structure/)
+- [Auth0 User Structure](https://apis.io/json-structure/auth0/auth0-user-structure/)
 
-- **Human URL:** [https://auth0.com/docs/api/myorganization](https://auth0.com/docs/api/myorganization)
-- **Base URL:** `https://your-tenant.auth0.com`
+#### JSON-LD (1)
 
-#### Tags
+Linked-data contexts for the provider's vocabulary.
 
-- Authentication
-- B2B
-- Identity
-- Organizations
-- SCIM
+- [Auth0 Context](https://apis.io/jsonld/auth0/auth0-context/)
 
-#### Properties
+#### Vocabulary (1)
 
-- [Documentation](https://auth0.com/docs/api/myorganization)
-- [Postman Collection](collections/auth0-authentication-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-authentication-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Postman Collection](collections/auth0-fga.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-fga.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Postman Collection](collections/auth0-management-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-management-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+The provider's domain terms, defined.
 
-### Auth0 FGA (Fine-Grained Authorization)
+- [Auth0 Vocabulary](https://apis.io/vocabularies/auth0/auth0-vocabulary/)
 
-Auth0 FGA is the hosted offering of OpenFGA, the CNCF authorization service inspired by Google's Zanzibar. Provides relationship-based access control via stores, authorization models, tuples, check, expand, list-objects, and list-users endpoints. Used for B2B hierarchical permissions and FGA for RAG in AI agent retrieval pipelines.
+#### Examples (6)
 
-- **Human URL:** [https://docs.fga.dev](https://docs.fga.dev)
-- **Base URL:** `https://api.{region}.fga.dev`
+Example requests and responses.
 
-#### Tags
+- [Auth0 Authorize Pkce Example](https://apis.io/examples/auth0/auth0-authorize-pkce-example/)
+- [Auth0 Fga Check Example](https://apis.io/examples/auth0/auth0-fga-check-example/)
+- [Auth0 Mcp Server Init Example](https://apis.io/examples/auth0/auth0-mcp-server-init-example/)
+- [Auth0 Oauth Token Client Credentials Example](https://apis.io/examples/auth0/auth0-oauth-token-client-credentials-example/)
+- [Auth0 Organization Create Example](https://apis.io/examples/auth0/auth0-organization-create-example/)
+- [Auth0 User Create Example](https://apis.io/examples/auth0/auth0-user-create-example/)
 
-- Authorization
-- FGA
-- OpenFGA
-- Zanzibar
-- ReBAC
+#### Collections (79)
 
-#### Properties
+Postman and Open Collection request collections.
 
-- [Documentation](https://docs.fga.dev)
-- [OpenAPI](openapi/auth0-fga-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/auth0-fga.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-fga.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Spectral Rules](rules/auth0-fga-rules.yml)
-- [Project](https://openfga.dev)
-- [Repository](https://github.com/openfga/openfga)
+- [Auth0 Authentication actions API](https://apis.io/collections/auth0/open-auth0-actions-api/)
+- [Auth0 Authentication actions anomaly API](https://apis.io/collections/auth0/open-auth0-anomaly-api/)
+- [Auth0 Authentication actions Assertions API](https://apis.io/collections/auth0/open-auth0-assertions-api/)
+- [Auth0 Authentication actions attack-protection API](https://apis.io/collections/auth0/open-auth0-attack-protection-api/)
+- [Auth0 Authentication API](https://apis.io/collections/auth0/open-auth0-authentication-api/)
+- [Auth0 Authentication actions Authorization Models API](https://apis.io/collections/auth0/open-auth0-authorization-models-api/)
+- [Auth0 Authentication actions Authorize User API](https://apis.io/collections/auth0/open-auth0-authorize-user-api/)
+- [Auth0 Authentication actions AuthZenService API](https://apis.io/collections/auth0/open-auth0-authzenservice-api/)
+- [Auth0 Authentication actions branding API](https://apis.io/collections/auth0/open-auth0-branding-api/)
+- [Auth0 Authentication actions client-grants API](https://apis.io/collections/auth0/open-auth0-client-grants-api/)
+- [Auth0 Authentication actions clients API](https://apis.io/collections/auth0/open-auth0-clients-api/)
+- [Auth0 Authentication actions connection-profiles API](https://apis.io/collections/auth0/open-auth0-connection-profiles-api/)
+- [Auth0 Authentication actions connections API](https://apis.io/collections/auth0/open-auth0-connections-api/)
+- [Auth0 Authentication actions connections-directory-provisionings API](https://apis.io/collections/auth0/open-auth0-connections-directory-provisionings-api/)
+- [Auth0 Authentication actions connections-scim-configurations API](https://apis.io/collections/auth0/open-auth0-connections-scim-configurations-api/)
+- [Auth0 Authentication actions custom-domains API](https://apis.io/collections/auth0/open-auth0-custom-domains-api/)
+- [Auth0 Authentication actions DB Connections API](https://apis.io/collections/auth0/open-auth0-db-connections-api/)
+- [Auth0 Authentication actions DbConnections API](https://apis.io/collections/auth0/open-auth0-dbconnections-api/)
+- [Auth0 Authentication actions Deprecated > Authenticate API](https://apis.io/collections/auth0/open-auth0-deprecated-authenticate-api/)
+- [Auth0 Authentication actions Deprecated > Delegated Authentication API](https://apis.io/collections/auth0/open-auth0-deprecated-delegated-authentication-api/)
+- [Auth0 Authentication actions Deprecated > Impersonation API](https://apis.io/collections/auth0/open-auth0-deprecated-impersonation-api/)
+- [Auth0 Authentication actions Deprecated > Link Accounts API](https://apis.io/collections/auth0/open-auth0-deprecated-link-accounts-api/)
+- [Auth0 Authentication actions Deprecated > Passwordless API](https://apis.io/collections/auth0/open-auth0-deprecated-passwordless-api/)
+- [Auth0 Authentication actions device-credentials API](https://apis.io/collections/auth0/open-auth0-device-credentials-api/)
+- [Auth0 Authentication actions Device Flow API](https://apis.io/collections/auth0/open-auth0-device-flow-api/)
+- …and 54 more published on APIs.io
 
-### Auth0 for AI Agents
+#### Overlays (72)
 
-Identity and authorization product line for AI agents. Bundles Token Vault (delegated API credentials for Google/GitHub/Slack etc.), asynchronous authorization (human-in-the-loop), Fine-Grained Authorization for RAG, and Auth for MCP (Client ID Metadata Registration + On-Behalf-Of Token Exchange + Resource Parameter Compatibility Mode). GA as of 2026.
+OpenAPI overlays, including conversational phrasing for each operation.
 
-- **Human URL:** [https://auth0.com/ai](https://auth0.com/ai)
+- [Auth0 Actions Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-actions-api-phrasing-overlay/)
+- [Auth0 Anomaly Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-anomaly-api-phrasing-overlay/)
+- [Auth0 Assertions Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-assertions-api-phrasing-overlay/)
+- [Auth0 Attack Protection Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-attack-protection-api-phrasing-overlay/)
+- [Auth0 Authorization Models Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-authorization-models-api-phrasing-overlay/)
+- [Auth0 Authorize User Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-authorize-user-api-phrasing-overlay/)
+- [Auth0 Authzenservice Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-authzenservice-api-phrasing-overlay/)
+- [Auth0 Branding Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-branding-api-phrasing-overlay/)
+- [Auth0 Client Grants Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-client-grants-api-phrasing-overlay/)
+- [Auth0 Clients Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-clients-api-phrasing-overlay/)
+- [Auth0 Connection Profiles Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-connection-profiles-api-phrasing-overlay/)
+- [Auth0 Connections Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-connections-api-phrasing-overlay/)
+- [Auth0 Connections Directory Provisionings Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-connections-directory-provisionings-api-phrasing-overlay/)
+- [Auth0 Connections Scim Configurations Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-connections-scim-configurations-api-phrasing-overlay/)
+- [Auth0 Custom Domains Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-custom-domains-api-phrasing-overlay/)
+- [Auth0 Db Connections Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-db-connections-api-phrasing-overlay/)
+- [Auth0 Deprecated Authenticate Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-deprecated-authenticate-api-phrasing-overlay/)
+- [Auth0 Deprecated Delegated Authentication Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-deprecated-delegated-authentication-api-phrasing-overlay/)
+- [Auth0 Deprecated Impersonation Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-deprecated-impersonation-api-phrasing-overlay/)
+- [Auth0 Deprecated Link Accounts Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-deprecated-link-accounts-api-phrasing-overlay/)
+- [Auth0 Deprecated Passwordless Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-deprecated-passwordless-api-phrasing-overlay/)
+- [Auth0 Device Credentials Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-device-credentials-api-phrasing-overlay/)
+- [Auth0 Device Flow Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-device-flow-api-phrasing-overlay/)
+- [Auth0 Email Templates Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-email-templates-api-phrasing-overlay/)
+- [Auth0 Emails Api Phrasing Overlay](https://apis.io/overlays/auth0/auth0-emails-api-phrasing-overlay/)
+- …and 47 more published on APIs.io
 
-#### Tags
+#### Governance rules (5)
 
-- AI Agents
-- MCP
-- Token Vault
-- GenAI
-- RAG
+Spectral rulesets for the provider's contracts.
 
-#### Properties
+- [Auth0 — asyncapi rules](https://apis.io/rules/auth0/auth0-asyncapi-spectral-rules/)
+- [Auth0 — authentication rules](https://apis.io/rules/auth0/auth0-authentication-rules/)
+- [Auth0 — fga rules](https://apis.io/rules/auth0/auth0-fga-rules/)
+- [Auth0 — jsonschema rules](https://apis.io/rules/auth0/auth0-jsonschema-spectral-rules/)
+- [Auth0 — management rules](https://apis.io/rules/auth0/auth0-management-rules/)
 
-- [Documentation](https://auth0.com/ai)
-- [M C P Server](https://github.com/auth0/auth0-mcp-server)
-- [Agent Skill](https://github.com/auth0/agent-skills)
-- [SDK](https://auth0.com/docs/libraries)
-- [Postman Collection](collections/auth0-authentication-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-authentication-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Postman Collection](collections/auth0-fga.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-fga.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [Postman Collection](collections/auth0-management-api.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/auth0-management-api.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+#### Security (4)
 
-## Common Properties
+Authentication, trust centre, and vulnerability disclosure.
 
-- [Arazzo Workflows](arazzo/) — [Arazzo Specification](https://spec.openapis.org/arazzo/latest.html)
-- [LinkedIn](https://www.linkedin.com/company/auth0)
+- [Auth0 Authentication](https://apis.io/security/auth0/auth0-authentication/)
+- [Auth0 Domain Security](https://apis.io/security/auth0/auth0-domain-security/)
+- [Auth0 Trust Center](https://apis.io/security/auth0/auth0-trust-center/)
+- [Auth0 Vulnerability Disclosure](https://apis.io/security/auth0/auth0-vulnerability-disclosure/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Auth0 Scopes](https://apis.io/scopes/auth0/auth0-scopes/)
+
+#### Plans and pricing (2)
+
+Published plans, tiers and prices.
+
+- [Auth0 Plans Pricing](https://apis.io/plans/auth0/auth0-plans-pricing/)
+- [Auth0 Price Estimates](https://apis.io/plans/auth0/auth0-price-estimates/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Auth0 Rate Limits](https://apis.io/rate-limits/auth0/auth0-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Auth0 Finops](https://apis.io/finops/auth0/auth0-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://auth0.com/)
 - [Documentation](https://auth0.com/docs/)
-- [Getting Started](https://auth0.com/docs/get-started)
-- [Blog](https://auth0.com/blog/)
-- [Sign Up](https://auth0.com/signup)
-- [Login](https://manage.auth0.com/)
+- [Getting started](https://auth0.com/docs/get-started)
 - [Pricing](https://auth0.com/pricing)
-- [Plans](plans/auth0-plans-pricing.yml)
-- [Rate Limits](rate-limits/auth0-rate-limits.yml)
-- [Fin Ops](finops/auth0-finops.yml)
-- [GitHub Organization](https://github.com/auth0)
-- [Status Page](https://status.auth0.com/)
-- [Community](https://community.auth0.com/)
 - [Support](https://support.auth0.com/)
-- [Terms of Service](https://auth0.com/legal/tos)
-- [Privacy Policy](https://auth0.com/privacy)
-- [SDK](https://auth0.com/docs/libraries)
 - [Changelog](https://auth0.com/changelog)
-- [A I](https://auth0.com/ai)
-- [M C P Server](https://github.com/auth0/auth0-mcp-server)
-- [Agent Skill](https://github.com/auth0/agent-skills)
-- [Vocabulary](vocabulary/auth0-vocabulary.yml)
-- [JSON-LD](json-ld/auth0-context.jsonld) — [JSON-LD](https://www.w3.org/TR/json-ld11/)
-- [S D K Languages](undefined)
-- [Features](undefined)
-- [Use Cases](undefined)
-- [Integrations](undefined)
-- [Solutions](undefined)
+- [Blog](https://auth0.com/blog/)
+- [Terms of service](https://auth0.com/legal/tos)
+- [Privacy policy](https://auth0.com/privacy)
+- [GitHub](https://github.com/auth0)
+- [Status](https://status.auth0.com/)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 70.4** — exemplar · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 61.7 |
+| Contract quality | 63.3 |
+| Contract governance | 27.3 |
+| Operational transparency | 76.3 |
+| Developer ergonomics | 60.0 |
+| Access clarity | 67.1 |
+
+**Agent readiness 37.2** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | documented (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | unknown |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 41.2** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/auth0/](https://apis.io/providers/auth0/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Auth0: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/auth0/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
